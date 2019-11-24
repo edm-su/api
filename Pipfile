@@ -8,6 +8,11 @@ verify_ssl = true
 [packages]
 fastapi = "*"
 uvicorn = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
+pytest = "*"
+requests = "*"
+jsonschema = "*"
 
 [requires]
 python_version = "3.7"

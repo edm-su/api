@@ -1,0 +1,59 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "array",
+  "title": "The Root Schema",
+  "items": {
+    "$id": "#/items",
+    "type": "object",
+    "title": "The Items Schema",
+    "required": [
+      "name",
+      "slug",
+      "image",
+      "id"
+    ],
+    "properties": {
+      "name": {
+        "$id": "#/items/properties/name",
+        "type": "string",
+        "title": "The Name Schema",
+        "default": "",
+        "examples": [
+          "United Music Events"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "slug": {
+        "$id": "#/items/properties/slug",
+        "type": "string",
+        "title": "The Slug Schema",
+        "default": "",
+        "examples": [
+          "united-music-events"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "image": {
+        "$id": "#/items/properties/image",
+        "type": "string",
+        "title": "The Image Schema",
+        "default": "",
+        "examples": [
+          "full/60b6ea92c8d6a40b554a240a2aaec5c09e6a1ad8.jpg"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "id": {
+        "$id": "#/items/properties/id",
+        "type": "integer",
+        "title": "The Id Schema",
+        "default": 0,
+        "examples": [
+          1
+        ]
+      }
+    }
+  }
+}
