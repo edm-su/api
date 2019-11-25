@@ -50,3 +50,18 @@ def read_event(slug: str, db: Session = Depends(get_db)):
         return event
     else:
         raise HTTPException(status_code=404, detail='Событие не найдено')
+
+
+@app.get('/djs/', response_model=List[schemas.Dj], tags=['DJs'], summary='Получить список диджеев')
+def read_djs(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
+    djs = crud.get_djs(db, skip, limit)
+    return djs
+
+
+@app.get('/djs/{slug}', response_model=schemas.Dj, summary='Получить диджея')
+def read_dj(slug: str, db: Session = Depends(get_db)):
+    dj = crud.get_dj(db, slug)
+    if dj:
+        return dj
+    else:
+        raise HTTPException(status_code=404, detail='Диджей не найден')

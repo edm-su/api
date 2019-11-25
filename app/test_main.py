@@ -28,3 +28,15 @@ def test_read_event():
     response = client.get('/events/25-years-of-bugged-out-x-printworks-london-2019')
     assert_valid_schema(response.json(), 'event.json')
     assert response.status_code == 200
+
+
+def test_read_djs():
+    response = client.get('/djs/')
+    assert_valid_schema(response.json(), 'djs.json')
+    assert response.status_code == 200
+
+
+def test_read_dj():
+    response = client.get('/djs/amc')
+    assert_valid_schema(response.json(), 'dj.json')
+    assert response.status_code == 200

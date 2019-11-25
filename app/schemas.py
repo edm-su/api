@@ -25,3 +25,16 @@ class Event(EventBase):
 
     class Config:
         orm_mode = True
+
+
+class DjBase(BaseModel):
+    name: str
+    slug: str
+    image: str
+
+
+class Dj(DjBase):
+    id: int
+
+    class Config:
+        orm_mode = True
