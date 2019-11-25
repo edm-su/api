@@ -1,0 +1,54 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "name",
+    "slug",
+    "image",
+    "id"
+  ],
+  "properties": {
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The Name Schema",
+      "default": "",
+      "examples": [
+        "25 Years of Bugged Out! x Printworks London 2019"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "slug": {
+      "$id": "#/properties/slug",
+      "type": "string",
+      "title": "The Slug Schema",
+      "default": "",
+      "examples": [
+        "25-years-of-bugged-out-x-printworks-london-2019"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "image": {
+      "$id": "#/properties/image",
+      "type": "string",
+      "title": "The Image Schema",
+      "default": "",
+      "examples": [
+        "full/c2ecf656aff6b2897d6d503177b31da9548f6083.jpg"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "id": {
+      "$id": "#/properties/id",
+      "type": "integer",
+      "title": "The Id Schema",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    }
+  }
+}
