@@ -26,8 +26,8 @@ def read_channel(slug: str, db: Session = Depends(get_db)):
 
 @router.get('/channels/{slug}/videos',
             response_model=List[schemas.Video],
-            tags=['Видео', 'События'],
-            summary='Получение видео события')
+            tags=['Видео', 'Каналы'],
+            summary='Получение списка видео для канала')
 def read_channel_videos(slug: str, limit: int = 25, skip: int = 0, db: Session = Depends(get_db)):
     channel = crud.get_channel(db, slug)
     if channel:

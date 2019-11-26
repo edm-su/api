@@ -52,6 +52,11 @@ def test_read_channel_videos():
     assert response.status_code == 200
 
 
+def test_read_event_videos():
+    response = client.get('/events/25-years-of-bugged-out-x-printworks-london-2019/videos')
+    assert response.status_code == 200
+
+
 def test_read_video():
     response = client.get('/videos/dusky-live-at-25-years-of-bugged-out-x-printworks-london-2019')
     assert response.status_code == 200

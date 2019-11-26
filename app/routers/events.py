@@ -22,3 +22,15 @@ def read_event(slug: str, db: Session = Depends(get_db)):
         return event
     else:
         raise HTTPException(status_code=404, detail='Событие не найдено')
+
+
+@router.get('/events/{slug}/videos',
+            response_model=List[schemas.Video],
+            tags=['Видео', 'События'],
+            summary='Получение списка видео для события')
+def read_event_videos(slug: str, limit: int = 25, skip: int = 0, db: Session = Depends(get_db)):
+    event = crud.get_event(db, slug)
+    if event:
+        return crud.get_videos(db, skip, limit, event)
+    else:
+        raise HTTPException(status_code=404, detail='Событие не найдено')
