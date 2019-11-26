@@ -11,7 +11,7 @@ class Channel(Base):
     slug = Column(String, unique=True, nullable=False)
     image = Column(String, unique=True, nullable=False)
 
-    videos = relationship('Video', back_populates='channel')
+    videos = relationship('Video', back_populates='channel', lazy='dynamic')
 
     def __init__(self, name, slug, image):
         self.name = name

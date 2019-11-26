@@ -37,6 +37,18 @@ def read_channel(slug: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail='Канал не найден')
 
 
+@app.get('/channels/{slug}/videos',
+         response_model=List[schemas.Video],
+         tags=['Видео', 'События'],
+         summary='Получение видео события')
+def read_channel_videos(slug: str, limit: int = 25, skip: int = 0, db: Session = Depends(get_db)):
+    channel = crud.get_channel(db, slug)
+    if channel:
+        return crud.get_videos(db, skip, limit, channel)
+    else:
+        raise HTTPException(status_code=404, detail='Канал не найден')
+
+
 @app.get('/events/', response_model=List[schemas.Event], tags=['События'], summary='Получить список событий')
 def read_events(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
     events = crud.get_events(db, skip=skip, limit=limit)

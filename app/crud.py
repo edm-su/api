@@ -28,8 +28,12 @@ def get_dj(db: Session, slug: str):
     return db.query(models.Dj).filter_by(slug=slug).first()
 
 
-def get_videos(db: Session, skip: int = 0, limit: int = 25):
-    return db.query(models.Video).order_by(desc('date')).offset(skip).limit(limit).all()
+def get_videos(db: Session, skip: int = 0, limit: int = 25, channel: models.Channel = None):
+    if channel:
+        videos = channel.videos.order_by(desc('date')).offset(skip).limit(limit).all()
+    else:
+        videos = db.query(models.Video).order_by(desc('date')).offset(skip).limit(limit).all()
+    return videos
 
 
 def get_video(db: Session, slug: str):

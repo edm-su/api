@@ -47,6 +47,11 @@ def test_read_videos():
     assert response.status_code == 200
 
 
+def test_read_channel_videos():
+    response = client.get('/channels/united-music-events/videos')
+    assert response.status_code == 200
+
+
 def test_read_video():
     response = client.get('/videos/dusky-live-at-25-years-of-bugged-out-x-printworks-london-2019')
     assert response.status_code == 200
