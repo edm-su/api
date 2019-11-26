@@ -1,3 +1,6 @@
+from datetime import date
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -34,6 +37,23 @@ class DjBase(BaseModel):
 
 
 class Dj(DjBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class VideoBase(BaseModel):
+    title: str
+    slug: str
+    date: date
+    yt_id: str
+    event: Event = None
+    channel: Channel = None
+    djs: List[Dj] = []
+
+
+class Video(VideoBase):
     id: int
 
     class Config:

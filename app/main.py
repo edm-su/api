@@ -58,10 +58,25 @@ def read_djs(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
     return djs
 
 
-@app.get('/djs/{slug}', response_model=schemas.Dj, summary='Получить диджея')
+@app.get('/djs/{slug}', response_model=schemas.Dj, tags=['DJs'], summary='Получить диджея')
 def read_dj(slug: str, db: Session = Depends(get_db)):
     dj = crud.get_dj(db, slug)
     if dj:
         return dj
     else:
         raise HTTPException(status_code=404, detail='Диджей не найден')
+
+
+@app.get('/videos/', response_model=List[schemas.Video], tags=['Видео'], summary='Получить список видео')
+def read_videos(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
+    videos = crud.get_videos(db, skip, limit)
+    return videos
+
+
+@app.get('/videos/{slug}', response_model=schemas.Video, tags=['Видео'], summary='Получить видео')
+def read_video(slug: str, db: Session = Depends(get_db)):
+    video = crud.get_video(db, slug)
+    if video:
+        return video
+    else:
+        raise HTTPException(status_code=404, detail='Видео не найдено')

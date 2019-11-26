@@ -40,3 +40,13 @@ def test_read_dj():
     response = client.get('/djs/amc')
     assert_valid_schema(response.json(), 'dj.json')
     assert response.status_code == 200
+
+
+def test_read_videos():
+    response = client.get('/videos/')
+    assert response.status_code == 200
+
+
+def test_read_video():
+    response = client.get('/videos/dusky-live-at-25-years-of-bugged-out-x-printworks-london-2019')
+    assert response.status_code == 200
