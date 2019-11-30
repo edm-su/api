@@ -24,7 +24,6 @@ class Channel(Base):
         return f"<Channel('{self.name}', '{self.slug}', '{self.youtube_id}', '{self.thumbnail_url}')"
 
 
-
 class Event(Base):
     __tablename__ = 'events'
     id = Column(Integer, primary_key=True)

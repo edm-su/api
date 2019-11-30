@@ -14,6 +14,9 @@ pytest = "*"
 requests = "*"
 jsonschema = "*"
 celery = "*"
+redis = "*"
+python-dateutil = "*"
+awesome-slugify = "*"
 
 [requires]
 python_version = "3.7"
