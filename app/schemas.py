@@ -7,7 +7,8 @@ from pydantic import BaseModel
 class ChannelBase(BaseModel):
     name: str
     slug: str
-    image: str
+    youtube_id: str
+    thumbnail_url: str
 
 
 class Channel(ChannelBase):
