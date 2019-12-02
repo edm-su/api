@@ -106,18 +106,20 @@ class Video(Base):
     yt_thumbnail = Column(String, nullable=False)
     event_id = Column(Integer, ForeignKey('events.id'))
     channel_id = Column(Integer, ForeignKey('channels.id'))
+    duration = Column(Integer, default=0)
 
     djs = relationship('Dj', back_populates='videos', secondary=djs_videos_table)
     event = relationship('Event', back_populates='videos')
     channel = relationship('Channel', back_populates='videos')
     genres = relationship('Genre', back_populates='videos', secondary=videos_genres_table)
 
-    def __init__(self, title, slug, date, yt_id, yt_thumbnail):
+    def __init__(self, title, slug, date, yt_id, yt_thumbnail, duration=0):
         self.title = title
         self.slug = slug
         self.date = date
         self.yt_id = yt_id
         self.yt_thumbnail = yt_thumbnail
+        self.duration = duration
 
     def __repr__(self):
         return f"Video('{self.title}', '{self.slug}', '{self.date}', '{self.yt_id}')"
