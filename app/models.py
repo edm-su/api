@@ -103,6 +103,7 @@ class Video(Base):
     slug = Column(String, unique=True, nullable=False)
     date = Column(Date)
     yt_id = Column(String, nullable=False, unique=True)
+    yt_thumbnail = Column(String, nullable=False)
     event_id = Column(Integer, ForeignKey('events.id'))
     channel_id = Column(Integer, ForeignKey('channels.id'))
 
@@ -111,11 +112,12 @@ class Video(Base):
     channel = relationship('Channel', back_populates='videos')
     genres = relationship('Genre', back_populates='videos', secondary=videos_genres_table)
 
-    def __init__(self, title, slug, date, yt_id):
+    def __init__(self, title, slug, date, yt_id, yt_thumbnail):
         self.title = title
         self.slug = slug
         self.date = date
         self.yt_id = yt_id
+        self.yt_thumbnail = yt_thumbnail
 
     def __repr__(self):
         return f"Video('{self.title}', '{self.slug}', '{self.date}', '{self.yt_id}')"

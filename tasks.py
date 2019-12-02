@@ -66,7 +66,8 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
         slug = slugify(title, to_lower=True)
         date = parse(video['snippet']['publishedAt']).date()
         yt_id = video['id']
-        new_video = Video(title, slug, date, yt_id)
+        yt_thumbnail = video['snippet']['thumbnails']['default']['url']
+        new_video = Video(title, slug, date, yt_id, yt_thumbnail)
         new_video.channel_id = channel_id
         try:
             SessionLocal.add(new_video)
