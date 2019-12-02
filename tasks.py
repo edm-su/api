@@ -10,7 +10,7 @@ from slugify import slugify
 from sqlalchemy.exc import IntegrityError
 
 from app.database import SessionLocal
-from app.models import Channel, Video
+from app.models import Channel, Video, Dj
 
 app = Celery('tasks')
 app.conf.broker_url = 'redis://redis:6379/0'
@@ -19,6 +19,10 @@ app.conf.beat_schedule = {
     'add-new-videos-from-channels-every-day-in-midnight': {
         'task': 'tasks.get_videos_from_channels',
         'schedule': crontab(minute=0, hour=0)
+    },
+    'add-djs-to-videos-every-day-in-6-hours': {
+        'task': 'tasks.get_videos_from_channels',
+        'schedule': crontab(minute=0, hour=6)
     }
 }
 app.conf.task_queues = (
@@ -41,6 +45,17 @@ def get_videos_from_channels():
     channels = SessionLocal.query(Channel).all()
     for channel in channels:
         channel_videos.delay(channel.id, channel.youtube_id)
+
+
+@app.task(base=DBTask)
+def add_djs_to_videos():
+    djs = SessionLocal.query(Dj).all()
+    for dj in djs:
+        videos = SessionLocal.query(Video).filter(Video.title.like(f'%{dj.name}%'))
+        for video in videos:
+            if dj not in video.djs:
+                video.djs.append(dj)
+                SessionLocal.commit()
 
 
 @app.task(base=DBTask)

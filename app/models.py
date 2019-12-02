@@ -12,7 +12,7 @@ class Channel(Base):
     youtube_id = Column(String, nullable=False, unique=True)
     thumbnail_url = Column(String, nullable=False)
 
-    videos = relationship('Video', back_populates='channel')
+    videos = relationship('Video', back_populates='channel', lazy='dynamic')
 
     def __init__(self, name, slug, youtube_id, thumbnail_url):
         self.name = name
