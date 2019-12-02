@@ -17,7 +17,7 @@ app.conf.broker_url = 'redis://redis:6379/0'
 app.conf.broker_transport_options = {'visibility_timeout': 3600}
 app.conf.beat_schedule = {
     'add-new-videos-from-channels-every-day-in-midnight': {
-        'task': 'tasks.channels_list',
+        'task': 'tasks.get_videos_from_channels',
         'schedule': crontab(minute=0, hour=0)
     }
 }
@@ -37,7 +37,7 @@ class DBTask(Task):
 
 
 @app.task(base=DBTask)
-def channels_list():
+def get_videos_from_channels():
     channels = SessionLocal.query(Channel).all()
     for channel in channels:
         channel_videos.delay(channel.id, channel.youtube_id)
