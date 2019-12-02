@@ -17,6 +17,7 @@ celery = "*"
 redis = "*"
 python-dateutil = "*"
 awesome-slugify = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.7"
