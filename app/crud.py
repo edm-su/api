@@ -28,6 +28,14 @@ def get_dj(db: Session, slug: str):
     return db.query(models.Dj).filter_by(slug=slug).first()
 
 
+def get_videos_count(db: Session, parent=None):
+    if parent:
+        videos = parent.videos.count()
+    else:
+        videos = db.query(models.Video).count()
+    return videos
+
+
 def get_videos(db: Session, skip: int = 0, limit: int = 25, parent=None):
     if parent:
         videos = parent.videos.order_by(desc('date')).offset(skip).limit(limit).all()

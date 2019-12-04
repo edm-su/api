@@ -59,3 +59,8 @@ class Video(VideoBase):
 
     class Config:
         orm_mode = True
+
+
+class VideoList(BaseModel):
+    total_count: int = 0
+    videos: List[Video] = []
