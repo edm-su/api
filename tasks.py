@@ -67,7 +67,8 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
         date = parse(video['snippet']['publishedAt']).date()
         yt_id = video['id']
         yt_thumbnail = video['snippet']['thumbnails']['default']['url']
-        new_video = Video(title, slug, date, yt_id, yt_thumbnail)
+        duration = time_to_seconds(parse(video['contentDetails']['duration'][2:]).time())
+        new_video = Video(title, slug, date, yt_id, yt_thumbnail, duration)
         new_video.channel_id = channel_id
         try:
             SessionLocal.add(new_video)
@@ -76,6 +77,10 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
         except IntegrityError:
             SessionLocal.rollback()
     return f'Новых видео: {new_videos_count}'
+
+
+def time_to_seconds(t: time):
+    return (t.hour * 60 + t.minute) * 60 + t.second
 
 
 def search_youtube_videos_from_channel(channel,
