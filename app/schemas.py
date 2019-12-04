@@ -49,6 +49,7 @@ class VideoBase(BaseModel):
     slug: str
     date: date
     yt_id: str
+    yt_thumbnail: str
     event: Event = None
     channel: Channel = None
     djs: List[Dj] = []
