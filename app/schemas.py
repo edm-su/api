@@ -50,6 +50,7 @@ class VideoBase(BaseModel):
     date: date
     yt_id: str
     yt_thumbnail: str
+    duration: int
     event: Event = None
     channel: Channel = None
     djs: List[Dj] = []
