@@ -44,7 +44,7 @@ class DBTask(Task):
 def get_videos_from_channels():
     channels = SessionLocal.query(Channel).all()
     for channel in channels:
-        channel_videos.delay(channel.id, channel.youtube_id)
+        channel_videos.delay(channel.id, channel.yt_id)
 
 
 @app.task(base=DBTask)

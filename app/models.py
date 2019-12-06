@@ -9,19 +9,21 @@ class Channel(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
     slug = Column(String, unique=True, nullable=False)
-    youtube_id = Column(String, nullable=False, unique=True)
-    thumbnail_url = Column(String, nullable=False)
+    yt_id = Column(String, nullable=False, unique=True)
+    yt_thumbnail = Column(String, nullable=False)
+    yt_banner = Column(String)
 
     videos = relationship('Video', back_populates='channel', lazy='dynamic')
 
-    def __init__(self, name, slug, youtube_id, thumbnail_url):
+    def __init__(self, name, slug, yt_id, yt_thumbnail, yt_banner=None):
         self.name = name
         self.slug = slug
-        self.youtube_id = youtube_id
-        self.thumbnail_url = thumbnail_url
+        self.yt_id = yt_id
+        self.yt_thumbnail = yt_thumbnail
+        self.yt_banner = yt_banner
 
     def __repr__(self):
-        return f"<Channel('{self.name}', '{self.slug}', '{self.youtube_id}', '{self.thumbnail_url}')"
+        return f"<Channel('{self.name}', '{self.slug}')>"
 
 
 class Event(Base):
