@@ -18,6 +18,19 @@ def read_videos(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
 
 @router.get('/videos/{slug}', response_model=schemas.Video, tags=['Видео'], summary='Получить видео')
 def read_video(slug: str, db: Session = Depends(get_db)):
+    video = find_video(slug, db)
+    return video
+
+
+@router.get('/videos/{slug}/related', response_model=List[schemas.Video], tags=['Видео'],
+            summary='Получить похожие видео')
+def read_related_videos(slug: str, db: Session = Depends(get_db), limit: int = 15):
+    video = find_video(slug, db)
+    related_videos = crud.get_related_videos(video.title, db, limit)
+    return related_videos
+
+
+def find_video(slug: str, db: Session):
     video = crud.get_video(db, slug)
     if video:
         return video

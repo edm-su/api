@@ -44,5 +44,10 @@ def get_videos(db: Session, skip: int = 0, limit: int = 25, parent=None):
     return videos
 
 
+def get_related_videos(title: str, db: Session, limit: int = 25):
+    videos = db.query(models.Video).order_by(models.Video.title.op('<->')(title)).limit(limit).offset(1).all()
+    return videos
+
+
 def get_video(db: Session, slug: str):
     return db.query(models.Video).filter_by(slug=slug).first()

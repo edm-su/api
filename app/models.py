@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -99,6 +99,11 @@ class Dj(Base):
 
 class Video(Base):
     __tablename__ = 'videos'
+    __table_args__ = (
+        Index('title_idx', 'title',
+              postgresql_ops={'title': 'gin_trgm_ops'},
+              postgresql_using='gin'),
+    )
 
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
