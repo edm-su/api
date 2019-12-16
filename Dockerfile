@@ -3,11 +3,13 @@ ENV PYTHONBUFFERED 1
 
 RUN mkdir /api
 WORKDIR /api
-COPY requirements.txt /api/
+COPY Pipfile /api/
+COPY Pipfile.lock /api/
+RUN pip3 install pipenv
 RUN \
     apk add --no-cache postgresql-libs && \
     apk add --no-cache --virtual .build-deps gcc make musl-dev postgresql-dev && \
-    python3 -m pip install -r requirements.txt --no-cache-dir && \
+    set -ex && pipenv install --deploy --system && \
     apk --purge del .build-deps
 
 COPY . /api/

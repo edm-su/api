@@ -18,6 +18,7 @@ redis = "*"
 python-dateutil = "*"
 awesome-slugify = "*"
 alembic = "*"
+algoliasearch = ">=2.0,<3.0"
 
 [requires]
 python_version = "3.7"
