@@ -8,6 +8,7 @@ from dateutil.parser import parse
 from kombu import Queue, Exchange
 from slugify import slugify
 from sqlalchemy.exc import IntegrityError
+from algoliasearch.search_client import SearchClient
 
 from app.database import SessionLocal
 from app.models import Channel, Video, Dj
@@ -79,8 +80,22 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
     return f'Новых видео: {new_videos_count}'
 
 
+@app.task(base=DBTask)
+def add_all_videos_to_algolia():
+    videos = SessionLocal.query(Video).all()
+    index = init_algolia_index()
+    index.save_objects(
+        [{'objectID': video.id, 'title': video.title, 'date': video.date, 'slug': video.slug,
+          'thumbnail': video.yt_thumbnail} for video in videos])
+
+
 def time_to_seconds(t: time):
     return (t.hour * 60 + t.minute) * 60 + t.second
+
+
+def init_algolia_index():
+    client = SearchClient.create(getenv('ALGOLIA_APP_ID'), getenv('ALGOLIA_API_KEY'))
+    return client.init_index(getenv('ALGOLIA_INDEX'))
 
 
 def search_youtube_videos_from_channel(channel,

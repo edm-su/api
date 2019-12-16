@@ -1,4 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index
+from os import getenv
+from algoliasearch.search_client import SearchClient
+
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -145,3 +148,11 @@ class Genre(Base):
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
+
+
+@event.listens_for(Video, 'after_insert')
+def add_video_to_algolia_index(mapper, connection, target):
+    client = SearchClient.create(getenv('ALGOLIA_APP_ID'), getenv('ALGOLIA_API_KEY'))
+    index = client.init_index(getenv('ALGOLIA_INDEX'))
+    index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
+                       'thumbnail': target.yt_thumbnail})
