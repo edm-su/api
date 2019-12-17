@@ -1,7 +1,10 @@
 from os import getenv
-from algoliasearch.search_client import SearchClient
+import string
+import random
+from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event
+from algoliasearch.search_client import SearchClient
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -148,6 +151,34 @@ class Genre(Base):
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    nickname = Column(String, nullable=False, unique=True)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=False)
+    activate_code = Column(String)
+    is_admin = Column(Boolean, default=False)
+    is_banned = Column(Boolean, default=False)
+    created = Column(DateTime, nullable=False)
+    last_login = Column(DateTime)
+    last_login_ip = Column(String)
+
+    def __init__(self, nickname, email, password, is_admin=False, is_activate=False):
+        self.nickname = nickname
+        self.email = email
+        self.password = password
+        self.activate_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        self.created = datetime.now()
+        self.is_active = is_activate
+        self.is_admin = is_admin
+
+    def __repr__(self):
+        return f'User({self.nickname}, {self.email}, {self.is_banned}, {self.is_admin}, {self.is_active})'
 
 
 @event.listens_for(Video, 'after_insert')
