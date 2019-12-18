@@ -187,3 +187,10 @@ def add_video_to_algolia_index(mapper, connection, target):
     index = client.init_index(getenv('ALGOLIA_INDEX'))
     index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
                        'thumbnail': target.yt_thumbnail})
+
+
+@event.listens_for(User, 'after_insert')
+def send_activation_email(mapper, connection, target):
+    if not target.is_admin or not target.is_active:
+        from tasks import send_activate_email
+        send_activate_email.delay(target.email, target.activate_code)

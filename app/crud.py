@@ -1,7 +1,9 @@
+import hashlib
+
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from app import models
+from app import models, schemas, settings
 
 
 def get_channels(db: Session, skip: int = 0, limit: int = 25):
@@ -51,3 +53,22 @@ def get_related_videos(title: str, db: Session, limit: int = 25):
 
 def get_video(db: Session, slug: str):
     return db.query(models.Video).filter_by(slug=slug).first()
+
+
+def create_user(db: Session, user: schemas.CreateUser):
+    hashed_password = hashlib.sha256(f'{user.password}{settings.SALT}'.encode()).hexdigest()
+    db_user = models.User(user.nickname, user.email, hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def get_user_by_email(db: Session, email: str):
+    db_user = db.query(models.User).filter(models.User.email == email).first()
+    return db_user
+
+
+def get_user_by_nickname(db: Session, nickname: str):
+    db_user = db.query(models.User).filter(models.User.nickname == nickname).first()
+    return db_user

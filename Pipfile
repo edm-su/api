@@ -19,6 +19,8 @@ python-dateutil = "*"
 awesome-slugify = "*"
 alembic = "*"
 algoliasearch = ">=2.0,<3.0"
+email-validator = "*"
+sendgrid = "*"
 
 [requires]
 python_version = "3.7"

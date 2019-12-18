@@ -9,9 +9,12 @@ from kombu import Queue, Exchange
 from slugify import slugify
 from sqlalchemy.exc import IntegrityError
 from algoliasearch.search_client import SearchClient
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from app.database import SessionLocal
 from app.models import Channel, Video, Dj
+from app import settings
 
 app = Celery('tasks')
 app.conf.broker_url = 'redis://redis:6379/0'
@@ -30,6 +33,9 @@ app.conf.task_queues = (
     Queue('high', Exchange('high'), routing_key='high'),
     Queue('normal', Exchange('normal'), routing_key='normal'),
 )
+app.conf.task_routes = {
+    'tasks.send_activate_email': {'queue': 'high'}
+}
 app.conf.task_default_queue = 'normal'
 app.conf.task_default_exchange = 'normal'
 app.conf.task_default_routing_key = 'normal'
@@ -46,6 +52,15 @@ def get_videos_from_channels():
     channels = SessionLocal.query(Channel).all()
     for channel in channels:
         channel_videos.delay(channel.id, channel.yt_id)
+
+
+@app.task()
+def send_activate_email(email, code):
+    message = Mail(settings.EMAIL_FROM, email, 'Регистрация на edm.su',
+                   f'Вы успешно зарегистрированы для активации аккаунта введите код: {code}')
+    sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
+    sg.send(message)
+    return f'{email} отправлено письмо с активацией аккаунта'
 
 
 @app.task(base=DBTask)
