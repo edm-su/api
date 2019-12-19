@@ -58,6 +58,7 @@ def get_videos_from_channels():
 def send_activate_email(email, code):
     message = Mail(settings.EMAIL_FROM, email, 'Регистрация на edm.su',
                    f'Вы успешно зарегистрированы для активации аккаунта введите код: {code}')
+    # TODO добавить ссылку на страницу с активацией аккаунта
     sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
     sg.send(message)
     return f'{email} отправлено письмо с активацией аккаунта'

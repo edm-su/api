@@ -72,3 +72,14 @@ def get_user_by_email(db: Session, email: str):
 def get_user_by_nickname(db: Session, nickname: str):
     db_user = db.query(models.User).filter(models.User.nickname == nickname).first()
     return db_user
+
+
+def activate_user(db: Session, code: str):
+    db_user = db.query(models.User).filter(models.User.is_active == False).filter(
+        models.User.activate_code == code).first()
+    if db_user:
+        db_user.is_active = True
+        db_user.activate_code = ''
+        db.add(db_user)
+        db.commit()
+    return db_user
