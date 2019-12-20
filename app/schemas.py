@@ -107,3 +107,12 @@ class CreateUser(UserBase):
         if 'password' in values and v != values['password']:
             raise ValueError('пароли не совпадают')
         return v
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    nickname: str

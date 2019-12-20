@@ -1,9 +1,8 @@
-import hashlib
-
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from app import models, schemas, settings
+from app import models, schemas
+from app.utils import get_password_hash
 
 
 def get_channels(db: Session, skip: int = 0, limit: int = 25):
@@ -56,7 +55,7 @@ def get_video(db: Session, slug: str):
 
 
 def create_user(db: Session, user: schemas.CreateUser):
-    hashed_password = hashlib.sha256(f'{user.password}{settings.SALT}'.encode()).hexdigest()
+    hashed_password = get_password_hash(user.password)
     db_user = models.User(user.nickname, user.email, hashed_password)
     db.add(db_user)
     db.commit()

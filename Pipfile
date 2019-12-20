@@ -21,6 +21,8 @@ alembic = "*"
 algoliasearch = ">=2.0,<3.0"
 email-validator = "*"
 sendgrid = "*"
+pyjwt = "*"
+python-multipart = "*"
 
 [requires]
 python_version = "3.7"
