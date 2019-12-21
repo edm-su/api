@@ -75,6 +75,13 @@ def get_user_by_nickname(db: Session, nickname: str):
     return db_user
 
 
+def get_user_by_recovery_code(db: Session, code: str):
+    now = datetime.now()
+    db_user = db.query(models.User).filter(models.User.recovery_code == code).filter(
+        models.User.recovery_code_lifetime_end > now).first()
+    return db_user
+
+
 def activate_user(db: Session, code: str):
     db_user = db.query(models.User).filter(models.User.is_active == False).filter(
         models.User.activate_code == code).first()
@@ -93,3 +100,13 @@ def generate_recovery_user_code(db: Session, user: models.User):
     db.commit()
     db.refresh(user)
     return user.recovery_code
+
+
+def change_password(db: Session, user: models.User, password: str, recovery: bool = False):
+    user.password = get_password_hash(password)
+    if recovery:
+        user.recovery_code = None
+        user.recovery_code_lifetime_end = None
+    db.add(user)
+    db.commit()
+    return user

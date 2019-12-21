@@ -49,11 +49,32 @@ async def read_current_user(current_user: schemas.User = Depends(get_current_use
     return current_user
 
 
-@router.post('/users/recovery', tags=['Пользователи'], summary='Восстановаление пароля')
+@router.post('/users/password', tags=['Пользователи'], summary='Восстановаление пароля')
 async def user_recovery(email: schemas.UserRecovery, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email.email)
     if not user:
-        raise HTTPException(401, 'Пользователь с таким email не найден')
+        raise HTTPException(400, 'Пользователь с таким email не найден')
     code = crud.generate_recovery_user_code(db, user)
     send_recovery_email.delay(user.email, code)
     return {'Выслано письмо с инструкцией для смены пароля'}
+
+
+@router.put('/users/password', tags=['Пользователи'], summary='Изменение пароля', status_code=204)
+async def change_password(password: schemas.ChangePassword, current_user: schemas.User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    if crud.get_password_hash(password.old_password) == current_user.password:
+        crud.change_password(db, current_user, password.password)
+        return {}
+    else:
+        raise HTTPException(400, 'Старый пароль неверный')
+
+
+@router.put('/users/password/{code}', tags=['Пользователи'], summary='Завершение восстановления пароля',
+            status_code=204)
+async def complete_recovery(code: str, password: schemas.UserPassword, db: Session = Depends(get_db)):
+    user = crud.get_user_by_recovery_code(db, code)
+    if user:
+        crud.change_password(db, user, password.password, True)
+        return {}
+    else:
+        raise HTTPException(400, 'Неверный код или истёк срок действия')

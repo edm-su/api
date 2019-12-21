@@ -95,7 +95,7 @@ class UserRecovery(BaseModel):
     email: EmailStr
 
 
-class CreateUser(UserBase):
+class UserPassword(BaseModel):
     password: str
     password_confirm: str
 
@@ -113,6 +113,10 @@ class CreateUser(UserBase):
         return v
 
 
+class CreateUser(UserBase, UserPassword):
+    pass
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -120,3 +124,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     nickname: str
+
+
+class ChangePassword(UserPassword):
+    old_password: str
