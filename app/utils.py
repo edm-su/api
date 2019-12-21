@@ -1,9 +1,10 @@
 import hashlib
+import string
 from datetime import datetime, timedelta
-from http.client import HTTPException
+import random
 
 import jwt
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from jwt import PyJWTError
 from sqlalchemy.orm import Session
 
@@ -67,3 +68,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm='HS256')
     return encoded_jwt
+
+
+def generate_secret_code(n: int = 10):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))

@@ -1,6 +1,4 @@
 from os import getenv
-import string
-import random
 from datetime import datetime
 
 from algoliasearch.search_client import SearchClient
@@ -8,6 +6,7 @@ from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, 
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.utils import generate_secret_code
 
 
 class Channel(Base):
@@ -162,6 +161,8 @@ class User(Base):
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
     activate_code = Column(String)
+    recovery_code = Column(String)
+    recovery_code_lifetime_end = Column(DateTime)
     is_admin = Column(Boolean, default=False)
     is_banned = Column(Boolean, default=False)
     created = Column(DateTime, nullable=False)
@@ -172,7 +173,7 @@ class User(Base):
         self.nickname = nickname
         self.email = email
         self.password = password
-        self.activate_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        self.activate_code = generate_secret_code()
         self.created = datetime.now()
         self.is_active = is_activate
         self.is_admin = is_admin

@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
-from app.utils import get_db, authenticate_user, create_access_token, get_current_user
+from app.utils import get_db, authenticate_user, create_access_token, get_current_user, check_user
+from tasks import send_recovery_email
 
 router = APIRouter()
 
@@ -46,3 +47,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get('/users/me', response_model=schemas.User, tags=['Пользователи'], summary='Получение данных пользователя')
 async def read_current_user(current_user: schemas.User = Depends(get_current_user)):
     return current_user
+
+
+@router.post('/users/recovery', tags=['Пользователи'], summary='Восстановаление пароля')
+async def user_recovery(email: schemas.UserRecovery, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email.email)
+    if not user:
+        raise HTTPException(401, 'Пользователь с таким email не найден')
+    code = crud.generate_recovery_user_code(db, user)
+    await send_recovery_email.delay(user.email, code)
+    return {'Выслано письмо с инструкцией для смены пароля'}

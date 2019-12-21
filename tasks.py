@@ -34,7 +34,8 @@ app.conf.task_queues = (
     Queue('normal', Exchange('normal'), routing_key='normal'),
 )
 app.conf.task_routes = {
-    'tasks.send_activate_email': {'queue': 'high'}
+    'tasks.send_activate_email': {'queue': 'high'},
+    'task.send_recovery_email': {'queue': 'high'}
 }
 app.conf.task_default_queue = 'normal'
 app.conf.task_default_exchange = 'normal'
@@ -62,6 +63,16 @@ def send_activate_email(email, code):
     sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
     sg.send(message)
     return f'{email} отправлено письмо с активацией аккаунта'
+
+
+@app.task()
+def send_recovery_email(email, code):
+    message = Mail(settings.EMAIL_FROM, email, 'Восстановление пароля на edm.su',
+                   f'Для смены пароля введите код: {code}')
+    # TODO добавить ссылку на смену праоля
+    sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
+    sg.send(message)
+    return f'{email} отправлено письмо с восстановлением пароля'
 
 
 @app.task(base=DBTask)

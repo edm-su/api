@@ -1,8 +1,10 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app import models, schemas
-from app.utils import get_password_hash
+from app.utils import get_password_hash, generate_secret_code
 
 
 def get_channels(db: Session, skip: int = 0, limit: int = 25):
@@ -82,3 +84,12 @@ def activate_user(db: Session, code: str):
         db.add(db_user)
         db.commit()
     return db_user
+
+
+def generate_recovery_user_code(db: Session, user: models.User):
+    user.recovery_code = generate_secret_code()
+    user.recovery_code_lifetime_end = datetime.now() + timedelta(days=2)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user.recovery_code

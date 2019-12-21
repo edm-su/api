@@ -91,6 +91,10 @@ class User(UserBase):
         orm_mode = True
 
 
+class UserRecovery(BaseModel):
+    email: EmailStr
+
+
 class CreateUser(UserBase):
     password: str
     password_confirm: str
