@@ -1,12 +1,13 @@
+import string
 from os import getenv
 from datetime import datetime
+from random import random
 
 from algoliasearch.search_client import SearchClient
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event, Boolean, DateTime, Text
 from sqlalchemy.orm import relationship
 
 from app.database import Base
-from app.utils import generate_secret_code
 
 
 class Channel(Base):
@@ -124,6 +125,7 @@ class Video(Base):
     event = relationship('Event', back_populates='videos')
     channel = relationship('Channel', back_populates='videos')
     genres = relationship('Genre', back_populates='videos', secondary=videos_genres_table)
+    comments = relationship('Comment', back_populates='comments')
 
     def __init__(self, title, slug, date, yt_id, yt_thumbnail, duration=0):
         self.title = title
@@ -169,11 +171,13 @@ class User(Base):
     last_login = Column(DateTime)
     last_login_ip = Column(String)
 
+    comments = relationship('Comment', back_populates='user')
+
     def __init__(self, nickname, email, password, is_admin=False, is_activate=False):
         self.nickname = nickname
         self.email = email
         self.password = password
-        self.activate_code = generate_secret_code()
+        self.activate_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         self.created = datetime.now()
         self.is_active = is_activate
         self.is_admin = is_admin
@@ -182,12 +186,39 @@ class User(Base):
         return f'User({self.nickname}, {self.email}, {self.is_banned}, {self.is_admin}, {self.is_active})'
 
 
+class Comment(Base):
+    __tablename__ = 'comments'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    text = Column(Text, nullable=False)
+    published_at = Column(DateTime, nullable=False)
+    deleted = Column(Boolean, default=False)
+    video_id = Column(Integer, ForeignKey('videos.id', ondelete='CASCADE'), nullable=False)
+
+    user = relationship('User', back_populates='comments')
+    video = relationship('Video', back_populates='comments')
+
+    def __init__(self, user, video, text):
+        self.user = user
+        self.video = video
+        self.text = text
+
+    def __repr__(self):
+        return f'Comment({self.text}, {self.published_at})'
+
+
 @event.listens_for(Video, 'after_insert')
 def add_video_to_algolia_index(mapper, connection, target):
     client = SearchClient.create(getenv('ALGOLIA_APP_ID'), getenv('ALGOLIA_API_KEY'))
     index = client.init_index(getenv('ALGOLIA_INDEX'))
     index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
                        'thumbnail': target.yt_thumbnail})
+
+
+@event.listens_for(Comment, 'before_insert')
+def add_published_time_for_comments(mapper, connection, target):
+    target.published_at = datetime.now()
 
 
 @event.listens_for(User, 'after_insert')
