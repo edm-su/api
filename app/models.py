@@ -125,7 +125,7 @@ class Video(Base):
     event = relationship('Event', back_populates='videos')
     channel = relationship('Channel', back_populates='videos')
     genres = relationship('Genre', back_populates='videos', secondary=videos_genres_table)
-    comments = relationship('Comment', back_populates='comments')
+    comments = relationship('Comment', back_populates='video')
 
     def __init__(self, title, slug, date, yt_id, yt_thumbnail, duration=0):
         self.title = title

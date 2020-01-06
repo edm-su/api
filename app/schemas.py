@@ -1,6 +1,6 @@
 import re
 
-from datetime import date
+from datetime import date, datetime
 from typing import List
 
 from pydantic import BaseModel, EmailStr, validator
@@ -128,3 +128,17 @@ class TokenData(BaseModel):
 
 class ChangePassword(UserPassword):
     old_password: str
+
+
+class CommentBase(BaseModel):
+    text: str
+    video_id: int
+
+
+class Comment(CommentBase):
+    id: int
+    user_id: int
+    published_at: datetime
+
+    class Config:
+        orm_mode = True

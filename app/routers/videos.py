@@ -31,7 +31,7 @@ def read_related_videos(slug: str, db: Session = Depends(get_db), limit: int = 1
 
 
 def find_video(slug: str, db: Session):
-    video = crud.get_video(db, slug)
+    video = crud.get_video_by_slug(db, slug)
     if video:
         return video
     else:

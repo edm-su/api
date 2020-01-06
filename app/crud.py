@@ -7,6 +7,7 @@ from app import models, schemas
 from app.utils import get_password_hash, generate_secret_code
 
 
+# Каналы
 def get_channels(db: Session, skip: int = 0, limit: int = 25):
     return db.query(models.Channel).offset(skip).limit(limit).all()
 
@@ -15,6 +16,7 @@ def get_channel(db: Session, slug: str):
     return db.query(models.Channel).filter_by(slug=slug).first()
 
 
+# События
 def get_events(db: Session, skip: int = 0, limit: int = 25):
     return db.query(models.Event).offset(skip).limit(limit).all()
 
@@ -23,6 +25,7 @@ def get_event(db: Session, slug: str):
     return db.query(models.Event).filter_by(slug=slug).first()
 
 
+# Диджеи
 def get_djs(db: Session, skip: int = 0, limit: int = 25):
     return db.query(models.Dj).offset(skip).limit(limit).all()
 
@@ -31,6 +34,7 @@ def get_dj(db: Session, slug: str):
     return db.query(models.Dj).filter_by(slug=slug).first()
 
 
+# Видео
 def get_videos_count(db: Session, parent=None):
     if parent:
         videos = parent.videos.count()
@@ -52,10 +56,11 @@ def get_related_videos(title: str, db: Session, limit: int = 25):
     return videos
 
 
-def get_video(db: Session, slug: str):
+def get_video_by_slug(db: Session, slug: str):
     return db.query(models.Video).filter_by(slug=slug).first()
 
 
+# Пользователи
 def create_user(db: Session, user: schemas.CreateUser):
     hashed_password = get_password_hash(user.password)
     db_user = models.User(user.nickname, user.email, hashed_password)
@@ -110,3 +115,16 @@ def change_password(db: Session, user: models.User, password: str, recovery: boo
     db.add(user)
     db.commit()
     return user
+
+
+# Комментарии
+def create_comment(db: Session, user: models.User, video: models.Video, text: str):
+    db_comment = models.Comment(user, video, text)
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment
+
+
+def get_comments(db: Session, video: models.Video):
+    return video.comments
