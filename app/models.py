@@ -1,7 +1,7 @@
+import random
 import string
 from os import getenv
 from datetime import datetime
-from random import random
 
 from algoliasearch.search_client import SearchClient
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, event, Boolean, DateTime, Text
