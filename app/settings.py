@@ -10,3 +10,5 @@ DB_PASSWORD = getenv('DB_PASSWORD', ' ')
 DB_HOST = getenv('DB_HOST', 'db')
 DB_PORT = getenv('DB_PORT', 5432)
 DB_NAME = getenv('DB_NAME', 'postgres')
+
+FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
