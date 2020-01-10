@@ -63,7 +63,7 @@ def get_video_by_slug(db: Session, slug: str):
 # Пользователи
 def create_user(db: Session, user: schemas.CreateUser):
     hashed_password = get_password_hash(user.password)
-    db_user = models.User(user.nickname, user.email, hashed_password)
+    db_user = models.User(user.username, user.email, hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -75,8 +75,8 @@ def get_user_by_email(db: Session, email: str):
     return db_user
 
 
-def get_user_by_nickname(db: Session, nickname: str):
-    db_user = db.query(models.User).filter(models.User.nickname == nickname).first()
+def get_user_by_username(db: Session, username: str):
+    db_user = db.query(models.User).filter(models.User.username == username).first()
     return db_user
 
 

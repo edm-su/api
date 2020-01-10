@@ -15,7 +15,7 @@ router = APIRouter()
 def user_register(user: schemas.CreateUser, db: Session = Depends(get_db)):
     if crud.get_user_by_email(db, user.email):
         raise HTTPException(400, 'Такой email уже существует')
-    if crud.get_user_by_nickname(db, user.nickname):
+    if crud.get_user_by_username(db, user.username):
         raise HTTPException(400, 'Имя пользователя занято')
     return crud.create_user(db, user)
 
@@ -40,7 +40,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     if user.is_banned:
         raise HTTPException(401, 'Учётная запись заблокирована', headers={'WWW-Authenticate': 'Bearer'})
     access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(data={'sub': user.nickname}, expires_delta=access_token_expires)
+    access_token = create_access_token(data={'sub': user.username}, expires_delta=access_token_expires)
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 

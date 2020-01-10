@@ -72,11 +72,11 @@ class VideoList(BaseModel):
 
 
 class UserBase(BaseModel):
-    nickname: str
+    username: str
     email: EmailStr
 
-    @validator('nickname')
-    def nickname_regexp(cls, v):
+    @validator('username')
+    def username_regexp(cls, v):
         v = v.strip()
         if re.match('^[A-Za-z0-9а-яА-Я]+([A-Za-z0-9а-яА-Я]*|[._\s-]?[A-Za-z0-9а-яА-Я]+)*$', v) is None:
             raise ValueError('может содержать английские и русские буквы, цифры, пробел, точку или знак подчёркивания.'
@@ -123,7 +123,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    nickname: str
+    username: str
 
 
 class ChangePassword(UserPassword):

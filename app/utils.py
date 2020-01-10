@@ -38,20 +38,20 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     credentials_exception = HTTPException(401, 'Не удалось проверить учётные данные', {'WWW-Authenticate': 'Bearer'})
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        nickname: str = payload.get('sub')
-        if nickname is None:
+        username: str = payload.get('sub')
+        if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(nickname=nickname)
+        token_data = schemas.TokenData(username=username)
     except PyJWTError:
         raise credentials_exception
-    user = crud.get_user_by_nickname(db, token_data.nickname)
+    user = crud.get_user_by_username(db, token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
 
-def authenticate_user(nickname: str, password: str, db: Session):
-    user = crud.get_user_by_nickname(db, nickname)
+def authenticate_user(username: str, password: str, db: Session):
+    user = crud.get_user_by_username(db, username)
     if not user:
         return False
     if not verify_password(password, user.password):

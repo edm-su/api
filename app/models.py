@@ -158,7 +158,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    nickname = Column(String, nullable=False, unique=True)
+    username = Column(String, nullable=False, unique=True)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=False)
@@ -173,8 +173,8 @@ class User(Base):
 
     comments = relationship('Comment', back_populates='user')
 
-    def __init__(self, nickname, email, password, is_admin=False, is_activate=False):
-        self.nickname = nickname
+    def __init__(self, username, email, password, is_admin=False, is_activate=False):
+        self.username = username
         self.email = email
         self.password = password
         self.activate_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -183,7 +183,7 @@ class User(Base):
         self.is_admin = is_admin
 
     def __repr__(self):
-        return f'User({self.nickname}, {self.email}, {self.is_banned}, {self.is_admin}, {self.is_active})'
+        return f'User({self.username}, {self.email}, {self.is_banned}, {self.is_admin}, {self.is_active})'
 
 
 class Comment(Base):
