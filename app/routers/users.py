@@ -11,7 +11,7 @@ from tasks import send_recovery_email
 router = APIRouter()
 
 
-@router.post('/users/', tags=['Пользователи'], summary='Регистрация пользователя', response_model=schemas.User)
+@router.post('/users/', tags=['Пользователи'], summary='Регистрация пользователя', response_model=schemas.MyUser)
 def user_register(user: schemas.CreateUser, db: Session = Depends(get_db)):
     if crud.get_user_by_email(db, user.email):
         raise HTTPException(400, 'Такой email уже существует')
@@ -44,8 +44,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 
-@router.get('/users/me', response_model=schemas.User, tags=['Пользователи'], summary='Получение данных пользователя')
-async def read_current_user(current_user: schemas.User = Depends(get_current_user)):
+@router.get('/users/me', response_model=schemas.MyUser, tags=['Пользователи'], summary='Получение данных пользователя')
+async def read_current_user(current_user: schemas.MyUser = Depends(get_current_user)):
     return current_user
 
 
@@ -60,7 +60,7 @@ async def user_recovery(email: schemas.UserRecovery, db: Session = Depends(get_d
 
 
 @router.put('/users/password', tags=['Пользователи'], summary='Изменение пароля', status_code=204)
-async def change_password(password: schemas.ChangePassword, current_user: schemas.User = Depends(get_current_user),
+async def change_password(password: schemas.ChangePassword, current_user: schemas.MyUser = Depends(get_current_user),
                           db: Session = Depends(get_db)):
     if crud.get_password_hash(password.old_password) == current_user.password:
         crud.change_password(db, current_user, password.password)
@@ -78,3 +78,13 @@ async def complete_recovery(code: str, password: schemas.UserPassword, db: Sessi
         return {}
     else:
         raise HTTPException(400, 'Неверный код или истёк срок действия')
+
+
+@router.get('/users/{_id}', response_model=schemas.User, tags=['Пользователи'],
+            summary='Получение информации о пользователе')
+async def read_user(_id: int, db: Session = Depends(get_db)):
+    user = crud.get_user_by_id(db, _id)
+    if user:
+        return user
+    else:
+        raise HTTPException(404, 'Пользователь не найден')

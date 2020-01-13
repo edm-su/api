@@ -80,6 +80,11 @@ def get_user_by_username(db: Session, username: str):
     return db_user
 
 
+def get_user_by_id(db: Session, _id: int):
+    db_user = db.query(models.User).get(_id)
+    return db_user
+
+
 def get_user_by_recovery_code(db: Session, code: str):
     now = datetime.now()
     db_user = db.query(models.User).filter(models.User.recovery_code == code).filter(

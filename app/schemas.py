@@ -73,7 +73,6 @@ class VideoList(BaseModel):
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
 
     @validator('username')
     def username_regexp(cls, v):
@@ -82,6 +81,17 @@ class UserBase(BaseModel):
             raise ValueError('может содержать английские и русские буквы, цифры, пробел, точку или знак подчёркивания.'
                              ' Начинаться и заканчиваться только буквой или цифрой')
         return v
+
+
+class AdvancedUser(UserBase):
+    email: EmailStr
+
+
+class MyUser(AdvancedUser):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 
 class User(UserBase):
@@ -103,7 +113,7 @@ class UserPassword(BaseModel):
     def password_complexity(cls, v):
         min_len = 6
         if len(v) < 6:
-            raise ValueError(f'минимальная длинна пароля {min_len} символов')
+            raise ValueError(f'минимальная длина пароля {min_len} символов')
         return v
 
     @validator('password_confirm')
@@ -113,7 +123,7 @@ class UserPassword(BaseModel):
         return v
 
 
-class CreateUser(UserBase, UserPassword):
+class CreateUser(AdvancedUser, UserPassword):
     pass
 
 

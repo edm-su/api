@@ -13,12 +13,12 @@ router = APIRouter()
              summary='Оставить комментарий')
 def new_comment(video_slug: str,
                 text: str,
-                current_user: schemas.User = Depends(get_current_user),
+                current_user: schemas.MyUser = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if len(text) > 120:
-        raise HTTPException(400, 'Максимальная длинна сообщения 120 символов')
+        raise HTTPException(400, 'Максимальная длина сообщения 120 символов')
     if not text:
-        raise HTTPException(400, 'Минимальная длинна сообщения 1 символ')
+        raise HTTPException(400, 'Минимальная длина сообщения 1 символ')
     video = crud.get_video_by_slug(db, video_slug)
     if video:
         comment = crud.create_comment(db, current_user, video, text)
