@@ -12,3 +12,11 @@ DB_PORT = getenv('DB_PORT', 5432)
 DB_NAME = getenv('DB_NAME', 'postgres')
 
 FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
+
+SENDGRID_API_KEY = getenv('SENDGRID_API_KEY')
+
+YOUTUBE_API_KEY = getenv('YOUTUBE_API_KEY')
+
+ALGOLIA_APP_ID = getenv('ALGOLIA_APP_ID')
+ALGOLIA_API_KEY = getenv('ALGOLIA_API_KEY')
+ALGOLIA_INDEX = getenv('ALGOLIA_INDEX')

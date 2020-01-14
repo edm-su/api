@@ -1,6 +1,5 @@
 import random
 import string
-from os import getenv
 from datetime import datetime
 
 from algoliasearch.search_client import SearchClient
@@ -8,6 +7,7 @@ from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Index, 
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app import settings
 
 
 class Channel(Base):
@@ -210,8 +210,8 @@ class Comment(Base):
 
 @event.listens_for(Video, 'after_insert')
 def add_video_to_algolia_index(mapper, connection, target):
-    client = SearchClient.create(getenv('ALGOLIA_APP_ID'), getenv('ALGOLIA_API_KEY'))
-    index = client.init_index(getenv('ALGOLIA_INDEX'))
+    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
+    index = client.init_index(settings.ALGOLIA_INDEX)
     index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
                        'thumbnail': target.yt_thumbnail})
 

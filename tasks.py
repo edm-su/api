@@ -1,5 +1,4 @@
 from datetime import time
-from os import getenv
 
 import requests
 from celery import Celery, Task
@@ -61,7 +60,7 @@ def send_activate_email(email, code):
                    'Регистрация на edm.su',
                    f'Вы успешно зарегистрированы для активации аккаунта перейдите по ссылке: '
                    f'{settings.FRONTEND_URL}/user/activate/{code}')
-    sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
+    sg = SendGridAPIClient(settings.SE)
     sg.send(message)
     return f'{email} отправлено письмо с активацией аккаунта'
 
@@ -70,7 +69,7 @@ def send_activate_email(email, code):
 def send_recovery_email(email, code):
     message = Mail(settings.EMAIL_FROM, email, 'Восстановление пароля на edm.su',
                    f'Для смены пароля перейдите по ссылке: {settings.FRONTEND_URL}/user/recovery/{code}')
-    sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
+    sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
     sg.send(message)
     return f'{email} отправлено письмо с восстановлением пароля'
 
@@ -121,8 +120,8 @@ def time_to_seconds(t: time):
 
 
 def init_algolia_index():
-    client = SearchClient.create(getenv('ALGOLIA_APP_ID'), getenv('ALGOLIA_API_KEY'))
-    return client.init_index(getenv('ALGOLIA_INDEX'))
+    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
+    return client.init_index(settings.ALGOLIA_INDEX)
 
 
 def search_youtube_videos_from_channel(channel,
@@ -135,7 +134,7 @@ def search_youtube_videos_from_channel(channel,
         yt_channel = requests.get('https://www.googleapis.com/youtube/v3/channels',
                                   params={'part': 'contentDetails',
                                           'id': channel,
-                                          'key': getenv('YOUTUBE_API_KEY')
+                                          'key': settings.YOUTUBE_API_KEY
                                           })
         yt_channel = yt_channel.json()
         playlist_id = yt_channel['items'][0]['contentDetails']['relatedPlaylists']['uploads']
@@ -146,7 +145,7 @@ def search_youtube_videos_from_channel(channel,
                                              'playlistId': playlist_id,
                                              'maxResults': max_results,
                                              'pageToken': next_page_token,
-                                             'key': getenv('YOUTUBE_API_KEY')
+                                             'key': settings.YOUTUBE_API_KEY
                                              })
     yt_playlist_items = yt_playlist_items.json()
     total_results = yt_playlist_items['pageInfo']['totalResults']
@@ -154,7 +153,7 @@ def search_youtube_videos_from_channel(channel,
     yt_videos = requests.get('https://www.googleapis.com/youtube/v3/videos',
                              params={'part': 'snippet,contentDetails',
                                      'id': yt_videos_ids,
-                                     'key': getenv('YOUTUBE_API_KEY')
+                                     'key': settings.YOUTUBE_API_KEY
                                      })
     yt_videos = yt_videos.json()
     for video in yt_videos['items']:
