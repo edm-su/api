@@ -60,7 +60,7 @@ def send_activate_email(email, code):
                    'Регистрация на edm.su',
                    f'Вы успешно зарегистрированы для активации аккаунта перейдите по ссылке: '
                    f'{settings.FRONTEND_URL}/user/activate/{code}')
-    sg = SendGridAPIClient(settings.SE)
+    sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
     sg.send(message)
     return f'{email} отправлено письмо с активацией аккаунта'
 
