@@ -87,14 +87,18 @@ class AdvancedUser(UserBase):
     email: EmailStr
 
 
-class MyUser(AdvancedUser):
+class Admin(BaseModel):
+    is_admin: bool
+
+
+class MyUser(AdvancedUser, Admin):
     id: int
 
     class Config:
         orm_mode = True
 
 
-class User(UserBase):
+class User(UserBase, Admin):
     id: int
 
     class Config:

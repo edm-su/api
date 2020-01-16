@@ -120,6 +120,7 @@ class Video(Base):
     event_id = Column(Integer, ForeignKey('events.id'))
     channel_id = Column(Integer, ForeignKey('channels.id'))
     duration = Column(Integer, default=0)
+    deleted = Column(Boolean, default=False)
 
     djs = relationship('Dj', back_populates='videos', secondary=djs_videos_table)
     event = relationship('Event', back_populates='videos')
@@ -210,10 +211,16 @@ class Comment(Base):
 
 @event.listens_for(Video, 'after_insert')
 def add_video_to_algolia_index(mapper, connection, target):
-    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
-    index = client.init_index(settings.ALGOLIA_INDEX)
+    index = algolia_client()
     index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
                        'thumbnail': target.yt_thumbnail})
+
+
+@event.listens_for(Video, 'after_update')
+def delete_video(mapper, connection, target):
+    if target.deleted:
+        index = algolia_client()
+        index.delete_object(target.id)
 
 
 @event.listens_for(Comment, 'before_insert')
@@ -226,3 +233,9 @@ def send_activation_email(mapper, connection, target):
     if not target.is_admin or not target.is_active:
         from tasks import send_activate_email
         send_activate_email.delay(target.email, target.activate_code)
+
+
+def algolia_client():
+    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
+    index = client.init_index(settings.ALGOLIA_INDEX)
+    return index

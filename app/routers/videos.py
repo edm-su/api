@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
-from app.utils import get_db
+from app.utils import get_db, get_current_admin
 
 router = APIRouter()
 
@@ -20,6 +20,15 @@ def read_videos(skip: int = 0, limit: int = 25, db: Session = Depends(get_db)):
 def read_video(slug: str, db: Session = Depends(get_db)):
     video = find_video(slug, db)
     return video
+
+
+@router.delete('/videos/{slug}', tags=['Видео'], summary='Удаление видео', status_code=204)
+def delete_video(slug: str, db: Session = Depends(get_db), admin: schemas.MyUser = Depends(get_current_admin)):
+    video = find_video(slug, db)
+    if crud.delete_video(db, video):
+        return {}
+    else:
+        raise HTTPException(400, 'При удалении произошла ошибка')
 
 
 @router.get('/videos/{slug}/related', response_model=List[schemas.Video], tags=['Видео'],

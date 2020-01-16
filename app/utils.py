@@ -50,6 +50,12 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     return user
 
 
+async def get_current_admin(db: Session = Depends(get_db), user: schemas.MyUser = Depends(get_current_user)):
+    if not user.is_admin:
+        raise HTTPException(401, 'Пользователь не является администратором', {'WWW-Authenticate': 'Bearer'})
+    return user
+
+
 def authenticate_user(username: str, password: str, db: Session):
     user = crud.get_user_by_username(db, username)
     if not user:
