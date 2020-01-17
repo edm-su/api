@@ -1,33 +1,24 @@
-import hashlib
-import string
 from datetime import datetime, timedelta
-import random
 
 import jwt
+from algoliasearch.search_client import SearchClient
 from fastapi import Depends, HTTPException
 from jwt import PyJWTError
 from sqlalchemy.orm import Session
-
-from app.database import SessionLocal
 from fastapi.security import OAuth2PasswordBearer
+from starlette.requests import Request
 
-from app import settings, schemas, crud
-from app.settings import SECRET_KEY
+from app import settings
+from app.models.user import get_password_hash
+from app.schemas.user import MyUser, TokenData
+from app.crud import user
 
 
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+def get_db(request: Request):
+    return request.state.db
 
 
 oauth_scheme = OAuth2PasswordBearer('/users/token')
-
-
-def get_password_hash(password):
-    return hashlib.sha256(f'{password}{settings.SECRET_KEY}'.encode()).hexdigest()
 
 
 def verify_password(password, hashed_password):
@@ -37,32 +28,32 @@ def verify_password(password, hashed_password):
 async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth_scheme)):
     credentials_exception = HTTPException(401, 'Не удалось проверить учётные данные', {'WWW-Authenticate': 'Bearer'})
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
         username: str = payload.get('sub')
         if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = TokenData(username=username)
     except PyJWTError:
         raise credentials_exception
-    user = crud.get_user_by_username(db, token_data.username)
-    if user is None:
+    db_user = user.get_user_by_username(db, token_data.username)
+    if db_user is None:
         raise credentials_exception
-    return user
+    return db_user
 
 
-async def get_current_admin(db: Session = Depends(get_db), user: schemas.MyUser = Depends(get_current_user)):
-    if not user.is_admin:
+async def get_current_admin(db: Session = Depends(get_db), db_user: MyUser = Depends(get_current_user)):
+    if not db_user.is_admin:
         raise HTTPException(401, 'Пользователь не является администратором', {'WWW-Authenticate': 'Bearer'})
-    return user
+    return db_user
 
 
 def authenticate_user(username: str, password: str, db: Session):
-    user = crud.get_user_by_username(db, username)
-    if not user:
+    db_user = user.get_user_by_username(db, username)
+    if not db_user:
         return False
-    if not verify_password(password, user.password):
+    if not verify_password(password, db_user.password):
         return False
-    return user
+    return db_user
 
 
 def create_access_token(*, data: dict, expires_delta: timedelta = None):
@@ -72,9 +63,11 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.utcnow() + timedelta(days=7)
     to_encode.update({'exp': expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm='HS256')
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 
 
-def generate_secret_code(n: int = 10):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
+def algolia_client():
+    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
+    index = client.init_index(settings.ALGOLIA_INDEX)
+    return index

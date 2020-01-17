@@ -1,74 +1,6 @@
 import re
 
-from datetime import date, datetime
-from typing import List
-
-from pydantic import BaseModel, EmailStr, validator
-
-
-class ChannelBase(BaseModel):
-    name: str
-    slug: str
-    yt_id: str
-    yt_thumbnail: str
-    yt_banner: str = None
-
-
-class Channel(ChannelBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class EventBase(BaseModel):
-    name: str
-    slug: str
-    image: str
-
-
-class Event(EventBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class DjBase(BaseModel):
-    name: str
-    slug: str
-    image: str
-
-
-class Dj(DjBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class VideoBase(BaseModel):
-    title: str
-    slug: str
-    date: date
-    yt_id: str
-    yt_thumbnail: str
-    duration: int
-    event: Event = None
-    channel: Channel = None
-    djs: List[Dj] = []
-
-
-class Video(VideoBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class VideoList(BaseModel):
-    total_count: int = 0
-    videos: List[Video] = []
+from pydantic import BaseModel, validator, EmailStr
 
 
 class UserBase(BaseModel):
@@ -142,17 +74,3 @@ class TokenData(BaseModel):
 
 class ChangePassword(UserPassword):
     old_password: str
-
-
-class CommentBase(BaseModel):
-    text: str
-    video_id: int
-
-
-class Comment(CommentBase):
-    id: int
-    user_id: int
-    published_at: datetime
-
-    class Config:
-        orm_mode = True

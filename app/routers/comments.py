@@ -3,35 +3,37 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.crud import comment, video
+from app.schemas.comment import Comment
+from app.schemas.user import MyUser
 from app.utils import get_db, get_current_user
-from app import schemas, crud
 
 router = APIRouter()
 
 
-@router.post('/videos/{video_slug}/comments/', response_model=schemas.Comment, tags=['Комментарии', 'Видео'],
+@router.post('/videos/{video_slug}/comments/', response_model=Comment, tags=['Комментарии', 'Видео'],
              summary='Оставить комментарий')
 def new_comment(video_slug: str,
                 text: str,
-                current_user: schemas.MyUser = Depends(get_current_user),
+                current_user: MyUser = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if len(text) > 120:
         raise HTTPException(400, 'Максимальная длина сообщения 120 символов')
     if not text:
         raise HTTPException(400, 'Минимальная длина сообщения 1 символ')
-    video = crud.get_video_by_slug(db, video_slug)
-    if video:
-        comment = crud.create_comment(db, current_user, video, text)
-        return comment
+    db_video = video.get_video_by_slug(db, video_slug)
+    if db_video:
+        db_comment = comment.create_comment(db, current_user, db_video, text)
+        return db_comment
     else:
         raise HTTPException(status_code=404, detail='Видео не найдено')
 
 
-@router.get('/videos/{video_slug}/comments/', response_model=List[schemas.Comment], tags=['Комментарии', 'Видео'],
+@router.get('/videos/{video_slug}/comments/', response_model=List[Comment], tags=['Комментарии', 'Видео'],
             summary='Получить комментарии к видео')
 def get_comments(video_slug: str, db: Session = Depends(get_db)):
-    video = crud.get_video_by_slug(db, video_slug)
-    if video:
-        return crud.get_comments(db, video)
+    db_video = video.get_video_by_slug(db, video_slug)
+    if db_video:
+        return comment.get_comments(db_video)
     else:
         raise HTTPException(status_code=404, detail='Видео не найдено')

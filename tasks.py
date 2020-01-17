@@ -11,9 +11,11 @@ from algoliasearch.search_client import SearchClient
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from app.database import SessionLocal
-from app.models import Channel, Video, Dj
+from app.db.session import db_session
 from app import settings
+from app.models.channel import Channel
+from app.models.dj import Dj
+from app.models.video import Video
 
 app = Celery('tasks')
 app.conf.broker_url = 'redis://redis:6379/0'
@@ -44,12 +46,12 @@ app.conf.timezone = 'Europe/Moscow'
 
 class DBTask(Task):
     def after_return(self, *args, **kwargs):
-        SessionLocal.remove()
+        db_session.remove()
 
 
 @app.task(base=DBTask)
 def get_videos_from_channels():
-    channels = SessionLocal.query(Channel).all()
+    channels = db_session.query(Channel).all()
     for channel in channels:
         channel_videos.delay(channel.id, channel.yt_id)
 
@@ -76,13 +78,13 @@ def send_recovery_email(email, code):
 
 @app.task(base=DBTask)
 def add_djs_to_videos():
-    djs = SessionLocal.query(Dj).all()
+    djs = db_session.query(Dj).all()
     for dj in djs:
-        videos = SessionLocal.query(Video).filter(Video.title.like(f'%{dj.name}%'))
+        videos = db_session.query(Video).filter(Video.title.like(f'%{dj.name}%'))
         for video in videos:
             if dj not in video.djs:
                 video.djs.append(dj)
-                SessionLocal.commit()
+                db_session.commit()
 
 
 @app.task(base=DBTask)
@@ -98,17 +100,17 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
         new_video = Video(title, slug, date, yt_id, yt_thumbnail, duration)
         new_video.channel_id = channel_id
         try:
-            SessionLocal.add(new_video)
-            SessionLocal.commit()
+            db_session.add(new_video)
+            db_session.commit()
             new_videos_count += 1
         except IntegrityError:
-            SessionLocal.rollback()
+            db_session.rollback()
     return f'Новых видео: {new_videos_count}'
 
 
 @app.task(base=DBTask)
 def add_all_videos_to_algolia():
-    videos = SessionLocal.query(Video).all()
+    videos = db_session.query(Video).all()
     index = init_algolia_index()
     index.save_objects(
         [{'objectID': video.id, 'title': video.title, 'date': video.date, 'slug': video.slug,
