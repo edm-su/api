@@ -1,0 +1,68 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "array",
+  "title": "The Root Schema",
+  "items": {
+    "$id": "#/items",
+    "type": "object",
+    "title": "The Items Schema",
+    "required": [
+      "text",
+      "video_id",
+      "id",
+      "user_id",
+      "published_at"
+    ],
+    "properties": {
+      "text": {
+        "$id": "#/items/properties/text",
+        "type": "string",
+        "title": "The Text Schema",
+        "default": "",
+        "examples": [
+          "das"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "video_id": {
+        "$id": "#/items/properties/video_id",
+        "type": "integer",
+        "title": "The Video_id Schema",
+        "default": 0,
+        "examples": [
+          312592
+        ]
+      },
+      "id": {
+        "$id": "#/items/properties/id",
+        "type": "integer",
+        "title": "The Id Schema",
+        "default": 0,
+        "examples": [
+          8
+        ]
+      },
+      "user_id": {
+        "$id": "#/items/properties/user_id",
+        "type": "integer",
+        "title": "The User_id Schema",
+        "default": 0,
+        "examples": [
+          9
+        ]
+      },
+      "published_at": {
+        "$id": "#/items/properties/published_at",
+        "type": "string",
+        "title": "The Published_at Schema",
+        "default": "",
+        "examples": [
+          "2020-01-13T19:19:24.885247"
+        ],
+        "pattern": "^(.*)$"
+      }
+    }
+  }
+}

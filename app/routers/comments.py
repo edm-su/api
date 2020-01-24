@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.crud import comment, video
 from app.schemas.comment import Comment
 from app.schemas.user import MyUser
-from app.utils import get_db, get_current_user
+from app.utils import get_db, get_current_user, get_current_admin
 
 router = APIRouter()
 
@@ -31,9 +31,16 @@ def new_comment(video_slug: str,
 
 @router.get('/videos/{video_slug}/comments/', response_model=List[Comment], tags=['Комментарии', 'Видео'],
             summary='Получить комментарии к видео')
-def get_comments(video_slug: str, db: Session = Depends(get_db)):
+def read_comments(video_slug: str, db: Session = Depends(get_db)):
     db_video = video.get_video_by_slug(db, video_slug)
     if db_video:
-        return comment.get_comments(db_video)
+        return comment.get_comments_for_video(db_video)
     else:
         raise HTTPException(status_code=404, detail='Видео не найдено')
+
+
+@router.get('/comments/', response_model=List[Comment], tags=['Комментарии'],
+            summary='Получить список комментариев ко всем видео')
+def comments_list(db: Session = Depends(get_db), admin: MyUser = Depends(get_current_admin), skip: int = 0,
+                  limit: int = 50):
+    return comment.get_comments(db, limit, skip)
