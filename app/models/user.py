@@ -3,11 +3,17 @@ import random
 import string
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, event
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, event, Table, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app import settings
+
+liked_videos_table = Table('liked_videos', Base.metadata,
+                           Column('user_id', Integer, ForeignKey('users.id')),
+                           Column('video_id', Integer, ForeignKey('videos.id')),
+                           UniqueConstraint('user_id', 'video_id', name='unique_liked_video')
+                           )
 
 
 class User(Base):
@@ -28,6 +34,7 @@ class User(Base):
     last_login_ip = Column(String)
 
     comments = relationship('Comment', back_populates='user')
+    liked_videos = relationship('Video', back_populates='users_who_liked', secondary=liked_videos_table)
 
     def __init__(self, username, email, password, is_admin=False, is_activate=False):
         self.username = username
