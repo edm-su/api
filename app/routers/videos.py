@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.crud import video
 from app.schemas.user import MyUser
 from app.schemas.video import Video, VideoList
-from app.utils import get_db, get_current_admin
+from app.utils import get_db, get_current_admin, get_current_user
 
 router = APIRouter()
 
@@ -39,6 +39,17 @@ def read_related_videos(slug: str, db: Session = Depends(get_db), limit: int = 1
     video_db = find_video(slug, db)
     related_videos = video.get_related_videos(video_db.title, db, limit)
     return related_videos
+
+
+@router.post('/videos/like', tags=['Видео', 'Пользователи'], summary='Добавление понравившегося видео')
+def add_liked_video(slug: str, db: Session = Depends(get_db), user: MyUser = Depends(get_current_user)):
+    liked_videos = video.get_liked_videos(db, user)
+    video_db = find_video(slug, db)
+    if video_db in liked_videos:
+        raise HTTPException(status_code=422, detail='Это видео уже добавлялось в понравевшиеся')
+    else:
+        video.add_liked_video(db, user, video_db)
+        return {}
 
 
 def find_video(slug: str, db: Session):
