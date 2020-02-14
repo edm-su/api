@@ -46,10 +46,22 @@ def add_liked_video(slug: str, db: Session = Depends(get_db), user: MyUser = Dep
     liked_videos = video.get_liked_videos(db, user)
     video_db = find_video(slug, db)
     if video_db in liked_videos:
-        raise HTTPException(status_code=422, detail='Это видео уже добавлялось в понравевшиеся')
+        raise HTTPException(status_code=422, detail='Это видео уже добавлялось в понравившиеся')
     else:
         video.add_liked_video(db, user, video_db)
         return {}
+
+
+@router.delete('/videos/{slug}/like', tags=['Видео', 'Пользователи'],
+               summary='Удаление понравивщегося видео', status_code=204)
+def delete_liked_video(slug: str, db: Session = Depends(get_db), user: MyUser = Depends(get_current_user)):
+    liked_videos = video.get_liked_videos(db, user)
+    video_db = find_video(slug, db)
+    if video_db in liked_videos:
+        video.delete_liked_video(db, user, video_db)
+        return {}
+    else:
+        raise HTTPException(status_code=422, detail='Этого видео нет в понравившившихся')
 
 
 def find_video(slug: str, db: Session):

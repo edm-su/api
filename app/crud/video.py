@@ -39,6 +39,13 @@ def add_liked_video(db: Session, user: User, video: Video):
     return True
 
 
+def delete_liked_video(db: Session, user: User, video: Video):
+    user.liked_videos.remove(video)
+    db.commit()
+    db.refresh(user)
+    return True
+
+
 def get_video_by_slug(db: Session, slug: str, deleted: bool = False):
     return db.query(Video).filter_by(slug=slug).filter_by(deleted=deleted).first()
 
