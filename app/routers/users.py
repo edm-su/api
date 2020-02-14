@@ -1,11 +1,13 @@
 from datetime import timedelta
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.crud import user
+from app.crud import user, video
 from app.schemas.user import CreateUser, MyUser, Token, UserRecovery, ChangePassword, UserPassword, User
+from app.schemas.video import Video
 from app.utils import get_db, authenticate_user, create_access_token, get_current_user, get_password_hash
 from tasks import send_recovery_email
 
@@ -79,6 +81,12 @@ async def complete_recovery(code: str, password: UserPassword, db: Session = Dep
         return {}
     else:
         raise HTTPException(400, 'Неверный код или истёк срок действия')
+
+
+@router.get('/users/liked_videos', response_model=List[Video],
+            tags=['Видео', 'Пользователи'], summary='Получить список понрвившихся видео')
+def get_liked_videos(db: Session = Depends(get_db), current_user: MyUser = Depends(get_current_user)):
+    return video.get_liked_videos(db, current_user)
 
 
 @router.get('/users/{_id}', response_model=User, tags=['Пользователи'],
