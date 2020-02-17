@@ -18,7 +18,7 @@ def get_db(request: Request):
     return request.state.db
 
 
-oauth_scheme = OAuth2PasswordBearer('/users/token')
+oauth_scheme = OAuth2PasswordBearer('/users/token', auto_error=False)
 
 
 def verify_password(password, hashed_password):
@@ -39,6 +39,12 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     if db_user is None:
         raise credentials_exception
     return db_user
+
+
+async def get_current_user_or_guest(db: Session = Depends(get_db), token: str = Depends(oauth_scheme)):
+    if token:
+        db_user = await get_current_user(db, token)
+        return db_user
 
 
 async def get_current_admin(db: Session = Depends(get_db), db_user: MyUser = Depends(get_current_user)):
