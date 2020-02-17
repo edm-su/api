@@ -18,6 +18,7 @@ class VideoBase(BaseModel):
     event: Event = None
     channel: Channel = None
     djs: List[Dj] = []
+    liked: bool = False
 
 
 class Video(VideoBase):
