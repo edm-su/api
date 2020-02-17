@@ -62,13 +62,9 @@ def authenticate_user(username: str, password: str, db: Session):
     return db_user
 
 
-def create_access_token(*, data: dict, expires_delta: timedelta = None):
+def create_access_token(*, data: dict, expires_delta: timedelta = timedelta(days=31)):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(days=7)
-    to_encode.update({'exp': expire})
+    to_encode.update({'exp': datetime.utcnow() + expires_delta})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm='HS256')
     return encoded_jwt
 

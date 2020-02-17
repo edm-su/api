@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -42,8 +41,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(401, 'Учётная запись не подтверждена', headers={'WWW-Authenticate': 'Bearer'})
     if db_user.is_banned:
         raise HTTPException(401, 'Учётная запись заблокирована', headers={'WWW-Authenticate': 'Bearer'})
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(data={'sub': db_user.username}, expires_delta=access_token_expires)
+    access_token = create_access_token(data={'sub': db_user.username})
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 
