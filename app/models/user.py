@@ -35,6 +35,7 @@ class User(Base):
 
     comments = relationship('Comment', back_populates='user')
     liked_videos = relationship('Video', back_populates='users_who_liked', secondary=liked_videos_table)
+    posts = relationship('Post', back_populates='user')
 
     def __init__(self, username, email, password, is_admin=False, is_activate=False):
         self.username = username
