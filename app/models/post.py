@@ -18,10 +18,11 @@ class Post(Base):
 
     user = relationship('User', back_populates='posts')
 
-    def __init__(self, title, annotation, text, published_at, thumbnail, user):
+    def __init__(self, title, annotation, text, slug, published_at, thumbnail, user):
         self.title = title
         self.annotation = annotation
         self.text = text
+        self.slug = slug
         self.published_at = published_at
         self.thumbnail = thumbnail
         self.user = user
