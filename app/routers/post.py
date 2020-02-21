@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.db.session import Session
 from app.models import User
@@ -15,3 +17,16 @@ def create_post(new_post: CreatePost, db: Session = Depends(get_db), admin: User
         raise HTTPException(422, 'Такой slug уже занят')
     db_post = post.create_post(db, new_post, admin)
     return db_post
+
+
+@router.get('/posts/', response_model=List[Post], tags=['Посты'], summary='Получение списка постов')
+def get_posts(skip: int = Query(0, ge=0), limit: int = Query(12, ge=0, le=50), db: Session = Depends(get_db)):
+    return post.get_posts(db, skip, limit)
+
+
+def find_post(slug: str, db: Session):
+    db_post = post.get_post_by_slug(db, slug)
+    if db_post:
+        return db_post
+    else:
+        raise HTTPException(status_code=404, detail='Статья не найдена')
