@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import boto3
 import jwt
 from algoliasearch.search_client import SearchClient
 from fastapi import Depends, HTTPException
@@ -73,3 +74,9 @@ def algolia_client():
     client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
     index = client.init_index(settings.ALGOLIA_INDEX)
     return index
+
+
+def s3_client():
+    s3 = boto3.client('s3', endpoint_url=settings.S3_ENDPOINT, aws_secret_access_key=settings.S3_ACCESS_KEY,
+                      aws_access_key_id=settings.S3_ACCESS_KEY_ID)
+    return s3

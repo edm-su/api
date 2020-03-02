@@ -23,6 +23,8 @@ email-validator = "*"
 sendgrid = "*"
 pyjwt = "*"
 python-multipart = "*"
+boto3 = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
