@@ -4,6 +4,8 @@ EMAIL_FROM = getenv('EMAIL_FROM', 'noreply@edm.su')
 
 SECRET_KEY = getenv('SECRET_KEY', 'bhdasbdashjcxjhzbjhdasjhdasdbasj')
 
+STATIC_URL = getenv('STATIC_URL', 'https://static.dev.edm.su')
+
 DB_DRIVER = getenv('DB_DRIVER', 'postgresql')
 DB_USERNAME = getenv('DB_USERNAME', 'postgres')
 DB_PASSWORD = getenv('DB_PASSWORD', ' ')

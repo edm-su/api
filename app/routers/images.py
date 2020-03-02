@@ -27,4 +27,4 @@ def upload_image(folder: str = Query('images', regex='^[a-zA-Z][_\w]+[a-zA-Z]$')
     file.seek(0)
     s3_client().put_object(Body=file, Bucket=settings.S3_BUCKET, Key=f'{folder}/{filename}', ContentType='image/jpeg',
                            ACL='public-read')
-    return {"filename": f'{folder}/{filename}'}
+    return {"file_url": f'{settings.STATIC_URL}/{folder}/{filename}'}
