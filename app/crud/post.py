@@ -17,7 +17,7 @@ def create_post(db: Session, post: BasePost, user: User):
 
 
 def get_post_by_slug(db: Session, slug: str):
-    db_post = db.query(Post).filter_by(slug=slug).first()
+    db_post = db.query(Post).filter(Post.published_at <= datetime.now()).filter_by(slug=slug).first()
     return db_post
 
 

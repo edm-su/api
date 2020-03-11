@@ -25,6 +25,11 @@ def get_posts(skip: int = Query(0, ge=0), limit: int = Query(12, ge=0, le=50), d
     return post.get_posts(db, skip, limit)
 
 
+@router.get('/posts/{slug}', response_model=Post, tags=['Посты'], summary='Получить пост')
+def get_post(slug: str, db: Session = Depends(get_db)):
+    return find_post(slug, db)
+
+
 def find_post(slug: str, db: Session):
     db_post = post.get_post_by_slug(db, slug)
     if db_post:
