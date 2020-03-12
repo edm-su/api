@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build_and_push:
+    name: Build and publish docker container
     runs-on: ubuntu-latest    
     steps:
       - uses: actions/checkout@v1
@@ -30,12 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build_and_push]
     steps:
-      - name: multiple command
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            whoami
-            ls -al
+            cd www
+            docker-compose -f docker-compose.prod.yml run api alembic upgrade head
+            docker-compose -f docker-compose.prod.yml up --no-deps -d api
