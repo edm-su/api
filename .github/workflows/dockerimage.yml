@@ -17,10 +17,10 @@ jobs:
 
       - name: Build :latest
         if: success()
-        run: docker build -t docker.pkg.github.com/egorhenek/edm_su_api/production:latest .
+        run: docker build -t docker.pkg.github.com/egorhenek/edm_su_api/api:latest .
         
       - name: Push to docker hub :latest
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push docker.pkg.github.com/egorhenek/edm_su_api/production:latest
+          args: push docker.pkg.github.com/egorhenek/edm_su_api/api:latest
