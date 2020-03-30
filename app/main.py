@@ -10,7 +10,8 @@ app = FastAPI()
 origins = [
     "http://edm.su",
     "https://edm.su",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://edm.local"
 ]
 
 app.include_router(channels.router)
