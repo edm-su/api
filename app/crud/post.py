@@ -24,3 +24,10 @@ def get_post_by_slug(db: Session, slug: str):
 def get_posts(db: Session, skip: int = 0, limit: int = 12):
     return db.query(Post).filter(Post.published_at <= datetime.now()) \
         .order_by(desc(Post.published_at)).offset(skip).limit(limit).all()
+
+
+def delete_post(db: Session, slug: str):
+    db_post = db.query(Post).filter_by(slug=slug).first()
+    db.delete(db_post)
+    db.commit()
+    return True

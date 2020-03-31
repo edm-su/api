@@ -30,6 +30,15 @@ def get_post(slug: str, db: Session = Depends(get_db)):
     return find_post(slug, db)
 
 
+@router.delete('/posts/{slug}', tags=['Посты'], summary='Удалить пост', status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(slug: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+    db_post = find_post(slug, db)
+    if post.delete_post(db, db_post.slug):
+        return {}
+    else:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, 'При удалении произошла ошибка')
+
+
 def find_post(slug: str, db: Session):
     db_post = post.get_post_by_slug(db, slug)
     if db_post:
