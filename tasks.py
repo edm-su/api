@@ -14,7 +14,6 @@ from sendgrid.helpers.mail import Mail
 from app.db.session import db_session
 from app import settings
 from app.models.channel import Channel
-from app.models.dj import Dj
 from app.models.video import Video
 
 app = Celery('tasks')
@@ -24,10 +23,6 @@ app.conf.beat_schedule = {
     'add-new-videos-from-channels-every-day-in-midnight': {
         'task': 'tasks.get_videos_from_channels',
         'schedule': crontab(minute=0, hour=0)
-    },
-    'add-djs-to-videos-every-day-in-6-hours': {
-        'task': 'tasks.get_videos_from_channels',
-        'schedule': crontab(minute=0, hour=6)
     }
 }
 app.conf.task_queues = (
@@ -74,17 +69,6 @@ def send_recovery_email(email, code):
     sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
     sg.send(message)
     return f'{email} отправлено письмо с восстановлением пароля'
-
-
-@app.task(base=DBTask)
-def add_djs_to_videos():
-    djs = db_session.query(Dj).all()
-    for dj in djs:
-        videos = db_session.query(Video).filter(Video.title.like(f'%{dj.name}%'))
-        for video in videos:
-            if dj not in video.djs:
-                video.djs.append(dj)
-                db_session.commit()
 
 
 @app.task(base=DBTask)

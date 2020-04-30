@@ -2,7 +2,6 @@ from sqlalchemy import event, Index, Column, Integer, String, Date, ForeignKey, 
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
-from app.models.dj import djs_videos_table
 from app.models.user import liked_videos_table
 
 from app.utils import algolia_client
@@ -26,7 +25,6 @@ class Video(Base):
     duration = Column(Integer, default=0)
     deleted = Column(Boolean, default=False)
 
-    djs = relationship('Dj', back_populates='videos', secondary=djs_videos_table)
     channel = relationship('Channel', back_populates='videos')
     comments = relationship('Comment', back_populates='video')
     users_who_liked = relationship('User', back_populates='liked_videos', secondary=liked_videos_table)

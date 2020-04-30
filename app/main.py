@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from app.db.session import Session
-from app.routers import channels, djs, videos, users, comments, posts, images
+from app.routers import channels, videos, users, comments, posts, images
 
 app = FastAPI()
 
@@ -15,7 +15,6 @@ origins = [
 ]
 
 app.include_router(channels.router)
-app.include_router(djs.router)
 app.include_router(videos.router)
 app.include_router(users.router)
 app.include_router(comments.router)

@@ -4,7 +4,6 @@ from typing import List
 from pydantic import BaseModel
 
 from app.schemas.channel import Channel
-from app.schemas.dj import Dj
 
 
 class VideoBase(BaseModel):
@@ -15,7 +14,6 @@ class VideoBase(BaseModel):
     yt_thumbnail: str
     duration: int
     channel: Channel = None
-    djs: List[Dj] = []
     liked: bool = False
 
 
