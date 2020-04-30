@@ -22,13 +22,11 @@ class Video(Base):
     date = Column(Date)
     yt_id = Column(String, nullable=False, unique=True)
     yt_thumbnail = Column(String, nullable=False)
-    event_id = Column(Integer, ForeignKey('events.id'))
     channel_id = Column(Integer, ForeignKey('channels.id'))
     duration = Column(Integer, default=0)
     deleted = Column(Boolean, default=False)
 
     djs = relationship('Dj', back_populates='videos', secondary=djs_videos_table)
-    event = relationship('Event', back_populates='videos')
     channel = relationship('Channel', back_populates='videos')
     comments = relationship('Comment', back_populates='video')
     users_who_liked = relationship('User', back_populates='liked_videos', secondary=liked_videos_table)
