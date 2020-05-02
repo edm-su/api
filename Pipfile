@@ -25,6 +25,7 @@ pyjwt = "*"
 python-multipart = "*"
 boto3 = "*"
 pillow = "*"
+databases = {extras = ["postgresql"],version = "*"}
 
 [requires]
 python_version = "3.7"
