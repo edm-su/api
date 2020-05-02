@@ -1,6 +1,9 @@
 name: Docker registry
 
-on: [push]
+on:
+  pusH:
+    branches:
+      - master
 
 jobs:
   build_and_push:
@@ -39,5 +42,6 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             cd www
+            docker-compose -f docker-compose.prod.yml pull api
             docker-compose -f docker-compose.prod.yml run api alembic upgrade head
             docker-compose -f docker-compose.prod.yml up --no-deps -d api
