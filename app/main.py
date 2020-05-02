@@ -1,11 +1,21 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
 
-from app.db.session import Session
+from app.db import database
 from app.routers import channels, videos, users, comments, posts, images
 
 app = FastAPI()
+
+
+@app.on_event('startup')
+async def startup():
+    await database.connect()
+
+
+@app.on_event('shutdown')
+async def shutdown():
+    await database.disconnect()
+
 
 origins = [
     "http://edm.su",
@@ -28,11 +38,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-
-@app.middleware('http')
-async def db_session_middleware(requiest: Request, call_next):
-    requiest.state.db = Session()
-    response = await call_next(requiest)
-    requiest.state.db.close()
-    return response

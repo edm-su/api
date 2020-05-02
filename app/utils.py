@@ -1,3 +1,6 @@
+import hashlib
+import random
+import string
 from datetime import datetime, timedelta
 
 import boto3
@@ -10,7 +13,6 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 
 from app import settings
-from app.models.user import get_password_hash
 from app.schemas.user import MyUser, TokenData
 from app.crud import user
 
@@ -80,3 +82,11 @@ def s3_client():
     s3 = boto3.client('s3', endpoint_url=settings.S3_ENDPOINT, aws_secret_access_key=settings.S3_ACCESS_KEY,
                       aws_access_key_id=settings.S3_ACCESS_KEY_ID)
     return s3
+
+
+def get_password_hash(password):
+    return hashlib.sha256(f'{password}{settings.SECRET_KEY}'.encode()).hexdigest()
+
+
+def generate_secret_code(n: int = 10):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
