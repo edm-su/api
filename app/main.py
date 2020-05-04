@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
-from app.routers import channels, videos, users, comments, posts, images
+from app.routers import posts, channels, videos, comments, images, users
 
 app = FastAPI()
 

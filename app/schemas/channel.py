@@ -11,6 +11,3 @@ class ChannelBase(BaseModel):
 
 class Channel(ChannelBase):
     id: int
-
-    class Config:
-        orm_mode = True

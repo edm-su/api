@@ -1,11 +1,20 @@
-from sqlalchemy.orm import Session
+from typing import List, Mapping
 
-from app.models.channel import Channel
+from sqlalchemy import func, select
 
-
-def get_channel(db: Session, slug: str):
-    return db.query(Channel).filter_by(slug=slug).first()
+from app.db import channels, database
 
 
-def get_channels(db: Session, skip: int = 0, limit: int = 25):
-    return db.query(Channel).offset(skip).limit(limit).all()
+async def get_channel_by_slug(slug: str) -> Mapping:
+    query = channels.select().where(channels.c.slug == slug)
+    return await database.fetch_one(query=query)
+
+
+async def get_channels(skip: int = 0, limit: int = 25) -> List[Mapping]:
+    query = channels.select().offset(skip).limit(limit)
+    return await database.fetch_all(query=query)
+
+
+async def get_channels_count() -> int:
+    query = select([func.count()]).select_from(channels)
+    return await database.fetch_val(query=query)

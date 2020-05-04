@@ -1,9 +1,7 @@
-import sqlalchemy
-from sqlalchemy import event
 import databases
-from app import settings
+import sqlalchemy
 
-from app.utils import algolia_client
+from app import settings
 
 database = databases.Database(settings.DATABASE_URL)
 
@@ -38,14 +36,6 @@ users = sqlalchemy.Table(
     sqlalchemy.Column('last_login_ip', sqlalchemy.String),
 )
 
-
-@event.listens_for(users, 'after_insert')
-def send_activation_email(mapper, connection, target):
-    if not target.is_admin or not target.is_active:
-        from tasks import send_activate_email
-        send_activate_email.delay(target.email, target.activate_code)
-
-
 posts = sqlalchemy.Table(
     'posts',
     metadata,
@@ -69,32 +59,16 @@ videos = sqlalchemy.Table(
     sqlalchemy.Column('yt_id', sqlalchemy.String, unique=True, nullable=False),
     sqlalchemy.Column('yt_thumbnail', sqlalchemy.String, nullable=False),
     sqlalchemy.Column('channel_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('channels.id')),
-    sqlalchemy.Column('duration', sqlalchemy.Integer, server_default=0),
+    sqlalchemy.Column('duration', sqlalchemy.Integer, server_default="0"),
     sqlalchemy.Column('deleted', sqlalchemy.Boolean, server_default='f'),
+    sqlalchemy.Index('title_idx', 'title', postgresql_ops={'title': 'gin_trgm_ops'}, postgresql_using='gin'),
 )
-
-sqlalchemy.Index('title_idx', 'title', postgresql_ops={'title': 'gin_trgm_ops'}, postgresql_using='gin')
-
-
-@event.listens_for(videos, 'after_insert')
-def add_video_to_algolia_index(mapper, connection, target):
-    index = algolia_client()
-    index.save_object({'objectID': target.id, 'title': target.title, 'date': target.date, 'slug': target.slug,
-                       'thumbnail': target.yt_thumbnail})
-
-
-@event.listens_for(videos, 'after_update')
-def delete_video(mapper, connection, target):
-    if target.deleted:
-        index = algolia_client()
-        index.delete_object(target.id)
-
 
 liked_videos = sqlalchemy.Table(
     'liked_videos',
     metadata,
     sqlalchemy.Column('user_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),
-    sqlalchemy.Column('video_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('videos_id')),
+    sqlalchemy.Column('video_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('videos.id')),
     sqlalchemy.UniqueConstraint('user_id', 'video_id', name='unique_liked_video'),
 )
 
