@@ -1,69 +1,84 @@
-from sqlalchemy import desc
-from sqlalchemy.orm import Session
+import typing
 
-from app.models.video import Video
-from app.models.user import User
+from sqlalchemy import desc, select, func, case, exists
+from sqlalchemy.sql.elements import Label
 
-
-def get_videos_count(db: Session, parent=None):
-    if parent:
-        videos = parent.videos.filter_by(deleted=False).count()
-    else:
-        videos = db.query(Video).filter_by(deleted=False).count()
-    return videos
+from app.db import videos, database, liked_videos
 
 
-def get_videos(db: Session, skip: int = 0, limit: int = 25, parent=None, deleted: bool = False, user: User = None):
-    if parent:
-        videos = parent.videos.filter_by(deleted=deleted).order_by(desc('date')).offset(skip).limit(limit).all()
-    else:
-        videos = db.query(Video).filter_by(deleted=deleted).order_by(desc('date')).offset(skip).limit(
-            limit).all()
-    for video in videos:
-        video.liked = check_like(user, video)
-    return videos
+def is_liked(user_id: int) -> Label:
+    return case([
+        (exists(select([liked_videos]).where(liked_videos.c.video_id == videos.c.id).where(
+            liked_videos.c.user_id == user_id)), 't')
+    ], else_='f').label('liked')
 
 
-def get_related_videos(title: str, db: Session, limit: int = 25, user: User = None):
-    videos = db.query(Video).filter_by(deleted=False).order_by(Video.title.op('<->')(title)).limit(
-        limit).offset(1).all()
-    for video in videos:
-        video.liked = check_like(user, video)
-    return videos
+async def add_video(title: str, slug: str, yt_id: str, yt_thumbnail: str, date=None, channel_id: int = None,
+                    duration: int = 0):
+    query = videos.insert().returning()
+    values = {'title': title, 'slug': slug, 'yt_id': yt_id, 'yt_thumbnail': yt_thumbnail, 'date': date,
+              'channel_id': channel_id, 'duretion': duration}
+    db_video = await database.execute(query=query, values=values)
+    return db_video
 
 
-def get_liked_videos(db: Session, user: User):
-    return user.liked_videos
+async def get_videos_count(deleted: bool = False, parent=None) -> int:
+    query = select([func.count()]).select_from(videos).where(videos.c.deleted == deleted)
+    return await database.fetch_val(query=query)
 
 
-def add_liked_video(db: Session, user: User, video: Video):
-    user.liked_videos.append(video)
-    db.commit()
-    db.refresh(user)
-    return True
+async def get_videos(skip: int = 0, limit: int = 25, channel_id: int = None, deleted: bool = False,
+                     user_id: int = None) -> typing.List[typing.Mapping]:
+    selected_tables = [videos]
+    if user_id:
+        selected_tables.append(is_liked(user_id))
+
+    query = select(selected_tables).where(videos.c.deleted == deleted)
+    if channel_id:
+        query = query.where(videos.c.channel_id == channel_id)
+    query = query.order_by(desc('date'))
+    query = query.offset(skip).limit(limit)
+    return await database.fetch_all(query=query)
 
 
-def delete_liked_video(db: Session, user: User, video: Video):
-    user.liked_videos.remove(video)
-    db.commit()
-    db.refresh(user)
-    return True
+async def get_related_videos(title: str, limit: int = 25, user_id: int = None,
+                             deleted: bool = False) -> typing.List[typing.Mapping]:
+    selected_tables = [videos]
+    if user_id:
+        selected_tables.append(is_liked(user_id))
+
+    query = select(selected_tables).where(videos.c.deleted == deleted).order_by(videos.c.title.op('<->')(title)).limit(
+        limit)
+    return await database.fetch_all(query=query)
 
 
-def get_video_by_slug(db: Session, slug: str, deleted: bool = False, user: User = None):
-    video = db.query(Video).filter_by(slug=slug).filter_by(deleted=deleted).first()
-    if video:
-        video.liked = check_like(user, video)
-    return video
+async def get_liked_videos(user_id: int) -> typing.List[typing.Mapping]:
+    query = liked_videos.select().where(liked_videos.c.user_id == user_id)
+    db_liked_videos = await database.fetch_all(query=query)
+    return db_liked_videos
 
 
-def delete_video(db: Session, video: Video):
-    video.deleted = True
-    db.add(video)
-    db.commit()
-    db.refresh(video)
-    return True
+async def like_video(user_id: int, video_id: int) -> bool:
+    query = liked_videos.insert()
+    values = {'user_id': user_id, 'video_id': video_id}
+    return bool(await database.execute(query=query, values=values))
 
 
-def check_like(user, video):
-    return bool(user and video in user.liked_videos)
+async def dislike_video(user_id: int, video_id: int) -> bool:
+    query = liked_videos.delete().where(liked_videos.c.user_id == user_id).where(
+        liked_videos.c.video_id == video_id).returning(liked_videos)
+    return bool(await database.fetch_one(query))
+
+
+async def get_video_by_slug(slug: str, deleted: bool = False, user_id: int = None) -> typing.Mapping:
+    selected_tables = [videos]
+    if user_id:
+        selected_tables.append(is_liked(user_id))
+
+    query = select(selected_tables).where(videos.c.slug == slug).where(videos.c.deleted == deleted)
+    return await database.fetch_one(query=query)
+
+
+async def delete_video(video_id: int) -> bool:
+    query = videos.update().where(videos.c.id == video_id).returning(videos)
+    return bool(await database.fetch_one(query=query, values={'deleted': True}))

@@ -1,9 +1,6 @@
 from datetime import date
-from typing import List
 
 from pydantic import BaseModel
-
-from app.schemas.channel import Channel
 
 
 class VideoBase(BaseModel):
@@ -13,17 +10,9 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    channel: Channel = None
+    channel_id: int
     liked: bool = False
 
 
 class Video(VideoBase):
     id: int
-
-    class Config:
-        orm_mode = True
-
-
-class VideoList(BaseModel):
-    total_count: int = 0
-    videos: List[Video] = []
