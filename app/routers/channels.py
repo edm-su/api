@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends, Response, Query
 
 from app.crud import channel, video
 from app.db import channels
+from app.helpers import Paginator
 from app.schemas.channel import Channel
 from app.schemas.video import Video
 
@@ -20,9 +21,8 @@ async def find_channel(slug: str):
 
 @router.get('/channels/', response_model=List[Channel], tags=['Каналы'], summary='Получить список каналов')
 async def read_channels(response: Response, skip: int = 0, limit: int = Query(default=25, ge=1, le=50)):
-    db_channels = await channel.get_channels(skip=skip, limit=limit)
     response.headers["X-Total-Count"] = str(await channel.get_channels_count())
-    return db_channels
+    return await channel.get_channels(skip=skip, limit=limit)
 
 
 @router.get('/channels/{slug}', response_model=Channel, tags=['Каналы'], summary='Получить канал')
@@ -33,7 +33,6 @@ async def read_channel(db_channel: channels = Depends(find_channel)):
 @router.get('/channels/{slug}/videos',
             response_model=List[Video],
             tags=['Видео', 'Каналы'],
-            summary='Получение списка видео для канала')
-async def read_channel_videos(limit: int = 25, skip: int = 0, db_channel: channels = Depends(find_channel)):
-    videos = await video.get_videos(skip=skip, limit=limit, parent=db_channel)
-    return videos
+            summary='Получение списка видео канала')
+async def read_channel_videos(pagination: Paginator = Depends(Paginator), db_channel: channels = Depends(find_channel)):
+    return await video.get_videos(skip=pagination.skip, limit=pagination.limit, channel_id=db_channel['id'])
