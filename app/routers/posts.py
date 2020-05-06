@@ -24,7 +24,7 @@ async def find_post(slug: str) -> typing.Mapping:
 
 
 @router.post('/posts/', response_model=Post, tags=['Посты'], summary='Добавление поста')
-async def create_post(new_post: CreatePost, admin: typing.Mapping = Depends(get_current_admin)):
+async def create_post(new_post: CreatePost, admin: dict = Depends(get_current_admin)):
     try:
         return await post.create_post(post=new_post, user_id=admin['id'])
     except UniqueViolationError as e:
@@ -40,7 +40,7 @@ async def get_posts(response: Response, paginate: Paginator = Depends(Paginator)
 
 
 @router.get('/posts/{slug}', response_model=Post, tags=['Посты'], summary='Получить пост')
-async def get_post(db_post: typing.Mapping = Depends(find_post)):
+async def get_post(db_post: dict = Depends(find_post)):
     return db_post
 
 
