@@ -1,22 +1,28 @@
-from sqlalchemy import desc
-from sqlalchemy.orm import Session
+import typing
 
-from app.models.comment import Comment
-from app.models.video import Video
-from app.models.user import User
+from sqlalchemy import desc, func, select
 
-
-def get_comments_for_video(video: Video):
-    return video.comments
+from app.db import comments, database
 
 
-def create_comment(db: Session, user: User, video: Video, text: str):
-    comment = Comment(user, video, text)
-    db.add(comment)
-    db.commit()
-    db.refresh(comment)
-    return comment
+async def get_comments_for_video(video_id: int):
+    query = comments.select().where(comments.c.video_id == video_id)
+    db_comments = await database.fetch_all(query=query)
+    return db_comments
 
 
-def get_comments(db: Session, limit: int = 50, skip: int = 0):
-    return db.query(Comment).order_by(desc('published_at')).offset(skip).limit(limit).all()
+async def create_comment(user_id: int, video_id: int, text: str) -> typing.Mapping:
+    query = comments.insert().returning(comments)
+    values = {'user_id': user_id, 'video_id': video_id, 'text': text}
+    return await database.fetch_one(query=query, values=values)
+
+
+async def get_comments(limit: int = 50, skip: int = 0):
+    query = comments.select().order_by(desc(comments.c.published_at)).limit(limit).offset(skip)
+    db_comments = await database.fetch_all(query=query)
+    return db_comments
+
+
+async def get_comments_count() -> int:
+    query = select([func.count()]).select_from(comments)
+    return await database.fetch_val(query=query)

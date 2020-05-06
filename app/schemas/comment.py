@@ -1,17 +1,20 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class CommentBase(BaseModel):
     text: str
-    video_id: int
+
+    @validator('text')
+    def max_text_length(cls, v):
+        if len(v) > 120:
+            raise ValueError('превышает максимальную длину (120 символов)')
+        return v
 
 
 class Comment(CommentBase):
     id: int
     user_id: int
     published_at: datetime
-
-    class Config:
-        orm_mode = True
+    video_id: int

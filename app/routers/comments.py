@@ -1,46 +1,41 @@
+import typing
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Response
 
+from app.auth import get_current_admin, get_current_user
 from app.crud import comment, video
-from app.schemas.comment import Comment
-from app.schemas.user import MyUser
-from app.utils import get_db, get_current_user, get_current_admin
+from app.helpers import Paginator
+from app.schemas.comment import Comment, CommentBase
 
 router = APIRouter()
 
 
-@router.post('/videos/{video_slug}/comments/', response_model=Comment, tags=['Комментарии', 'Видео'],
-             summary='Оставить комментарий')
-def new_comment(video_slug: str,
-                text: str,
-                current_user: MyUser = Depends(get_current_user),
-                db: Session = Depends(get_db)):
-    if len(text) > 120:
-        raise HTTPException(400, 'Максимальная длина сообщения 120 символов')
-    if not text:
-        raise HTTPException(400, 'Минимальная длина сообщения 1 символ')
-    db_video = video.get_video_by_slug(db, video_slug)
+async def find_video(video_slug: str) -> typing.Mapping:
+    db_video = await video.get_video_by_slug(slug=video_slug)
     if db_video:
-        db_comment = comment.create_comment(db, current_user, db_video, text)
-        return db_comment
+        return db_video
     else:
         raise HTTPException(status_code=404, detail='Видео не найдено')
+
+
+@router.post('/videos/{video_slug}/comments/', response_model=Comment, tags=['Комментарии', 'Видео'],
+             summary='Оставить комментарий')
+async def new_comment(text: CommentBase, db_video: typing.Mapping = Depends(find_video),
+                      current_user: typing.Mapping = Depends(get_current_user)):
+    return await comment.create_comment(user_id=current_user['id'], video_id=db_video['id'], text=text.text)
 
 
 @router.get('/videos/{video_slug}/comments/', response_model=List[Comment], tags=['Комментарии', 'Видео'],
             summary='Получить комментарии к видео')
-def read_comments(video_slug: str, db: Session = Depends(get_db)):
-    db_video = video.get_video_by_slug(db, video_slug)
-    if db_video:
-        return comment.get_comments_for_video(db_video)
-    else:
-        raise HTTPException(status_code=404, detail='Видео не найдено')
+async def read_comments(db_video: typing.Mapping = Depends(find_video)):
+    db_comments = await comment.get_comments_for_video(video_id=db_video['id'])
+    return db_comments
 
 
 @router.get('/comments/', response_model=List[Comment], tags=['Комментарии'],
             summary='Получить список комментариев ко всем видео')
-def comments_list(db: Session = Depends(get_db), admin: MyUser = Depends(get_current_admin), skip: int = 0,
-                  limit: int = 50):
-    return comment.get_comments(db, limit, skip)
+async def comments_list(response: Response, admin: typing.Mapping = Depends(get_current_admin),
+                        pagination: Paginator = Depends(Paginator)):
+    response.headers['X-Total_Count'] = str(await comment.get_comments_count())
+    return await comment.get_comments(limit=pagination.limit, skip=pagination.skip)
