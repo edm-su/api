@@ -2,6 +2,7 @@ import databases
 import sqlalchemy
 
 from app import settings
+from app.helpers import generate_secret_code
 
 database = databases.Database(settings.DATABASE_URL)
 
@@ -26,8 +27,8 @@ users = sqlalchemy.Table(
     sqlalchemy.Column('email', sqlalchemy.String, unique=True, nullable=False),
     sqlalchemy.Column('password', sqlalchemy.String, nullable=False),
     sqlalchemy.Column('is_active', sqlalchemy.Boolean, server_default='f'),
-    sqlalchemy.Column('activate_code', sqlalchemy.String),
-    sqlalchemy.Column('recovery_code', sqlalchemy.String),
+    sqlalchemy.Column('activation_code', sqlalchemy.String(10), default=generate_secret_code),
+    sqlalchemy.Column('recovery_code', sqlalchemy.String(10)),
     sqlalchemy.Column('recovery_code_lifetime_end', sqlalchemy.DateTime),
     sqlalchemy.Column('is_admin', sqlalchemy.Boolean, server_default='f'),
     sqlalchemy.Column('is_banned', sqlalchemy.Boolean, server_default='f'),

@@ -1,66 +1,62 @@
+import typing
 from datetime import datetime, timedelta
 
-from sqlalchemy.orm import Session
-
-from app.models.user import User, get_password_hash, generate_secret_code
-from app.schemas.user import CreateUser
+from app.db import users, database
+from app.helpers import get_password_hash, generate_secret_code
 
 
-def create_user(db: Session, user: CreateUser):
-    hashed_password = get_password_hash(user.password)
-    db_user = User(user.username, user.email, hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+async def create_user(username: str, email: str, password: str, is_admin: bool = False) -> typing.Mapping:
+    hashed_password = get_password_hash(password)
+
+    query = users.insert().returning(users)
+    values = {'username': username, 'email': email, 'password': hashed_password}
+
+    if is_admin:
+        values['activation_code'] = ''
+    return await database.fetch_one(query=query, values=values)
 
 
-def get_user_by_email(db: Session, email: str):
-    user = db.query(User).filter(User.email == email).first()
-    return user
+async def get_user_by_email(email: str) -> typing.Mapping:
+    query = users.select().where(users.c.email == email)
+    return await database.fetch_one(query=query)
 
 
-def get_user_by_username(db: Session, username: str):
-    user = db.query(User).filter(User.username == username).first()
-    return user
+async def get_user_by_username(username: str) -> typing.Mapping:
+    query = users.select().where(users.c.username == username)
+    return await database.fetch_one(query=query)
 
 
-def get_user_by_id(db: Session, _id: int):
-    user = db.query(User).get(_id)
-    return user
+async def get_user_by_id(user_id: int) -> typing.Mapping:
+    query = users.select().where(users.c.id == user_id)
+    return await database.fetch_one(query)
 
 
-def get_user_by_recovery_code(db: Session, code: str):
-    now = datetime.now()
-    user = db.query(User).filter(User.recovery_code == code).filter(User.recovery_code_lifetime_end > now).first()
-    return user
+async def get_user_by_recovery_code(code: str) -> users:
+    query = users.select()
+    query = query.where(users.c.recovery_code == code)
+    query = query.where(users.c.recovery_code_lifetime_end > datetime.now())
+    return await database.fetch_one(query)
 
 
-def activate_user(db: Session, code: str):
-    user = db.query(User).filter(User.is_active == False).filter(
-        User.activate_code == code).first()
-    if user:
-        user.is_active = True
-        user.activate_code = ''
-        db.add(user)
-        db.commit()
-    return user
+async def activate_user(code: str) -> bool:
+    query = users.update().where(users.c.is_active == False).where(users.c.activation_code == code).returning(users)
+    values = {'is_active': True, 'activation_code': ''}
+    return bool(await database.execute(query=query, values=values))
 
 
-def generate_recovery_user_code(db: Session, user: User):
-    user.recovery_code = generate_secret_code()
-    user.recovery_code_lifetime_end = datetime.now() + timedelta(days=2)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user.recovery_code
+async def generate_recovery_user_code(user_id: int) -> str:
+    recovery_code = generate_secret_code()
+    lifetime_end = datetime.now() + timedelta(hours=1)
+
+    query = users.update().where(users.c.id == user_id)
+    values = {'recovery_code': recovery_code, 'recovery_code_lifetime_end': lifetime_end}
+    await database.execute(query=query, values=values)
+    return recovery_code
 
 
-def change_password(db: Session, user: User, password: str, recovery: bool = False):
-    user.password = get_password_hash(password)
+async def change_password(user_id: int, password: str, recovery: bool = False) -> bool:
+    query = users.update().where(users.c.id == user_id).returning(users)
+    values = {'password': get_password_hash(password)}
     if recovery:
-        user.recovery_code = None
-        user.recovery_code_lifetime_end = None
-    db.add(user)
-    db.commit()
-    return user
+        values.update({'recovery_code': None, 'recovery_code_lifetime_end': None})
+    return bool(await database.execute(query=query, values=values))

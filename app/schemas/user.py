@@ -9,9 +9,9 @@ class UserBase(BaseModel):
     @validator('username')
     def username_regexp(cls, v):
         v = v.strip()
-        if re.match('^[A-Za-z0-9а-яА-Я]+([A-Za-z0-9а-яА-Я]*|[._\s-]?[A-Za-z0-9а-яА-Я]+)*$', v) is None:
-            raise ValueError('может содержать английские и русские буквы, цифры, пробел, точку или знак подчёркивания.'
-                             ' Начинаться и заканчиваться только буквой или цифрой')
+        if re.match(r'^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$', v) is None:
+            raise ValueError('может содержать латинские символы, цифры, или знак подчёркивания.'
+                             ' Начинаться и заканчиваться только латинским символом')
         return v
 
 
@@ -26,19 +26,9 @@ class Admin(BaseModel):
 class MyUser(AdvancedUser, Admin):
     id: int
 
-    class Config:
-        orm_mode = True
-
 
 class User(UserBase, Admin):
     id: int
-
-    class Config:
-        orm_mode = True
-
-
-class UserRecovery(BaseModel):
-    email: EmailStr
 
 
 class UserPassword(BaseModel):
@@ -47,13 +37,13 @@ class UserPassword(BaseModel):
 
     @validator('password')
     def password_complexity(cls, v):
-        min_len = 6
+        min_length = 6
         if len(v) < 6:
-            raise ValueError(f'минимальная длина пароля {min_len} символов')
+            raise ValueError(f'минимальная длина пароля {min_length} символов')
         return v
 
     @validator('password_confirm')
-    def password_confirmation(cls, v, values, **kwargs):
+    def password_confirmation(cls, v, values):
         if 'password' in values and v != values['password']:
             raise ValueError('пароли не совпадают')
         return v
@@ -70,7 +60,3 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str
-
-
-class ChangePassword(UserPassword):
-    old_password: str

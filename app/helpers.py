@@ -1,6 +1,6 @@
 import hashlib
+import random
 import string
-from random import random
 
 import boto3
 from algoliasearch.search_client import SearchClient

@@ -70,3 +70,9 @@ async def delete_liked_video(db_video: dict = Depends(find_video), user: dict = 
     if not await video.dislike_video(user_id=user['id'], video_id=db_video['id']):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Видео не найдено в понравившихся')
     return {}
+
+
+@router.get('/users/liked_videos', response_model=List[Video],
+            tags=['Видео', 'Пользователи'], summary='Получить список понравившихся видео')
+async def get_liked_videos(current_user: dict = Depends(get_current_user)):
+    return await video.get_liked_videos(user_id=current_user['id'])

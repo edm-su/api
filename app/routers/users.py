@@ -1,47 +1,53 @@
-from typing import List
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from pydantic import EmailStr
+from starlette import status
 
-from app.crud import user, video
-from app.schemas.user import CreateUser, MyUser, Token, UserRecovery, ChangePassword, UserPassword, User
-from app.schemas.video import Video
-from app.utils import get_db, authenticate_user, create_access_token, get_current_user, get_password_hash
-from tasks import send_recovery_email
+from app.auth import authenticate_user, get_current_user, create_access_token
+from app.crud import user
+from app.helpers import get_password_hash
+from app.schemas.user import CreateUser, MyUser, Token, UserPassword, User
+from tasks import send_recovery_email, send_activate_email
 
 router = APIRouter()
 
 
 @router.post('/users/', tags=['Пользователи'], summary='Регистрация пользователя', response_model=MyUser)
-def user_register(db_user: CreateUser, db: Session = Depends(get_db)):
-    if user.get_user_by_email(db, db_user.email):
-        raise HTTPException(400, 'Такой email уже существует')
-    if user.get_user_by_username(db, db_user.username):
-        raise HTTPException(400, 'Имя пользователя занято')
-    return user.create_user(db, db_user)
+async def user_register(new_user: CreateUser):
+    if await user.get_user_by_email(new_user.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Такой email уже существует')
 
+    if await user.get_user_by_username(new_user.username):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Имя пользователя занято')
 
-@router.post('/users/activate', tags=['Пользователи'], summary='Активация учётной записи', status_code=204)
-def user_activate(code: str = Query(..., regex=r'^[A-Z\d]{10}$'), db: Session = Depends(get_db)):
-    db_user = user.activate_user(db, code)
+    db_user = await user.create_user(username=new_user.username, email=new_user.email, password=new_user.password)
     if db_user:
+        send_activate_email.delay(db_user['email'], db_user['activation_code'])
+    return db_user
+
+
+@router.post('/users/activate/{code}', tags=['Пользователи'], summary='Активация учётной записи',
+             status_code=status.HTTP_204_NO_CONTENT)
+async def user_activate(code: str = Query(..., regex=r'^[A-Z\d]{10}$')):
+    if await user.activate_user(code=code):
         return {}
     else:
-        raise HTTPException(400, 'Неверный код или учётная запись уже активирована')
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Неверный код активации')
 
 
 @router.post('/users/token', response_model=Token, tags=['Пользователи'],
-             summary='Авторизация и получение токена')
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    db_user = authenticate_user(form_data.username, form_data.password, db)
+             summary='Авторизация и получение access_token')
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    db_user = await authenticate_user(username=form_data.username, password=form_data.password)
+
     if not db_user:
-        raise HTTPException(401, 'Неверное имя пользователя или пароль', headers={'WWW-Authenticate': 'Bearer'})
-    if not db_user.is_active:
-        raise HTTPException(401, 'Учётная запись не подтверждена', headers={'WWW-Authenticate': 'Bearer'})
-    if db_user.is_banned:
-        raise HTTPException(401, 'Учётная запись заблокирована', headers={'WWW-Authenticate': 'Bearer'})
-    access_token = create_access_token(data={'sub': db_user.username})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Неверное имя пользователя или пароль')
+    if not db_user['is_active']:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Учётная запись не подтверждена')
+    if db_user['is_banned']:
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail='Учётная запись заблокирована')
+
+    access_token = create_access_token(data={'sub': db_user['username']})
     return {'access_token': access_token, 'token_type': 'bearer'}
 
 
@@ -50,48 +56,44 @@ async def read_current_user(current_user: MyUser = Depends(get_current_user)):
     return current_user
 
 
-@router.post('/users/password', tags=['Пользователи'], summary='Восстановаление пароля')
-async def user_recovery(email: UserRecovery, db: Session = Depends(get_db)):
-    db_user = user.get_user_by_email(db, email.email)
+@router.post('/users/password-recovery/{email}', tags=['Пользователи'], summary='Восстановление пароля',
+             status_code=status.HTTP_204_NO_CONTENT)
+async def user_recovery(email: EmailStr):
+    db_user = await user.get_user_by_email(email=email)
     if not db_user:
-        raise HTTPException(400, 'Пользователь с таким email не найден')
-    code = user.generate_recovery_user_code(db, db_user)
-    send_recovery_email.delay(db_user.email, code)
-    return {'Выслано письмо с инструкцией для смены пароля'}
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь с таким email не найден')
+    code = await user.generate_recovery_user_code(user_id=db_user['id'])
+    send_recovery_email.delay(db_user['email'], code)
+    return {}
 
 
-@router.put('/users/password', tags=['Пользователи'], summary='Изменение пароля', status_code=204)
-async def change_password(password: ChangePassword, current_user: MyUser = Depends(get_current_user),
-                          db: Session = Depends(get_db)):
-    if get_password_hash(password.old_password) == current_user.password:
-        user.change_password(db, current_user, password.password)
+@router.put('/users/password', tags=['Пользователи'], summary='Изменение пароля',
+            status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(new_password: UserPassword, old_password: str = Body(..., min_length=6),
+                          current_user: dict = Depends(get_current_user)):
+    if get_password_hash(old_password) == current_user['password']:
+        await user.change_password(user_id=current_user['id'], password=new_password.password)
         return {}
     else:
-        raise HTTPException(400, 'Старый пароль неверный')
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Старый пароль неверный')
 
 
-@router.put('/users/password/{code}', tags=['Пользователи'], summary='Завершение восстановления пароля',
-            status_code=204)
-async def complete_recovery(code: str, password: UserPassword, db: Session = Depends(get_db)):
-    db_user = user.get_user_by_recovery_code(db, code)
+@router.put('/users/reset-password/{code}', tags=['Пользователи'], summary='Сброс пароля',
+            status_code=status.HTTP_204_NO_CONTENT)
+async def complete_recovery(code: str, password: UserPassword):
+    db_user = await user.get_user_by_recovery_code(code)
     if db_user:
-        user.change_password(db, db_user, password.password, True)
+        await user.change_password(user_id=db_user['id'], password=password.password, recovery=True)
         return {}
     else:
-        raise HTTPException(400, 'Неверный код или истёк срок действия')
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Неверный код или истёк срок действия')
 
 
-@router.get('/users/liked_videos', response_model=List[Video],
-            tags=['Видео', 'Пользователи'], summary='Получить список понрвившихся видео')
-def get_liked_videos(db: Session = Depends(get_db), current_user: MyUser = Depends(get_current_user)):
-    return video.get_liked_videos(db, current_user)
-
-
-@router.get('/users/{_id}', response_model=User, tags=['Пользователи'],
+@router.get('/users/{username}', response_model=User, tags=['Пользователи'],
             summary='Получение информации о пользователе')
-async def read_user(_id: int, db: Session = Depends(get_db)):
-    db_user = user.get_user_by_id(db, _id)
+async def read_user(username: str = Query(...)):
+    db_user = await user.get_user_by_username(username=username)
     if db_user:
         return db_user
     else:
-        raise HTTPException(404, 'Пользователь не найден')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь не найден')

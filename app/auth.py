@@ -1,7 +1,7 @@
+import typing
 from datetime import datetime, timedelta
 
 import jwt
-import typing
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
@@ -10,7 +10,7 @@ from starlette import status
 from app import settings
 from app.crud import user
 from app.helpers import get_password_hash
-from app.schemas.user import TokenData, MyUser
+from app.schemas.user import TokenData
 
 oauth_scheme = OAuth2PasswordBearer('/users/token', auto_error=False)
 
@@ -47,7 +47,7 @@ async def get_current_admin(db_user: dict = Depends(get_current_user)) -> typing
     return db_user
 
 
-async def authenticate_user(username: str, password: str):
+async def authenticate_user(username: str, password: str) -> typing.Union[typing.Mapping, bool]:
     db_user = await user.get_user_by_username(username=username)
     if not db_user:
         return False
@@ -56,11 +56,11 @@ async def authenticate_user(username: str, password: str):
     return db_user
 
 
-def verify_password(password, hashed_password):
+def verify_password(password, hashed_password) -> bool:
     return get_password_hash(password) == hashed_password
 
 
-def create_access_token(*, data: dict, expires_delta: timedelta = timedelta(days=31)):
+def create_access_token(*, data: dict, expires_delta: timedelta = timedelta(days=31)) -> bytes:
     to_encode = data.copy()
     to_encode.update({'exp': datetime.utcnow() + expires_delta})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm='HS256')

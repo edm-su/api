@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import desc, select, func, case, exists
+from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
 
 from app.db import videos, database, liked_videos
@@ -53,9 +53,10 @@ async def get_related_videos(title: str, limit: int = 25, user_id: int = None,
 
 
 async def get_liked_videos(user_id: int) -> typing.List[typing.Mapping]:
-    query = liked_videos.select().where(liked_videos.c.user_id == user_id)
-    db_liked_videos = await database.fetch_all(query=query)
-    return db_liked_videos
+    query = liked_videos.join(videos, and_(videos.c.id == liked_videos.c.video_id, videos.c.deleted == False))
+    query = select([videos]).select_from(query)
+    query = query.where(liked_videos.c.user_id == user_id)
+    return await database.fetch_all(query=query)
 
 
 async def like_video(user_id: int, video_id: int) -> bool:
