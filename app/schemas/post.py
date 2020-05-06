@@ -30,7 +30,4 @@ class CreatePost(BasePost):
 
 class Post(BasePost):
     id: int
-    user_id: int = None
-
-    class Config:
-        orm_mode = True
+    user_id: int

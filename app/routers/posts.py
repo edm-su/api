@@ -1,47 +1,52 @@
+import re
+import typing
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from asyncpg import UniqueViolationError
+from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app.db.session import Session
-from app.models import User
-from app.schemas.post import Post, CreatePost
-from app.utils import get_db, get_current_admin
+from app.auth import get_current_admin
 from app.crud import post
+from app.db import users
+from app.helpers import Paginator
+from app.schemas.post import Post, CreatePost
 
 router = APIRouter()
 
 
-@router.post('/posts/', response_model=Post, tags=['Посты'], summary='Добавление поста')
-def create_post(new_post: CreatePost, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    if post.get_post_by_slug(db, new_post.slug):
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Такой slug уже занят')
-    db_post = post.create_post(db, new_post, admin)
-    return db_post
-
-
-@router.get('/posts/', response_model=List[Post], tags=['Посты'], summary='Получение списка постов')
-def get_posts(skip: int = Query(0, ge=0), limit: int = Query(12, ge=0, le=50), db: Session = Depends(get_db)):
-    return post.get_posts(db, skip, limit)
-
-
-@router.get('/posts/{slug}', response_model=Post, tags=['Посты'], summary='Получить пост')
-def get_post(slug: str, db: Session = Depends(get_db)):
-    return find_post(slug, db)
-
-
-@router.delete('/posts/{slug}', tags=['Посты'], summary='Удалить пост', status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(slug: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    db_post = find_post(slug, db)
-    if post.delete_post(db, db_post.slug):
-        return {}
-    else:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, 'При удалении произошла ошибка')
-
-
-def find_post(slug: str, db: Session):
-    db_post = post.get_post_by_slug(db, slug)
+async def find_post(slug: str) -> typing.Mapping:
+    db_post = await post.get_post_by_slug(slug=slug)
     if db_post:
         return db_post
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Статья не найдена')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Пост не найден')
+
+
+@router.post('/posts/', response_model=Post, tags=['Посты'], summary='Добавление поста')
+async def create_post(new_post: CreatePost, admin: typing.Mapping = Depends(get_current_admin)):
+    try:
+        return await post.create_post(post=new_post, user_id=admin['id'])
+    except UniqueViolationError as e:
+        message = re.findall(r'posts_([a-zA-Z]+)_key', e.message)[0]
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail=f'Запись с таким значением {message} уже существует')
+
+
+@router.get('/posts/', response_model=List[Post], tags=['Посты'], summary='Получение списка постов')
+async def get_posts(response: Response, paginate: Paginator = Depends(Paginator)):
+    response.headers['X-Total-Count'] = str(await post.get_posts_count())
+    return await post.get_posts(skip=paginate.skip, limit=paginate.limit)
+
+
+@router.get('/posts/{slug}', response_model=Post, tags=['Посты'], summary='Получить пост')
+async def get_post(db_post: typing.Mapping = Depends(find_post)):
+    return db_post
+
+
+@router.delete('/posts/{slug}', tags=['Посты'], summary='Удалить пост', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_post(slug: str, admin: users = Depends(get_current_admin)):
+    if await post.delete_post(slug=slug):
+        return {}
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Пост не найден')
