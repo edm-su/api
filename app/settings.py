@@ -6,13 +6,9 @@ SECRET_KEY = getenv('SECRET_KEY', 'bhdasbdashjcxjhzbjhdasjhdasdbasj')
 
 STATIC_URL = getenv('STATIC_URL', 'https://static.dev.edm.su')
 
-DB_DRIVER = getenv('DB_DRIVER', 'postgresql')
-DB_USERNAME = getenv('DB_USERNAME', 'postgres')
-DB_PASSWORD = getenv('DB_PASSWORD', ' ')
-DB_HOST = getenv('DB_HOST', 'old_db')
-DB_PORT = getenv('DB_PORT', 5432)
-DB_NAME = getenv('DB_NAME', 'postgres')
-DATABASE_URL = getenv('DATABASE_URL', 'postgresql://postgres:postgres@old_db/postgres')
+DATABASE_URL = getenv('DATABASE_URL', 'postgresql://postgres:postgres@db/postgres')
+
+REDIS_URL = getenv('REDIS_URL', 'redis://redis:6379')
 
 FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
 

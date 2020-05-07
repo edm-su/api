@@ -1,54 +1,65 @@
+import asyncio
 from datetime import time
 
 import requests
-from celery import Celery, Task
+from asyncpg import UniqueViolationError
+from celery import Celery
 from celery.schedules import crontab
+from celery.signals import worker_process_init, worker_process_shutdown
 from dateutil.parser import parse
 from kombu import Queue, Exchange
-from slugify import slugify
-from sqlalchemy.exc import IntegrityError
-from algoliasearch.search_client import SearchClient
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from slugify import slugify
 
-from app.db.session import db_session
 from app import settings
-from app.models.channel import Channel
-from app.models.video import Video
+from app.crud.channel import get_channels
+from app.crud.video import add_video
+from app.db import database
 
 app = Celery('tasks')
-app.conf.broker_url = 'redis://redis:6379/0'
+app.conf.broker_url = f'{settings.REDIS_URL}/0'
 app.conf.broker_transport_options = {'visibility_timeout': 3600}
 app.conf.beat_schedule = {
     'add-new-videos-from-channels-every-day-in-midnight': {
-        'task': 'tasks.get_videos_from_channels',
-        'schedule': crontab(minute=0, hour=0)
+        'task': 'sync.get_videos_from_channels',
+        'schedule': crontab(hour=0, minute=0)
     }
 }
 app.conf.task_queues = (
-    Queue('high', Exchange('high'), routing_key='high'),
-    Queue('normal', Exchange('normal'), routing_key='normal'),
+    Queue('scanner', Exchange('scanner'), routing_key='scanner'),
+    Queue('default', Exchange('default'), routing_key='default')
 )
 app.conf.task_routes = {
-    'tasks.send_activate_email': {'queue': 'high'},
-    'task.send_recovery_email': {'queue': 'high'}
+    'sync.get_videos_from_channels': {'queue': 'scanner'},
+    'sync.channel_videos': {'queue': 'scanner'}
 }
-app.conf.task_default_queue = 'normal'
-app.conf.task_default_exchange = 'normal'
-app.conf.task_default_routing_key = 'normal'
+app.conf.task_default_queue = 'default'
+app.conf.task_default_exchange = 'default'
+app.conf.task_default_routing_key = 'default'
 app.conf.timezone = 'Europe/Moscow'
 
 
-class DBTask(Task):
-    def after_return(self, *args, **kwargs):
-        db_session.remove()
+@worker_process_init.connect
+def init_worker(**kwargs):
+    async_run(database.connect)
 
 
-@app.task(base=DBTask)
+@worker_process_shutdown.connect
+def shutdown_worker(**kwargs):
+    async_run(database.disconnect)
+
+
+def async_run(func, *args, **kwargs):
+    event_loop = asyncio.get_event_loop()
+    return event_loop.run_until_complete(func(*args, **kwargs))
+
+
+@app.task(name='sync.get_videos_from_channels')
 def get_videos_from_channels():
-    channels = db_session.query(Channel).all()
+    channels = async_run(get_channels)
     for channel in channels:
-        channel_videos.delay(channel.id, channel.yt_id)
+        channel_videos.delay(channel['id'], channel['yt_id'])
 
 
 @app.task()
@@ -71,9 +82,9 @@ def send_recovery_email(email, code):
     return f'{email} отправлено письмо с восстановлением пароля'
 
 
-@app.task(base=DBTask)
+@app.task(name='sync.channel_videos')
 def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
-    videos = search_youtube_videos_from_channel(channel_yt_id)
+    videos = get_youtube_videos_from_channel(channel_yt_id)
     for video in videos:
         title = video['snippet']['title']
         slug = slugify(title, to_lower=True)
@@ -81,41 +92,26 @@ def channel_videos(channel_id, channel_yt_id, new_videos_count=0):
         yt_id = video['id']
         yt_thumbnail = video['snippet']['thumbnails']['default']['url']
         duration = time_to_seconds(parse(video['contentDetails']['duration'][2:]).time())
-        new_video = Video(title, slug, date, yt_id, yt_thumbnail, duration)
-        new_video.channel_id = channel_id
         try:
-            db_session.add(new_video)
-            db_session.commit()
+            async_run(add_video, title=title, slug=slug, yt_id=yt_id, yt_thumbnail=yt_thumbnail, date=date,
+                      channel_id=channel_id, duration=duration)
+        except UniqueViolationError:
+            pass
+        else:
             new_videos_count += 1
-        except IntegrityError:
-            db_session.rollback()
     return f'Новых видео: {new_videos_count}'
-
-
-@app.task(base=DBTask)
-def add_all_videos_to_algolia():
-    videos = db_session.query(Video).all()
-    index = init_algolia_index()
-    index.save_objects(
-        [{'objectID': video.id, 'title': video.title, 'date': video.date, 'slug': video.slug,
-          'thumbnail': video.yt_thumbnail} for video in videos])
 
 
 def time_to_seconds(t: time):
     return (t.hour * 60 + t.minute) * 60 + t.second
 
 
-def init_algolia_index():
-    client = SearchClient.create(settings.ALGOLIA_APP_ID, settings.ALGOLIA_API_KEY)
-    return client.init_index(settings.ALGOLIA_INDEX)
-
-
-def search_youtube_videos_from_channel(channel,
-                                       videos=None,
-                                       next_page_token='',
-                                       current_page=1,
-                                       max_results=50,
-                                       playlist_id=''):
+def get_youtube_videos_from_channel(channel,
+                                    videos=None,
+                                    next_page_token='',
+                                    current_page=1,
+                                    max_results=50,
+                                    playlist_id=''):
     if not playlist_id:
         yt_channel = requests.get('https://www.googleapis.com/youtube/v3/channels',
                                   params={'part': 'contentDetails',
@@ -148,9 +144,9 @@ def search_youtube_videos_from_channel(channel,
     if total_results > current_page * max_results:
         next_page_token = yt_playlist_items['nextPageToken']
         current_page += 1
-        return search_youtube_videos_from_channel(channel,
-                                                  videos,
-                                                  next_page_token,
-                                                  current_page,
-                                                  playlist_id=playlist_id)
+        return get_youtube_videos_from_channel(channel,
+                                               videos,
+                                               next_page_token,
+                                               current_page,
+                                               playlist_id=playlist_id)
     return videos

@@ -4,6 +4,7 @@ from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
 
 from app.db import videos, database, liked_videos
+from app.helpers import algolia_client
 
 
 def is_liked(user_id: int) -> Label:
@@ -17,8 +18,12 @@ async def add_video(title: str, slug: str, yt_id: str, yt_thumbnail: str, date=N
                     duration: int = 0):
     query = videos.insert().returning()
     values = {'title': title, 'slug': slug, 'yt_id': yt_id, 'yt_thumbnail': yt_thumbnail, 'date': date,
-              'channel_id': channel_id, 'duretion': duration}
-    db_video = await database.execute(query=query, values=values)
+              'channel_id': channel_id, 'duration': duration}
+    db_video = await database.fetch_one(query=query, values=values)
+    if db_video:
+        index = algolia_client()
+        index.save_object(
+            {'objectID': db_video['id'], 'title': title, 'date': date, 'slug': slug, 'thumbnail': yt_thumbnail})
     return db_video
 
 
