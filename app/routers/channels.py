@@ -20,9 +20,11 @@ async def find_channel(slug: str):
 
 
 @router.get('/channels/', response_model=List[Channel], tags=['Каналы'], summary='Получить список каналов')
-async def read_channels(response: Response, skip: int = 0, limit: int = Query(default=25, ge=1, le=50)):
+async def read_channels(response: Response,
+                        pagination: Paginator = Depends(Paginator),
+                        ids: List[int] = Query(None)):
     response.headers["X-Total-Count"] = str(await channel.get_channels_count())
-    return await channel.get_channels(skip=skip, limit=limit)
+    return await channel.get_channels(skip=pagination.skip, limit=pagination.limit, ids=ids)
 
 
 @router.get('/channels/{slug}', response_model=Channel, tags=['Каналы'], summary='Получить канал')

@@ -10,8 +10,10 @@ async def get_channel_by_slug(slug: str) -> Mapping:
     return await database.fetch_one(query=query)
 
 
-async def get_channels(skip: int = 0, limit: int = 25) -> List[Mapping]:
+async def get_channels(skip: int = 0, limit: int = 25, ids: List[int] = None) -> List[Mapping]:
     query = channels.select().offset(skip).limit(limit)
+    if ids:
+        query = query.where(channels.c.id.in_(ids))
     return await database.fetch_all(query=query)
 
 
