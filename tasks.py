@@ -64,6 +64,9 @@ def get_videos_from_channels():
 
 @app.task()
 def send_activate_email(email, code):
+    if settings.TEST:
+        return f'Создано письмо с активацией аккаунта. Ссылка: {settings.FRONTEND_URL}/user/activate/{code}'
+
     message = Mail(settings.EMAIL_FROM, email,
                    'Регистрация на edm.su',
                    f'Вы успешно зарегистрированы для активации аккаунта перейдите по ссылке: '
@@ -75,6 +78,9 @@ def send_activate_email(email, code):
 
 @app.task()
 def send_recovery_email(email, code):
+    if settings.TEST:
+        return f'Создано письмо с восстановлением пароля. Ссылка: {settings.FRONTEND_URL}/user/recovery/{code}'
+
     message = Mail(settings.EMAIL_FROM, email, 'Восстановление пароля на edm.su',
                    f'Для смены пароля перейдите по ссылке: {settings.FRONTEND_URL}/user/recovery/{code}')
     sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
