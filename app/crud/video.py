@@ -52,8 +52,8 @@ async def get_related_videos(title: str, limit: int = 25, user_id: int = None,
     if user_id:
         selected_tables.append(is_liked(user_id))
 
-    query = select(selected_tables).where(videos.c.deleted == deleted).order_by(videos.c.title.op('<->')(title)).limit(
-        limit)
+    query = select(selected_tables).where(videos.c.deleted == deleted).order_by(videos.c.title.op('<->')(title))
+    query = query.limit(limit).offset(1)
     return await database.fetch_all(query=query)
 
 
