@@ -61,6 +61,7 @@ async def get_liked_videos(user_id: int) -> typing.List[typing.Mapping]:
     query = liked_videos.join(videos, and_(videos.c.id == liked_videos.c.video_id, videos.c.deleted == False))
     query = select([videos]).select_from(query)
     query = query.where(liked_videos.c.user_id == user_id)
+    query = query.order_by(desc(liked_videos.c.created_at))
     return await database.fetch_all(query=query)
 
 

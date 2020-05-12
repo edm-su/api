@@ -70,6 +70,7 @@ liked_videos = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column('user_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),
     sqlalchemy.Column('video_id', sqlalchemy.Integer, sqlalchemy.ForeignKey('videos.id')),
+    sqlalchemy.Column('created_at', sqlalchemy.DateTime, server_default=sqlalchemy.sql.func.now()),
     sqlalchemy.UniqueConstraint('user_id', 'video_id', name='unique_liked_video'),
 )
 
