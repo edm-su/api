@@ -15,7 +15,11 @@ router = APIRouter()
 
 
 async def find_video(slug: str, user: typing.Optional[dict] = Depends(get_current_user_or_guest)) -> typing.Mapping:
-    db_video = await video.get_video_by_slug(slug=slug, user_id=user['id'])
+    if user:
+        db_video = await video.get_video_by_slug(slug=slug, user_id=user['id'])
+    else:
+        db_video = await video.get_video_by_slug(slug=slug)
+
     if db_video:
         return db_video
     else:
@@ -51,7 +55,10 @@ async def delete_video(admin: dict = Depends(get_current_admin), db_video: dict 
             summary='Получить похожие видео')
 async def read_related_videos(db_video: videos = Depends(find_video), limit: int = Query(default=15, ge=1, le=50),
                               user: dict = Depends(get_current_user_or_guest)):
-    return await video.get_related_videos(title=db_video['title'], limit=limit, user_id=user['id'])
+    if user:
+        return await video.get_related_videos(title=db_video['title'], limit=limit, user_id=user['id'])
+    else:
+        return await video.get_related_videos(title=db_video['title'], limit=limit)
 
 
 @router.post('/videos/{slug}/like', tags=['Видео', 'Пользователи'], summary='Добавление понравившегося видео',
