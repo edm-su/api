@@ -26,6 +26,7 @@ python-multipart = "*"
 boto3 = "*"
 pillow = "*"
 databases = {extras = ["postgresql"],version = "*"}
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.7"
