@@ -1,3 +1,4 @@
+import datetime
 import typing
 
 from sqlalchemy import desc, select, func, case, exists, and_
@@ -14,9 +15,9 @@ def is_liked(user_id: int) -> Label:
     ], else_='f').label('liked')
 
 
-async def add_video(title: str, slug: str, yt_id: str, yt_thumbnail: str, date=None, channel_id: int = None,
-                    duration: int = 0):
-    query = videos.insert().returning()
+async def add_video(title: str, slug: str, yt_id: str, yt_thumbnail: str, date: datetime.date = None,
+                    channel_id: int = None, duration: int = 0):
+    query = videos.insert().returning(videos)
     values = {'title': title, 'slug': slug, 'yt_id': yt_id, 'yt_thumbnail': yt_thumbnail, 'date': date,
               'channel_id': channel_id, 'duration': duration}
     db_video = await database.fetch_one(query=query, values=values)
