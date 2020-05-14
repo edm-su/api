@@ -1,201 +1,66 @@
 {
-  "definitions": {},
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://example.com/root.json",
-  "type": "object",
-  "title": "The Root Schema",
-  "required": [
-    "total_count",
-    "videos"
-  ],
-  "properties": {
-    "total_count": {
-      "$id": "#/properties/total_count",
-      "type": "integer",
-      "title": "The Total_count Schema",
-      "default": 0,
-      "examples": [
-        900
-      ]
-    },
-    "videos": {
-      "$id": "#/properties/videos",
-      "type": "array",
-      "title": "The Videos Schema",
-      "items": {
-        "$id": "#/properties/videos/items",
-        "type": "object",
-        "title": "The Items Schema",
-        "required": [
-          "title",
-          "slug",
-          "date",
-          "yt_id",
-          "yt_thumbnail",
-          "duration",
-          "event",
-          "channel",
-          "djs",
-          "id"
-        ],
-        "properties": {
-          "title": {
-            "$id": "#/properties/videos/items/properties/title",
-            "type": "string",
-            "title": "The Title Schema",
-            "default": "",
-            "examples": [
-              "Nakadia @ Luft , Melbourne | BE-AT.TV"
-            ],
-            "pattern": "^(.*)$"
-          },
-          "slug": {
-            "$id": "#/properties/videos/items/properties/slug",
-            "type": "string",
-            "title": "The Slug Schema",
-            "default": "",
-            "examples": [
-              "nakadia-luft-melbourne-be-at-tv"
-            ],
-            "pattern": "^(.*)$"
-          },
-          "date": {
-            "$id": "#/properties/videos/items/properties/date",
-            "type": "string",
-            "title": "The Date Schema",
-            "default": "",
-            "examples": [
-              "2019-12-11"
-            ],
-            "format": "date"
-          },
-          "yt_id": {
-            "$id": "#/properties/videos/items/properties/yt_id",
-            "type": "string",
-            "title": "The Yt_id Schema",
-            "default": "",
-            "examples": [
-              "hQJV-aB9OSY"
-            ],
-            "pattern": "^(.*)$"
-          },
-          "yt_thumbnail": {
-            "$id": "#/properties/videos/items/properties/yt_thumbnail",
-            "type": "string",
-            "title": "The Yt_thumbnail Schema",
-            "default": "",
-            "examples": [
-              "https://i.ytimg.com/vi/hQJV-aB9OSY/default.jpg"
-            ],
-            "pattern": "^(.*)$"
-          },
-          "duration": {
-            "$id": "#/properties/videos/items/properties/duration",
-            "type": "integer",
-            "title": "The Duration Schema",
-            "default": 0,
-            "examples": [
-              5203
-            ]
-          },
-          "event": {
-            "$id": "#/properties/videos/items/properties/event",
-            "type": "null",
-            "title": "The Event Schema",
-            "default": null,
-            "examples": [
-              null
-            ]
-          },
-          "channel": {
-            "$id": "#/properties/videos/items/properties/channel",
-            "type": "object",
-            "title": "The Channel Schema",
-            "required": [
-              "name",
-              "slug",
-              "yt_id",
-              "yt_thumbnail",
-              "yt_banner",
-              "id"
-            ],
-            "properties": {
-              "name": {
-                "$id": "#/properties/videos/items/properties/channel/properties/name",
-                "type": "string",
-                "title": "The Name Schema",
-                "default": "",
-                "examples": [
-                  "BE-AT.TV"
-                ],
-                "pattern": "^(.*)$"
-              },
-              "slug": {
-                "$id": "#/properties/videos/items/properties/channel/properties/slug",
-                "type": "string",
-                "title": "The Slug Schema",
-                "default": "",
-                "examples": [
-                  "beattv"
-                ],
-                "pattern": "^(.*)$"
-              },
-              "yt_id": {
-                "$id": "#/properties/videos/items/properties/channel/properties/yt_id",
-                "type": "string",
-                "title": "The Yt_id Schema",
-                "default": "",
-                "examples": [
-                  "UCOloc4MDn4dQtP_U6asWk2w"
-                ],
-                "pattern": "^(.*)$"
-              },
-              "yt_thumbnail": {
-                "$id": "#/properties/videos/items/properties/channel/properties/yt_thumbnail",
-                "type": "string",
-                "title": "The Yt_thumbnail Schema",
-                "default": "",
-                "examples": [
-                  "https://yt3.ggpht.com/a/AGF-l79VMcfe8QhBViF1rblglhPtBOh5e1I8W-GADw=s88-c-k-c0xffffffff-no-rj-mo"
-                ],
-                "pattern": "^(.*)$"
-              },
-              "yt_banner": {
-                "$id": "#/properties/videos/items/properties/channel/properties/yt_banner",
-                "type": "string",
-                "title": "The Yt_banner Schema",
-                "default": "",
-                "examples": [
-                  "https://yt3.ggpht.com/Zzs8lKYJ_MILS34Y5XuzggOJkvO7hpZ-fY9f5Y4HWJcjLud7fvF-LI8PyfhbsJ3VYbcxaoxEpA=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj"
-                ],
-                "pattern": "^(.*)$"
-              },
-              "id": {
-                "$id": "#/properties/videos/items/properties/channel/properties/id",
-                "type": "integer",
-                "title": "The Id Schema",
-                "default": 0,
-                "examples": [
-                  20
-                ]
-              }
-            }
-          },
-          "djs": {
-            "$id": "#/properties/videos/items/properties/djs",
-            "type": "array",
-            "title": "The Djs Schema"
-          },
-          "id": {
-            "$id": "#/properties/videos/items/properties/id",
-            "type": "integer",
-            "title": "The Id Schema",
-            "default": 0,
-            "examples": [
-              312592
-            ]
-          }
-        }
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "array",
+  "additionalItems": false,
+  "minItems": 1,
+  "items": {
+    "$id": "#/items",
+    "type": "object",
+    "required": [
+      "title",
+      "slug",
+      "date",
+      "yt_id",
+      "yt_thumbnail",
+      "duration",
+      "channel_id",
+      "liked",
+      "id"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "title": {
+        "$id": "#/items/properties/title",
+        "type": "string"
+      },
+      "slug": {
+        "$id": "#/items/properties/slug",
+        "type": "string"
+      },
+      "date": {
+        "$id": "#/items/properties/date",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "yt_id": {
+        "$id": "#/items/properties/yt_id",
+        "type": "string"
+      },
+      "yt_thumbnail": {
+        "$id": "#/items/properties/yt_thumbnail",
+        "type": "string"
+      },
+      "duration": {
+        "$id": "#/items/properties/duration",
+        "type": "integer"
+      },
+      "channel_id": {
+        "$id": "#/items/properties/channel_id",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "liked": {
+        "$id": "#/items/properties/liked",
+        "type": "boolean"
+      },
+      "id": {
+        "$id": "#/items/properties/id",
+        "type": "integer"
       }
     }
   }

@@ -1,4 +1,5 @@
 import json
+import typing
 from os.path import join, dirname
 
 from jsonschema import validate
@@ -6,7 +7,7 @@ from jsonschema import validate
 from app.auth import create_access_token
 
 
-def assert_valid_schema(data, schema_file):
+def assert_valid_schema(data, schema_file) -> typing.Any:
     """ Checks whether the given data matches the schema """
 
     schema = _load_json_schema(schema_file)
@@ -23,6 +24,6 @@ def _load_json_schema(filename):
         return json.loads(schema_file.read())
 
 
-def create_auth_header(username):
+def create_auth_header(username) -> typing.Mapping:
     token = create_access_token(data={'sub': username}).decode('utf-8')
     return {'Authorization': f'Bearer {token}'}
