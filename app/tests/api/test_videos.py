@@ -1,13 +1,15 @@
 from starlette import status
 
-from app.tests.helpers import assert_valid_schema, create_auth_header
+from app.schemas.video import Video
+from app.tests.helpers import create_auth_header
 
 
 def test_read_videos(client, videos):
     response = client.get('/videos/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert_valid_schema(response.json(), 'videos/list.json')
+    for video in response.json():
+        assert Video.validate(video)
     assert int(response.headers['x-total-count']) == len(videos)
 
 
@@ -22,14 +24,15 @@ def test_read_video(client, videos):
     response = client.get(f"/videos/{videos[0]['slug']}")
 
     assert response.status_code == status.HTTP_200_OK
-    assert_valid_schema(response.json(), 'videos/item.json')
+    assert Video.validate(response.json())
 
 
 def test_read_related_videos(client, videos):
     response = client.get(f"/videos/{videos[0]['slug']}/related")
 
     assert response.status_code == status.HTTP_200_OK
-    assert_valid_schema(response.json(), 'videos/list.json')
+    for video in response.json():
+        assert Video.validate(video)
 
 
 def test_like_video(client, videos, admin):
@@ -51,5 +54,6 @@ def test_liked_videos(client, liked_video, admin):
     response = client.get('/users/liked_videos', headers=headers)
 
     assert response.status_code == status.HTTP_200_OK
-    assert_valid_schema(response.json(), 'videos/list.json')
+    for video in response.json():
+        assert Video.validate(video)
     assert liked_video['slug'] in [video['slug'] for video in response.json()]

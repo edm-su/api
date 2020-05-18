@@ -2,4 +2,4 @@
 
 ./wait-for db:5432
 alembic upgrade head
-pytest
+pytest -s
