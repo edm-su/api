@@ -54,6 +54,18 @@ async def videos():
 
 
 @pytest.fixture()
+async def posts(admin):
+    posts_list = [
+        BasePost(title='Новая заметка', text='Это заметка для тестов', slug='test', published_at=datetime.now())
+    ]
+    result = []
+    for post in posts_list:
+        new_post = await create_post(post, admin['id'])
+        result.append(new_post)
+    return result
+
+
+@pytest.fixture()
 async def liked_video(admin: dict, videos: typing.List[dict]):
     await like_video(admin['id'], videos[0]['id'])
     return videos[0]
