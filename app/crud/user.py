@@ -9,7 +9,12 @@ async def create_user(username: str, email: str, password: str, is_admin: bool =
     hashed_password = get_password_hash(password)
 
     query = users.insert().returning(users)
-    values = {'username': username, 'email': email, 'password': hashed_password, 'is_admin': is_admin}
+    values = {'username': username,
+              'email': email,
+              'password': hashed_password,
+              'is_admin': is_admin,
+              'activation_code': generate_secret_code()
+              }
 
     if is_admin:
         values['activation_code'] = ''
