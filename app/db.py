@@ -4,7 +4,10 @@ import sqlalchemy
 from app import settings
 from app.helpers import generate_secret_code
 
-database = databases.Database(settings.DATABASE_URL)
+if settings.TEST:
+    database = databases.Database(settings.DATABASE_URL, force_rollback=True)
+else:
+    database = databases.Database(settings.DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
 

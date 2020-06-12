@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 
 class BasePost(BaseModel):
     title: str
-    annotation: str
+    annotation: str = None
     text: str
     slug: str
     published_at: datetime

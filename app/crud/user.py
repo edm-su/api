@@ -13,7 +13,7 @@ async def create_user(username: str, email: str, password: str, is_admin: bool =
               'email': email,
               'password': hashed_password,
               'is_admin': is_admin,
-              'activation_code': generate_secret_code(),
+              'activation_code': generate_secret_code()
               }
 
     if is_admin:

@@ -12,7 +12,6 @@ sqlalchemy = "*"
 psycopg2 = "*"
 pytest = "*"
 requests = "*"
-jsonschema = "*"
 celery = "*"
 redis = "*"
 python-dateutil = "*"
@@ -26,6 +25,7 @@ python-multipart = "*"
 boto3 = "*"
 pillow = "*"
 databases = {extras = ["postgresql"],version = "*"}
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.7"
