@@ -7,7 +7,7 @@ from app.helpers import generate_secret_code
 if settings.TEST:
     database = databases.Database(settings.DATABASE_URL, force_rollback=True)
 else:
-    databases = databases.Database(settings.DATABASE_URL)
+    database = databases.Database(settings.DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
 
