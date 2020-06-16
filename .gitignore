@@ -1,4 +1,3 @@
 .idea
 .pytest_cache
-celerybeat-schedule
-celerybeat.pid
+venv
