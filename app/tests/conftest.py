@@ -4,6 +4,7 @@ from datetime import date, datetime
 import pytest
 from starlette.testclient import TestClient
 
+from app import tasks
 from app.crud.post import create_post
 from app.crud.user import create_user, generate_recovery_user_code
 from app.crud.video import add_video, like_video
@@ -21,8 +22,8 @@ def client():
 async def videos():
     videos_list = [
         {
-            "title": "No Lockdown! - The Swedish Response to Coronavirus l ARTE Documentary",
-            "slug": "no-lockdown-the-swedish-response-to-coronavirus-l-arte-documentary",
+            "title": "No Lockdown! - The Swedish Response",
+            "slug": "no-lockdown-the-swedish-response-to",
             "date": "2020-05-13",
             "yt_id": "S_RE1qMTNZo",
             "yt_thumbnail": "https://i.ytimg.com/vi/S_RE1qMTNZo/default.jpg",
@@ -48,15 +49,26 @@ async def videos():
     result = []
     for video in videos_list:
         result.append(
-            await add_video(video['title'], video['slug'], video['yt_id'], video['yt_thumbnail'],
-                            date.fromisoformat(video['date']), duration=video['duration']))
+            await add_video(
+                video['title'],
+                video['slug'],
+                video['yt_id'],
+                video['yt_thumbnail'],
+                date.fromisoformat(video['date']),
+                duration=video['duration']),
+        )
     return result
 
 
 @pytest.fixture()
-async def posts(admin):
+async def posts(admin: dict):
     posts_list = [
-        BasePost(title='Новая заметка', text='Это заметка для тестов', slug='test', published_at=datetime.now())
+        BasePost(
+            title='Новая заметка',
+            text='Это заметка для тестов',
+            slug='test',
+            published_at=datetime.now(),
+        )
     ]
     result = []
     for post in posts_list:
@@ -73,14 +85,32 @@ async def liked_video(admin: dict, videos: typing.List[dict]):
 
 @pytest.fixture()
 async def admin() -> typing.Mapping:
-    return await create_user(username='Admin', email='admin@example.com', password='password', is_admin=True)
+    return await create_user(
+        username='Admin',
+        email='admin@example.com',
+        password='password',
+        is_admin=True,
+    )
 
 
 @pytest.fixture()
 async def non_activated_user() -> typing.Mapping:
-    return await create_user(username='User', email='user@example.com', password='password', is_admin=False)
+    return await create_user(
+        username='User',
+        email='user@example.com',
+        password='password',
+        is_admin=False,
+    )
 
 
 @pytest.fixture()
-async def recovered_user_code(admin) -> str:
+async def recovered_user_code(admin: dict) -> str:
     return await generate_recovery_user_code(admin['id'])
+
+
+@pytest.fixture(autouse=True)
+def no_send_email(monkeypatch):
+    def mock_send_email(*args, **kwargs):
+        pass
+
+    monkeypatch.setattr(tasks, 'send_email', mock_send_email)
