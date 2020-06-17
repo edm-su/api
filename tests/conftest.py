@@ -5,10 +5,12 @@ import pytest
 from starlette.testclient import TestClient
 
 from app import tasks
+from app.crud.channel import create_channel
 from app.crud.post import create_post
 from app.crud.user import create_user, generate_recovery_user_code
 from app.crud.video import add_video, like_video
 from app.main import app
+from app.schemas.channel import BaseChannel
 from app.schemas.post import BasePost
 
 
@@ -94,13 +96,33 @@ async def admin() -> typing.Mapping:
 
 
 @pytest.fixture()
-async def non_activated_user() -> typing.Mapping:
+async def non_activated_user() -> dict:
     return await create_user(
-        username='User',
-        email='user@example.com',
-        password='password',
-        is_admin=False,
+        'Usernonactiv',
+        'usernonactiv@example.com',
+        'password'
     )
+
+
+@pytest.fixture()
+async def user() -> dict:
+    return await create_user(
+        'User',
+        'user@example.com',
+        'password',
+        is_active=True,
+    )
+
+
+@pytest.fixture()
+async def channel_to_be_deleted() -> dict:
+    channel = BaseChannel(
+        name='Channel to be deleted',
+        slug='channel_to_be_deleted',
+        yt_id='test',
+        yt_thumbnail='test'
+    )
+    return await create_channel(channel)
 
 
 @pytest.fixture()

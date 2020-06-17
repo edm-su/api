@@ -4,7 +4,7 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from app.schemas.post import CreatePost, Post
-from app.tests.helpers import create_auth_header
+from tests.helpers import create_auth_header
 
 
 def test_read_posts(client: TestClient, posts: dict):

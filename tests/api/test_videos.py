@@ -2,7 +2,7 @@ from starlette import status
 from starlette.testclient import TestClient
 
 from app.schemas.video import Video
-from app.tests.helpers import create_auth_header
+from tests.helpers import create_auth_header
 
 
 def test_read_videos(client: TestClient, videos):

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class ChannelBase(BaseModel):
+class BaseChannel(BaseModel):
     name: str
     slug: str
     yt_id: str
@@ -9,5 +9,5 @@ class ChannelBase(BaseModel):
     yt_banner: str = None
 
 
-class Channel(ChannelBase):
+class Channel(BaseChannel):
     id: int
