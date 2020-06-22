@@ -3,7 +3,7 @@ from fastapi import (APIRouter,
                      HTTPException,
                      Query,
                      Body,
-                     BackgroundTasks,
+                     BackgroundTasks, Path,
                      )
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
@@ -177,13 +177,13 @@ async def complete_recovery(code: str, password: UserPassword):
 
 
 @router.get(
-    '/users/{username}',
+    '/users/{id}',
     response_model=User,
     tags=['Пользователи'],
     summary='Получение информации о пользователе',
 )
-async def read_user(username: str = Query(...)):
-    db_user = await user.get_user_by_username(username=username)
+async def read_user(id_: int = Path(..., alias='id')):
+    db_user = await user.get_user_by_id(id_)
     if db_user:
         return db_user
     else:

@@ -81,7 +81,7 @@ def test_reset_password(client: TestClient, recovered_user_code: str):
 
 
 def test_read_user(client: TestClient, admin: dict):
-    response = client.get(f'/users/{admin["username"]}')
+    response = client.get(f'/users/{admin["id"]}')
 
     assert response.status_code == status.HTTP_200_OK
     assert User.validate(response.json())
