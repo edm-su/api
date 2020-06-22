@@ -42,7 +42,7 @@ async def get_videos(skip: int = 0, limit: int = 25, channel_id: int = None, del
     query = select(selected_tables).where(videos.c.deleted == deleted)
     if channel_id:
         query = query.where(videos.c.channel_id == channel_id)
-    query = query.order_by(desc('date'))
+    query = query.order_by(desc('date')).order_by(desc('id'))
     query = query.offset(skip).limit(limit)
     return await database.fetch_all(query=query)
 
