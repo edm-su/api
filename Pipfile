@@ -20,6 +20,7 @@ sendgrid = "*"
 email-validator = "*"
 python-multipart = "*"
 httpx = "*"
+uvicorn = "*"
 
 [requires]
 python_version = "3.9"
