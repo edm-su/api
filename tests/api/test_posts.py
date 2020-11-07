@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta, timezone
 
+import pytest
+from httpx import AsyncClient
 from starlette import status
-from starlette.testclient import TestClient
 
 from app.schemas.post import CreatePost, Post
 from tests.helpers import create_auth_header
 
 
-def test_read_posts(client: TestClient, posts: dict):
-    response = client.get('/posts')
+@pytest.mark.asyncio
+async def test_read_posts(client: AsyncClient, posts: dict):
+    response = await client.get('/posts')
 
     assert response.status_code == status.HTTP_200_OK
     assert int(response.headers['x-total-count']) == len(posts)
@@ -16,15 +18,17 @@ def test_read_posts(client: TestClient, posts: dict):
         assert Post.validate(post)
 
 
-def test_read_post(client: TestClient, posts: dict):
-    response = client.get(f'/posts/{posts[0]["slug"]}')
+@pytest.mark.asyncio
+async def test_read_post(client: AsyncClient, posts: dict):
+    response = await client.get(f'/posts/{posts[0]["slug"]}')
 
     assert response.status_code == status.HTTP_200_OK
     assert Post.validate(response.json())
 
 
-def test_delete_post(client: TestClient, posts: dict, admin: dict):
-    response = client.delete(
+@pytest.mark.asyncio
+async def test_delete_post(client: AsyncClient, posts: dict, admin: dict):
+    response = await client.delete(
         f'/posts/{posts[0]["slug"]}',
         headers=create_auth_header(admin['username']),
     )
@@ -32,7 +36,8 @@ def test_delete_post(client: TestClient, posts: dict, admin: dict):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-def test_create_post(client: TestClient, admin: dict):
+@pytest.mark.asyncio
+async def test_create_post(client: AsyncClient, admin: dict):
     published_at = datetime.now(timezone.utc) + timedelta(minutes=1)
     new_post = CreatePost(
         title='Ещё одна заметка',
@@ -40,9 +45,9 @@ def test_create_post(client: TestClient, admin: dict):
         slug='new-test-post',
         published_at=published_at,
     )
-    response = client.post(
+    response = await client.post(
         '/posts/',
-        data=new_post.json(exclude_unset=True),
+        data=new_post.json(),
         headers=create_auth_header(admin['username']),
     )
 

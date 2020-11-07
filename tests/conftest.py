@@ -1,23 +1,38 @@
 import typing
+from asyncio import AbstractEventLoop, get_event_loop
 from datetime import date, datetime
 
 import pytest
-from starlette.testclient import TestClient
+from httpx import AsyncClient
 
 from app import tasks
 from app.crud.channel import create_channel
 from app.crud.post import create_post
 from app.crud.user import create_user, generate_recovery_user_code
 from app.crud.video import add_video, like_video
+from app.db import database
 from app.main import app
 from app.schemas.channel import BaseChannel
 from app.schemas.post import BasePost
 
 
-@pytest.fixture()
-def client():
-    with TestClient(app) as client:
+@pytest.fixture(scope='session')
+async def client():
+    async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
+
+
+@pytest.fixture(autouse=True)
+async def db_connect():
+    await database.connect()
+    yield
+    await database.disconnect()
+
+
+@pytest.fixture(scope='session')
+def event_loop() -> AbstractEventLoop:
+    loop = get_event_loop()
+    yield loop
 
 
 @pytest.fixture()

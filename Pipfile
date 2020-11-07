@@ -19,6 +19,7 @@ boto3 = "*"
 sendgrid = "*"
 email-validator = "*"
 python-multipart = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.9"
