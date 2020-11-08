@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Dict, Any
 
 from app.db import users, database
 from app.helpers import get_password_hash, generate_secret_code
@@ -76,7 +77,9 @@ async def change_password(
         recovery: bool = False,
 ) -> bool:
     query = users.update().where(users.c.id == user_id).returning(users)
-    values = {'password': get_password_hash(password)}
+    values: Dict[str, Any[str, None]] = {
+        'password': get_password_hash(password),
+    }
     if recovery:
         values.update(
             {'recovery_code': None, 'recovery_code_lifetime_end': None},

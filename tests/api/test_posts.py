@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import List, Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -9,7 +10,7 @@ from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_read_posts(client: AsyncClient, posts: dict):
+async def test_read_posts(client: AsyncClient, posts: List[Mapping]) -> None:
     response = await client.get('/posts')
 
     assert response.status_code == status.HTTP_200_OK
@@ -19,7 +20,7 @@ async def test_read_posts(client: AsyncClient, posts: dict):
 
 
 @pytest.mark.asyncio
-async def test_read_post(client: AsyncClient, posts: dict):
+async def test_read_post(client: AsyncClient, posts: List[Mapping]) -> None:
     response = await client.get(f'/posts/{posts[0]["slug"]}')
 
     assert response.status_code == status.HTTP_200_OK
@@ -27,7 +28,11 @@ async def test_read_post(client: AsyncClient, posts: dict):
 
 
 @pytest.mark.asyncio
-async def test_delete_post(client: AsyncClient, posts: dict, admin: dict):
+async def test_delete_post(
+        client: AsyncClient,
+        posts: List[Mapping],
+        admin: dict,
+) -> None:
     response = await client.delete(
         f'/posts/{posts[0]["slug"]}',
         headers=create_auth_header(admin['username']),
@@ -37,7 +42,7 @@ async def test_delete_post(client: AsyncClient, posts: dict, admin: dict):
 
 
 @pytest.mark.asyncio
-async def test_create_post(client: AsyncClient, admin: dict):
+async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
     published_at = datetime.now(timezone.utc) + timedelta(minutes=1)
     new_post = CreatePost(
         title='Ещё одна заметка',

@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class VideoBase(BaseModel):
@@ -10,7 +10,7 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    channel_id: int = None
+    channel_id: int = Field(None)
     liked: bool = False
 
 

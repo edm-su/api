@@ -3,6 +3,7 @@ from asyncio import AbstractEventLoop, get_event_loop
 from datetime import date, datetime
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from httpx import AsyncClient
 
 from app import tasks
@@ -17,27 +18,27 @@ from app.schemas.post import BasePost
 
 
 @pytest.fixture(scope='session')
-async def client():
+async def client() -> typing.AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
 
 
 @pytest.fixture(autouse=True)
-async def db_connect():
+async def db_connect() -> typing.AsyncGenerator[None, None]:
     await database.connect()
     yield
     await database.disconnect()
 
 
 @pytest.fixture(scope='session')
-def event_loop() -> AbstractEventLoop:
+def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
     loop = get_event_loop()
     yield loop
 
 
 @pytest.fixture()
-async def videos():
-    videos_list = [
+async def videos() -> typing.List[typing.Mapping]:
+    videos_list: typing.List[typing.Dict[str, typing.Any[str, int]]] = [
         {
             "title": "No Lockdown! - The Swedish Response",
             "slug": "no-lockdown-the-swedish-response-to",
@@ -72,13 +73,14 @@ async def videos():
                 video['yt_id'],
                 video['yt_thumbnail'],
                 date.fromisoformat(video['date']),
-                duration=video['duration']),
+                duration=video['duration']
+            ),
         )
     return result
 
 
 @pytest.fixture()
-async def posts(admin: dict):
+async def posts(admin: typing.Mapping) -> typing.List[typing.Mapping]:
     posts_list = [
         BasePost(
             title='Новая заметка',
@@ -95,7 +97,10 @@ async def posts(admin: dict):
 
 
 @pytest.fixture()
-async def liked_video(admin: dict, videos: typing.List[dict]):
+async def liked_video(
+        admin: typing.Mapping,
+        videos: typing.List[typing.Mapping],
+) -> typing.Mapping:
     await like_video(admin['id'], videos[0]['id'])
     return videos[0]
 
@@ -111,7 +116,7 @@ async def admin() -> typing.Mapping:
 
 
 @pytest.fixture()
-async def non_activated_user() -> dict:
+async def non_activated_user() -> typing.Mapping:
     return await create_user(
         'Usernonactiv',
         'usernonactiv@example.com',
@@ -120,7 +125,7 @@ async def non_activated_user() -> dict:
 
 
 @pytest.fixture()
-async def user() -> dict:
+async def user() -> typing.Mapping:
     return await create_user(
         'User',
         'user@example.com',
@@ -130,7 +135,7 @@ async def user() -> dict:
 
 
 @pytest.fixture()
-async def channel_to_be_deleted() -> dict:
+async def channel_to_be_deleted() -> typing.Mapping:
     channel = BaseChannel(
         name='Channel to be deleted',
         slug='channel_to_be_deleted',
@@ -146,8 +151,8 @@ async def recovered_user_code(admin: dict) -> str:
 
 
 @pytest.fixture(autouse=True)
-def no_send_email(monkeypatch):
-    def mock_send_email(*args, **kwargs):
+def no_send_email(monkeypatch: MonkeyPatch) -> None:
+    def mock_send_email(*args: list, **kwargs: dict) -> None:
         pass
 
     monkeypatch.setattr(tasks, 'send_email', mock_send_email)

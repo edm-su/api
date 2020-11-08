@@ -1,3 +1,5 @@
+from typing import Mapping, Dict, Union
+
 from fastapi import (APIRouter,
                      Depends,
                      HTTPException,
@@ -27,7 +29,7 @@ router = APIRouter()
 async def user_register(
         new_user: CreateUser,
         background_tasks: BackgroundTasks,
-):
+) -> Mapping:
     if await user.get_user_by_email(new_user.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,14 +62,15 @@ async def user_register(
     summary='Активация учётной записи',
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def user_activate(code: str = Query(..., regex=r'^[A-Z\d]{10}$')):
-    if await user.activate_user(code=code):
-        return {}
-    else:
+async def user_activate(
+        code: str = Query(..., regex=r'^[A-Z\d]{10}$'),
+) -> None:
+    if not await user.activate_user(code=code):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неверный код активации',
         )
+    return None
 
 
 @router.post(
@@ -76,7 +79,9 @@ async def user_activate(code: str = Query(..., regex=r'^[A-Z\d]{10}$')):
     tags=['Пользователи'],
     summary='Авторизация и получение access_token',
 )
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+) -> Dict[str, Union[str, bytes]]:
     db_user = await authenticate_user(
         username=form_data.username,
         password=form_data.password,
@@ -108,7 +113,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     tags=['Пользователи'],
     summary='Получение данных пользователя',
 )
-async def read_current_user(current_user: MyUser = Depends(get_current_user)):
+async def read_current_user(
+        current_user: MyUser = Depends(get_current_user),
+) -> MyUser:
     return current_user
 
 
@@ -118,7 +125,10 @@ async def read_current_user(current_user: MyUser = Depends(get_current_user)):
     summary='Восстановление пароля',
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def user_recovery(email: EmailStr, background_tasks: BackgroundTasks):
+async def user_recovery(
+        email: EmailStr,
+        background_tasks: BackgroundTasks,
+) -> None:
     db_user = await user.get_user_by_email(email=email)
     if not db_user:
         raise HTTPException(
@@ -127,7 +137,6 @@ async def user_recovery(email: EmailStr, background_tasks: BackgroundTasks):
         )
     code = await user.generate_recovery_user_code(user_id=db_user['id'])
     background_tasks.add_task(send_recovery_email, db_user['email'], code)
-    return {}
 
 
 @router.put(
@@ -139,14 +148,13 @@ async def user_recovery(email: EmailStr, background_tasks: BackgroundTasks):
 async def change_password(
         new_password: UserPassword,
         old_password: str = Body(..., min_length=6),
-        current_user: dict = Depends(get_current_user),
-):
+        current_user: Mapping = Depends(get_current_user),
+) -> None:
     if get_password_hash(old_password) == current_user['password']:
         await user.change_password(
             user_id=current_user['id'],
             password=new_password.password,
         )
-        return {}
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -160,20 +168,19 @@ async def change_password(
     summary='Сброс пароля',
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def complete_recovery(code: str, password: UserPassword):
+async def complete_recovery(code: str, password: UserPassword) -> None:
     db_user = await user.get_user_by_recovery_code(code)
-    if db_user:
-        await user.change_password(
-            user_id=db_user['id'],
-            password=password.password,
-            recovery=True,
-        )
-        return {}
-    else:
+    if not db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неверный код или истёк срок действия',
         )
+
+    await user.change_password(
+        user_id=db_user['id'],
+        password=password.password,
+        recovery=True,
+    )
 
 
 @router.get(
@@ -182,12 +189,11 @@ async def complete_recovery(code: str, password: UserPassword):
     tags=['Пользователи'],
     summary='Получение информации о пользователе',
 )
-async def read_user(id_: int = Path(..., alias='id')):
+async def read_user(id_: int = Path(..., alias='id')) -> Mapping:
     db_user = await user.get_user_by_id(id_)
-    if db_user:
-        return db_user
-    else:
+    if not db_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Пользователь не найден',
         )
+    return db_user

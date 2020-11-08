@@ -7,7 +7,7 @@ class CommentBase(BaseModel):
     text: str
 
     @validator('text')
-    def max_text_length(cls, v):
+    def max_text_length(cls, v: str) -> str:
         if len(v) > 120:
             raise ValueError('превышает максимальную длину (120 символов)')
         return v

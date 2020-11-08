@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Mapping
 
 from fastapi import APIRouter, HTTPException, Depends, Response, Query
 from starlette import status
@@ -12,12 +12,11 @@ from app.schemas.video import Video
 router = APIRouter()
 
 
-async def find_channel(slug: str) -> dict:
+async def find_channel(slug: str) -> Mapping:
     db_channel = await channel.get_channel_by_slug(slug=slug)
-    if db_channel is not None:
-        return db_channel
-    else:
+    if db_channel is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, 'Канал не найден')
+    return db_channel
 
 
 @router.get(
@@ -30,7 +29,7 @@ async def read_channels(
         response: Response,
         pagination: Paginator = Depends(Paginator),
         ids: List[int] = Query(None),
-):
+) -> List[Mapping]:
     response.headers["X-Total-Count"] = str(await channel.get_channels_count())
     return await channel.get_channels(pagination.skip, pagination.limit, ids)
 
@@ -41,7 +40,7 @@ async def read_channels(
     tags=['Каналы'],
     summary='Получить канал',
 )
-async def read_channel(db_channel: dict = Depends(find_channel)):
+async def read_channel(db_channel: Mapping = Depends(find_channel)) -> Mapping:
     return db_channel
 
 
@@ -53,8 +52,8 @@ async def read_channel(db_channel: dict = Depends(find_channel)):
 )
 async def read_channel_videos(
         pagination: Paginator = Depends(Paginator),
-        db_channel: dict = Depends(find_channel),
-):
+        db_channel: Mapping = Depends(find_channel),
+) -> List[Mapping]:
     return await video.get_videos(
         pagination.skip,
         pagination.limit,
@@ -69,8 +68,7 @@ async def read_channel_videos(
     summary='Удаление канала',
 )
 async def delete_channel(
-        db_channel: dict = Depends(find_channel),
-        admin: dict = Depends(get_current_admin),
-):
+        db_channel: Mapping = Depends(find_channel),
+        admin: Mapping = Depends(get_current_admin),
+) -> None:
     await channel.delete_channel(db_channel['id'])
-    return {}

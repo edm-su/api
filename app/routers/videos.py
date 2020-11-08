@@ -1,5 +1,4 @@
-import typing
-from typing import List
+from typing import List, Mapping, Optional
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, HTTPException, Depends, Response, Query
@@ -7,7 +6,6 @@ from starlette import status
 
 from app import auth
 from app.crud import video
-from app.db import videos
 from app.helpers import Paginator
 from app.schemas.video import Video
 
@@ -16,8 +14,8 @@ router = APIRouter()
 
 async def find_video(
         slug: str,
-        user: typing.Optional[dict] = Depends(auth.get_current_user_or_guest),
-) -> typing.Mapping:
+        user: Optional[Mapping] = Depends(auth.get_current_user_or_guest),
+) -> Mapping:
     user_id = user['id'] if user else None
     db_video = await video.get_video_by_slug(slug=slug, user_id=user_id)
 
@@ -35,8 +33,8 @@ async def find_video(
 async def read_videos(
         response: Response,
         pagination: Paginator = Depends(Paginator),
-        user: typing.Optional[dict] = Depends(auth.get_current_user_or_guest),
-):
+        user: Optional[Mapping] = Depends(auth.get_current_user_or_guest),
+) -> List[Mapping]:
     user_id = user['id'] if user else None
     db_videos = await video.get_videos(
         skip=pagination.skip,
@@ -54,7 +52,7 @@ async def read_videos(
     tags=['Видео'],
     summary='Получить видео',
 )
-async def read_video(db_video: videos = Depends(find_video)):
+async def read_video(db_video: Mapping = Depends(find_video)) -> Mapping:
     return db_video
 
 
@@ -65,12 +63,10 @@ async def read_video(db_video: videos = Depends(find_video)):
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-        admin: dict = Depends(auth.get_current_admin),
-        db_video: dict = Depends(find_video),
-):
-    if await video.delete_video(video_id=db_video['id']):
-        return {}
-    else:
+        admin: Mapping = Depends(auth.get_current_admin),
+        db_video: Mapping = Depends(find_video),
+) -> None:
+    if not await video.delete_video(video_id=db_video['id']):
         raise HTTPException(400, 'При удалении произошла ошибка')
 
 
@@ -81,10 +77,10 @@ async def delete_video(
     summary='Получить похожие видео',
 )
 async def read_related_videos(
-        db_video: videos = Depends(find_video),
+        db_video: Mapping = Depends(find_video),
         limit: int = Query(default=15, ge=1, le=50),
-        user: dict = Depends(auth.get_current_user_or_guest),
-):
+        user: Mapping = Depends(auth.get_current_user_or_guest),
+) -> List[Mapping]:
     user_id = user['id'] if user else None
 
     return await video.get_related_videos(
@@ -101,12 +97,11 @@ async def read_related_videos(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def add_liked_video(
-        db_video: dict = Depends(find_video),
-        user: dict = Depends(auth.get_current_user),
-):
+        db_video: Mapping = Depends(find_video),
+        user: Mapping = Depends(auth.get_current_user),
+) -> None:
     try:
         await video.like_video(user_id=user['id'], video_id=db_video['id'])
-        return {}
     except UniqueViolationError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -121,9 +116,9 @@ async def add_liked_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_liked_video(
-        db_video: dict = Depends(find_video),
-        user: dict = Depends(auth.get_current_user),
-):
+        db_video: Mapping = Depends(find_video),
+        user: Mapping = Depends(auth.get_current_user),
+) -> None:
     if not await video.dislike_video(
             user_id=user['id'],
             video_id=db_video['id'],
@@ -132,7 +127,6 @@ async def delete_liked_video(
             status_code=status.HTTP_409_CONFLICT,
             detail='Видео не найдено в понравившихся',
         )
-    return None
 
 
 @router.get(
@@ -142,6 +136,6 @@ async def delete_liked_video(
     summary='Получить список понравившихся видео',
 )
 async def get_liked_videos(
-        current_user: dict = Depends(auth.get_current_user),
-):
+        current_user: Mapping = Depends(auth.get_current_user),
+) -> List[Mapping]:
     return await video.get_liked_videos(user_id=current_user['id'])
