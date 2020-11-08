@@ -4,12 +4,14 @@ import string
 
 import boto3
 from algoliasearch.search_client import SearchClient
+from algoliasearch.search_index import SearchIndex
+from botocore.client import BaseClient
 from fastapi import Query
 
 from app import settings
 
 
-def algolia_client():
+def algolia_client() -> SearchIndex:
     client = SearchClient.create(
         settings.ALGOLIA_APP_ID,
         settings.ALGOLIA_API_KEY,
@@ -18,7 +20,7 @@ def algolia_client():
     return index
 
 
-def s3_client():
+def s3_client() -> BaseClient:
     s3 = boto3.client(
         's3',
         endpoint_url=settings.S3_ENDPOINT,
@@ -28,12 +30,12 @@ def s3_client():
     return s3
 
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     encoded_password = f'{password}{settings.SECRET_KEY}'.encode()
     return hashlib.sha256(encoded_password).hexdigest()
 
 
-def generate_secret_code(n: int = 10):
+def generate_secret_code(n: int = 10) -> str:
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 

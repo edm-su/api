@@ -1,3 +1,5 @@
+from typing import Mapping
+
 import pytest
 from httpx import AsyncClient
 from starlette import status
@@ -7,7 +9,7 @@ from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_read_videos(client: AsyncClient, videos):
+async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
     response = await client.get('/videos/')
 
     assert response.status_code == status.HTTP_200_OK
@@ -17,7 +19,11 @@ async def test_read_videos(client: AsyncClient, videos):
 
 
 @pytest.mark.asyncio
-async def test_delete_video(client: AsyncClient, videos: dict, admin: dict):
+async def test_delete_video(
+        client: AsyncClient,
+        videos: Mapping,
+        admin: Mapping,
+) -> None:
     headers = create_auth_header(admin['username'])
     response = await client.delete(
         f"/videos/{videos[0]['slug']}",
@@ -28,7 +34,7 @@ async def test_delete_video(client: AsyncClient, videos: dict, admin: dict):
 
 
 @pytest.mark.asyncio
-async def test_read_video(client: AsyncClient, videos: dict):
+async def test_read_video(client: AsyncClient, videos: Mapping) -> None:
     response = await client.get(f"/videos/{videos[0]['slug']}")
 
     assert response.status_code == status.HTTP_200_OK
@@ -36,7 +42,10 @@ async def test_read_video(client: AsyncClient, videos: dict):
 
 
 @pytest.mark.asyncio
-async def test_read_related_videos(client: AsyncClient, videos: dict):
+async def test_read_related_videos(
+        client: AsyncClient,
+        videos: Mapping,
+) -> None:
     response = await client.get(f"/videos/{videos[0]['slug']}/related")
 
     assert response.status_code == status.HTTP_200_OK
@@ -45,7 +54,11 @@ async def test_read_related_videos(client: AsyncClient, videos: dict):
 
 
 @pytest.mark.asyncio
-async def test_like_video(client: AsyncClient, videos: dict, admin: dict):
+async def test_like_video(
+        client: AsyncClient,
+        videos: Mapping,
+        admin: Mapping,
+) -> None:
     headers = create_auth_header(admin['username'])
     url = f"/videos/{videos[0]['slug']}/like"
     response = await client.post(url, headers=headers)
@@ -56,9 +69,9 @@ async def test_like_video(client: AsyncClient, videos: dict, admin: dict):
 @pytest.mark.asyncio
 async def test_dislike_video(
         client: AsyncClient,
-        liked_video: dict,
-        admin: dict,
-):
+        liked_video: Mapping,
+        admin: Mapping,
+) -> None:
     headers = create_auth_header(admin['username'])
     url = f"/videos/{liked_video['slug']}/like"
     response = await client.delete(url, headers=headers)
@@ -69,9 +82,9 @@ async def test_dislike_video(
 @pytest.mark.asyncio
 async def test_liked_videos(
         client: AsyncClient,
-        liked_video: dict,
-        admin: dict,
-):
+        liked_video: Mapping,
+        admin: Mapping,
+) -> None:
     headers = create_auth_header(admin['username'])
     response = await client.get('/users/liked_videos', headers=headers)
 

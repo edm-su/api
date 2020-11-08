@@ -15,3 +15,4 @@ jobs:
         with:
           # The GitHub API token to create reviews with
           token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: jpetrucciani/mypy-check@master

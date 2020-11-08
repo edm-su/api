@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BaseChannel(BaseModel):
@@ -6,7 +6,7 @@ class BaseChannel(BaseModel):
     slug: str
     yt_id: str
     yt_thumbnail: str
-    yt_banner: str = None
+    yt_banner: str = Field(None)
 
 
 class Channel(BaseChannel):

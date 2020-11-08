@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jwt import PyJWTError
 from starlette import status
 
 from app import settings
@@ -25,11 +24,11 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        username: str = payload.get('sub')
+        username = payload.get('sub')
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except PyJWTError:
+    except jwt.PyJWTError:
         raise credentials_exception
     db_user = await user.get_user_by_username(token_data.username)
     if db_user is None:
@@ -43,6 +42,7 @@ async def get_current_user_or_guest(
     if token:
         db_user = await get_current_user(token=token)
         return db_user
+    return None
 
 
 async def get_current_admin(
@@ -60,16 +60,16 @@ async def get_current_admin(
 async def authenticate_user(
         username: str,
         password: str,
-) -> typing.Union[typing.Mapping, bool]:
+) -> typing.Optional[typing.Mapping]:
     db_user = await user.get_user_by_username(username=username)
     if not db_user:
-        return False
+        return None
     if not verify_password(password, db_user['password']):
-        return False
+        return None
     return db_user
 
 
-def verify_password(password, hashed_password) -> bool:
+def verify_password(password: str, hashed_password: str) -> bool:
     return get_password_hash(password) == hashed_password
 
 

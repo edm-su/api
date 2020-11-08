@@ -1,5 +1,4 @@
-import typing
-from typing import List
+from typing import List, Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -11,7 +10,7 @@ from app.schemas.comment import Comment, CommentBase
 router = APIRouter()
 
 
-async def find_video(video_slug: str) -> typing.Mapping:
+async def find_video(video_slug: str) -> Mapping:
     db_video = await video.get_video_by_slug(slug=video_slug)
     if db_video:
         return db_video
@@ -29,13 +28,12 @@ async def new_comment(
         text: CommentBase,
         db_video: dict = Depends(find_video),
         current_user: dict = Depends(get_current_user),
-):
-    db_comment = await comment.create_comment(
+) -> Mapping:
+    return await comment.create_comment(
         user_id=current_user['id'],
         video_id=db_video['id'],
         text=text.text,
     )
-    return db_comment
 
 
 @router.get(
@@ -44,9 +42,10 @@ async def new_comment(
     tags=['Комментарии', 'Видео'],
     summary='Получить комментарии к видео',
 )
-async def read_comments(db_video: dict = Depends(find_video)):
-    db_comments = await comment.get_comments_for_video(video_id=db_video['id'])
-    return db_comments
+async def read_comments(
+        db_video: Mapping = Depends(find_video),
+) -> List[Mapping]:
+    return await comment.get_comments_for_video(video_id=db_video['id'])
 
 
 @router.get(
@@ -57,9 +56,9 @@ async def read_comments(db_video: dict = Depends(find_video)):
 )
 async def comments_list(
         response: Response,
-        admin: dict = Depends(get_current_admin),
+        admin: Mapping = Depends(get_current_admin),
         pagination: Paginator = Depends(Paginator),
-):
+) -> List[Mapping]:
     response.headers['X-Total_Count'] = str(await comment.get_comments_count())
     return await comment.get_comments(
         limit=pagination.limit,

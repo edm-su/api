@@ -1,3 +1,5 @@
+from typing import Mapping
+
 import pytest
 from httpx import AsyncClient
 from starlette import status
@@ -7,7 +9,7 @@ from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_create_user(client: AsyncClient):
+async def test_create_user(client: AsyncClient) -> None:
     new_user = CreateUser(
         password='testpassword',
         password_confirm='testpassword',
@@ -22,7 +24,10 @@ async def test_create_user(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_activate_user(client: AsyncClient, non_activated_user):
+async def test_activate_user(
+        client: AsyncClient,
+        non_activated_user: Mapping,
+) -> None:
     url = f'/users/activate/{non_activated_user["activation_code"]}'
     response = await client.post(url)
 
@@ -30,7 +35,7 @@ async def test_activate_user(client: AsyncClient, non_activated_user):
 
 
 @pytest.mark.asyncio
-async def test_login(client: AsyncClient, admin: dict):
+async def test_login(client: AsyncClient, admin: Mapping) -> None:
     response = await client.post(
         '/users/token',
         data={
@@ -44,7 +49,7 @@ async def test_login(client: AsyncClient, admin: dict):
 
 
 @pytest.mark.asyncio
-async def test_get_current_user(client: AsyncClient, admin: dict):
+async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
     response = await client.get(
         '/users/me',
         headers=create_auth_header(admin['username']),
@@ -55,14 +60,17 @@ async def test_get_current_user(client: AsyncClient, admin: dict):
 
 
 @pytest.mark.asyncio
-async def test_request_recovery_user(client: AsyncClient, admin: dict):
+async def test_request_recovery_user(
+        client: AsyncClient,
+        admin: Mapping,
+) -> None:
     response = await client.post(f'/users/password-recovery/{admin["email"]}')
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 @pytest.mark.asyncio
-async def test_change_password(client: AsyncClient, admin: dict):
+async def test_change_password(client: AsyncClient, admin: Mapping) -> None:
     data = {
         'new_password': {
             'password': 'newpassword',
@@ -80,7 +88,10 @@ async def test_change_password(client: AsyncClient, admin: dict):
 
 
 @pytest.mark.asyncio
-async def test_reset_password(client: AsyncClient, recovered_user_code: str):
+async def test_reset_password(
+        client: AsyncClient,
+        recovered_user_code: str,
+) -> None:
     data = UserPassword(password='newpassword', password_confirm='newpassword')
     url = f'/users/reset-password/{recovered_user_code}'
     response = await client.put(url, data=data.json())
@@ -89,7 +100,7 @@ async def test_reset_password(client: AsyncClient, recovered_user_code: str):
 
 
 @pytest.mark.asyncio
-async def test_read_user(client: AsyncClient, admin: dict):
+async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
     response = await client.get(f'/users/{admin["id"]}')
 
     assert response.status_code == status.HTTP_200_OK

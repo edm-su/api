@@ -3,17 +3,18 @@ from sendgrid import Mail, SendGridAPIClient
 from app import settings
 
 
-def send_recovery_email(email, code) -> None:
+def send_recovery_email(email: str, code: str) -> None:
     url = f'{settings.FRONTEND_URL}/user/recovery/{code}'
-    message = Mail(settings.EMAIL_FROM,
-                   email,
-                   'Восстановление пароля на edm.su',
-                   f'Для смены пароля перейдите по ссылке: {url}',
-                   )
+    message = Mail(
+        settings.EMAIL_FROM,
+        email,
+        'Восстановление пароля на edm.su',
+        f'Для смены пароля перейдите по ссылке: {url}',
+    )
     send_email(message)
 
 
-def send_activate_email(email, code):
+def send_activate_email(email: str, code: str) -> None:
     message = Mail(
         settings.EMAIL_FROM,
         email,

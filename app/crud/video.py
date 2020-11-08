@@ -1,5 +1,5 @@
 import datetime
-import typing
+from typing import Mapping, List
 
 from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
@@ -16,9 +16,14 @@ def is_liked(user_id: int) -> Label:
     ], else_='f').label('liked')
 
 
-async def add_video(title: str, slug: str, yt_id: str, yt_thumbnail: str,
-                    date: datetime.date = None,
-                    channel_id: int = None, duration: int = 0):
+async def add_video(
+        title: str,
+        slug: str,
+        yt_id: str,
+        yt_thumbnail: str,
+        date: datetime.date = None,
+        channel_id: int = None, duration: int = 0,
+) -> Mapping:
     query = videos.insert().returning(videos)
     values = {'title': title, 'slug': slug, 'yt_id': yt_id,
               'yt_thumbnail': yt_thumbnail, 'date': date,
@@ -50,7 +55,7 @@ async def get_videos(
         channel_id: int = None,
         deleted: bool = False,
         user_id: int = None,
-) -> typing.List[typing.Mapping]:
+) -> List[Mapping]:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
@@ -68,7 +73,7 @@ async def get_related_videos(
         limit: int = 25,
         user_id: int = None,
         deleted: bool = False,
-) -> typing.List[typing.Mapping]:
+) -> List[Mapping]:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
@@ -79,7 +84,7 @@ async def get_related_videos(
     return await database.fetch_all(query=query)
 
 
-async def get_liked_videos(user_id: int) -> typing.List[typing.Mapping]:
+async def get_liked_videos(user_id: int) -> List[Mapping]:
     query = liked_videos.join(
         videos,
         and_(
@@ -110,7 +115,7 @@ async def get_video_by_slug(
         slug: str,
         deleted: bool = False,
         user_id: int = None,
-) -> typing.Mapping:
+) -> Mapping:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))

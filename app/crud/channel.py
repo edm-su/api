@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Mapping
 
 from sqlalchemy import func, select
 
@@ -15,7 +15,7 @@ async def get_channels(
         skip: int = 0,
         limit: int = 25,
         ids: List[int] = None,
-) -> List[dict]:
+) -> List[Mapping]:
     query = channels.select().offset(skip).limit(limit)
     if ids:
         query = query.where(channels.c.id.in_(ids))

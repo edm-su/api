@@ -1,6 +1,7 @@
 import re
 from io import BytesIO
 from time import time
+from typing import Mapping, Dict
 
 from PIL import Image
 from fastapi import (
@@ -15,7 +16,6 @@ from starlette import status
 
 from app import settings
 from app.auth import get_current_admin
-from app.db import users
 from app.helpers import s3_client
 from app.schemas.file import UploadedFile
 
@@ -32,8 +32,8 @@ router = APIRouter()
 async def upload_image(
         background_tasks: BackgroundTasks,
         image: UploadFile = File(...),
-        admin: users = Depends(get_current_admin),
-):
+        admin: Mapping = Depends(get_current_admin),
+) -> Dict[str, str]:
     if not image.content_type.startswith('image/'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -41,7 +41,7 @@ async def upload_image(
         )
 
     filename = re.search(r'[\wа-яА-Я_-]+', image.filename)
-    filename = f'{int(time())}-{filename.group(0)}'
+    filename = f'{int(time())}-{filename.group(0)}'  # type: ignore
     path = f'images/{filename}.jpeg'
 
     background_tasks.add_task(
@@ -52,7 +52,7 @@ async def upload_image(
     return {'file_url': f'{settings.STATIC_URL}/{path}', 'file_path': path}
 
 
-def convert_and_upload_image(file: BytesIO, path: str):
+def convert_and_upload_image(file: BytesIO, path: str) -> None:
     image = Image.open(file)
     image = image.convert('RGB')
     file = BytesIO()

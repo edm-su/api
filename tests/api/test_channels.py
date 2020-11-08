@@ -1,3 +1,5 @@
+import typing
+
 import pytest
 from httpx import AsyncClient
 from starlette import status
@@ -11,9 +13,9 @@ from tests.helpers import create_auth_header
 @pytest.mark.asyncio
 async def test_delete_channel(
         client: AsyncClient,
-        channel_to_be_deleted: dict,
-        admin: dict,
-):
+        channel_to_be_deleted: typing.Mapping,
+        admin: typing.Mapping,
+) -> None:
     auth_headers = create_auth_header(admin['username'])
     response = await client.delete(
         f'/channels/{channel_to_be_deleted["slug"]}',
@@ -26,8 +28,8 @@ async def test_delete_channel(
 @pytest.mark.asyncio
 async def test_delete_channel_without_auth(
         client: AsyncClient,
-        channel_to_be_deleted: dict
-):
+        channel_to_be_deleted: typing.Mapping,
+) -> None:
     response = await client.delete(
         f'/channels/{channel_to_be_deleted["slug"]}')
 
@@ -37,9 +39,9 @@ async def test_delete_channel_without_auth(
 @pytest.mark.asyncio
 async def test_delete_channel_by_user(
         client: AsyncClient,
-        channel_to_be_deleted: dict,
-        user: dict,
-):
+        channel_to_be_deleted: typing.Mapping,
+        user: typing.Mapping,
+) -> None:
     auth_headers = create_auth_header(user['username'])
     response = await client.delete(
         f'/channels/{channel_to_be_deleted["slug"]}',
@@ -52,9 +54,9 @@ async def test_delete_channel_by_user(
 @pytest.mark.asyncio
 async def test_channel_not_found(
         client: AsyncClient,
-        channel_to_be_deleted: dict,
-        admin: dict,
-):
+        channel_to_be_deleted: typing.Mapping,
+        admin: typing.Mapping,
+) -> None:
     auth_headers = create_auth_header(admin['username'])
     response = await client.delete(
         f'/channels/{channel_to_be_deleted["slug"]}notfound',
