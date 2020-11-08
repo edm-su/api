@@ -51,8 +51,8 @@ async def get_user_by_recovery_code(code: str) -> dict:
 
 
 async def activate_user(code: str) -> bool:
-    query = users.update().where(users.c.is_active == False).where(
-        users.c.activation_code == code).returning(users)
+    query = users.update().where(users.c.is_active.is_(False))
+    query = query.where(users.c.activation_code == code).returning(users)
     values = {'is_active': True, 'activation_code': ''}
     return bool(await database.execute(query=query, values=values))
 

@@ -6,7 +6,10 @@ SECRET_KEY = getenv('SECRET_KEY', 'bhdasbdashjcxjhzbjhdasjhdasdbasj')
 
 STATIC_URL = getenv('STATIC_URL', 'https://static.dev.edm.su')
 
-DATABASE_URL = getenv('DATABASE_URL', 'postgresql://postgres:postgres@db/postgres')
+DATABASE_URL = getenv(
+    'DATABASE_URL',
+    'postgresql://postgres:postgres@db/postgres',
+)
 
 REDIS_URL = getenv('REDIS_URL', 'redis://redis:6379')
 

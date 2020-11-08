@@ -16,11 +16,15 @@ async def create_post(post: BasePost, user_id: int) -> typing.Mapping:
 
 
 async def get_post_by_slug(slug: str) -> typing.Mapping:
-    query = posts.select().where(posts.c.slug == slug).where(posts.c.published_at <= datetime.now())
+    query = posts.select().where(posts.c.slug == slug)
+    query = query.where(posts.c.published_at <= datetime.now())
     return await database.fetch_one(query=query)
 
 
-async def get_posts(skip: int = 0, limit: int = 12) -> typing.List[typing.Mapping]:
+async def get_posts(
+        skip: int = 0,
+        limit: int = 12,
+) -> typing.List[typing.Mapping]:
     query = posts.select()
     query = query.where(posts.c.published_at <= datetime.now())
     query = query.order_by(desc(posts.c.published_at))
@@ -29,7 +33,8 @@ async def get_posts(skip: int = 0, limit: int = 12) -> typing.List[typing.Mappin
 
 
 async def get_posts_count() -> int:
-    query = select([func.count()]).select_from(posts).where(posts.c.published_at <= datetime.now())
+    query = select([func.count()]).select_from(posts)
+    query = query.where(posts.c.published_at <= datetime.now())
     return await database.fetch_val(query)
 
 

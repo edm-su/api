@@ -19,23 +19,49 @@ async def find_video(video_slug: str) -> typing.Mapping:
         raise HTTPException(status_code=404, detail='Видео не найдено')
 
 
-@router.post('/videos/{video_slug}/comments/', response_model=Comment, tags=['Комментарии', 'Видео'],
-             summary='Оставить комментарий')
-async def new_comment(text: CommentBase, db_video: dict = Depends(find_video),
-                      current_user: dict = Depends(get_current_user)):
-    return await comment.create_comment(user_id=current_user['id'], video_id=db_video['id'], text=text.text)
+@router.post(
+    '/videos/{video_slug}/comments/',
+    response_model=Comment,
+    tags=['Комментарии', 'Видео'],
+    summary='Оставить комментарий',
+)
+async def new_comment(
+        text: CommentBase,
+        db_video: dict = Depends(find_video),
+        current_user: dict = Depends(get_current_user),
+):
+    db_comment = await comment.create_comment(
+        user_id=current_user['id'],
+        video_id=db_video['id'],
+        text=text.text,
+    )
+    return db_comment
 
 
-@router.get('/videos/{video_slug}/comments/', response_model=List[Comment], tags=['Комментарии', 'Видео'],
-            summary='Получить комментарии к видео')
+@router.get(
+    '/videos/{video_slug}/comments/',
+    response_model=List[Comment],
+    tags=['Комментарии', 'Видео'],
+    summary='Получить комментарии к видео',
+)
 async def read_comments(db_video: dict = Depends(find_video)):
     db_comments = await comment.get_comments_for_video(video_id=db_video['id'])
     return db_comments
 
 
-@router.get('/comments/', response_model=List[Comment], tags=['Комментарии'],
-            summary='Получить список комментариев ко всем видео')
-async def comments_list(response: Response, admin: dict = Depends(get_current_admin),
-                        pagination: Paginator = Depends(Paginator)):
+@router.get(
+    '/comments/',
+    response_model=List[Comment],
+    tags=['Комментарии'],
+    summary='Получить список комментариев ко всем видео',
+)
+async def comments_list(
+        response: Response,
+        admin: dict = Depends(get_current_admin),
+        pagination: Paginator = Depends(Paginator),
+):
     response.headers['X-Total_Count'] = str(await comment.get_comments_count())
-    return await comment.get_comments(limit=pagination.limit, skip=pagination.skip)
+    return await comment.get_comments(
+        limit=pagination.limit,
+        skip=pagination.skip,
+    )
