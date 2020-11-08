@@ -18,7 +18,7 @@ async def test_create_user(client: AsyncClient):
 
     assert response.status_code == status.HTTP_200_OK
     assert MyUser.validate(response.json())
-    assert response.json()['is_admin'] == False
+    assert response.json()['is_admin'] is False
 
 
 @pytest.mark.asyncio

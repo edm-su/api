@@ -16,7 +16,9 @@ class BasePost(BaseModel):
     def slug_regexp(cls, v):
         v = v.strip()
         if re.match('^[a-z0-9]+(?:-[a-z0-9]+)*$', v) is None:
-            raise ValueError('может состоять только из латинских символов, чисел и -')
+            raise ValueError(
+                'может состоять только из латинских символов, чисел и -'
+            )
         return v
 
 
