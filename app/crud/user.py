@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Mapping
 
 from app.db import users, database
 from app.helpers import get_password_hash, generate_secret_code
@@ -11,7 +11,7 @@ async def create_user(
         password: str,
         is_admin: bool = False,
         is_active: bool = False
-) -> dict:
+) -> Optional[Mapping]:
     hashed_password = get_password_hash(password)
 
     query = users.insert().returning(users)
@@ -29,22 +29,22 @@ async def create_user(
     return await database.fetch_one(query=query, values=values)
 
 
-async def get_user_by_email(email: str) -> dict:
+async def get_user_by_email(email: str) -> Optional[Mapping]:
     query = users.select().where(users.c.email == email)
     return await database.fetch_one(query=query)
 
 
-async def get_user_by_username(username: str) -> dict:
+async def get_user_by_username(username: str) -> Optional[Mapping]:
     query = users.select().where(users.c.username == username)
     return await database.fetch_one(query=query)
 
 
-async def get_user_by_id(user_id: int) -> dict:
+async def get_user_by_id(user_id: int) -> Optional[Mapping]:
     query = users.select().where(users.c.id == user_id)
     return await database.fetch_one(query)
 
 
-async def get_user_by_recovery_code(code: str) -> dict:
+async def get_user_by_recovery_code(code: str) -> Optional[Mapping]:
     query = users.select()
     query = query.where(users.c.recovery_code == code)
     query = query.where(users.c.recovery_code_lifetime_end > datetime.now())

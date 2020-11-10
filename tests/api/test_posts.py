@@ -52,7 +52,7 @@ async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
     )
     response = await client.post(
         '/posts/',
-        data=new_post.json(),
+        content=new_post.json(),
         headers=create_auth_header(admin['username']),
     )
 

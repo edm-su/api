@@ -1,4 +1,4 @@
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 from sqlalchemy import desc, func, select
 
@@ -14,7 +14,7 @@ async def create_comment(
         user_id: int,
         video_id: int,
         text: str,
-) -> Mapping:
+) -> Optional[Mapping]:
     query = comments.insert().returning(comments)
     values = {'user_id': user_id, 'video_id': video_id, 'text': text}
     return await database.fetch_one(query=query, values=values)
