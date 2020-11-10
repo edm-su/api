@@ -1,6 +1,7 @@
-import typing
 from asyncio import AbstractEventLoop, get_event_loop
 from datetime import date, datetime
+from typing import AsyncGenerator, Generator, List, Optional, Mapping, Dict, \
+    Any
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -18,27 +19,27 @@ from app.schemas.post import BasePost
 
 
 @pytest.fixture(scope='session')
-async def client() -> typing.AsyncGenerator[AsyncClient, None]:
+async def client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url='http://test') as client:
         yield client
 
 
 @pytest.fixture(autouse=True)
-async def db_connect() -> typing.AsyncGenerator[None, None]:
+async def db_connect() -> AsyncGenerator[None, None]:
     await database.connect()
     yield
     await database.disconnect()
 
 
 @pytest.fixture(scope='session')
-def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
+def event_loop() -> Generator[AbstractEventLoop, None, None]:
     loop = get_event_loop()
     yield loop
 
 
 @pytest.fixture()
-async def videos() -> typing.List[typing.Mapping]:
-    videos_list: typing.List[typing.Dict[str, typing.Any[str, int]]] = [
+async def videos() -> List[Optional[Mapping]]:
+    videos_list: List[Dict[str, Any[str, int]]] = [
         {
             "title": "No Lockdown! - The Swedish Response",
             "slug": "no-lockdown-the-swedish-response-to",
@@ -80,7 +81,7 @@ async def videos() -> typing.List[typing.Mapping]:
 
 
 @pytest.fixture()
-async def posts(admin: typing.Mapping) -> typing.List[typing.Mapping]:
+async def posts(admin: Mapping) -> List[Optional[Mapping]]:
     posts_list = [
         BasePost(
             title='Новая заметка',
@@ -98,15 +99,15 @@ async def posts(admin: typing.Mapping) -> typing.List[typing.Mapping]:
 
 @pytest.fixture()
 async def liked_video(
-        admin: typing.Mapping,
-        videos: typing.List[typing.Mapping],
-) -> typing.Mapping:
+        admin: Mapping,
+        videos: List[Mapping],
+) -> Mapping:
     await like_video(admin['id'], videos[0]['id'])
     return videos[0]
 
 
 @pytest.fixture()
-async def admin() -> typing.Mapping:
+async def admin() -> Optional[Mapping]:
     return await create_user(
         username='Admin',
         email='admin@example.com',
@@ -116,7 +117,7 @@ async def admin() -> typing.Mapping:
 
 
 @pytest.fixture()
-async def non_activated_user() -> typing.Mapping:
+async def non_activated_user() -> Optional[Mapping]:
     return await create_user(
         'Usernonactiv',
         'usernonactiv@example.com',
@@ -125,7 +126,7 @@ async def non_activated_user() -> typing.Mapping:
 
 
 @pytest.fixture()
-async def user() -> typing.Mapping:
+async def user() -> Optional[Mapping]:
     return await create_user(
         'User',
         'user@example.com',
@@ -135,7 +136,7 @@ async def user() -> typing.Mapping:
 
 
 @pytest.fixture()
-async def channel_to_be_deleted() -> typing.Mapping:
+async def channel_to_be_deleted() -> Optional[Mapping]:
     channel = BaseChannel(
         name='Channel to be deleted',
         slug='channel_to_be_deleted',

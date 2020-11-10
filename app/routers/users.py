@@ -1,4 +1,4 @@
-from typing import Mapping, Dict, Union
+from typing import Mapping, Dict, Union, Optional
 
 from fastapi import (APIRouter,
                      Depends,
@@ -29,7 +29,7 @@ router = APIRouter()
 async def user_register(
         new_user: CreateUser,
         background_tasks: BackgroundTasks,
-) -> Mapping:
+) -> Optional[Mapping]:
     if await user.get_user_by_email(new_user.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

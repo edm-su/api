@@ -16,7 +16,7 @@ async def test_create_user(client: AsyncClient) -> None:
         username='TestUser',
         email='testuser@example.com',
     )
-    response = await client.post('/users/', data=new_user.json())
+    response = await client.post('/users/', json=new_user.dict())
 
     assert response.status_code == status.HTTP_200_OK
     assert MyUser.validate(response.json())
@@ -94,7 +94,7 @@ async def test_reset_password(
 ) -> None:
     data = UserPassword(password='newpassword', password_confirm='newpassword')
     url = f'/users/reset-password/{recovered_user_code}'
-    response = await client.put(url, data=data.json())
+    response = await client.put(url, json=data.dict())
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

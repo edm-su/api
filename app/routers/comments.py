@@ -1,4 +1,4 @@
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -28,7 +28,7 @@ async def new_comment(
         text: CommentBase,
         db_video: dict = Depends(find_video),
         current_user: dict = Depends(get_current_user),
-) -> Mapping:
+) -> Optional[Mapping]:
     return await comment.create_comment(
         user_id=current_user['id'],
         video_id=db_video['id'],

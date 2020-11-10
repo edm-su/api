@@ -1,5 +1,5 @@
 import datetime
-from typing import Mapping, List
+from typing import Mapping, List, Optional
 
 from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
@@ -23,11 +23,17 @@ async def add_video(
         yt_thumbnail: str,
         date: datetime.date = None,
         channel_id: int = None, duration: int = 0,
-) -> Mapping:
+) -> Optional[Mapping]:
     query = videos.insert().returning(videos)
-    values = {'title': title, 'slug': slug, 'yt_id': yt_id,
-              'yt_thumbnail': yt_thumbnail, 'date': date,
-              'channel_id': channel_id, 'duration': duration}
+    values = {
+        'title': title,
+        'slug': slug,
+        'yt_id': yt_id,
+        'yt_thumbnail': yt_thumbnail,
+        'date': date,
+        'channel_id': channel_id,
+        'duration': duration,
+    }
     db_video = await database.fetch_one(query=query, values=values)
     if db_video:
         index = algolia_client()
@@ -115,7 +121,7 @@ async def get_video_by_slug(
         slug: str,
         deleted: bool = False,
         user_id: int = None,
-) -> Mapping:
+) -> Optional[Mapping]:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
