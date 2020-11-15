@@ -85,7 +85,11 @@ async def posts(admin: Mapping) -> List[Optional[Mapping]]:
     posts_list = [
         BasePost(
             title='Новая заметка',
-            text='Это заметка для тестов',
+            text={
+                "time": 1605425931108,
+                "blocks": [{"type": "paragraph", "data": {"text": "test"}}],
+                "version": "2.19.0",
+            },
             slug='test',
             published_at=datetime.now(),
         )

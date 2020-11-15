@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timezone
+from typing import Dict, Union, List
 
 from pydantic import BaseModel, validator, Field
 
@@ -7,7 +8,7 @@ from pydantic import BaseModel, validator, Field
 class BasePost(BaseModel):
     title: str
     annotation: str = Field(None)
-    text: str
+    text: Dict[str, Union[int, List[Dict[str, Union[str, Dict]]], str]]
     slug: str
     published_at: datetime
     thumbnail: str = Field(None)

@@ -46,7 +46,11 @@ async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
     published_at = datetime.now(timezone.utc) + timedelta(minutes=1)
     new_post = CreatePost(
         title='Ещё одна заметка',
-        text='Ещё одна заметка',
+        text={
+            "time": 1605425931108,
+            "blocks": [{"type": "paragraph", "data": {"text": "test"}}],
+            "version": "2.19.0",
+        },
         slug='new-test-post',
         published_at=published_at,
     )
