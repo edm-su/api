@@ -60,7 +60,7 @@ posts = sqlalchemy.Table(
     sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column('title', sqlalchemy.String, unique=True, nullable=False),
     sqlalchemy.Column('annotation', sqlalchemy.String),
-    sqlalchemy.Column('text', sqlalchemy.String, nullable=False),
+    sqlalchemy.Column('text', sqlalchemy.JSON, nullable=False),
     sqlalchemy.Column('slug', sqlalchemy.String, nullable=False, unique=True),
     sqlalchemy.Column('published_at', sqlalchemy.DateTime, nullable=False),
     sqlalchemy.Column('thumbnail', sqlalchemy.String),
