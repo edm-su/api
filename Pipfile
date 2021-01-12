@@ -15,14 +15,15 @@ algoliasearch = "*"
 databases = { extras = ["postgresql"], version = "*" }
 fastapi = "*"
 pillow = "*"
-sqlalchemy = { extras = ["asyncpg"], version = "*" }
+sqlalchemy = "*"
 pyjwt = "*"
 boto3 = "*"
 sendgrid = "*"
 email-validator = "*"
 python-multipart = "*"
 httpx = "*"
-uvicorn = "*"
+uvicorn = { extras = ["standard"], version = "*" }
+gunicorn = "*"
 
 [requires]
 python_version = "3.9"
