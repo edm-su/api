@@ -11,13 +11,9 @@ DATABASE_URL = getenv(
     'postgresql://postgres:postgres@db/postgres',
 )
 
-REDIS_URL = getenv('REDIS_URL', 'redis://redis:6379')
-
 FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
 
 SENDGRID_API_KEY = getenv('SENDGRID_API_KEY')
-
-YOUTUBE_API_KEY = getenv('YOUTUBE_API_KEY')
 
 TEST = getenv('TEST', False)
 
