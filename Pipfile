@@ -24,6 +24,7 @@ python-multipart = "*"
 httpx = "*"
 uvicorn = { extras = ["standard"], version = "*" }
 gunicorn = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.9"
