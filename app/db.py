@@ -1,13 +1,13 @@
 import databases
 import sqlalchemy
 
-from app import settings
 from app.helpers import generate_secret_code
+from app.settings import settings
 
-if settings.TEST:
-    database = databases.Database(settings.DATABASE_URL, force_rollback=True)
-else:
-    database = databases.Database(settings.DATABASE_URL)
+database = databases.Database(
+    settings.database_url,
+    force_rollback=settings.testing,
+)
 
 metadata = sqlalchemy.MetaData()
 

@@ -6,10 +6,10 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 
-from app import settings
 from app.crud import user
 from app.helpers import get_password_hash
 from app.schemas.user import TokenData
+from app.settings import settings
 
 oauth_scheme = OAuth2PasswordBearer('/users/token', auto_error=False)
 
@@ -23,7 +23,7 @@ async def get_current_user(
         headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        payload = jwt.decode(token, settings.secret_key, algorithms=['HS256'])
         username = payload.get('sub')
         if username is None:
             raise credentials_exception
@@ -80,5 +80,5 @@ def create_access_token(
 ) -> str:
     to_encode = data.copy()
     to_encode.update({'exp': datetime.utcnow() + expires_delta})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm='HS256')
+    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm='HS256')
     return encoded_jwt

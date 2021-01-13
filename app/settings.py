@@ -1,27 +1,31 @@
-from os import getenv
+from typing import TYPE_CHECKING
 
-EMAIL_FROM = getenv('EMAIL_FROM', 'noreply@edm.su')
+from pydantic import BaseSettings
 
-SECRET_KEY = getenv('SECRET_KEY', 'bhdasbdashjcxjhzbjhdasjhdasdbasj')
+if TYPE_CHECKING:
+    PostgresDsn = str
+else:
+    from pydantic import PostgresDsn
 
-STATIC_URL = getenv('STATIC_URL', 'https://static.dev.edm.su')
 
-DATABASE_URL = getenv(
-    'DATABASE_URL',
-    'postgresql://postgres:postgres@db/postgres',
-)
+class Settings(BaseSettings):
+    email_from: str = 'noreply@edm.su'
+    secret_key: str = 'bhdasbdashjcxjhzbjhdasjhdasdbasj'
+    static_url: str = 'https://static.dev.edm.su'
+    database_url: PostgresDsn = 'postgresql://postgres:postgres@db/postgres'
+    frontend_url: str = 'https://edm.su'
+    sendgrid_api_key: str
+    debug: bool = False
+    testing: bool = False
+    # Algolia settings
+    algolia_app_id: str
+    algolia_api_key: str
+    algolia_index: str
+    # S3 bucket settings
+    s3_bucket: str
+    s3_endpoint: str
+    s3_access_key: str
+    s3_access_key_id: str
 
-FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
 
-SENDGRID_API_KEY = getenv('SENDGRID_API_KEY')
-
-TEST = getenv('TEST', False)
-
-ALGOLIA_APP_ID = getenv('ALGOLIA_APP_ID')
-ALGOLIA_API_KEY = getenv('ALGOLIA_API_KEY')
-ALGOLIA_INDEX = getenv('ALGOLIA_INDEX')
-
-S3_BUCKET = getenv('S3_BUCKET')
-S3_ENDPOINT = getenv('S3_ENDPOINT')
-S3_ACCESS_KEY = getenv('S3_ACCESS_KEY')
-S3_ACCESS_KEY_ID = getenv('S3_ACCESS_KEY_ID')
+settings = Settings()
