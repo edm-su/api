@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     static_url: str = 'https://static.dev.edm.su'
     database_url: PostgresDsn = 'postgresql://postgres:postgres@db/postgres'
     frontend_url: str = 'https://edm.su'
-    sendgrid_api_key: str
     debug: bool = False
     testing: bool = False
     # Algolia settings
@@ -26,6 +25,11 @@ class Settings(BaseSettings):
     s3_endpoint: str
     s3_access_key: str
     s3_access_key_id: str
+    # SMTP settings
+    smtp_server: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
 
 
 settings = Settings()
