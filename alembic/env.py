@@ -1,16 +1,16 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from alembic import context
 from app.db import metadata
-from app.settings import DATABASE_URL
+from app.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', str(DATABASE_URL))
+config.set_main_option('sqlalchemy.url', settings.database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -29,7 +29,7 @@ target_metadata = metadata
 # ... etc.
 
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -53,7 +53,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 
-def run_migrations_online():
+def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine

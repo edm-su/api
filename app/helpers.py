@@ -8,30 +8,30 @@ from algoliasearch.search_index import SearchIndex
 from botocore.client import BaseClient
 from fastapi import Query
 
-from app import settings
+from app.settings import settings
 
 
 def algolia_client() -> SearchIndex:
     client = SearchClient.create(
-        settings.ALGOLIA_APP_ID,
-        settings.ALGOLIA_API_KEY,
+        settings.algolia_app_id,
+        settings.algolia_api_key,
     )
-    index = client.init_index(settings.ALGOLIA_INDEX)
+    index = client.init_index(settings.algolia_index)
     return index
 
 
 def s3_client() -> BaseClient:
     s3 = boto3.client(
         's3',
-        endpoint_url=settings.S3_ENDPOINT,
-        aws_secret_access_key=settings.S3_ACCESS_KEY,
-        aws_access_key_id=settings.S3_ACCESS_KEY_ID,
+        endpoint_url=settings.s3_endpoint,
+        aws_secret_access_key=settings.s3_access_key,
+        aws_access_key_id=settings.s3_access_key_id,
     )
     return s3
 
 
 def get_password_hash(password: str) -> str:
-    encoded_password = f'{password}{settings.SECRET_KEY}'.encode()
+    encoded_password = f'{password}{settings.secret_key}'.encode()
     return hashlib.sha256(encoded_password).hexdigest()
 
 

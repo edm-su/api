@@ -14,10 +14,10 @@ from fastapi import (
 )
 from starlette import status
 
-from app import settings
 from app.auth import get_current_admin
 from app.helpers import s3_client
 from app.schemas.file import UploadedFile
+from app.settings import settings
 
 router = APIRouter()
 
@@ -49,7 +49,7 @@ async def upload_image(
         file=image.file,
         path=path,
     )
-    return {'file_url': f'{settings.STATIC_URL}/{path}', 'file_path': path}
+    return {'file_url': f'{settings.static_url}/{path}', 'file_path': path}
 
 
 def convert_and_upload_image(file: BytesIO, path: str) -> None:
@@ -61,7 +61,7 @@ def convert_and_upload_image(file: BytesIO, path: str) -> None:
 
     s3_client().put_object(
         Body=file,
-        Bucket=settings.S3_BUCKET,
+        Bucket=settings.s3_bucket,
         Key=path,
         ContentType='image/jpeg',
         ACL='public-read',
