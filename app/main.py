@@ -3,8 +3,10 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
 from app.routers import posts, channels, videos, comments, upload, users
+from app.settings import settings
 
-app = FastAPI()
+openapi_url = '/openapi.json' if settings.debug else None
+app = FastAPI(openapi_url=openapi_url, debug=settings.debug)
 
 
 @app.on_event('startup')
