@@ -13,7 +13,10 @@ DATABASE_URL = getenv(
 
 FRONTEND_URL = getenv('FRONTEND_URL', 'https://edm.su')
 
-SENDGRID_API_KEY = getenv('SENDGRID_API_KEY')
+SMTP_SERVER = getenv('SMTP_SERVER')
+SMTP_PORT = getenv('SMTP_PORT', 587)
+SMTP_USER = getenv('SMTP_USER')
+SMTP_PASSWORD = getenv('SMTP_PASSWORD')
 
 TEST = getenv('TEST', False)
 
