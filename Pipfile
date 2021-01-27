@@ -8,6 +8,7 @@ pytest = "*"
 pytest-asyncio = "*"
 flake8 = "*"
 mypy = "*"
+faker = "*"
 
 [packages]
 alembic = "*"
@@ -24,6 +25,7 @@ httpx = "*"
 uvicorn = { extras = ["standard"], version = "*" }
 gunicorn = "*"
 psycopg2-binary = "*"
+python-slugify = { extras = ["unidecode"], version = "*" }
 
 [requires]
 python_version = "3.9"
