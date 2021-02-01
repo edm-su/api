@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
-from app.routers import posts, channels, videos, comments, upload, users
+from app.routers import (
+    posts,
+    channels,
+    videos,
+    comments,
+    upload,
+    users,
+    livestreams,
+)
 from app.settings import settings
 
 openapi_url = '/openapi.json' if settings.debug else None
@@ -32,6 +40,7 @@ app.include_router(users.router)
 app.include_router(comments.router)
 app.include_router(posts.router)
 app.include_router(upload.router)
+app.include_router(livestreams.router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -145,3 +145,23 @@ comments = sqlalchemy.Table(
         nullable=False,
     )
 )
+
+livestreams = sqlalchemy.Table(
+    'livestreams',
+    metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        'title',
+        sqlalchemy.String(256),
+        nullable=False,
+        index=True,
+    ),
+    sqlalchemy.Column('cancelled', sqlalchemy.Boolean, server_default='f'),
+    sqlalchemy.Column('start_time', sqlalchemy.DateTime),
+    sqlalchemy.Column('end_time', sqlalchemy.DateTime),
+    sqlalchemy.Column('image', sqlalchemy.String),
+    sqlalchemy.Column('url', sqlalchemy.String(2083)),
+    sqlalchemy.Column('slug', sqlalchemy.String, nullable=False, index=True),
+    sqlalchemy.Column('genres', sqlalchemy.ARRAY(sqlalchemy.String)),
+    sqlalchemy.Column('djs', sqlalchemy.ARRAY(sqlalchemy.String)),
+)
