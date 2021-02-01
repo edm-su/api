@@ -17,7 +17,7 @@ class BaseLiveStream(BaseModel):
 
     @validator('end_time')
     def end_time_after_start_time(cls, v: datetime, values: dict) -> datetime:
-        if v < values['start_time']:
+        if v and v < values['start_time']:
             raise ValueError('позже даты окончания')
         return v
 
