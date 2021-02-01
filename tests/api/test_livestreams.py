@@ -73,12 +73,12 @@ async def test_period_excess_error(
         client: AsyncClient,
 ) -> None:
     start_date = date.today() - timedelta(days=20)
-    end_date = start_date + timedelta(days=20)
+    end_date = start_date + timedelta(days=46)
     response = await client.get(
         '/livestreams',
         params={
             'start': start_date.isoformat(),
-            'end_date': end_date.isoformat(),
+            'end': end_date.isoformat(),
         },
     )
 
