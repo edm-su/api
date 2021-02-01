@@ -94,7 +94,45 @@ async def test_get_livestream(
     response = await client.get(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
     )
-    print(response.json())
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()['title'] == livestream['title']
+
+
+@pytest.mark.asyncio
+async def test_remove_livestream(
+        client: AsyncClient,
+        livestream: Mapping,
+        admin: Mapping,
+) -> None:
+    headers = create_auth_header(admin['username'])
+    response = await client.delete(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not await livestream_crud.find_one(livestream['id'])
+
+
+@pytest.mark.asyncio
+async def test_removal_without_privileges(
+        client: AsyncClient,
+        livestream: Mapping,
+        user: Mapping,
+) -> None:
+    response = await client.delete(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert await livestream_crud.find_one(livestream['id'])
+
+    headers = create_auth_header(user['username'])
+    response = await client.delete(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert await livestream_crud.find_one(livestream['id'])

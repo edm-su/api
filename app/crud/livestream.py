@@ -37,3 +37,8 @@ async def find(
     query = livestreams.select()
     query = query.where(between(livestreams.c.start_time, start, end))
     return await database.fetch_all(query)
+
+
+async def remove(id_: int) -> bool:
+    query = livestreams.delete().where(livestreams.c.id == id_)
+    return bool(await database.execute(query))

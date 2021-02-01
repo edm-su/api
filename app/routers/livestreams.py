@@ -47,3 +47,11 @@ async def get_stream(
         stream: Mapping = Depends(find_stream),
 ) -> Optional[Mapping]:
     return stream
+
+
+@router.delete('/{id}:{slug}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_stream(
+        stream: Mapping = Depends(find_stream),
+        admin: Mapping = Depends(get_current_admin),
+) -> None:
+    await livestream.remove(stream['id'])
