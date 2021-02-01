@@ -9,12 +9,14 @@ from httpx import AsyncClient
 
 from app import tasks
 from app.crud.channel import create_channel
+from app.crud.livestream import create as create_livestream
 from app.crud.post import create_post
 from app.crud.user import create_user, generate_recovery_user_code
 from app.crud.video import add_video, like_video
 from app.db import database
 from app.main import app
 from app.schemas.channel import BaseChannel
+from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
 
 
@@ -178,3 +180,20 @@ def livestream_data(faker: Faker) -> dict:
         'url': faker.uri(),
         'djs': ['first dj', 'second dj'],
     }
+
+
+@pytest.fixture
+async def livestream(livestream_data: dict) -> typing.Optional[typing.Mapping]:
+    stream = CreateLiveStream(**livestream_data)
+    return await create_livestream(stream)
+
+
+@pytest.fixture
+async def livestream_in_a_month(
+        livestream_data: dict,
+) -> typing.Optional[typing.Mapping]:
+    start_time = datetime.now() + timedelta(days=32)
+    livestream_data['start_time'] = start_time.isoformat()
+    livestream_data['end_time'] = (start_time + timedelta(hours=2)).isoformat()
+    stream = CreateLiveStream(**livestream_data)
+    return await create_livestream(stream)
