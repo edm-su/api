@@ -14,12 +14,18 @@ async def create(
     return await database.fetch_one(query)
 
 
-async def find_one(id_: int = None, title: str = None) -> Optional[Mapping]:
+async def find_one(
+        id_: int = None,
+        title: str = None,
+        slug: str = None,
+) -> Optional[Mapping]:
     query = livestreams.select()
     if id_:
         query = query.where(livestreams.c.id == id_)
     if title:
         query = query.where(livestreams.c.title == title)
+    if slug:
+        query = query.where(livestreams.c.slug == slug)
     query = query.limit(1)
     return await database.fetch_one(query)
 

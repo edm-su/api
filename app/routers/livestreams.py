@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from typing import Mapping, Optional
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Path
 from starlette import status
 
 from app.auth import get_current_admin
@@ -11,7 +11,17 @@ from app.schemas import livestreams
 router = APIRouter(prefix='/livestreams')
 
 
-@router.post('/', status_code=201)
+async def find_stream(
+        slug: str = Path(...),
+        id_: int = Path(..., alias='id', gt=0),
+) -> Optional[Mapping]:
+    stream = await livestream.find_one(id_, slug=slug)
+    if not stream:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return stream
+
+
+@router.post('/', status_code=201, response_model=livestreams.LiveStream)
 async def new_stream(
         stream: livestreams.CreateLiveStream,
         admin: Mapping = Depends(get_current_admin),
@@ -19,7 +29,7 @@ async def new_stream(
     return await livestream.create(stream)
 
 
-@router.get('/')
+@router.get('/', response_model=list[livestreams.LiveStream])
 async def get_streams(
         start: date = Query(date.today() - timedelta(days=2)),
         end: date = Query(date.today() + timedelta(days=31)),
@@ -30,3 +40,10 @@ async def get_streams(
             'Период не может превышать 45 дней',
         )
     return await livestream.find(start, end)
+
+
+@router.get('/{id}:{slug}', response_model=livestreams.LiveStream)
+async def get_stream(
+        stream: Mapping = Depends(find_stream),
+) -> Optional[Mapping]:
+    return stream

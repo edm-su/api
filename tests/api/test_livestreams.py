@@ -84,3 +84,17 @@ async def test_period_excess_error(
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert response.json()['detail'] == 'Период не может превышать 45 дней'
+
+
+@pytest.mark.asyncio
+async def test_get_livestream(
+        client: AsyncClient,
+        livestream: Mapping,
+) -> None:
+    response = await client.get(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+    )
+    print(response.json())
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['title'] == livestream['title']
