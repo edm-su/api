@@ -55,3 +55,12 @@ async def delete_stream(
         admin: Mapping = Depends(get_current_admin),
 ) -> None:
     await livestream.remove(stream['id'])
+
+
+@router.put('/{id}:{slug}', response_model=livestreams.LiveStream)
+async def update_stream(
+        updated_stream: livestreams.BaseLiveStream,
+        stream: Mapping = Depends(find_stream),
+        admin: Mapping = Depends(get_current_admin),
+) -> Optional[Mapping]:
+    return await livestream.update(stream['id'], updated_stream)

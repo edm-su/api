@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Mapping
+from typing import Mapping, cast
 
 import pytest
 from httpx import AsyncClient
@@ -136,3 +136,55 @@ async def test_removal_without_privileges(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert await livestream_crud.find_one(livestream['id'])
+
+
+@pytest.mark.asyncio
+async def test_update_livestream(
+        client: AsyncClient,
+        livestream: Mapping,
+        admin: Mapping,
+) -> None:
+    headers = create_auth_header(admin['username'])
+    stream = dict(livestream)
+    stream['title'] = 'Новое название'
+    stream['start_time'] = stream['start_time'].isoformat()
+    stream['end_time'] = None
+    response = await client.put(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+        headers=headers,
+        json=stream,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert LiveStream.validate(data)
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
+    assert db_stream['slug'] == data['slug']
+    assert db_stream['title'] == stream['title']
+
+
+@pytest.mark.asyncio
+async def test_update_without_privileges(
+        client: AsyncClient,
+        livestream: Mapping,
+        user: Mapping,
+) -> None:
+    headers = create_auth_header(user['username'])
+    response = await client.put(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+        headers=headers,
+        json={'title': 'Новый заголовок'},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
+    assert db_stream['title'] == livestream['title']
+
+    response = await client.put(
+        f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
+        json={'title': 'Новый заголовок'},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
+    assert db_stream['title'] == livestream['title']

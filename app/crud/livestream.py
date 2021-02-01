@@ -42,3 +42,12 @@ async def find(
 async def remove(id_: int) -> bool:
     query = livestreams.delete().where(livestreams.c.id == id_)
     return bool(await database.execute(query))
+
+
+async def update(id_: int, livestream: BaseLiveStream) -> Optional[Mapping]:
+    query = livestreams.update().where(livestreams.c.id == id_)
+    query = query.returning(livestreams)
+    return await database.fetch_one(query, livestream.dict(
+        exclude={'slug'},
+        exclude_unset=True,
+    ))
