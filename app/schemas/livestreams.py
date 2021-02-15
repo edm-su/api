@@ -10,9 +10,9 @@ class BaseLiveStream(BaseModel):
     start_time: datetime
     end_time: datetime = Field(None)
     image: str = Field(None)
-    genres: list[str]
+    genres: list[str] = Field([])
     url: HttpUrl
-    djs: list[str]
+    djs: list[str] = Field([])
     slug: str = Field(None)
 
     @validator('end_time')
