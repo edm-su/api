@@ -36,6 +36,7 @@ async def find(
 ) -> list[Mapping]:
     query = livestreams.select()
     query = query.where(between(livestreams.c.start_time, start, end))
+    query = query.order_by(livestreams.c.start_time)
     return await database.fetch_all(query)
 
 
