@@ -197,3 +197,19 @@ async def livestream_in_a_month(
     livestream_data['end_time'] = (start_time + timedelta(hours=2)).isoformat()
     stream = CreateLiveStream(**livestream_data)
     return await create_livestream(stream)
+
+
+@pytest.fixture
+def dj_data(faker: Faker) -> dict:
+    return {
+        'name': faker.name(),
+        'real_name': faker.name(),
+        'aliases': [faker.name() for _ in range(3)],
+        'member_of_groups': [faker.name()],
+        'group_members': [faker.name() for _ in range(2)],
+        'country': faker.country(),
+        'genres': ['techno', 'trance'],
+        'image': faker.file_path(extension='.jpg'),
+        'birth_date': faker.date(),
+        'site': faker.url(),
+    }
