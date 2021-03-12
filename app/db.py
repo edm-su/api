@@ -170,11 +170,10 @@ djs = sqlalchemy.Table(
     'djs',
     metadata,
     sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column('is_group', sqlalchemy.Boolean, server_default='f'),
     sqlalchemy.Column('name', sqlalchemy.String, nullable=False, unique=True),
     sqlalchemy.Column('real_name', sqlalchemy.String),
     sqlalchemy.Column('aliases', sqlalchemy.ARRAY(sqlalchemy.String)),
-    sqlalchemy.Column('member_of_groups', sqlalchemy.ARRAY(sqlalchemy.String)),
-    sqlalchemy.Column('group_members', sqlalchemy.ARRAY(sqlalchemy.String)),
     sqlalchemy.Column('country', sqlalchemy.String),
     sqlalchemy.Column('genres', sqlalchemy.ARRAY(sqlalchemy.String)),
     sqlalchemy.Column('image', sqlalchemy.String),
@@ -186,4 +185,23 @@ djs = sqlalchemy.Table(
         sqlalchemy.DateTime,
         server_default=sqlalchemy.sql.func.now(),
     ),
+)
+
+group_members = sqlalchemy.Table(
+    'groups_members',
+    metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        'group_id',
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey('djs.id'),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        'dj_id',
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey('djs.id'),
+        nullable=False,
+    ),
+    sqlalchemy.UniqueConstraint('group_id', 'dj_id')
 )

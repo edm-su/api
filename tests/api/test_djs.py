@@ -34,6 +34,31 @@ async def test_create_dj(
 
 
 @pytest.mark.asyncio
+async def test_create_group(
+        client: AsyncClient,
+        group_data: dict,
+        admin: Mapping,
+        dj: Mapping,
+) -> None:
+    """
+    Создание группы
+    :param client:
+    :param group_data:
+    :param admin:
+    :return:
+    """
+    auth_headers = create_auth_header(admin['username'])
+    response = await client.post('/djs', json=group_data, headers=auth_headers)
+    data = response.json()
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert await dj_crud.find(data['id'])
+    assert DJ.validate(data)
+    assert data['is_group']
+    assert data['group_members']
+
+
+@pytest.mark.asyncio
 async def test_prohibit_adding_by_user(
         client: AsyncClient,
         dj_data: dict,

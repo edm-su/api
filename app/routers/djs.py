@@ -1,4 +1,4 @@
-from typing import Optional, Mapping
+from typing import Mapping
 
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
@@ -18,10 +18,17 @@ router = APIRouter(prefix='/djs', tags=['Диджеи'])
 async def create_dj(
         dj: dj_schema.CreateDJ,
         admin: Mapping = Depends(get_current_admin),
-) -> Optional[Mapping]:
+) -> dj_schema.DJ:
     if await dj_crud.find(name=dj.name):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Такой DJ уже существует',
         )
-    return await dj_crud.create(dj)
+    db_dj = await dj_crud.create(dj)
+    if dj.group_members:
+        group_members = await dj_crud.get_group_members(db_dj['id'])
+        return dj_schema.DJ(
+            group_members=[member['slug'] for member in group_members],
+            **db_dj,
+        )
+    return dj_schema.DJ(**db_dj)
