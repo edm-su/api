@@ -93,3 +93,67 @@ async def test_prohibit_adding_by_guest(
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert await dj_crud.find(name=dj_data['name']) is None
+
+
+@pytest.mark.asyncio
+async def test_delete(
+        client: AsyncClient,
+        admin: Mapping,
+        dj: Mapping,
+) -> None:
+    """
+    Удаление DJ
+    :param client:
+    :param admin:
+    :param dj:
+    :return:
+    """
+    headers = create_auth_header(admin['username'])
+    response = await client.delete(f'/djs/{dj["slug"]}', headers=headers)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert await dj_crud.find(id_=dj['id']) is None
+
+
+@pytest.mark.asyncio
+async def test_prohibit_delete(
+        client: AsyncClient,
+        user: Mapping,
+        dj: Mapping
+) -> None:
+    """
+    Запрет удаления DJ
+    :param client:
+    :param user:
+    :param dj:
+    :return:
+    """
+    headers = create_auth_header(user['username'])
+    user_response = await client.delete(f'/djs/{dj["slug"]}', headers=headers)
+    guest_response = await client.delete(f'/djs/{dj["slug"]}')
+
+    assert user_response.status_code == status.HTTP_403_FORBIDDEN
+    assert guest_response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert await dj_crud.find(id_=dj['id'])
+
+
+@pytest.mark.asyncio
+async def test_delete_group(
+        client: AsyncClient,
+        admin: Mapping,
+        group: Mapping,
+) -> None:
+    """
+    Удаление группы
+    :param client:
+    :param admin:
+    :param group:
+    :return:
+    """
+    headers = create_auth_header(admin['username'])
+    response = await client.delete(f'/djs/{group["slug"]}', headers=headers)
+    group_members = await dj_crud.get_group_members(id_=group['id'])
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert await dj_crud.find(id_=group['id']) is None
+    assert not len(group_members)

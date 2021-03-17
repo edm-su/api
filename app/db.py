@@ -194,13 +194,21 @@ group_members = sqlalchemy.Table(
     sqlalchemy.Column(
         'group_id',
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey('djs.id'),
+        sqlalchemy.ForeignKey(
+            'djs.id',
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
         nullable=False,
     ),
     sqlalchemy.Column(
         'dj_id',
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey('djs.id'),
+        sqlalchemy.ForeignKey(
+            'djs.id',
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
         nullable=False,
     ),
     sqlalchemy.UniqueConstraint('group_id', 'dj_id')

@@ -1,6 +1,6 @@
-from typing import Mapping
+from typing import Mapping, Optional
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Path
 from starlette import status
 
 from app.auth import get_current_admin
@@ -8,6 +8,16 @@ from app.crud import dj as dj_crud
 from app.schemas import dj as dj_schema
 
 router = APIRouter(prefix='/djs', tags=['Диджеи'])
+
+
+async def find_dj(slug: str = Path(..., title='slug')) -> Optional[Mapping]:
+    dj = await dj_crud.find(slug=slug)
+    if not dj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='DJ не найден',
+        )
+    return dj
 
 
 @router.post(
@@ -32,3 +42,11 @@ async def create_dj(
             **db_dj,
         )
     return dj_schema.DJ(**db_dj)
+
+
+@router.delete('/{slug}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_dj(
+        dj: Mapping = Depends(find_dj),
+        admin: Mapping = Depends(get_current_admin),
+) -> None:
+    await dj_crud.delete(dj['id'])

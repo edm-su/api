@@ -1,17 +1,24 @@
 from typing import Optional, Mapping
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from app import db
 from app.schemas import dj as dj_schema
 
 
-async def find(id_: int = None, name: str = None) -> Optional[Mapping]:
+async def find(
+        id_: int = None,
+        name: str = None,
+        slug: str = None,
+) -> Optional[Mapping]:
+    conditions = []
+    for k, v in locals().items():
+        if v and k != 'conditions':
+            if k == 'id_':
+                k = 'id'
+            conditions.append(db.djs.columns[k] == v)
     query = db.djs.select()
-    if id_:
-        query = query.where(db.djs.c.id == id_)
-    if name:
-        query = query.where(db.djs.c.name == name)
+    query = query.where(and_(*conditions))
     query = query.limit(1)
     return await db.database.fetch_one(query)
 
@@ -44,3 +51,8 @@ async def get_group_members(id_: int) -> Mapping:
     query = select([db.djs]).select_from(j)
     query = query.where(db.group_members.c.group_id == id_)
     return await db.database.fetch_all(query)
+
+
+async def delete(id_: int) -> bool:
+    query = db.djs.delete().where(db.djs.c.id == id_)
+    return bool(await db.database.fetch_one(query))

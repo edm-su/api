@@ -231,3 +231,9 @@ def group_data(
     dj_data['is_group'] = True
     dj_data['group_members'] = [dj['id']]
     return dj_data
+
+
+@pytest.fixture
+async def group(group_data: dict) -> typing.Mapping:
+    new_group = djs_schema.CreateDJ(**group_data)
+    return await djs_crud.create(new_group)
