@@ -152,8 +152,29 @@ async def test_delete_group(
     """
     headers = create_auth_header(admin['username'])
     response = await client.delete(f'/djs/{group["slug"]}', headers=headers)
-    group_members = await dj_crud.get_group_members(id_=group['id'])
+    group_members = await dj_crud.get_groups_members(ids=[group['id']])
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert await dj_crud.find(id_=group['id']) is None
     assert not len(group_members)
+
+
+@pytest.mark.asyncio
+async def test_get_list(
+        client: AsyncClient,
+        group: Mapping,
+        dj: Mapping,
+) -> None:
+    """
+    Получение списка DJs
+    :param client:
+    :param dj:
+    :return:
+    """
+    response = await client.get('/djs')
+    data = response.json()
+    count = await dj_crud.count()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(data) == count
+    assert response.headers['X-Pagination-Total-Count'] == str(count)

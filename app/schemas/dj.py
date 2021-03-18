@@ -29,5 +29,5 @@ class CreateDJ(BaseDJ):
 
 class DJ(BaseDJ):
     id: int
-    member_of_groups: list[int] = Field([])
+    member_of_groups: list[str] = Field([])
     group_members: list[str] = Field([])

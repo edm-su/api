@@ -1,6 +1,6 @@
 from typing import Optional, Mapping
 
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 
 from app import db
 from app.schemas import dj as dj_schema
@@ -53,6 +53,26 @@ async def get_groups_members(ids: list[int]) -> Mapping:
     return await db.database.fetch_all(query)
 
 
+async def get_members_of_groups(ids: list[int]) -> Mapping:
+    j = db.group_members.join(
+        db.djs,
+        db.group_members.c.group_id == db.djs.c.id,
+    )
+    query = select([db.djs, db.group_members]).select_from(j)
+    query = query.where(db.group_members.c.dj_id.in_(ids))
+    return await db.database.fetch_all(query)
+
+
 async def delete(id_: int) -> bool:
     query = db.djs.delete().where(db.djs.c.id == id_)
     return bool(await db.database.fetch_one(query))
+
+
+async def count() -> int:
+    query = select([func.count()]).select_from(db.djs)
+    return await db.database.fetch_val(query)
+
+
+async def get_list(skip: int = 0, limit: int = 0) -> Mapping:
+    query = db.djs.select().order_by(db.djs.c.name).limit(limit).offset(skip)
+    return await db.database.fetch_all(query)

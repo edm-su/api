@@ -1,10 +1,11 @@
 from typing import Mapping, Optional
 
-from fastapi import APIRouter, HTTPException, Depends, Path
+from fastapi import APIRouter, HTTPException, Depends, Path, Response
 from starlette import status
 
 from app.auth import get_current_admin
 from app.crud import dj as dj_crud
+from app.helpers import Paginator
 from app.schemas import dj as dj_schema
 
 router = APIRouter(prefix='/djs', tags=['Диджеи'])
@@ -50,3 +51,40 @@ async def delete_dj(
         admin: Mapping = Depends(get_current_admin),
 ) -> None:
     await dj_crud.delete(dj['id'])
+
+
+@router.get('/', response_model=list[dj_schema.DJ])
+async def get_list(
+        response: Response,
+        pagination: Paginator = Depends(Paginator),
+) -> list[dj_schema.DJ]:
+    count = await dj_crud.count()
+    response.headers['X-Pagination-Total-Count'] = str(count)
+    response.headers['X-Pagination-Page-Count'] = str(count / pagination.limit)
+    response.headers['X-Pagination-Current-Page'] = str(
+        pagination.skip // pagination.limit + 1
+    )
+    response.headers['X-Pagination-Per-Page'] = str(pagination.limit)
+
+    result = []
+    djs = await dj_crud.get_list(pagination.skip, pagination.limit)
+    groups_members = await dj_crud.get_groups_members(
+        [dj['id'] for dj in djs if dj['is_group']]
+    )
+    members_of_groups = await dj_crud.get_members_of_groups(
+        [dj['id'] for dj in djs if not dj['is_group']]
+    )
+    for dj in djs:
+        dj = dj_schema.DJ(**dj)
+        if dj.is_group:
+            dj.group_members = [
+                member['slug'] for member in groups_members
+                if member['group_id'] == dj.id
+            ]
+        else:
+            dj.member_of_groups = [
+                group['slug'] for group in members_of_groups
+                if group['dj_id'] == dj.id
+            ]
+        result.append(dj)
+    return result
