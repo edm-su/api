@@ -43,13 +43,13 @@ async def create(new_dj: dj_schema.CreateDJ) -> Mapping:
     return dj
 
 
-async def get_group_members(id_: int) -> Mapping:
+async def get_groups_members(ids: list[int]) -> Mapping:
     j = db.group_members.join(
         db.djs,
         db.group_members.c.dj_id == db.djs.c.id,
     )
-    query = select([db.djs]).select_from(j)
-    query = query.where(db.group_members.c.group_id == id_)
+    query = select([db.djs, db.group_members]).select_from(j)
+    query = query.where(db.group_members.c.group_id.in_(ids))
     return await db.database.fetch_all(query)
 
 

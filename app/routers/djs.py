@@ -36,7 +36,7 @@ async def create_dj(
         )
     db_dj = await dj_crud.create(dj)
     if dj.group_members:
-        group_members = await dj_crud.get_group_members(db_dj['id'])
+        group_members = await dj_crud.get_groups_members([db_dj['id']])
         return dj_schema.DJ(
             group_members=[member['slug'] for member in group_members],
             **db_dj,
