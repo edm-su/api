@@ -178,3 +178,23 @@ async def test_get_list(
     assert response.status_code == status.HTTP_200_OK
     assert len(data) == count
     assert response.headers['X-Pagination-Total-Count'] == str(count)
+
+
+@pytest.mark.asyncio
+async def test_get(
+        client: AsyncClient,
+        group: Mapping,
+        dj: Mapping
+) -> None:
+    """
+    Получение DJ
+    :param client:
+    :param group:
+    :return:
+    """
+    response = await client.get(f'/djs/{group["slug"]}')
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data['id'] == group['id']
+    assert data['group_members'] == [dj['slug']]

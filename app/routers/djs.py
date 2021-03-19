@@ -88,3 +88,15 @@ async def get_list(
             ]
         result.append(dj)
     return result
+
+
+@router.get('/{slug}', response_model=dj_schema.DJ)
+async def get(db_dj: Mapping = Depends(find_dj)) -> dj_schema.DJ:
+    dj = dj_schema.DJ(**db_dj)
+    if dj.is_group:
+        group_members = await dj_crud.get_groups_members([dj.id])
+        dj.group_members = [member['slug'] for member in group_members]
+    else:
+        member_of_groups = await dj_crud.get_members_of_groups([dj.id])
+        dj.member_of_groups = [group['slug'] for group in member_of_groups]
+    return dj
