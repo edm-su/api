@@ -1,4 +1,4 @@
-from typing import Optional, Mapping
+from typing import Mapping
 
 from sqlalchemy import select, and_, func
 
@@ -10,7 +10,7 @@ async def find(
         id_: int = None,
         name: str = None,
         slug: str = None,
-) -> Optional[Mapping]:
+) -> Mapping:
     conditions = []
     for k, v in locals().items():
         if v and k != 'conditions':
@@ -31,15 +31,7 @@ async def create(new_dj: dj_schema.CreateDJ) -> Mapping:
             new_dj.dict(exclude={'group_members', }),
         )
         if new_dj.group_members:
-            values = [
-                {
-                    'group_id': dj['id'],
-                    'dj_id': group_member,
-                } for group_member in new_dj.group_members]
-            query = db.group_members.insert()
-            query = query.values(values)
-            query = query.returning(db.group_members.c.id)
-            await db.database.execute(query)
+            await add_group_members(dj['id'], new_dj.group_members)
     return dj
 
 
@@ -76,3 +68,51 @@ async def count() -> int:
 async def get_list(skip: int = 0, limit: int = 0) -> Mapping:
     query = db.djs.select().order_by(db.djs.c.name).limit(limit).offset(skip)
     return await db.database.fetch_all(query)
+
+
+async def update(id_: int, new_data: dj_schema.ChangeDJ) -> Mapping:
+    data = new_data.dict(
+        exclude_unset=True,
+        exclude={'group_members'},
+    )
+    db_dj = await find(id_)
+    async with db.database.transaction():
+        if db_dj['is_group'] and not new_data.is_group:
+            group_members = await get_groups_members([id_])
+            await delete_group_members(
+                [member['id'] for member in group_members]
+            )
+        elif db_dj['is_group'] or new_data.is_group and new_data.group_members:
+            group_members = await get_groups_members([id_])
+            members_ids = [member['dj_id'] for member in group_members]
+            new_members = []
+            for new_member in new_data.group_members:
+                if new_member not in members_ids:
+                    new_members.append(new_member)
+            old_members = [member['id'] for member in group_members
+                           if member['dj_id'] not in new_data.group_members]
+            await delete_group_members(old_members)
+            await add_group_members(id_, new_members)
+
+        if data:
+            query = db.djs.update().where(db.djs.c.id == id_).returning(db.djs)
+        else:
+            query = db.djs.select().where(db.djs.c.id == id_)
+        return await db.database.fetch_one(query, data)
+
+
+async def delete_group_members(ids: list[int]) -> bool:
+    query = db.group_members.delete().where(db.group_members.c.id.in_(ids))
+    return bool(await db.database.fetch_val(query))
+
+
+async def add_group_members(group_id: int, ids: list[int]) -> bool:
+    values = [
+        {
+            'group_id': group_id,
+            'dj_id': group_member,
+        } for group_member in ids]
+    query = db.group_members.insert()
+    query = query.values(values)
+    query = query.returning(db.group_members.c.id)
+    return bool(await db.database.execute(query))

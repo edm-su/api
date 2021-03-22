@@ -198,3 +198,111 @@ async def test_get(
     assert response.status_code == status.HTTP_200_OK
     assert data['id'] == group['id']
     assert data['group_members'] == [dj['slug']]
+
+
+@pytest.mark.asyncio
+async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
+    """
+    Изменение DJ
+    :param client:
+    :param dj:
+    :return:
+    """
+    auth_headers = create_auth_header(admin['username'])
+    new_data = {
+        'name': f'new{dj["name"]}',
+        'real_name': f'new{dj["real_name"]}'
+    }
+    response = await client.patch(
+        f'/djs/{dj["slug"]}',
+        headers=auth_headers,
+        json=new_data,
+    )
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data['slug'] == dj['slug']
+    assert data['name'] == new_data['name']
+    db_dj = await dj_crud.find(name=new_data['name'])
+    assert db_dj['slug'] == dj['slug']
+
+
+@pytest.mark.asyncio
+async def test_prohibit_patch(
+        client: AsyncClient,
+        dj: Mapping,
+        user: Mapping,
+) -> None:
+    """
+    Проверка прав на изменение DJ
+    :param client:
+    :param dj:
+    :param user:
+    :return:
+    """
+    new_data = {'name': 'New name'}
+    auth_headers = create_auth_header(user['username'])
+    response = await client.patch(
+        f'/djs/{dj["slug"]}',
+        headers=auth_headers,
+        json=new_data,
+    )
+    db_dj = await dj_crud.find(dj['id'])
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert db_dj['name'] == dj['name']
+
+
+@pytest.mark.asyncio
+async def test_patch_group(
+        client: AsyncClient,
+        dj: Mapping,
+        group: Mapping,
+        admin: Mapping,
+) -> None:
+    """
+    Изменение членов группы
+    :param client:
+    :param dj:
+    :param group:
+    :param admin:
+    :return:
+    """
+    auth_headers = create_auth_header(admin['username'])
+    response = await client.patch(
+        f'/djs/{group["slug"]}',
+        headers=auth_headers,
+        json={'is_group': False},
+    )
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data['group_members'] == []
+    assert not data['is_group']
+    assert not await dj_crud.get_groups_members([group['id']])
+
+    new_data = {'is_group': True, 'group_members': [dj['id']]}
+    response = await client.patch(
+        f'/djs/{group["slug"]}',
+        headers=auth_headers,
+        json=new_data,
+    )
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert data['group_members'] == [dj['slug']]
+    assert data['is_group']
+    assert await dj_crud.get_groups_members([group['id']])
+
+    new_data = {'group_members': []}
+    response = await client.patch(
+        f'/djs/{group["slug"]}',
+        headers=auth_headers,
+        json=new_data,
+    )
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not data['group_members']
+    assert data['is_group']
+    assert not await dj_crud.get_groups_members([group['id']])

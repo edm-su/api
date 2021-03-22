@@ -100,3 +100,23 @@ async def get(db_dj: Mapping = Depends(find_dj)) -> dj_schema.DJ:
         member_of_groups = await dj_crud.get_members_of_groups([dj.id])
         dj.member_of_groups = [group['slug'] for group in member_of_groups]
     return dj
+
+
+@router.patch('/{slug}', response_model=dj_schema.DJ)
+async def patch(
+        new_data: dj_schema.ChangeDJ,
+        db_dj: Mapping = Depends(find_dj),
+        admin: Mapping = Depends(get_current_admin),
+) -> dj_schema.DJ:
+    changed_dj = await dj_crud.update(db_dj['id'],  new_data)
+    result = dj_schema.DJ(**changed_dj)
+    if result.is_group:
+        group_members = await dj_crud.get_groups_members([result.id])
+        result.group_members = [member['slug'] for member in group_members]
+    else:
+        member_of_groups = await dj_crud.get_members_of_groups([result.id])
+        result.member_of_groups = [
+            group['slug'] for group in member_of_groups
+        ]
+
+    return result
