@@ -8,6 +8,7 @@ from faker import Faker
 from httpx import AsyncClient
 
 from app import tasks
+from app.crud import dj as djs_crud
 from app.crud.channel import create_channel
 from app.crud.livestream import create as create_livestream
 from app.crud.post import create_post
@@ -15,6 +16,7 @@ from app.crud.user import create_user, generate_recovery_user_code
 from app.crud.video import add_video, like_video
 from app.db import database
 from app.main import app
+from app.schemas import dj as djs_schema
 from app.schemas.channel import BaseChannel
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
@@ -197,3 +199,41 @@ async def livestream_in_a_month(
     livestream_data['end_time'] = (start_time + timedelta(hours=2)).isoformat()
     stream = CreateLiveStream(**livestream_data)
     return await create_livestream(stream)
+
+
+@pytest.fixture
+def dj_data(faker: Faker) -> dict:
+    return {
+        'name': faker.name(),
+        'real_name': faker.name(),
+        'aliases': [faker.name() for _ in range(3)],
+        'country': faker.country(),
+        'genres': ['techno', 'trance'],
+        'image': faker.file_path(extension='.jpg'),
+        'birth_date': faker.date(),
+        'site': faker.url(),
+    }
+
+
+@pytest.fixture
+async def dj(faker: Faker, dj_data: dict) -> typing.Optional[typing.Mapping]:
+    new_dj = djs_schema.CreateDJ(**dj_data)
+    return await djs_crud.create(new_dj)
+
+
+@pytest.fixture
+def group_data(
+        faker: Faker,
+        dj: typing.Mapping,
+        dj_data: dict,
+) -> dict:
+    dj_data['name'] = faker.name()
+    dj_data['is_group'] = True
+    dj_data['group_members'] = [dj['id']]
+    return dj_data
+
+
+@pytest.fixture
+async def group(group_data: dict) -> typing.Mapping:
+    new_group = djs_schema.CreateDJ(**group_data)
+    return await djs_crud.create(new_group)

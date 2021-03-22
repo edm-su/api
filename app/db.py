@@ -165,3 +165,51 @@ livestreams = sqlalchemy.Table(
     sqlalchemy.Column('genres', sqlalchemy.ARRAY(sqlalchemy.String)),
     sqlalchemy.Column('djs', sqlalchemy.ARRAY(sqlalchemy.String)),
 )
+
+djs = sqlalchemy.Table(
+    'djs',
+    metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column('is_group', sqlalchemy.Boolean, server_default='f'),
+    sqlalchemy.Column('name', sqlalchemy.String, nullable=False, unique=True),
+    sqlalchemy.Column('real_name', sqlalchemy.String),
+    sqlalchemy.Column('aliases', sqlalchemy.ARRAY(sqlalchemy.String)),
+    sqlalchemy.Column('country', sqlalchemy.String),
+    sqlalchemy.Column('genres', sqlalchemy.ARRAY(sqlalchemy.String)),
+    sqlalchemy.Column('image', sqlalchemy.String),
+    sqlalchemy.Column('birth_date', sqlalchemy.Date),
+    sqlalchemy.Column('site', sqlalchemy.String),
+    sqlalchemy.Column('slug', sqlalchemy.String, nullable=False, unique=True),
+    sqlalchemy.Column(
+        'created',
+        sqlalchemy.DateTime,
+        server_default=sqlalchemy.sql.func.now(),
+    ),
+)
+
+group_members = sqlalchemy.Table(
+    'groups_members',
+    metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        'group_id',
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey(
+            'djs.id',
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        'dj_id',
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey(
+            'djs.id',
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
+        nullable=False,
+    ),
+    sqlalchemy.UniqueConstraint('group_id', 'dj_id')
+)
