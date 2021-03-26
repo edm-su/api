@@ -16,7 +16,7 @@ algoliasearch = "*"
 databases = { extras = ["postgresql"], version = "*" }
 fastapi = "*"
 pillow = "*"
-sqlalchemy = "*"
+sqlalchemy = "<1.4"
 pyjwt = "*"
 boto3 = "*"
 email-validator = "*"
