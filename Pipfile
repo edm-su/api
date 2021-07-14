@@ -26,6 +26,7 @@ uvicorn = { extras = ["standard"], version = "*" }
 gunicorn = "*"
 psycopg2-binary = "*"
 python-slugify = { extras = ["unidecode"], version = "*" }
+types-python-slugify = "0.1"
 
 [requires]
 python_version = "3.9"
