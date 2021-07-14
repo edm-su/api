@@ -1,4 +1,4 @@
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Response, Query
 from starlette import status
@@ -6,7 +6,7 @@ from starlette import status
 from app.auth import get_current_admin
 from app.crud import channel, video
 from app.helpers import Paginator
-from app.schemas.channel import Channel
+from app.schemas.channel import Channel, NewChannel
 from app.schemas.video import Video
 
 router = APIRouter()
@@ -72,3 +72,16 @@ async def delete_channel(
         admin: Mapping = Depends(get_current_admin),
 ) -> None:
     await channel.delete_channel(db_channel['id'])
+
+
+@router.post(
+    '/channels',
+    status_code=status.HTTP_201_CREATED,
+    tags=['Каналы'],
+    summary='Добавление канала',
+)
+async def add_channel(
+        new_channel: NewChannel,
+        admin: Mapping = Depends(get_current_admin),
+) -> Optional[Mapping]:
+    return await channel.create_channel(new_channel)

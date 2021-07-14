@@ -17,7 +17,7 @@ from app.crud.video import add_video, like_video
 from app.db import database
 from app.main import app
 from app.schemas import dj as djs_schema
-from app.schemas.channel import BaseChannel
+from app.schemas.channel import NewChannel
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
 
@@ -146,13 +146,18 @@ async def user() -> typing.Optional[typing.Mapping]:
 
 
 @pytest.fixture()
-async def channel_to_be_deleted() -> typing.Optional[typing.Mapping]:
-    channel = BaseChannel(
-        name='Channel to be deleted',
-        slug='channel_to_be_deleted',
-        yt_id='test',
-        yt_thumbnail='test'
-    )
+async def channel_data(faker: Faker) -> dict:
+    name = faker.name()
+    return {
+        'name': name,
+        'yt_id': 'test_id',
+        'yt_thumbnail': faker.url() + faker.file_path(extension='jpg')
+    }
+
+
+@pytest.fixture()
+async def channel(channel_data: dict) -> typing.Optional[typing.Mapping]:
+    channel = NewChannel(**channel_data)
     return await create_channel(channel)
 
 
@@ -216,7 +221,7 @@ def dj_data(faker: Faker) -> dict:
 
 
 @pytest.fixture
-async def dj(faker: Faker, dj_data: dict) -> typing.Optional[typing.Mapping]:
+async def dj(dj_data: dict) -> typing.Optional[typing.Mapping]:
     new_dj = djs_schema.CreateDJ(**dj_data)
     return await djs_crud.create(new_dj)
 
