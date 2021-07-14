@@ -3,7 +3,7 @@ from typing import List, Mapping, Optional
 from sqlalchemy import func, select
 
 from app.db import channels, database
-from app.schemas.channel import BaseChannel
+from app.schemas.channel import NewChannel
 
 
 async def get_channel_by_slug(slug: str) -> Optional[Mapping]:
@@ -27,7 +27,7 @@ async def get_channels_count() -> int:
     return await database.fetch_val(query=query)
 
 
-async def create_channel(channel: BaseChannel) -> Optional[Mapping]:
+async def create_channel(channel: NewChannel) -> Optional[Mapping]:
     query = channels.insert().returning(channels)
     return await database.fetch_one(query, channel.dict())
 
