@@ -2,6 +2,7 @@ from typing import Mapping
 
 import pytest
 from httpx import AsyncClient
+from slugify import slugify
 from starlette import status
 
 from app.crud import video as videos_crud
@@ -20,6 +21,68 @@ async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
     for video in response.json():
         assert Video.validate(video)
     assert int(response.headers['x-total-count']) == len(videos)
+
+
+##############################
+# POST /videos
+##############################
+@pytest.mark.asyncio
+async def test_create_video(
+        client: AsyncClient,
+        admin: Mapping,
+        video_data: Mapping,
+) -> None:
+    auth_headers = create_auth_header(admin['username'])
+    response = await client.post(
+        '/videos',
+        json=video_data,
+        headers=auth_headers,
+    )
+
+    data = response.json()
+    assert response.status_code == status.HTTP_201_CREATED
+    assert await videos_crud.get_video_by_slug(data['slug'])
+
+
+@pytest.mark.asyncio
+async def test_create_video_forbidden(
+        client: AsyncClient,
+        user: Mapping,
+        video_data: Mapping,
+) -> None:
+    response = await client.post('/videos', json=video_data)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    slug = slugify(video_data['title'])
+    assert not await videos_crud.get_video_by_slug(slug)
+
+    auth_headers = create_auth_header(user['username'])
+    response = await client.post(
+        '/videos',
+        json=video_data,
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert not await videos_crud.get_video_by_slug(slug)
+
+
+@pytest.mark.asyncio
+async def test_video_already_exist(
+        client: AsyncClient,
+        admin: Mapping,
+        videos: Mapping,
+) -> None:
+    auth_headers = create_auth_header(admin['username'])
+    video = dict(videos[0])
+    video['date'] = video['date'].strftime("%Y-%m-%d")
+    response = await client.post(
+        '/videos',
+        json=video,
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_409_CONFLICT
 
 
 ##############################
@@ -42,7 +105,7 @@ async def test_delete_video(
 
 
 @pytest.mark.asyncio
-async def test_delete_forbidden(
+async def test_delete_video_forbidden(
         client: AsyncClient,
         videos: Mapping,
         user: Mapping

@@ -7,7 +7,7 @@ from starlette import status
 from app import auth
 from app.crud import video
 from app.helpers import Paginator
-from app.schemas.video import Video
+from app.schemas.video import Video, CreateVideo
 
 router = APIRouter()
 
@@ -139,3 +139,22 @@ async def get_liked_videos(
         current_user: Mapping = Depends(auth.get_current_user),
 ) -> List[Mapping]:
     return await video.get_liked_videos(user_id=current_user['id'])
+
+
+@router.post(
+    '/videos',
+    response_model=Video,
+    tags=['Видео'],
+    summary='Добавить видео',
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_video(
+        new_video: CreateVideo,
+        admin: Mapping = Depends(auth.get_current_admin),
+) -> Optional[Mapping]:
+    if await video.get_video_by_slug(new_video.slug):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            'Такое видео уже существует',
+        )
+    return await video.add_video(new_video)
