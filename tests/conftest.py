@@ -1,6 +1,7 @@
 import typing
 from asyncio import AbstractEventLoop, get_event_loop
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
+from random import randint
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -20,6 +21,7 @@ from app.schemas import dj as djs_schema
 from app.schemas.channel import NewChannel
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
+from app.schemas.video import CreateVideo
 
 
 @pytest.fixture(scope='session')
@@ -41,8 +43,20 @@ def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
     yield loop
 
 
+@pytest.fixture
+async def video_data(faker: Faker) -> dict:
+    title = faker.sentence(nb_words=3)
+    return {
+        "title": title,
+        "date": faker.date(),
+        "yt_id": faker.domain_word(),
+        "yt_thumbnail": faker.image_url(),
+        "duration": randint(1200, 12000)
+    }
+
+
 @pytest.fixture()
-async def videos() -> typing.List[typing.Optional[typing.Mapping]]:
+async def videos() -> list[typing.Optional[typing.Mapping]]:
     videos_list: typing.List[typing.Dict[str, typing.Any[str, int]]] = [
         {
             "title": "No Lockdown! - The Swedish Response",
@@ -71,16 +85,7 @@ async def videos() -> typing.List[typing.Optional[typing.Mapping]]:
     ]
     result = []
     for video in videos_list:
-        result.append(
-            await add_video(
-                video['title'],
-                video['slug'],
-                video['yt_id'],
-                video['yt_thumbnail'],
-                date.fromisoformat(video['date']),
-                duration=video['duration']
-            ),
-        )
+        result.append(await add_video(CreateVideo(**video)))
     return result
 
 
