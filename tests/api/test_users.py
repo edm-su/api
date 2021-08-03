@@ -4,6 +4,7 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 
+from app.crud import token as token_crud
 from app.schemas.user import CreateUser, UserPassword, User, MyUser, Token
 from tests.helpers import create_auth_header
 
@@ -105,3 +106,41 @@ async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
 
     assert response.status_code == status.HTTP_200_OK
     assert User.validate(response.json())
+
+
+########################################
+# POST /users/token
+########################################
+@pytest.mark.asyncio
+async def test_create_api_token(
+        client: AsyncClient,
+        admin: Mapping,
+        user: Mapping,
+) -> None:
+    headers = create_auth_header(admin['username'])
+    data = {'name': 'New token'}
+    response = await client.post(
+        '/users/api_token',
+        headers=headers,
+        json=data,
+    )
+    response_data = response.json()
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert await token_crud.find_token(response_data['token'])
+
+    headers = create_auth_header(user['username'])
+    response = await client.post(
+        '/users/api_token',
+        headers=headers,
+        json=data,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    response = await client.post(
+        '/users/api_token',
+        json=data,
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

@@ -1,0 +1,32 @@
+import hashlib
+from typing import Optional, Mapping
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends
+from starlette import status
+
+from app.auth import get_current_admin
+from app.crud import token as token_crud
+from app.schemas import token as token_schemas
+from app.settings import settings
+
+router = APIRouter(prefix='/users/api_token', tags=['Токены', 'Пользователи'])
+
+
+def generate_token() -> str:
+    token = str(uuid4()) + settings.secret_key
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+@router.post(
+    '',
+    status_code=status.HTTP_201_CREATED,
+    response_model=token_schemas.Token,
+)
+async def create_token(
+        token_info: token_schemas.TokenInfo,
+        admin: Mapping = Depends(get_current_admin)
+) -> Optional[token_schemas.Token]:
+    token = generate_token()
+    await token_crud.add_token(token_info.name, token, admin['id'])
+    return token_schemas.Token(token=token)

@@ -11,6 +11,7 @@ from app.routers import (
     users,
     livestreams,
     djs,
+    tokens,
 )
 from app.settings import settings
 
@@ -43,6 +44,7 @@ app.include_router(posts.router)
 app.include_router(upload.router)
 app.include_router(livestreams.router)
 app.include_router(djs.router)
+app.include_router(tokens.router)
 
 app.add_middleware(
     CORSMiddleware,

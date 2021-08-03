@@ -213,3 +213,22 @@ group_members = sqlalchemy.Table(
     ),
     sqlalchemy.UniqueConstraint('group_id', 'dj_id')
 )
+
+users_tokens = sqlalchemy.Table(
+    'users_tokens',
+    metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column('name', sqlalchemy.String(64), nullable=True),
+    sqlalchemy.Column('token', sqlalchemy.String(64), unique=True),
+    sqlalchemy.Column(
+        'user_id',
+        sqlalchemy.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        'created_at',
+        sqlalchemy.DateTime(timezone=True),
+        nullable=False,
+        server_default=sqlalchemy.sql.func.now(),
+    ),
+)
