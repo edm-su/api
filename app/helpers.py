@@ -1,6 +1,7 @@
 import hashlib
 import random
 import string
+from uuid import uuid4
 
 import boto3
 from algoliasearch.search_client import SearchClient
@@ -47,3 +48,8 @@ class Paginator:
     ):
         self.skip = skip
         self.limit = limit
+
+
+def generate_token() -> str:
+    token = str(uuid4()) + settings.secret_key
+    return hashlib.sha256(token.encode()).hexdigest()

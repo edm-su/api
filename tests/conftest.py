@@ -8,8 +8,9 @@ from _pytest.monkeypatch import MonkeyPatch
 from faker import Faker
 from httpx import AsyncClient
 
-from app import tasks
+from app import tasks, helpers
 from app.crud import dj as djs_crud
+from app.crud import token as tokens_crud
 from app.crud.channel import create_channel
 from app.crud.livestream import create as create_livestream
 from app.crud.post import create_post
@@ -247,3 +248,10 @@ def group_data(
 async def group(group_data: dict) -> typing.Mapping:
     new_group = djs_schema.CreateDJ(**group_data)
     return await djs_crud.create(new_group)
+
+
+@pytest.fixture
+async def api_token(admin: typing.Mapping) -> str:
+    token = helpers.generate_token()
+    await tokens_crud.add_token('Test token', token, admin['id'])
+    return token
