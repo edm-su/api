@@ -4,7 +4,7 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 
-from app.crud import token as token_crud
+from app.crud import token as token_crud, livestream as livestream_crud
 from app.schemas.user import CreateUser, UserPassword, User, MyUser, Token
 from tests.helpers import create_auth_header
 
@@ -143,4 +143,33 @@ async def test_create_api_token(
         json=data,
     )
 
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+########################################
+# Token authentication
+########################################
+@pytest.mark.asyncio
+async def test_api_token_authentication(
+        client: AsyncClient,
+        api_token: str,
+        livestream_data: dict,
+) -> None:
+    headers = {'Authorization': f'Token {api_token}'}
+    response = await client.post(
+        '/livestreams',
+        json=livestream_data,
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    data = response.json()
+    assert await livestream_crud.find_one(data['id'])
+
+    headers = {'Authorization': f'Token bad{api_token}'}
+    response = await client.post(
+        '/livestreams',
+        json=livestream_data,
+        headers=headers,
+    )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED

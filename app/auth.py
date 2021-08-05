@@ -2,7 +2,7 @@ import typing
 from datetime import datetime, timedelta
 
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Header
 from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 
@@ -15,6 +15,7 @@ oauth_scheme = OAuth2PasswordBearer('/users/token', auto_error=False)
 
 
 async def get_current_user(
+        authorization: typing.Optional[str] = Header(None),
         token: str = Depends(oauth_scheme),
 ) -> typing.Mapping:
     credentials_exception = HTTPException(
@@ -22,8 +23,21 @@ async def get_current_user(
         detail='Не удалось проверить учётные данные',
         headers={'WWW-Authenticate': 'Bearer'},
     )
+    if not token and authorization:
+        schema, _, token = authorization.partition(' ')
+        if schema.lower() != 'token' or len(token) != 64:
+            raise credentials_exception
+        db_user = await user.get_user_by_token(token)
+        if db_user is None:
+            raise credentials_exception
+        return db_user
+
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=['HS256'])
+        payload = jwt.decode(
+            token,
+            settings.secret_key,
+            algorithms=['HS256'],
+        )
         username = payload.get('sub')
         if username is None:
             raise credentials_exception

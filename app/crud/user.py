@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Mapping
 
-from app.db import users, database
+from sqlalchemy import select
+
+from app.db import users, database, users_tokens
 from app.helpers import get_password_hash, generate_secret_code
 
 
@@ -85,3 +87,9 @@ async def change_password(
             {'recovery_code': None, 'recovery_code_lifetime_end': None},
         )
     return bool(await database.execute(query=query, values=values))
+
+
+async def get_user_by_token(token: str) -> Optional[Mapping]:
+    query = select(users.columns).select_from(users.join(users_tokens))
+    query = query.where(users_tokens.c.token == token)
+    return await database.fetch_one(query)
