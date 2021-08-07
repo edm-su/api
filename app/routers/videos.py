@@ -25,7 +25,7 @@ async def find_video(
 
 
 @router.get(
-    '/videos/',
+    '/videos',
     response_model=List[Video],
     tags=['Видео'],
     summary='Получить список видео',
