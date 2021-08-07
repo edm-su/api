@@ -30,10 +30,8 @@ async def shutdown() -> None:
 
 
 origins = [
-    "http://edm.su",
     "https://edm.su",
-    "http://localhost:3000",
-    "http://edm.local"
+    "http://localhost:3000"
 ]
 
 app.include_router(channels.router)
