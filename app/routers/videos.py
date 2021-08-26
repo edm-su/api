@@ -152,9 +152,11 @@ async def add_video(
         new_video: CreateVideo,
         admin: Mapping = Depends(auth.get_current_admin),
 ) -> Optional[Mapping]:
+    errors = []
     if await video.get_video_by_slug(new_video.slug):
-        raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            'Такое видео уже существует',
-        )
+        errors.append('Такой slug уже занят')
+    if await video.get_video_by_yt_id(new_video.yt_id):
+        errors.append('Такой yt_id уже существует')
+    if errors:
+        raise HTTPException(409, errors)
     return await video.add_video(new_video)

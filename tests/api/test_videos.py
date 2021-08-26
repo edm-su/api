@@ -83,6 +83,9 @@ async def test_video_already_exist(
     )
 
     assert response.status_code == status.HTTP_409_CONFLICT
+    error = response.json()
+    assert 'Такой slug уже занят' in error['detail']
+    assert 'Такой yt_id уже существует' in error['detail']
 
 
 ##############################

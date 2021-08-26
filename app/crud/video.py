@@ -118,6 +118,11 @@ async def get_video_by_slug(
     return await database.fetch_one(query=query)
 
 
+async def get_video_by_yt_id(yt_id: str) -> Optional[Mapping]:
+    query = videos.select().where(videos.c.yt_id == yt_id)
+    return await database.fetch_one(query=query)
+
+
 async def delete_video(video_id: int) -> bool:
     query = videos.update().where(videos.c.id == video_id).returning(videos)
     return bool(await database.fetch_one(
