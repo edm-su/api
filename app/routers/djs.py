@@ -30,11 +30,14 @@ async def create_dj(
         dj: dj_schema.CreateDJ,
         admin: Mapping = Depends(get_current_admin),
 ) -> dj_schema.DJ:
+    errors = {}
     if await dj_crud.find(name=dj.name):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail='Такой DJ уже существует',
-        )
+        errors['name'] = 'Такой dj уже существует'
+    if await dj_crud.find(slug=dj.slug):
+        errors['slug'] = 'Такой slug уже существует'
+    if errors:
+        raise HTTPException(status.HTTP_409_CONFLICT, errors)
+
     db_dj = await dj_crud.create(dj)
     if dj.group_members:
         group_members = await dj_crud.get_groups_members([db_dj['id']])

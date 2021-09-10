@@ -32,6 +32,14 @@ async def test_create_dj(
     for k, v in dj_data.items():
         assert data[k] == v
 
+    response = await client.post('/djs', json=dj_data, headers=auth_headers)
+
+    assert response.status_code == status.HTTP_409_CONFLICT
+    data = response.json()
+    detail = data['detail']
+    assert detail['name'] == 'Такой dj уже существует'
+    assert detail['slug'] == 'Такой slug уже существует'
+
 
 @pytest.mark.asyncio
 async def test_create_group(
