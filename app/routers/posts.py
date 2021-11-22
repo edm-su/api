@@ -24,7 +24,7 @@ async def find_post(slug: str) -> Mapping:
 
 
 @router.post(
-    '/posts/',
+    '/posts',
     response_model=Post,
     tags=['Посты'],
     summary='Добавление поста',
@@ -44,7 +44,7 @@ async def create_post(
 
 
 @router.get(
-    '/posts/',
+    '/posts',
     response_model=List[Post],
     tags=['Посты'],
     summary='Получение списка постов',

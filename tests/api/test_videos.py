@@ -11,11 +11,11 @@ from tests.helpers import create_auth_header
 
 
 ##############################
-# GET /videos/
+# GET /videos
 ##############################
 @pytest.mark.asyncio
 async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
-    response = await client.get('/videos/')
+    response = await client.get('/videos')
 
     assert response.status_code == status.HTTP_200_OK
     for video in response.json():

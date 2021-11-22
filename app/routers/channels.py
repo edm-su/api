@@ -20,7 +20,7 @@ async def find_channel(slug: str) -> Mapping:
 
 
 @router.get(
-    '/channels/',
+    '/channels',
     response_model=List[Channel],
     tags=['Каналы'],
     summary='Получить список каналов',

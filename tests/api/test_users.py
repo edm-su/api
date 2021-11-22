@@ -17,7 +17,7 @@ async def test_create_user(client: AsyncClient) -> None:
         username='TestUser',
         email='testuser@example.com',
     )
-    response = await client.post('/users/', json=new_user.dict())
+    response = await client.post('/users', json=new_user.dict())
 
     assert response.status_code == status.HTTP_200_OK
     assert MyUser.validate(response.json())

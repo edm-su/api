@@ -102,7 +102,7 @@ async def update(id_: int, new_data: dj_schema.ChangeDJ) -> Mapping:
 
 
 async def delete_group_members(ids: list[int]) -> bool:
-    query = db.group_members.delete().where(db.group_members.c.id.in_(ids))
+    query = db.group_members.delete().where(db.group_members.c.dj_id.in_(ids))
     return bool(await db.database.fetch_val(query))
 
 

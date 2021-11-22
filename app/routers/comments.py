@@ -19,7 +19,7 @@ async def find_video(video_slug: str) -> Mapping:
 
 
 @router.post(
-    '/videos/{video_slug}/comments/',
+    '/videos/{video_slug}/comments',
     response_model=Comment,
     tags=['Комментарии', 'Видео'],
     summary='Оставить комментарий',
@@ -37,7 +37,7 @@ async def new_comment(
 
 
 @router.get(
-    '/videos/{video_slug}/comments/',
+    '/videos/{video_slug}/comments',
     response_model=List[Comment],
     tags=['Комментарии', 'Видео'],
     summary='Получить комментарии к видео',
@@ -49,7 +49,7 @@ async def read_comments(
 
 
 @router.get(
-    '/comments/',
+    '/comments',
     response_model=List[Comment],
     tags=['Комментарии'],
     summary='Получить список комментариев ко всем видео',

@@ -21,7 +21,7 @@ router = APIRouter()
 
 
 @router.post(
-    '/users/',
+    '/users',
     tags=['Пользователи'],
     summary='Регистрация пользователя',
     response_model=MyUser,

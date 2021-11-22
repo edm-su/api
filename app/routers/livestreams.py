@@ -21,7 +21,12 @@ async def find_stream(
     return stream
 
 
-@router.post('/', status_code=201, response_model=livestreams.LiveStream)
+@router.post(
+    '',
+    status_code=201,
+    response_model=livestreams.LiveStream,
+    tags=['Прямые трансляции'],
+)
 async def new_stream(
         stream: livestreams.CreateLiveStream,
         admin: Mapping = Depends(get_current_admin),
@@ -29,7 +34,11 @@ async def new_stream(
     return await livestream.create(stream)
 
 
-@router.get('/', response_model=list[livestreams.LiveStream])
+@router.get(
+    '',
+    response_model=list[livestreams.LiveStream],
+    tags=['Прямые трансляции'],
+)
 async def get_streams(
         start: date = Query(date.today() - timedelta(days=2)),
         end: date = Query(date.today() + timedelta(days=31)),
@@ -42,14 +51,22 @@ async def get_streams(
     return await livestream.find(start, end)
 
 
-@router.get('/{id}:{slug}', response_model=livestreams.LiveStream)
+@router.get(
+    '/{id}:{slug}',
+    response_model=livestreams.LiveStream,
+    tags=['Прямые трансляции'],
+)
 async def get_stream(
         stream: Mapping = Depends(find_stream),
 ) -> Optional[Mapping]:
     return stream
 
 
-@router.delete('/{id}:{slug}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    '/{id}:{slug}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=['Прямые трансляции'],
+)
 async def delete_stream(
         stream: Mapping = Depends(find_stream),
         admin: Mapping = Depends(get_current_admin),
@@ -57,7 +74,11 @@ async def delete_stream(
     await livestream.remove(stream['id'])
 
 
-@router.put('/{id}:{slug}', response_model=livestreams.LiveStream)
+@router.put(
+    '/{id}:{slug}',
+    response_model=livestreams.LiveStream,
+    tags=['Прямые трансляции'],
+)
 async def update_stream(
         updated_stream: livestreams.BaseLiveStream,
         stream: Mapping = Depends(find_stream),

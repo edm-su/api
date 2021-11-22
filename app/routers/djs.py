@@ -22,7 +22,7 @@ async def find_dj(slug: str = Path(..., title='slug')) -> Optional[Mapping]:
 
 
 @router.post(
-    '/',
+    '',
     status_code=status.HTTP_201_CREATED,
     response_model=dj_schema.DJ,
 )
@@ -56,7 +56,7 @@ async def delete_dj(
     await dj_crud.delete(dj['id'])
 
 
-@router.get('/', response_model=list[dj_schema.DJ])
+@router.get('', response_model=list[dj_schema.DJ])
 async def get_list(
         response: Response,
         pagination: Paginator = Depends(Paginator),

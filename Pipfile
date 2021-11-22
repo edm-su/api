@@ -11,15 +11,15 @@ mypy = "*"
 faker = "*"
 
 [packages]
-alembic = "*"
-algoliasearch = "*"
-databases = { extras = ["postgresql"], version = "*" }
-fastapi = "*"
-pillow = "*"
-sqlalchemy = "<1.4"
-pyjwt = "*"
-boto3 = "*"
-email-validator = "*"
+alembic = "~=1.6"
+algoliasearch = "==2.5"
+databases = { extras = ["postgresql"], version = "~=0.5" }
+fastapi = "==0.66"
+pillow = "==8"
+sqlalchemy = "1.4"
+pyjwt = "==2.1"
+boto3 = "1"
+email-validator = "1.1"
 python-multipart = "*"
 httpx = "*"
 uvicorn = { extras = ["standard"], version = "*" }
@@ -27,6 +27,7 @@ gunicorn = "*"
 psycopg2-binary = "*"
 python-slugify = { extras = ["unidecode"], version = "*" }
 types-python-slugify = "0.1"
+aiohttp = "*"
 
 [requires]
 python_version = "3.9"
