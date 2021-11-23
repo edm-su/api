@@ -4,21 +4,10 @@ import string
 from uuid import uuid4
 
 import boto3
-from algoliasearch.search_client import SearchClient
-from algoliasearch.search_index import SearchIndex
 from botocore.client import BaseClient
 from fastapi import Query
 
 from app.settings import settings
-
-
-def algolia_client() -> SearchIndex:
-    client = SearchClient.create(
-        settings.algolia_app_id,
-        settings.algolia_api_key,
-    )
-    index = client.init_index(settings.algolia_index)
-    return index
 
 
 def s3_client() -> BaseClient:

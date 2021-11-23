@@ -3,9 +3,9 @@ from typing import Mapping, List, Optional
 from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
 
-from app.db import videos, database, liked_videos
-from app.helpers import algolia_client
+from app.db import videos, database, liked_videos, as_client
 from app.schemas.video import CreateVideo
+from app.settings import settings
 
 
 def is_liked(user_id: int) -> Label:
@@ -23,8 +23,8 @@ async def add_video(new_video: CreateVideo) -> Optional[Mapping]:
         values=new_video.dict(exclude={'liked'}),
     )
     if db_video:
-        index = algolia_client()
-        index.save_object(
+        index = as_client.init_index(settings.algolia_index)
+        await index.save_object_async(
             {
                 'objectID': db_video['id'],
                 'title': db_video['title'],
