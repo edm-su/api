@@ -6,7 +6,7 @@ from slugify import slugify
 
 class BaseLiveStream(BaseModel):
     title: str = Field(..., max_length=256, min_length=1)
-    cancelled: bool
+    cancelled: bool = Field(False)
     start_time: datetime
     end_time: datetime = Field(None)
     image: str = Field(None)

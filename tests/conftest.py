@@ -185,7 +185,6 @@ def livestream_data(faker: Faker) -> dict:
     start_time: datetime = faker.future_datetime()
     return {
         'title': faker.company(),
-        'cancelled': faker.pybool(),
         'start_time': start_time.isoformat(),
         'end_time': (start_time + timedelta(hours=2)).isoformat(),
         'image': faker.file_path(extension='jpg'),
