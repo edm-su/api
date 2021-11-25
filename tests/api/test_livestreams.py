@@ -30,6 +30,25 @@ async def test_create_livestream(
 
 
 @pytest.mark.asyncio
+async def test_prevent_duplicate_livestreams(
+        client: AsyncClient,
+        livestream_data: dict,
+        livestream: Mapping,
+        admin: Mapping,
+) -> None:
+    """Проверка уникальности прямых трансляций"""
+    headers = create_auth_header(admin['username'])
+    response = await client.post(
+        '/livestreams',
+        json=livestream_data,
+        headers=headers,
+    )
+
+    assert response.status_code == status.HTTP_409_CONFLICT
+    assert await livestream_crud.find_one(slug=livestream['slug'])
+
+
+@pytest.mark.asyncio
 async def test_disallow_creation_livestream_without_privileges(
         client: AsyncClient,
         livestream_data: dict,

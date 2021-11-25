@@ -31,6 +31,16 @@ async def new_stream(
         stream: livestreams.CreateLiveStream,
         admin: Mapping = Depends(get_current_admin),
 ) -> Optional[Mapping]:
+    db_streams = await livestream.find(
+        stream.start_time,
+        stream.end_time,
+        stream.slug,
+    )
+    if db_streams:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            'Такая трансляция уже существует',
+        )
     return await livestream.create(stream)
 
 

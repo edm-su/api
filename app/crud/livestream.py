@@ -33,6 +33,7 @@ async def find_one(
 async def find(
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
+        slug: str = None,
 ) -> list[Mapping]:
     query = livestreams.select()
     query = query.where(between(livestreams.c.start_time, start, end))
