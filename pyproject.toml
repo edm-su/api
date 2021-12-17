@@ -23,6 +23,7 @@ types-python-slugify = "^5.0.2"
 databases = { version = "^0.5", extras = ["postgresql"] }
 uvicorn = { extras = ["standard"], version = "^0.16.0" }
 python-slugify = { extras = ["unidecode"], version = "^5.0.2" }
+aiohttp = "^3.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
