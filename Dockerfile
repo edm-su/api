@@ -1,17 +1,57 @@
-FROM python:3.9-alpine
-ENV PYTHONUNBUFFERED 1
+FROM python:3.10-slim as python-base
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VERSION=1.1.12 \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    PYSETUP_PATH="/opt/pysetup" \
+    VENV_PATH="/opt/pysetup/.venv"
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+ENV PYTHONPATH=/app
+RUN apt-get update && apt-get --no-install-recommends -y install libpq-dev
 
-RUN mkdir /api
-WORKDIR /api
 
-COPY requirements.txt ./
-RUN \
-    apk add --no-cache postgresql-libs jpeg-dev zlib-dev && \
-    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev make g++ && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apk --purge del .build-deps
+FROM python-base as builder-base
+RUN apt-get install --no-install-recommends -y \
+    curl \
+    build-essential
+RUN curl -sSL https://install.python-poetry.org | python -
 
-ADD . /api/
+WORKDIR $PYSETUP_PATH
+COPY poetry.lock pyproject.toml ./
 
-ENTRYPOINT ["sh", "entrypoint.sh"]
+RUN poetry install --no-dev
+
+
+FROM builder-base as development
+ENV DEBUG=True
+RUN poetry install
+COPY . /app
+WORKDIR /app
+
+RUN chmod +x entrypoint.sh
+
 EXPOSE 8000
+ENTRYPOINT ./entrypoint.sh
+
+
+FROM development as test
+ENV DEBUG=True
+ENV TEST=True
+RUN chmod +x entrypoint.test.sh
+ENTRYPOINT ./entrypoint.test.sh
+
+
+FROM python-base as production
+COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
+COPY . /app
+WORKDIR /app
+
+RUN chmod +x entrypoint.sh
+
+EXPOSE 8000
+ENTRYPOINT ./entrypoint.sh

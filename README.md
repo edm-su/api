@@ -1,9 +1,10 @@
 # API edm.su
 ## Требования
-* Python >= 3.9
+* Python >= 3.10
 * PostgreSQL
+* Poetry
 ## Установка
 ```shell
-pip install -r requirements.txt
+pipenv install
 ./entrypoint.sh
 ```
