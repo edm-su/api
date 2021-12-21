@@ -5,14 +5,14 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.crud import dj as dj_crud
-from app.schemas.dj import DJ
+from app.schemas.dj import DJ, CreateDJ
 from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
 async def test_create_dj(
         client: AsyncClient,
-        dj_data: dict,
+        dj_data: CreateDJ,
         admin: Mapping,
 ) -> None:
     """
@@ -23,16 +23,22 @@ async def test_create_dj(
     :return:
     """
     auth_headers = create_auth_header(admin['username'])
-    response = await client.post('/djs', json=dj_data, headers=auth_headers)
+    response = await client.post(
+        '/djs',
+        content=dj_data.json(),
+        headers=auth_headers,
+    )
     data = response.json()
 
     assert response.status_code == status.HTTP_201_CREATED
     assert await dj_crud.find(data['id'])
     assert DJ.validate(data)
-    for k, v in dj_data.items():
-        assert data[k] == v
 
-    response = await client.post('/djs', json=dj_data, headers=auth_headers)
+    response = await client.post(
+        '/djs',
+        content=dj_data.json(),
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_409_CONFLICT
     data = response.json()
@@ -44,7 +50,7 @@ async def test_create_dj(
 @pytest.mark.asyncio
 async def test_create_group(
         client: AsyncClient,
-        group_data: dict,
+        group_data: CreateDJ,
         admin: Mapping,
         dj: Mapping,
 ) -> None:
@@ -56,7 +62,11 @@ async def test_create_group(
     :return:
     """
     auth_headers = create_auth_header(admin['username'])
-    response = await client.post('/djs', json=group_data, headers=auth_headers)
+    response = await client.post(
+        '/djs',
+        content=group_data.json(),
+        headers=auth_headers,
+    )
     data = response.json()
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -69,7 +79,7 @@ async def test_create_group(
 @pytest.mark.asyncio
 async def test_prohibit_adding_by_user(
         client: AsyncClient,
-        dj_data: dict,
+        dj_data: CreateDJ,
         user: Mapping,
 ) -> None:
     """
@@ -80,16 +90,20 @@ async def test_prohibit_adding_by_user(
     :return:
     """
     auth_headers = create_auth_header(user['username'])
-    response = await client.post('/djs', json=dj_data, headers=auth_headers)
+    response = await client.post(
+        '/djs',
+        content=dj_data.json(),
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert await dj_crud.find(name=dj_data['name']) is None
+    assert await dj_crud.find(name=dj_data.name) is None
 
 
 @pytest.mark.asyncio
 async def test_prohibit_adding_by_guest(
         client: AsyncClient,
-        dj_data: dict,
+        dj_data: CreateDJ,
 ) -> None:
     """
     Запрет создания DJ гостем
@@ -97,10 +111,10 @@ async def test_prohibit_adding_by_guest(
     :param dj_data:
     :return:
     """
-    response = await client.post('/djs', json=dj_data)
+    response = await client.post('/djs', content=dj_data.json())
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert await dj_crud.find(name=dj_data['name']) is None
+    assert await dj_crud.find(name=dj_data.name) is None
 
 
 @pytest.mark.asyncio

@@ -5,17 +5,23 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.crud import token as token_crud, livestream as livestream_crud
+from app.schemas.livestreams import CreateLiveStream
 from app.schemas.user import CreateUser, UserPassword, User, MyUser, Token
 from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_create_user(client: AsyncClient) -> None:
+async def test_create_user(client: AsyncClient, user_data: CreateUser) -> None:
+    """
+    Регистрация
+    :param client:
+    :return:
+    """
     new_user = CreateUser(
-        password='testpassword',
-        password_confirm='testpassword',
-        username='TestUser',
-        email='testuser@example.com',
+        password=user_data.password,
+        password_confirm=user_data.password,
+        username=user_data.username,
+        email=user_data.email,
     )
     response = await client.post('/users', json=new_user.dict())
 
@@ -29,6 +35,12 @@ async def test_activate_user(
         client: AsyncClient,
         non_activated_user: Mapping,
 ) -> None:
+    """
+    Подтверждение пользователя
+    :param client:
+    :param non_activated_user:
+    :return:
+    """
     url = f'/users/activate/{non_activated_user["activation_code"]}'
     response = await client.post(url)
 
@@ -36,12 +48,23 @@ async def test_activate_user(
 
 
 @pytest.mark.asyncio
-async def test_login(client: AsyncClient, admin: Mapping) -> None:
+async def test_login(
+        client: AsyncClient,
+        admin: Mapping,
+        user_data: CreateUser,
+) -> None:
+    """
+    Авторизация
+    :param client:
+    :param admin:
+    :param user_data:
+    :return:
+    """
     response = await client.post(
         '/users/token',
         data={
-            'username': admin['username'],
-            'password': 'password',
+            'username': user_data.username,
+            'password': user_data.password,
         },
     )
 
@@ -51,6 +74,12 @@ async def test_login(client: AsyncClient, admin: Mapping) -> None:
 
 @pytest.mark.asyncio
 async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
+    """
+    Получение информации о пользователе
+    :param client:
+    :param admin:
+    :return:
+    """
     response = await client.get(
         '/users/me',
         headers=create_auth_header(admin['username']),
@@ -65,19 +94,35 @@ async def test_request_recovery_user(
         client: AsyncClient,
         admin: Mapping,
 ) -> None:
+    """
+    Запрос восстановления пользователя
+    :param client:
+    :param admin:
+    :return:
+    """
     response = await client.post(f'/users/password-recovery/{admin["email"]}')
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 @pytest.mark.asyncio
-async def test_change_password(client: AsyncClient, admin: Mapping) -> None:
+async def test_change_password(
+        client: AsyncClient,
+        admin: Mapping,
+        user_data: CreateUser,
+) -> None:
+    """
+    Изменение пароля
+    :param client:
+    :param admin:
+    :return:
+    """
     data = {
         'new_password': {
             'password': 'newpassword',
             'password_confirm': 'newpassword',
         },
-        'old_password': 'password',
+        'old_password': user_data.password,
     }
     response = await client.put(
         '/users/password',
@@ -93,6 +138,12 @@ async def test_reset_password(
         client: AsyncClient,
         recovered_user_code: str,
 ) -> None:
+    """
+    Сброс пароля
+    :param client:
+    :param recovered_user_code:
+    :return:
+    """
     data = UserPassword(password='newpassword', password_confirm='newpassword')
     url = f'/users/reset-password/{recovered_user_code}'
     response = await client.put(url, json=data.dict())
@@ -102,21 +153,29 @@ async def test_reset_password(
 
 @pytest.mark.asyncio
 async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
+    """
+    Информация о пользователе
+    :param client:
+    :param admin:
+    :return:
+    """
     response = await client.get(f'/users/{admin["id"]}')
 
     assert response.status_code == status.HTTP_200_OK
     assert User.validate(response.json())
 
 
-########################################
-# POST /users/token
-########################################
 @pytest.mark.asyncio
 async def test_create_api_token(
         client: AsyncClient,
         admin: Mapping,
-        user: Mapping,
 ) -> None:
+    """
+    Создание api токена
+    :param client:
+    :param admin:
+    :return:
+    """
     headers = create_auth_header(admin['username'])
     data = {'name': 'New token'}
     response = await client.post(
@@ -129,7 +188,20 @@ async def test_create_api_token(
     assert response.status_code == status.HTTP_201_CREATED
     assert await token_crud.find_token(response_data['token'])
 
+
+@pytest.mark.asyncio
+async def test_create_api_token_without_auth(
+        client: AsyncClient,
+        user: Mapping,
+) -> None:
+    """
+    Проверка прав на создание api токена
+    :param client:
+    :param user:
+    :return:
+    """
     headers = create_auth_header(user['username'])
+    data = {'name': 'New token'}
     response = await client.post(
         '/users/api_token',
         headers=headers,
@@ -142,23 +214,26 @@ async def test_create_api_token(
         '/users/api_token',
         json=data,
     )
-
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-########################################
-# Token authentication
-########################################
 @pytest.mark.asyncio
 async def test_api_token_authentication(
         client: AsyncClient,
         api_token: str,
-        livestream_data: dict,
+        livestream_data: CreateLiveStream,
 ) -> None:
+    """
+    Авторизация по api токену
+    :param client:
+    :param api_token:
+    :param livestream_data:
+    :return:
+    """
     headers = {'Authorization': f'Token {api_token}'}
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
         headers=headers,
     )
 
@@ -169,7 +244,7 @@ async def test_api_token_authentication(
     headers = {'Authorization': f'Token bad{api_token}'}
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
         headers=headers,
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED

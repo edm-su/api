@@ -6,20 +6,27 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.crud import livestream as livestream_crud
-from app.schemas.livestreams import LiveStream
+from app.schemas.livestreams import LiveStream, CreateLiveStream
 from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
 async def test_create_livestream(
         client: AsyncClient,
-        livestream_data: dict,
+        livestream_data: CreateLiveStream,
         admin: Mapping,
 ) -> None:
+    """
+    Создание трансляции
+    :param client:
+    :param livestream_data:
+    :param admin:
+    :return:
+    """
     headers = create_auth_header(admin['username'])
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
         headers=headers,
     )
 
@@ -32,7 +39,7 @@ async def test_create_livestream(
 @pytest.mark.asyncio
 async def test_prevent_duplicate_livestreams(
         client: AsyncClient,
-        livestream_data: dict,
+        livestream_data: CreateLiveStream,
         livestream: Mapping,
         admin: Mapping,
 ) -> None:
@@ -40,7 +47,7 @@ async def test_prevent_duplicate_livestreams(
     headers = create_auth_header(admin['username'])
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
         headers=headers,
     )
 
@@ -51,26 +58,33 @@ async def test_prevent_duplicate_livestreams(
 @pytest.mark.asyncio
 async def test_disallow_creation_livestream_without_privileges(
         client: AsyncClient,
-        livestream_data: dict,
+        livestream_data: CreateLiveStream,
         user: Mapping,
 ) -> None:
+    """
+    Проверка прав на добавление
+    :param client:
+    :param livestream_data:
+    :param user:
+    :return:
+    """
     headers = create_auth_header(user['username'])
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
         headers=headers,
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert not await livestream_crud.find_one(title=livestream_data['title'])
+    assert not await livestream_crud.find_one(title=livestream_data.title)
 
     response = await client.post(
         '/livestreams',
-        json=livestream_data,
+        content=livestream_data.json(),
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert not await livestream_crud.find_one(title=livestream_data['title'])
+    assert not await livestream_crud.find_one(title=livestream_data.title)
 
 
 @pytest.mark.asyncio
@@ -79,6 +93,13 @@ async def test_get_livestreams(
         livestream: Mapping,
         livestream_in_a_month: Mapping,
 ) -> None:
+    """
+    Получение списка трансляций
+    :param client:
+    :param livestream:
+    :param livestream_in_a_month:
+    :return:
+    """
     response = await client.get('/livestreams')
 
     assert response.status_code == status.HTTP_200_OK
@@ -91,6 +112,11 @@ async def test_get_livestreams(
 async def test_period_excess_error(
         client: AsyncClient,
 ) -> None:
+    """
+    Валидация дат периода выборки
+    :param client:
+    :return:
+    """
     start_date = date.today() - timedelta(days=20)
     end_date = start_date + timedelta(days=46)
     response = await client.get(
@@ -110,6 +136,12 @@ async def test_get_livestream(
         client: AsyncClient,
         livestream: Mapping,
 ) -> None:
+    """
+    Получить трансляцию
+    :param client:
+    :param livestream:
+    :return:
+    """
     response = await client.get(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
     )
@@ -124,6 +156,13 @@ async def test_remove_livestream(
         livestream: Mapping,
         admin: Mapping,
 ) -> None:
+    """
+    Удалить трансляцию
+    :param client:
+    :param livestream:
+    :param admin:
+    :return:
+    """
     headers = create_auth_header(admin['username'])
     response = await client.delete(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
@@ -140,6 +179,13 @@ async def test_removal_without_privileges(
         livestream: Mapping,
         user: Mapping,
 ) -> None:
+    """
+    Проверка прав на удаление
+    :param client:
+    :param livestream:
+    :param user:
+    :return:
+    """
     response = await client.delete(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
     )
@@ -163,6 +209,13 @@ async def test_update_livestream(
         livestream: Mapping,
         admin: Mapping,
 ) -> None:
+    """
+    Обноавление трансляции
+    :param client:
+    :param livestream:
+    :param admin:
+    :return:
+    """
     headers = create_auth_header(admin['username'])
     stream = dict(livestream)
     stream['title'] = 'Новое название'
@@ -188,6 +241,13 @@ async def test_update_without_privileges(
         livestream: Mapping,
         user: Mapping,
 ) -> None:
+    """
+    Проверка прав на обновление
+    :param client:
+    :param livestream:
+    :param user:
+    :return:
+    """
     headers = create_auth_header(user['username'])
     response = await client.put(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',

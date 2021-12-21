@@ -9,9 +9,6 @@ from app.crud import channel as channel_crud
 from tests.helpers import create_auth_header
 
 
-####################################
-# DELETE /channels/{slug}
-####################################
 @pytest.mark.asyncio
 async def test_delete_channel(
         client: AsyncClient,
@@ -68,9 +65,6 @@ async def test_channel_not_found(
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-####################################
-# POST /channels
-####################################
 @pytest.mark.asyncio
 async def test_create_channel(
         client: AsyncClient,

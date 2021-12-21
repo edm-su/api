@@ -10,7 +10,13 @@ from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_read_posts(client: AsyncClient, posts: List[Mapping]) -> None:
+async def test_read_posts(client: AsyncClient, posts: list[Mapping]) -> None:
+    """
+    Получение списка постов
+    :param client:
+    :param posts:
+    :return:
+    """
     response = await client.get('/posts')
 
     assert response.status_code == status.HTTP_200_OK
@@ -20,7 +26,13 @@ async def test_read_posts(client: AsyncClient, posts: List[Mapping]) -> None:
 
 
 @pytest.mark.asyncio
-async def test_read_post(client: AsyncClient, posts: List[Mapping]) -> None:
+async def test_read_post(client: AsyncClient, posts: list[Mapping]) -> None:
+    """
+    Получение поста
+    :param client:
+    :param posts:
+    :return:
+    """
     response = await client.get(f'/posts/{posts[0]["slug"]}')
 
     assert response.status_code == status.HTTP_200_OK
@@ -30,9 +42,16 @@ async def test_read_post(client: AsyncClient, posts: List[Mapping]) -> None:
 @pytest.mark.asyncio
 async def test_delete_post(
         client: AsyncClient,
-        posts: List[Mapping],
+        posts: list[Mapping],
         admin: dict,
 ) -> None:
+    """
+    Удаление поста
+    :param client:
+    :param posts:
+    :param admin:
+    :return:
+    """
     response = await client.delete(
         f'/posts/{posts[0]["slug"]}',
         headers=create_auth_header(admin['username']),
@@ -43,6 +62,12 @@ async def test_delete_post(
 
 @pytest.mark.asyncio
 async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
+    """
+    Создание поста
+    :param client:
+    :param admin:
+    :return:
+    """
     published_at = datetime.now(timezone.utc) + timedelta(minutes=1)
     new_post = CreatePost(
         title='Ещё одна заметка',
