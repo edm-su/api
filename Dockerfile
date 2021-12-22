@@ -33,10 +33,10 @@ RUN poetry install
 COPY . /app
 WORKDIR /app
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x entrypoint.dev.sh
 
 EXPOSE 8000
-ENTRYPOINT ./entrypoint.sh
+ENTRYPOINT ./entrypoint.dev.sh
 
 
 FROM development as test
