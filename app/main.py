@@ -35,7 +35,7 @@ origins = [
     "http://localhost:3000"
 ]
 
-app.include_router(channels.router)
+app.include_router(channels.router, deprecated=True)
 app.include_router(videos.router)
 app.include_router(users.router)
 app.include_router(comments.router)
