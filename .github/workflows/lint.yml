@@ -23,7 +23,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: '3.10'
       - uses: tsuyoshicho/action-mypy@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
