@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, Mapping
+from typing import Dict, Any, Mapping
 
 from sqlalchemy import select
 
@@ -13,7 +13,7 @@ async def create_user(
         password: str,
         is_admin: bool = False,
         is_active: bool = False
-) -> Optional[Mapping]:
+) -> None | Mapping:
     hashed_password = get_password_hash(password)
 
     query = users.insert().returning(users)
@@ -31,22 +31,22 @@ async def create_user(
     return await database.fetch_one(query=query, values=values)
 
 
-async def get_user_by_email(email: str) -> Optional[Mapping]:
+async def get_user_by_email(email: str) -> None | Mapping:
     query = users.select().where(users.c.email == email)
     return await database.fetch_one(query=query)
 
 
-async def get_user_by_username(username: str) -> Optional[Mapping]:
+async def get_user_by_username(username: str) -> None | Mapping:
     query = users.select().where(users.c.username == username)
     return await database.fetch_one(query=query)
 
 
-async def get_user_by_id(user_id: int) -> Optional[Mapping]:
+async def get_user_by_id(user_id: int) -> None | Mapping:
     query = users.select().where(users.c.id == user_id)
     return await database.fetch_one(query)
 
 
-async def get_user_by_recovery_code(code: str) -> Optional[Mapping]:
+async def get_user_by_recovery_code(code: str) -> None | Mapping:
     query = users.select()
     query = query.where(users.c.recovery_code == code)
     query = query.where(users.c.recovery_code_lifetime_end > datetime.now())
@@ -89,7 +89,7 @@ async def change_password(
     return bool(await database.execute(query=query, values=values))
 
 
-async def get_user_by_token(token: str) -> Optional[Mapping]:
+async def get_user_by_token(token: str) -> None | Mapping:
     query = select(users.columns).select_from(users.join(users_tokens))
     query = query.where(users_tokens.c.token == token)
     return await database.fetch_one(query)

@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Optional, Mapping
+from typing import Mapping
 
 from sqlalchemy import between
 
@@ -9,7 +9,7 @@ from app.schemas.livestreams import BaseLiveStream
 
 async def create(
         livestream: BaseLiveStream,
-) -> Optional[Mapping]:
+) -> None | Mapping:
     query = livestreams.insert(values=livestream.dict()).returning(livestreams)
     return await database.fetch_one(query)
 
@@ -18,7 +18,7 @@ async def find_one(
         id_: int = None,
         title: str = None,
         slug: str = None,
-) -> Optional[Mapping]:
+) -> None | Mapping:
     query = livestreams.select()
     if id_:
         query = query.where(livestreams.c.id == id_)
@@ -46,10 +46,13 @@ async def remove(id_: int) -> bool:
     return bool(await database.execute(query))
 
 
-async def update(id_: int, livestream: BaseLiveStream) -> Optional[Mapping]:
+async def update(id_: int, livestream: BaseLiveStream) -> None | Mapping:
     query = livestreams.update().where(livestreams.c.id == id_)
     query = query.returning(livestreams)
-    return await database.fetch_one(query, livestream.dict(
-        exclude={'slug'},
-        exclude_unset=True,
-    ))
+    return await database.fetch_one(
+        query,
+        livestream.dict(
+            exclude={'slug'},
+            exclude_unset=True,
+        )
+    )

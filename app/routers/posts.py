@@ -1,5 +1,5 @@
 import re
-from typing import List, Mapping, Optional
+from typing import Mapping
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -32,7 +32,7 @@ async def find_post(slug: str) -> Mapping:
 async def create_post(
         new_post: CreatePost,
         admin: Mapping = Depends(get_current_admin),
-) -> Optional[Mapping]:
+) -> Mapping:
     try:
         return await post.create_post(post=new_post, user_id=admin['id'])
     except UniqueViolationError as e:
@@ -45,14 +45,14 @@ async def create_post(
 
 @router.get(
     '/posts',
-    response_model=List[Post],
+    response_model=list[Post],
     tags=['Посты'],
     summary='Получение списка постов',
 )
 async def get_posts(
         response: Response,
         paginate: Paginator = Depends(Paginator),
-) -> List[Mapping]:
+) -> list[Mapping]:
     response.headers['X-Total-Count'] = str(await post.get_posts_count())
     return await post.get_posts(skip=paginate.skip, limit=paginate.limit)
 

@@ -19,7 +19,7 @@ router = APIRouter(prefix='/users/api_token', tags=['Токены', 'Польз�
 async def create_token(
         token_info: token_schemas.TokenInfo,
         admin: Mapping = Depends(get_current_admin)
-) -> Optional[token_schemas.Token]:
+) -> token_schemas.Token:
     token = generate_token()
     await token_crud.add_token(token_info.name, token, admin['id'])
     return token_schemas.Token(token=token)

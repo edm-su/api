@@ -1,12 +1,6 @@
-from typing import Mapping, Dict, Union, Optional
+from typing import Mapping
 
-from fastapi import (APIRouter,
-                     Depends,
-                     HTTPException,
-                     Query,
-                     Body,
-                     BackgroundTasks, Path,
-                     )
+import fastapi
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from starlette import status
@@ -17,7 +11,7 @@ from app.helpers import get_password_hash
 from app.schemas.user import CreateUser, MyUser, Token, UserPassword, User
 from app.tasks import send_recovery_email, send_activate_email
 
-router = APIRouter()
+router = fastapi.APIRouter()
 
 
 @router.post(
@@ -28,16 +22,16 @@ router = APIRouter()
 )
 async def user_register(
         new_user: CreateUser,
-        background_tasks: BackgroundTasks,
-) -> Optional[Mapping]:
+        background_tasks: fastapi.BackgroundTasks,
+) -> None | Mapping:
     if await user.get_user_by_email(new_user.email):
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Такой email уже существует',
         )
 
     if await user.get_user_by_username(new_user.username):
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Имя пользователя занято',
         )
@@ -63,10 +57,10 @@ async def user_register(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def user_activate(
-        code: str = Query(..., regex=r'^[A-Z\d]{10}$'),
+        code: str = fastapi.Query(..., regex=r'^[A-Z\d]{10}$'),
 ) -> None:
     if not await user.activate_user(code=code):
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неверный код активации',
         )
@@ -80,25 +74,25 @@ async def user_activate(
     summary='Авторизация и получение access_token',
 )
 async def login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
-) -> Dict[str, Union[str, bytes]]:
+        form_data: OAuth2PasswordRequestForm = fastapi.Depends(),
+) -> dict[str, str | bytes]:
     db_user = await authenticate_user(
         username=form_data.username,
         password=form_data.password,
     )
 
     if not db_user:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неверное имя пользователя или пароль',
         )
     if not db_user['is_active']:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Учётная запись не подтверждена',
         )
     if db_user['is_banned']:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_410_GONE,
             detail='Учётная запись заблокирована',
         )
@@ -114,7 +108,7 @@ async def login(
     summary='Получение данных пользователя',
 )
 async def read_current_user(
-        current_user: MyUser = Depends(get_current_user),
+        current_user: MyUser = fastapi.Depends(get_current_user),
 ) -> MyUser:
     return current_user
 
@@ -127,11 +121,11 @@ async def read_current_user(
 )
 async def user_recovery(
         email: EmailStr,
-        background_tasks: BackgroundTasks,
+        background_tasks: fastapi.BackgroundTasks,
 ) -> None:
     db_user = await user.get_user_by_email(email=email)
     if not db_user:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Пользователь с таким email не найден',
         )
@@ -147,8 +141,8 @@ async def user_recovery(
 )
 async def change_password(
         new_password: UserPassword,
-        old_password: str = Body(..., min_length=6),
-        current_user: Mapping = Depends(get_current_user),
+        old_password: str = fastapi.Body(..., min_length=6),
+        current_user: Mapping = fastapi.Depends(get_current_user),
 ) -> None:
     if get_password_hash(old_password) == current_user['password']:
         await user.change_password(
@@ -156,7 +150,7 @@ async def change_password(
             password=new_password.password,
         )
     else:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Старый пароль неверный',
         )
@@ -171,7 +165,7 @@ async def change_password(
 async def complete_recovery(code: str, password: UserPassword) -> None:
     db_user = await user.get_user_by_recovery_code(code)
     if not db_user:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Неверный код или истёк срок действия',
         )
@@ -189,10 +183,10 @@ async def complete_recovery(code: str, password: UserPassword) -> None:
     tags=['Пользователи'],
     summary='Получение информации о пользователе',
 )
-async def read_user(id_: int = Path(..., alias='id')) -> Mapping:
+async def read_user(id_: int = fastapi.Path(..., alias='id')) -> Mapping:
     db_user = await user.get_user_by_id(id_)
     if not db_user:
-        raise HTTPException(
+        raise fastapi.HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Пользователь не найден',
         )

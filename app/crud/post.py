@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Mapping, List, Optional
+from typing import Mapping
 
 from sqlalchemy import desc, select, func
 
@@ -7,7 +7,7 @@ from app.db import posts, database
 from app.schemas.post import BasePost
 
 
-async def create_post(post: BasePost, user_id: int) -> Optional[Mapping]:
+async def create_post(post: BasePost, user_id: int) -> None | Mapping:
     query = posts.insert().returning(posts)
     new_post = post.dict()
     new_post['published_at'] = new_post['published_at'].replace(tzinfo=None)
@@ -15,7 +15,7 @@ async def create_post(post: BasePost, user_id: int) -> Optional[Mapping]:
     return await database.fetch_one(query=query, values=new_post)
 
 
-async def get_post_by_slug(slug: str) -> Optional[Mapping]:
+async def get_post_by_slug(slug: str) -> None | Mapping:
     query = posts.select().where(posts.c.slug == slug)
     query = query.where(posts.c.published_at <= datetime.now())
     return await database.fetch_one(query=query)
@@ -24,7 +24,7 @@ async def get_post_by_slug(slug: str) -> Optional[Mapping]:
 async def get_posts(
         skip: int = 0,
         limit: int = 12,
-) -> List[Mapping]:
+) -> list[Mapping]:
     query = posts.select()
     query = query.where(posts.c.published_at <= datetime.now())
     query = query.order_by(desc(posts.c.published_at))

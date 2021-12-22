@@ -1,4 +1,4 @@
-from typing import Mapping, List, Optional
+from typing import Mapping
 
 from sqlalchemy import desc, select, func, case, exists, and_
 from sqlalchemy.sql.elements import Label
@@ -16,7 +16,7 @@ def is_liked(user_id: int) -> Label:
     ], else_='f').label('liked')
 
 
-async def add_video(new_video: CreateVideo) -> Optional[Mapping]:
+async def add_video(new_video: CreateVideo) -> None | Mapping:
     query = videos.insert().returning(videos)
     db_video = await database.fetch_one(
         query=query,
@@ -48,7 +48,7 @@ async def get_videos(
         channel_id: int = None,
         deleted: bool = False,
         user_id: int = None,
-) -> List[Mapping]:
+) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
@@ -66,7 +66,7 @@ async def get_related_videos(
         limit: int = 25,
         user_id: int = None,
         deleted: bool = False,
-) -> List[Mapping]:
+) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
@@ -77,7 +77,7 @@ async def get_related_videos(
     return await database.fetch_all(query=query)
 
 
-async def get_liked_videos(user_id: int) -> List[Mapping]:
+async def get_liked_videos(user_id: int) -> list[Mapping]:
     query = liked_videos.join(
         videos,
         and_(
@@ -108,7 +108,7 @@ async def get_video_by_slug(
         slug: str,
         deleted: bool = False,
         user_id: int = None,
-) -> Optional[Mapping]:
+) -> None | Mapping:
     selected_tables = [videos]
     if user_id:
         selected_tables.append(is_liked(user_id))
@@ -118,7 +118,7 @@ async def get_video_by_slug(
     return await database.fetch_one(query=query)
 
 
-async def get_video_by_yt_id(yt_id: str) -> Optional[Mapping]:
+async def get_video_by_yt_id(yt_id: str) -> None | Mapping:
     query = videos.select().where(videos.c.yt_id == yt_id)
     return await database.fetch_one(query=query)
 

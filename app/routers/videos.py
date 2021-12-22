@@ -1,4 +1,4 @@
-from typing import List, Mapping, Optional
+from typing import Mapping
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, HTTPException, Depends, Response, Query
@@ -14,7 +14,7 @@ router = APIRouter()
 
 async def find_video(
         slug: str,
-        user: Optional[Mapping] = Depends(auth.get_current_user_or_guest),
+        user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> Mapping:
     user_id = user['id'] if user else None
     db_video = await video.get_video_by_slug(slug=slug, user_id=user_id)
@@ -26,15 +26,15 @@ async def find_video(
 
 @router.get(
     '/videos',
-    response_model=List[Video],
+    response_model=list[Video],
     tags=['Видео'],
     summary='Получить список видео',
 )
 async def read_videos(
         response: Response,
         pagination: Paginator = Depends(Paginator),
-        user: Optional[Mapping] = Depends(auth.get_current_user_or_guest),
-) -> List[Mapping]:
+        user: None | Mapping = Depends(auth.get_current_user_or_guest),
+) -> list[Mapping]:
     user_id = user['id'] if user else None
     db_videos = await video.get_videos(
         skip=pagination.skip,
@@ -72,7 +72,7 @@ async def delete_video(
 
 @router.get(
     '/videos/{slug}/related',
-    response_model=List[Video],
+    response_model=list[Video],
     tags=['Видео'],
     summary='Получить похожие видео',
 )
@@ -80,7 +80,7 @@ async def read_related_videos(
         db_video: Mapping = Depends(find_video),
         limit: int = Query(default=15, ge=1, le=50),
         user: Mapping = Depends(auth.get_current_user_or_guest),
-) -> List[Mapping]:
+) -> list[Mapping]:
     user_id = user['id'] if user else None
 
     return await video.get_related_videos(
@@ -131,13 +131,13 @@ async def delete_liked_video(
 
 @router.get(
     '/users/liked_videos',
-    response_model=List[Video],
+    response_model=list[Video],
     tags=['Видео', 'Пользователи'],
     summary='Получить список понравившихся видео',
 )
 async def get_liked_videos(
         current_user: Mapping = Depends(auth.get_current_user),
-) -> List[Mapping]:
+) -> list[Mapping]:
     return await video.get_liked_videos(user_id=current_user['id'])
 
 
@@ -151,7 +151,7 @@ async def get_liked_videos(
 async def add_video(
         new_video: CreateVideo,
         admin: Mapping = Depends(auth.get_current_admin),
-) -> Optional[Mapping]:
+) -> None | Mapping:
     errors = []
     if await video.get_video_by_slug(new_video.slug):
         errors.append('Такой slug уже занят')

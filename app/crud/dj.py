@@ -111,7 +111,8 @@ async def add_group_members(group_id: int, ids: list[int]) -> bool:
         {
             'group_id': group_id,
             'dj_id': group_member,
-        } for group_member in ids]
+        } for group_member in ids
+    ]
     query = db.group_members.insert()
     query = query.values(values)
     query = query.returning(db.group_members.c.id)

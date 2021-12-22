@@ -1,4 +1,4 @@
-from typing import List, Mapping, Optional
+from typing import Mapping
 
 from fastapi import APIRouter, HTTPException, Depends, Response, Query
 from starlette import status
@@ -21,15 +21,15 @@ async def find_channel(slug: str) -> Mapping:
 
 @router.get(
     '/channels',
-    response_model=List[Channel],
+    response_model=list[Channel],
     tags=['Каналы'],
     summary='Получить список каналов',
 )
 async def read_channels(
         response: Response,
         pagination: Paginator = Depends(Paginator),
-        ids: List[int] = Query(None),
-) -> List[Mapping]:
+        ids: list[int] = Query(None),
+) -> list[Mapping]:
     response.headers["X-Total-Count"] = str(await channel.get_channels_count())
     return await channel.get_channels(pagination.skip, pagination.limit, ids)
 
@@ -46,14 +46,14 @@ async def read_channel(db_channel: Mapping = Depends(find_channel)) -> Mapping:
 
 @router.get(
     '/channels/{slug}/videos',
-    response_model=List[Video],
+    response_model=list[Video],
     tags=['Видео', 'Каналы'],
     summary='Получение списка видео канала',
 )
 async def read_channel_videos(
         pagination: Paginator = Depends(Paginator),
         db_channel: Mapping = Depends(find_channel),
-) -> List[Mapping]:
+) -> list[Mapping]:
     return await video.get_videos(
         pagination.skip,
         pagination.limit,
@@ -83,5 +83,5 @@ async def delete_channel(
 async def add_channel(
         new_channel: NewChannel,
         admin: Mapping = Depends(get_current_admin),
-) -> Optional[Mapping]:
+) -> Mapping:
     return await channel.create_channel(new_channel)

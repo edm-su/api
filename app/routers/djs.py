@@ -1,4 +1,4 @@
-from typing import Mapping, Optional
+from typing import Mapping
 
 from fastapi import APIRouter, HTTPException, Depends, Path, Response
 from starlette import status
@@ -11,7 +11,7 @@ from app.schemas import dj as dj_schema
 router = APIRouter(prefix='/djs', tags=['Диджеи'])
 
 
-async def find_dj(slug: str = Path(..., title='slug')) -> Optional[Mapping]:
+async def find_dj(slug: str = Path(..., title='slug')) -> None | Mapping:
     dj = await dj_crud.find(slug=slug)
     if not dj:
         raise HTTPException(

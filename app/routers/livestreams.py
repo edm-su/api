@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import Mapping, Optional
+from typing import Mapping
 
 from fastapi import APIRouter, Depends, Query, HTTPException, Path
 from starlette import status
@@ -14,7 +14,7 @@ router = APIRouter(prefix='/livestreams')
 async def find_stream(
         slug: str = Path(...),
         id_: int = Path(..., alias='id', gt=0),
-) -> Optional[Mapping]:
+) -> Mapping:
     stream = await livestream.find_one(id_, slug=slug)
     if not stream:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
@@ -30,7 +30,7 @@ async def find_stream(
 async def new_stream(
         stream: livestreams.CreateLiveStream,
         admin: Mapping = Depends(get_current_admin),
-) -> Optional[Mapping]:
+) -> Mapping:
     db_streams = await livestream.find(
         stream.start_time,
         stream.end_time,
@@ -68,7 +68,7 @@ async def get_streams(
 )
 async def get_stream(
         stream: Mapping = Depends(find_stream),
-) -> Optional[Mapping]:
+) -> None | Mapping:
     return stream
 
 
@@ -93,5 +93,5 @@ async def update_stream(
         updated_stream: livestreams.BaseLiveStream,
         stream: Mapping = Depends(find_stream),
         admin: Mapping = Depends(get_current_admin),
-) -> Optional[Mapping]:
+) -> Mapping:
     return await livestream.update(stream['id'], updated_stream)
