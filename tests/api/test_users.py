@@ -6,18 +6,21 @@ from starlette import status
 
 from app.crud import token as token_crud, livestream as livestream_crud
 from app.schemas.livestreams import CreateLiveStream
-from app.schemas.user import CreateUser, UserPassword, User, MyUser, Token
+from app.schemas import user as user_schemas
 from tests.helpers import create_auth_header
 
 
 @pytest.mark.asyncio
-async def test_create_user(client: AsyncClient, user_data: CreateUser) -> None:
+async def test_create_user(
+        client: AsyncClient,
+        user_data: user_schemas.CreateUser
+) -> None:
     """
     Регистрация
     :param client:
     :return:
     """
-    new_user = CreateUser(
+    new_user = user_schemas.CreateUser(
         password=user_data.password,
         password_confirm=user_data.password,
         username=user_data.username,
@@ -26,7 +29,7 @@ async def test_create_user(client: AsyncClient, user_data: CreateUser) -> None:
     response = await client.post('/users', json=new_user.dict())
 
     assert response.status_code == status.HTTP_200_OK
-    assert MyUser.validate(response.json())
+    assert user_schemas.MyUser.validate(response.json())
     assert response.json()['is_admin'] is False
 
 
@@ -51,7 +54,7 @@ async def test_activate_user(
 async def test_login(
         client: AsyncClient,
         admin: Mapping,
-        user_data: CreateUser,
+        user_data: user_schemas.CreateUser,
 ) -> None:
     """
     Авторизация
@@ -69,7 +72,7 @@ async def test_login(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert Token.validate(response.json())
+    assert user_schemas.Token.validate(response.json())
 
 
 @pytest.mark.asyncio
@@ -86,7 +89,7 @@ async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert MyUser.validate(response.json())
+    assert user_schemas.MyUser.validate(response.json())
 
 
 @pytest.mark.asyncio
@@ -109,7 +112,7 @@ async def test_request_recovery_user(
 async def test_change_password(
         client: AsyncClient,
         admin: Mapping,
-        user_data: CreateUser,
+        user_data: user_schemas.CreateUser,
 ) -> None:
     """
     Изменение пароля
@@ -119,8 +122,8 @@ async def test_change_password(
     """
     data = {
         'new_password': {
-            'password': 'newpassword',
-            'password_confirm': 'newpassword',
+            'password': 'new-password',
+            'password_confirm': 'new-password',
         },
         'old_password': user_data.password,
     }
@@ -144,7 +147,11 @@ async def test_reset_password(
     :param recovered_user_code:
     :return:
     """
-    data = UserPassword(password='newpassword', password_confirm='newpassword')
+    password = 'new-password'
+    data = user_schemas.UserPassword(
+        password=password,
+        password_confirm=password,
+    )
     url = f'/users/reset-password/{recovered_user_code}'
     response = await client.put(url, json=data.dict())
 
@@ -162,7 +169,7 @@ async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
     response = await client.get(f'/users/{admin["id"]}')
 
     assert response.status_code == status.HTTP_200_OK
-    assert User.validate(response.json())
+    assert user_schemas.User.validate(response.json())
 
 
 @pytest.mark.asyncio
@@ -224,7 +231,7 @@ async def test_api_token_authentication(
         livestream_data: CreateLiveStream,
 ) -> None:
     """
-    Авторизация по api токену
+    Авторизация с использованием api токена
     :param client:
     :param api_token:
     :param livestream_data:

@@ -1,4 +1,4 @@
-import typing
+from typing import Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -12,8 +12,8 @@ from tests.helpers import create_auth_header
 @pytest.mark.asyncio
 async def test_delete_channel(
         client: AsyncClient,
-        channel: typing.Mapping,
-        admin: typing.Mapping,
+        channel: Mapping,
+        admin: Mapping,
 ) -> None:
     auth_headers = create_auth_header(admin['username'])
     response = await client.delete(
@@ -27,7 +27,7 @@ async def test_delete_channel(
 @pytest.mark.asyncio
 async def test_delete_channel_without_auth(
         client: AsyncClient,
-        channel: typing.Mapping,
+        channel: Mapping,
 ) -> None:
     response = await client.delete(
         f'/channels/{channel["slug"]}')
@@ -38,8 +38,8 @@ async def test_delete_channel_without_auth(
 @pytest.mark.asyncio
 async def test_delete_channel_by_user(
         client: AsyncClient,
-        channel: typing.Mapping,
-        user: typing.Mapping,
+        channel: Mapping,
+        user: Mapping,
 ) -> None:
     auth_headers = create_auth_header(user['username'])
     response = await client.delete(
@@ -53,8 +53,8 @@ async def test_delete_channel_by_user(
 @pytest.mark.asyncio
 async def test_channel_not_found(
         client: AsyncClient,
-        channel: typing.Mapping,
-        admin: typing.Mapping,
+        channel: Mapping,
+        admin: Mapping,
 ) -> None:
     auth_headers = create_auth_header(admin['username'])
     response = await client.delete(
@@ -69,7 +69,7 @@ async def test_channel_not_found(
 async def test_create_channel(
         client: AsyncClient,
         channel_data: dict,
-        admin: typing.Mapping,
+        admin: Mapping,
 ) -> None:
     auth_headers = create_auth_header(admin['username'])
     response = await client.post(
@@ -105,7 +105,7 @@ async def test_create_by_guest(
 async def test_create_by_user(
         client: AsyncClient,
         channel_data: dict,
-        user: typing.Mapping,
+        user: Mapping,
 ) -> None:
     auth_headers = create_auth_header(user['username'])
     response = await client.post(

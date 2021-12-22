@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import List, Mapping
+from typing import Mapping
 
 import pytest
 from httpx import AsyncClient

@@ -16,7 +16,7 @@ async def test_create_dj(
         admin: Mapping,
 ) -> None:
     """
-    Создание пользователя
+    Создание диджея
     :param client:
     :param dj_data:
     :param admin:
