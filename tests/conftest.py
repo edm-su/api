@@ -10,16 +10,14 @@ from httpx import AsyncClient
 
 from app import tasks, helpers
 from app.crud import dj as djs_crud
-from app.crud import token as tokens_crud
-from app.crud import channel as channel_crud
 from app.crud import livestream as livestream_crud
 from app.crud import post as post_crud
+from app.crud import token as tokens_crud
 from app.crud import user as user_crud
 from app.crud import video as video_crud
 from app.db import database
 from app.main import app
 from app.schemas.dj import CreateDJ
-from app.schemas.channel import NewChannel
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
 from app.schemas.user import CreateUser
@@ -145,12 +143,6 @@ async def channel_data(faker: Faker) -> dict:
         'yt_id': faker.pystr(min_chars=11, max_chars=11),
         'yt_thumbnail': faker.url() + faker.file_path(extension='jpg')
     }
-
-
-@pytest.fixture
-async def channel(channel_data: dict) -> None | typing.Mapping:
-    channel = NewChannel(**channel_data)
-    return await channel_crud.create_channel(channel)
 
 
 @pytest.fixture
