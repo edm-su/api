@@ -1,7 +1,5 @@
 import hashlib
-import re
 from io import BytesIO
-from time import time
 from typing import Mapping, IO
 
 import httpx
@@ -46,8 +44,7 @@ async def upload_image(
             detail='Файл не должен превышать 5 мб',
         )
 
-    filename = re.search(r'[\wа-яА-Я_-]+', image.filename)
-    filename = f'{int(time())}-{filename.group(0)}'
+    filename = get_md5_hash(image.file)
     path = f'images/{filename}.jpeg'
 
     await convert_and_upload_image(image.file, path)
@@ -98,13 +95,16 @@ async def upload_image_url(
 
 def get_md5_hash(file: IO) -> str:
     md5 = hashlib.md5()
-    for chunk in file:
+    file.seek(0)
+    while chunk := file.read(8192):
         md5.update(chunk)
+        print(md5.hexdigest())
     return md5.hexdigest()
 
 
 def get_file_size(file: IO) -> int:
     real_file_size = 0
+    file.seek(0)
 
     for chunk in file:
         real_file_size += len(chunk)
