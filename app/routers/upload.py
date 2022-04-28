@@ -37,6 +37,12 @@ async def upload_image(
             detail='Файл должен быть изображением',
         )
 
+    if get_file_size(image.file) > 5_000_000:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail='Файл не должен превышать 5 мб',
+        )
+
     filename = re.search(r'[\wа-яА-Я_-]+', image.filename)
     filename = f'{int(time())}-{filename.group(0)}'
     path = f'images/{filename}.jpeg'
@@ -44,6 +50,15 @@ async def upload_image(
     await convert_and_upload_image(image.file, path)
 
     return {'file_url': f'{settings.static_url}/{path}', 'file_path': path}
+
+
+def get_file_size(file: IO) -> int:
+    real_file_size = 0
+
+    for chunk in file:
+        real_file_size += len(chunk)
+
+    return real_file_size
 
 
 async def convert_and_upload_image(file: IO, path: str) -> None:

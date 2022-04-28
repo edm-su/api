@@ -100,3 +100,27 @@ async def test_upload_image_bad_request(
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.asyncio
+async def test_upload_large_image(
+        client: AsyncClient,
+        admin: Mapping,
+) -> None:
+    """
+    Тест загрузка изображения с большим размером
+    :param client:
+    :param admin:
+    :return:
+    """
+    auth_headers = create_auth_header(admin['username'])
+    with open('tests/files/large.jpg', 'rb') as f:
+        response = await client.post(
+            '/upload/images',
+            files={
+                'image': f
+            },
+            headers=auth_headers
+        )
+
+    assert response.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
