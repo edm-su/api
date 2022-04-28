@@ -41,22 +41,23 @@ async def upload_image(
     filename = f'{int(time())}-{filename.group(0)}'
     path = f'images/{filename}.jpeg'
 
-    convert_and_upload_image(image.file, path)
+    await convert_and_upload_image(image.file, path)
 
     return {'file_url': f'{settings.static_url}/{path}', 'file_path': path}
 
 
-def convert_and_upload_image(file: IO, path: str) -> None:
+async def convert_and_upload_image(file: IO, path: str) -> None:
     image = Image.open(file)
     image = image.convert('RGB')
     jpeg_file = BytesIO()
     image.save(jpeg_file, 'JPEG')
     jpeg_file.seek(0)
 
-    s3_client().put_object(
-        Body=jpeg_file,
-        Bucket=settings.s3_bucket,
-        Key=path,
-        ContentType='image/jpeg',
-        ACL='public-read',
-    )
+    async with s3_client() as client:
+        await client.put_object(
+            Body=jpeg_file,
+            Bucket=settings.s3_bucket,
+            Key=path,
+            ContentType='image/jpeg',
+            ACL='public-read',
+        )

@@ -31,10 +31,11 @@ async def test_upload_image(
         )
 
     assert response.status_code == status.HTTP_200_OK
-    assert s3_client().head_object(
-        Key=response.json()['file_path'],
-        Bucket=settings.s3_bucket
-    )
+    async with s3_client() as s3:
+        assert await s3.head_object(
+            Key=response.json()['file_path'],
+            Bucket=settings.s3_bucket
+        )
 
 
 @pytest.mark.asyncio
