@@ -45,7 +45,6 @@ async def get_videos_count(deleted: bool = False) -> int:
 async def get_videos(
         skip: int = 0,
         limit: int = 25,
-        channel_id: int = None,
         deleted: bool = False,
         user_id: int = None,
 ) -> list[Mapping]:
@@ -54,8 +53,6 @@ async def get_videos(
         selected_tables.append(is_liked(user_id))
 
     query = select(selected_tables).where(videos.c.deleted == deleted)
-    if channel_id:
-        query = query.where(videos.c.channel_id == channel_id)
     query = query.order_by(desc('date')).order_by(desc('id'))
     query = query.offset(skip).limit(limit)
     return await database.fetch_all(query=query)
