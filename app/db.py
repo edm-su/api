@@ -17,17 +17,6 @@ database = databases.Database(
 
 metadata = sqlalchemy.MetaData()
 
-channels = sqlalchemy.Table(
-    'channels',
-    metadata,
-    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column('name', sqlalchemy.String, unique=True, nullable=False),
-    sqlalchemy.Column('slug', sqlalchemy.String, unique=True, nullable=False),
-    sqlalchemy.Column('yt_id', sqlalchemy.String, unique=True, nullable=False),
-    sqlalchemy.Column('yt_thumbnail', sqlalchemy.String, nullable=False),
-    sqlalchemy.Column('yt_banner', sqlalchemy.String),
-)
-
 users = sqlalchemy.Table(
     'users',
     metadata,
@@ -86,11 +75,6 @@ videos = sqlalchemy.Table(
     sqlalchemy.Column('date', sqlalchemy.Date),
     sqlalchemy.Column('yt_id', sqlalchemy.String, unique=True, nullable=False),
     sqlalchemy.Column('yt_thumbnail', sqlalchemy.String, nullable=False),
-    sqlalchemy.Column(
-        'channel_id',
-        sqlalchemy.Integer,
-        sqlalchemy.ForeignKey('channels.id', ondelete='CASCADE'),
-    ),
     sqlalchemy.Column('duration', sqlalchemy.Integer, server_default="0"),
     sqlalchemy.Column('deleted', sqlalchemy.Boolean, server_default='f'),
     sqlalchemy.Index(

@@ -3,7 +3,7 @@ import random
 import string
 from uuid import uuid4
 
-import boto3
+import aioboto3
 from botocore.client import BaseClient
 from fastapi import Query
 
@@ -11,7 +11,8 @@ from app.settings import settings
 
 
 def s3_client() -> BaseClient:
-    s3 = boto3.client(
+    session = aioboto3.Session()
+    s3 = session.client(
         's3',
         endpoint_url=settings.s3_endpoint,
         aws_secret_access_key=settings.s3_access_key,

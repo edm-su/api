@@ -10,7 +10,6 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    channel_id: int = Field(None)
     liked: bool = Field(False)
 
 
