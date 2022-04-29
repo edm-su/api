@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: rymndhng/release-on-push-action@master
         with:
-          bump_version_scheme: patch
+          bump_version_scheme: norelease
           tag_prefix: v
           use_github_release_notes: true
 
