@@ -47,9 +47,9 @@ jobs:
             ghcr.io/EgorHenek/edm_su_api
           tags: |
             type=sha
-            type=semver,pattern={{version}},value={{needs.release-on-push.outputs.tag_name}}
-            type=semver,pattern={{major}}.{{minor}},value={{needs.release-on-push.outputs.tag_name}}
-            type=semver,pattern={{major}},value={{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{version}},value=${{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{major}}.{{minor}},value=${{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{major}},value=${{needs.release-on-push.outputs.tag_name}}
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
