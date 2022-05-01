@@ -1,29 +1,29 @@
-
 name: CD
 
 on:
   push:
     branches:
       - 'master'
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - 'master'
     
 jobs:
   release-on-push:
+    name: Generate release and tag
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: rymndhng/release-on-push-action@master
+        id: release
         with:
-          bump_version_scheme: norelease
+          bump_version_scheme: patch
           tag_prefix: v
           use_github_release_notes: true
 
-  main:
+  build-docker-image:
+    name: Build Docker Image
     runs-on: ubuntu-latest
     needs:
       - release-on-push
@@ -46,11 +46,10 @@ jobs:
           images: |
             ghcr.io/EgorHenek/edm_su_api
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=sha
+            type=semver,pattern={{version}},value={{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{major}}.{{minor}},value={{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{major}},value={{needs.release-on-push.outputs.tag_name}}
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
