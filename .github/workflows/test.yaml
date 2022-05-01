@@ -1,0 +1,32 @@
+name: CD
+
+on:
+  - push
+
+jobs:
+  release-on-push:
+    name: Generate release and tag
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: rymndhng/release-on-push-action@master
+        id: release
+        with:
+          bump_version_scheme: patch
+          tag_prefix: v
+          use_github_release_notes: true
+      - run: echo ${{steps.release.outputs.tag_name }} ${{steps.release.outputs.version}}
+
+  build-docker-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs:
+      - release-on-push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: echo {{needs.release-on-push.outputs.tag_name}}
