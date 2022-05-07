@@ -71,6 +71,8 @@ jobs:
           ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
           ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
           ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
+
+          PYTHONPATH: .
       - name: Run tests
         run: |
           poetry env use "3.10"
