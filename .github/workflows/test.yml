@@ -3,9 +3,30 @@ name: Pytest
 on: pull_request
 
 jobs:
-  container_jobs:
+  test:
     environment: test
     runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+      FRONTEND_URL: http://localhost:3000
+      DEBUG: True
+      TESTING: True
+
+      SMTP_SERVER: localhost
+      SMTP_PORT: 1025
+      SMTP_USER: mailhog
+      SMTP_PASSWORD: mailhog
+
+      S3_BUCKET: edm-su-test
+      S3_ENDPOINT: http://localhost:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_ACCESS_KEY_ID: minioadmin
+      STATIC_URL: http://localhost:9000/edm-su-test
+
+      ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
+      ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
+      ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
 
     services:
       postgres:
@@ -46,23 +67,3 @@ jobs:
       - run: poetry install
       - run: poetry run alembic upgrade head
       - run: poetry run pytest
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
-          FRONTEND_URL: http://localhost:3000
-          DEBUG: True
-          TESTING: True
-
-          SMTP_SERVER: localhost
-          SMTP_PORT: 1025
-          SMTP_USER: mailhog
-          SMTP_PASSWORD: mailhog
-
-          S3_BUCKET: edm-su-test
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: minioadmin
-          S3_ACCESS_KEY_ID: minioadmin
-          STATIC_URL: http://localhost:9000/edm-su-test
-
-          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
-          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
-          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
