@@ -1,43 +1,17 @@
 name: CD
 
 on:
-  push:
-    branches:
-      - 'master'
-    
-jobs:
-  release-on-push:
-    name: Generate release and tag
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      version: ${{ steps.release.outputs.version }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: rymndhng/release-on-push-action@master
-        id: release
-        with:
-          bump_version_scheme: patch
-          tag_prefix: v
-          use_github_release_notes: true
+  release:
+    types:
+      - published
 
+jobs:
   build-docker-image:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs:
-      - release-on-push
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - uses: haya14busa/action-cond@v1
-        name: Target
-        id: condval
-        with:
-          cond: ${{ github.event_name == 'pull_request' }}
-          if_true: "development"
-          if_false: "production"
 
       - name: Docker meta
         id: meta
@@ -47,9 +21,9 @@ jobs:
             ghcr.io/EgorHenek/edm_su_api
           tags: |
             type=sha
-            type=semver,pattern={{version}},value=${{needs.release-on-push.outputs.tag_name}}
-            type=semver,pattern={{major}}.{{minor}},value=${{needs.release-on-push.outputs.tag_name}}
-            type=semver,pattern={{major}},value=${{needs.release-on-push.outputs.tag_name}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -62,9 +36,9 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }} 
-      
-      - name: Build and push
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push 🎉
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -72,4 +46,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          target: ${{ steps.condval.outputs.value }}
+          target: production
