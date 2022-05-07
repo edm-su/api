@@ -1,0 +1,66 @@
+name: Pytest
+
+on: pull_request
+
+jobs:
+  container_jobs:
+    environment: test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: edm_su_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      mail:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+      minio:
+        image: minio/minio:edge-cicd
+        env:
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+        options: >-
+          --name=minio
+          --health-cmd "curl http://localhost:9000/minio/health/live"
+        ports:
+          - 9000:9000
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.10
+          cache: 'poetry'
+      - run: poetry install
+      - run: poetry run alembic upgrade head
+      - run: poetry run pytest
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+          FRONTEND_URL: http://localhost:3000
+          DEBUG: True
+          TESTING: True
+
+          SMTP_SERVER: localhost
+          SMTP_PORT: 1025
+          SMTP_USER: mailhog
+          SMTP_PASSWORD: mailhog
+
+          S3_BUCKET: edm-su-test
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: minioadmin
+          S3_ACCESS_KEY_ID: minioadmin
+          STATIC_URL: http://localhost:9000/edm-su-test
+
+          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
+          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
+          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
