@@ -1,0 +1,36 @@
+version: 2
+
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: "Asia/Yekaterinburg"
+    commit-message:
+      prefix: "Pip"
+      prefix-development: "Pip development"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: "Asia/Yekaterinburg"
+    commit-message:
+      prefix: "Github actions"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: "Asia/Yekaterinburg"
+    commit-message:
+      prefix: "Docker"
+    labels:
+      - "dependencies"

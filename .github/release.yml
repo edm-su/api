@@ -1,0 +1,15 @@
+changelog:
+  categories:
+    - title: Dependencies update 🕗
+      labels:
+        - dependencies
+    - title: Bug fixes 🛠
+      labels:
+        - bugfix
+        - fix
+        - bug
+    - title: Features 🚀
+      labels:
+        - feature
+        - new
+        - enhancement
