@@ -80,7 +80,7 @@ jobs:
       - name: Run tests
         run: |
           poetry env use "3.10"
-          poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=app tests/ | tee pytest-coverage.txt
+          poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
           FRONTEND_URL: http://localhost:3000
@@ -101,20 +101,5 @@ jobs:
           ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
           ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
           ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
-      - name: Pytest coverage report
-        id: coverageComment
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: pytest-coverage.txt
-          title: Pytest coverage report
-          badge-title: Pytest coverage report
-          hide-badge: false
-          hide-report: false
-          create-new-comment: false
-          hide-comment: false
-          report-only-changed-files: false
-          junitxml-path: pytest.xml
-          junitxml-title: Pytest coverage XML report
-      - name: Fail if coverage is below threshold
-        if: ${{ steps.coverageComment.outputs.notSuccessTestInfo.count > 0 }}
-        run: exit 1
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v2
