@@ -7,8 +7,24 @@ jobs:
     environment: test
     runs-on: ubuntu-latest
     env:
-      MEILI_API_KEY: meiliadmin
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+      FRONTEND_URL: http://localhost:3000
+      SECRET_KEY: test
+      DEBUG: True
+      TESTING: True
 
+      MEILISEARCH_INDEX_POSTFIX: test
+
+      SMTP_SERVER: localhost
+      SMTP_PORT: 1025
+      SMTP_USER: mailhog
+      SMTP_PASSWORD: mailhog
+
+      S3_BUCKET: edm-su-test
+      S3_ENDPOINT: http://localhost:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_ACCESS_KEY_ID: minioadmin
+      STATIC_URL: http://localhost:9000/edm-su-test
     services:
       postgres:
         image: postgres:14-alpine
@@ -68,42 +84,10 @@ jobs:
           poetry env use "3.10"
           poetry run alembic upgrade head
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
-          FRONTEND_URL: http://localhost:3000
-          DEBUG: True
-          TESTING: True
-
-          SMTP_SERVER: localhost
-          SMTP_PORT: 1025
-          SMTP_USER: mailhog
-          SMTP_PASSWORD: mailhog
-
-          S3_BUCKET: edm-su-test
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: minioadmin
-          S3_ACCESS_KEY_ID: minioadmin
-          STATIC_URL: http://localhost:9000/edm-su-test
-
           PYTHONPATH: .
       - name: Run tests
         run: |
           poetry env use "3.10"
           poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
-          FRONTEND_URL: http://localhost:3000
-          DEBUG: True
-          TESTING: True
-
-          SMTP_SERVER: localhost
-          SMTP_PORT: 1025
-          SMTP_USER: mailhog
-          SMTP_PASSWORD: mailhog
-
-          S3_BUCKET: edm-su-test
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: minioadmin
-          S3_ACCESS_KEY_ID: minioadmin
-          STATIC_URL: http://localhost:9000/edm-su-test
       - name: Upload coverage report
         uses: codecov/codecov-action@v2
