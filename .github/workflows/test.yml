@@ -112,5 +112,5 @@ jobs:
           create-new-comment: false
           hide-comment: false
           report-only-changed-files: false
-          junitxml: pytest.xml
+          junitxml-path: pytest.xml
           junitxml-title: Pytest coverage XML report
