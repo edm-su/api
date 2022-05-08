@@ -115,7 +115,7 @@ jobs:
           report-only-changed-files: false
           junitxml-path: pytest.xml
           junitxml-title: Pytest coverage XML report
-      - run: echo "${{ steps.coverageComment.outputs }}"
+      - run: echo "${{ steps.coverageComment.outputs.notSuccessTestInfo }}"
       - name: Fail if coverage is below threshold
         if: ${{ steps.coverageComment.outputs.notSuccessTestInfo.count > 0 }}
         run: exit 1
