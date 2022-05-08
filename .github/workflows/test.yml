@@ -7,9 +7,7 @@ jobs:
     environment: test
     runs-on: ubuntu-latest
     env:
-      ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-      ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
-      ALGOLIA_INDEX: ${{ secrets.ALGOLIA_INDEX }}
+      MEILI_API_KEY: meiliadmin
 
     services:
       postgres:
@@ -38,6 +36,13 @@ jobs:
           --health-cmd "curl http://localhost:9000/minio/health/live"
         ports:
           - 9000:9000
+      meilisearch:
+        image: getmeili/meilisearch:v0.26.1
+        options: >-
+          --name=meilisearch
+          --health-cmd "curl http://localhost:7700/health"
+        ports:
+          - 7700:7700
 
     steps:
       - uses: actions/checkout@v3
@@ -79,10 +84,6 @@ jobs:
           S3_ACCESS_KEY_ID: minioadmin
           STATIC_URL: http://localhost:9000/edm-su-test
 
-          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
-          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
-          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
-
           PYTHONPATH: .
       - name: Run tests
         run: |
@@ -104,9 +105,5 @@ jobs:
           S3_ACCESS_KEY: minioadmin
           S3_ACCESS_KEY_ID: minioadmin
           STATIC_URL: http://localhost:9000/edm-su-test
-
-          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
-          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
-          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
       - name: Upload coverage report
         uses: codecov/codecov-action@v2
