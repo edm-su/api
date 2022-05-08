@@ -41,6 +41,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Create minio bucket
+        env:
+          AWS_ACCESS_KEY_ID: minioadmin
+          AWS_SECRET_ACCESS_KEY: minioadmin
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          aws --endpoint http://localhost:9000 s3api create-bucket --bucket edm-su-test --acl public-read
       - name: Install poetry
         run: pipx install poetry
       - uses: actions/setup-python@v3
