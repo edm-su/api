@@ -8,7 +8,6 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 alembic = "^1.6"
-algoliasearch = ">=2.5,<3.0"
 fastapi = "^0.76.0"
 Pillow = "^9.1.0"
 SQLAlchemy = "^1.4"
@@ -24,6 +23,7 @@ python-slugify = { extras = ["unidecode"], version = "^6.1" }
 aiohttp = "^3.8.1"
 psycopg2 = "^2.9.2"
 aioboto3 = "^9.6.0"
+meilisearch-python-async = "^0.23.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
