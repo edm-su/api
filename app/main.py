@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from app.db import database, as_client
+from app.db import database
+from app.meilisearch import meilisearch_client
 from app.routers import (
     posts,
     videos,
@@ -26,7 +27,7 @@ async def startup() -> None:
 @app.on_event('shutdown')
 async def shutdown() -> None:
     await database.disconnect()
-    await as_client.close()
+    await meilisearch_client.close()
 
 
 origins = [

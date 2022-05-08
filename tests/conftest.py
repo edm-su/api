@@ -7,6 +7,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from faker import Faker
 from httpx import AsyncClient
+from meilisearch_python_async.task import wait_for_task
 
 from app import tasks, helpers
 from app.crud import dj as djs_crud
@@ -17,11 +18,14 @@ from app.crud import user as user_crud
 from app.crud import video as video_crud
 from app.db import database
 from app.main import app
+from app.meilisearch import meilisearch_client
+from app.repositories.video import meilisearch_video_repository
 from app.schemas.dj import CreateDJ
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
 from app.schemas.user import CreateUser
-from app.schemas.video import CreateVideo
+from app.schemas.video import CreateVideo, MeilisearchVideo, Video
+from app.settings import settings
 
 
 @pytest.fixture(scope='session')
@@ -41,6 +45,28 @@ async def db_connect() -> typing.AsyncGenerator[None, None]:
 def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
     loop = get_event_loop()
     yield loop
+
+
+@pytest.fixture(scope='session', autouse=True)
+async def clear_meilisearch() -> None:
+    await remove_meilisearch_indexes()
+    yield
+    await remove_meilisearch_indexes()
+
+
+async def remove_meilisearch_indexes():
+    indexes = await meilisearch_client.indexes()
+    if indexes:
+        clear_indexes = [
+            index for index in indexes
+            if index.uid.endswith(settings.meilisearch_index_postfix)
+        ]
+        for index in clear_indexes:
+            task = await meilisearch_client.clear_index(index)
+            await wait_for_task(
+                meilisearch_client.client.http_client,
+                task.uid
+            )
 
 
 @pytest.fixture
@@ -231,3 +257,14 @@ async def api_token(admin: typing.Mapping, faker: Faker) -> str:
     token = helpers.generate_token()
     await tokens_crud.add_token(faker.name(), token, admin['id'])
     return token
+
+
+@pytest.fixture
+async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
+    video = Video(**videos[0])
+    task = await meilisearch_video_repository.create(video)
+    await wait_for_task(
+        meilisearch_video_repository.client.http_client,
+        task.uid
+    )
+    return await meilisearch_video_repository.get_by_id(video.id)

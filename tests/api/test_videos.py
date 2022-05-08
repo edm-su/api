@@ -2,12 +2,27 @@ from typing import Mapping
 
 import pytest
 from httpx import AsyncClient
+from meilisearch_python_async.errors import MeiliSearchApiError
 from slugify import slugify
 from starlette import status
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_fixed,
+)
 
 from app.crud import video as videos_crud
-from app.schemas.video import Video
+from app.repositories.video import meilisearch_video_repository
+from app.schemas.video import Video, MeilisearchVideo
 from tests.helpers import create_auth_header
+
+
+@retry(
+    stop=stop_after_attempt(10),
+    wait=wait_fixed(0.2),
+)
+async def async_retry(func, *args, **kwargs):
+    return await func(*args, **kwargs)
 
 
 @pytest.mark.asyncio
@@ -49,6 +64,10 @@ async def test_create_video(
     data = response.json()
     assert response.status_code == status.HTTP_201_CREATED
     assert await videos_crud.get_video_by_slug(data['slug'])
+    assert await async_retry(
+        meilisearch_video_repository.get_by_id,
+        data['id']
+    )
 
 
 @pytest.mark.asyncio
@@ -113,6 +132,7 @@ async def test_video_already_exist(
 async def test_delete_video(
         client: AsyncClient,
         videos: Mapping,
+        ms_video: MeilisearchVideo,
         admin: Mapping,
 ) -> None:
     """
@@ -130,6 +150,8 @@ async def test_delete_video(
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert not await videos_crud.get_video_by_slug(videos[0]['slug'])
+    with pytest.raises(MeiliSearchApiError):
+        await meilisearch_video_repository.get_by_id(ms_video.id)
 
 
 @pytest.mark.asyncio
