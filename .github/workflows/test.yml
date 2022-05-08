@@ -1,0 +1,112 @@
+name: Pytest
+
+on: pull_request
+
+jobs:
+  test:
+    environment: test
+    runs-on: ubuntu-latest
+    env:
+      ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+      ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+      ALGOLIA_INDEX: ${{ secrets.ALGOLIA_INDEX }}
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: edm_su_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      mail:
+        image: mailhog/mailhog
+        ports:
+          - 1025:1025
+      minio:
+        image: minio/minio:edge-cicd
+        env:
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+        options: >-
+          --name=minio
+          --health-cmd "curl http://localhost:9000/minio/health/live"
+        ports:
+          - 9000:9000
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create minio bucket
+        env:
+          AWS_ACCESS_KEY_ID: minioadmin
+          AWS_SECRET_ACCESS_KEY: minioadmin
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          aws --endpoint http://localhost:9000 s3api create-bucket --bucket edm-su-test --acl public-read
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+          cache: 'poetry'
+      - name: Install dependencies
+        run: |
+          poetry env use "3.10"
+          poetry install --no-interaction
+      - name: Upgrade migrations
+        run: |
+          poetry env use "3.10"
+          poetry run alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+          FRONTEND_URL: http://localhost:3000
+          DEBUG: True
+          TESTING: True
+
+          SMTP_SERVER: localhost
+          SMTP_PORT: 1025
+          SMTP_USER: mailhog
+          SMTP_PASSWORD: mailhog
+
+          S3_BUCKET: edm-su-test
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: minioadmin
+          S3_ACCESS_KEY_ID: minioadmin
+          STATIC_URL: http://localhost:9000/edm-su-test
+
+          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
+          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
+          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
+
+          PYTHONPATH: .
+      - name: Run tests
+        run: |
+          poetry env use "3.10"
+          poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+          FRONTEND_URL: http://localhost:3000
+          DEBUG: True
+          TESTING: True
+
+          SMTP_SERVER: localhost
+          SMTP_PORT: 1025
+          SMTP_USER: mailhog
+          SMTP_PASSWORD: mailhog
+
+          S3_BUCKET: edm-su-test
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: minioadmin
+          S3_ACCESS_KEY_ID: minioadmin
+          STATIC_URL: http://localhost:9000/edm-su-test
+
+          ALGOLIA_APP_ID: ${{ env.ALGOLIA_APP_ID }}
+          ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
+          ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v2
