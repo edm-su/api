@@ -98,7 +98,6 @@ def get_md5_hash(file: IO) -> str:
     file.seek(0)
     while chunk := file.read(8192):
         md5.update(chunk)
-        print(md5.hexdigest())
     return md5.hexdigest()
 
 
