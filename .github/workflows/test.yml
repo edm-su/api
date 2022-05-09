@@ -97,4 +97,4 @@ jobs:
           poetry env use "3.10"
           poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
       - name: Upload coverage report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
