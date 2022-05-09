@@ -116,4 +116,4 @@ jobs:
           ALGOLIA_API_KEY: ${{ env.ALGOLIA_API_KEY }}
           ALGOLIA_INDEX: ${{ env.ALGOLIA_INDEX }}
       - name: Upload coverage report
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
