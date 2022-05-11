@@ -1,14 +1,8 @@
 import databases
 import sqlalchemy
-from algoliasearch.search_client import SearchClient
 
 from app.helpers import generate_secret_code
 from app.settings import settings
-
-as_client = SearchClient.create(
-    settings.algolia_app_id,
-    settings.algolia_api_key,
-)
 
 database = databases.Database(
     settings.database_url,

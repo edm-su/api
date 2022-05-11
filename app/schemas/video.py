@@ -26,3 +26,15 @@ class CreateVideo(VideoBase):
 class Video(VideoBase):
     id: int
     slug: str = Field(None)
+
+
+class MeilisearchVideo(BaseModel):
+    id: int
+    title: str
+    date: date
+    slug: str
+    yt_thumbnail: str
+    duration: int
+
+    class Config:
+        json_encoders = {date: lambda d: int(d.strftime('%s'))}

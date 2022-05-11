@@ -5,9 +5,10 @@ from fastapi import APIRouter, HTTPException, Depends, Response, Query
 from starlette import status
 
 from app import auth
-from app.crud import video
+from app.crud import video as video_crud
 from app.helpers import Paginator
-from app.schemas.video import Video, CreateVideo
+from app.repositories.video import meilisearch_video_repository
+from app.schemas.video import Video, CreateVideo, MeilisearchVideo
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ async def find_video(
         user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> Mapping:
     user_id = user['id'] if user else None
-    db_video = await video.get_video_by_slug(slug=slug, user_id=user_id)
+    db_video = await video_crud.get_video_by_slug(slug=slug, user_id=user_id)
 
     if not db_video:
         raise HTTPException(status_code=404, detail='Видео не найдено')
@@ -36,12 +37,12 @@ async def read_videos(
         user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> list[Mapping]:
     user_id = user['id'] if user else None
-    db_videos = await video.get_videos(
+    db_videos = await video_crud.get_videos(
         skip=pagination.skip,
         limit=pagination.limit,
         user_id=user_id,
     )
-    count = await video.get_videos_count()
+    count = await video_crud.get_videos_count()
     response.headers['X-Total-Count'] = str(count)
     return db_videos
 
@@ -66,8 +67,10 @@ async def delete_video(
         admin: Mapping = Depends(auth.get_current_admin),
         db_video: Mapping = Depends(find_video),
 ) -> None:
-    if not await video.delete_video(video_id=db_video['id']):
-        raise HTTPException(400, 'При удалении произошла ошибка')
+    if await video_crud.delete_video(db_video['id']):
+        await meilisearch_video_repository.delete(db_video['id'])
+    else:
+        raise HTTPException(status_code=500, detail='Ошибка удаления видео')
 
 
 @router.get(
@@ -83,7 +86,7 @@ async def read_related_videos(
 ) -> list[Mapping]:
     user_id = user['id'] if user else None
 
-    return await video.get_related_videos(
+    return await video_crud.get_related_videos(
         title=db_video['title'],
         limit=limit,
         user_id=user_id,
@@ -101,7 +104,8 @@ async def add_liked_video(
         user: Mapping = Depends(auth.get_current_user),
 ) -> None:
     try:
-        await video.like_video(user_id=user['id'], video_id=db_video['id'])
+        await video_crud.like_video(user_id=user['id'],
+                                    video_id=db_video['id'])
     except UniqueViolationError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -119,7 +123,7 @@ async def delete_liked_video(
         db_video: Mapping = Depends(find_video),
         user: Mapping = Depends(auth.get_current_user),
 ) -> None:
-    if not await video.dislike_video(
+    if not await video_crud.dislike_video(
             user_id=user['id'],
             video_id=db_video['id'],
     ):
@@ -138,7 +142,7 @@ async def delete_liked_video(
 async def get_liked_videos(
         current_user: Mapping = Depends(auth.get_current_user),
 ) -> list[Mapping]:
-    return await video.get_liked_videos(user_id=current_user['id'])
+    return await video_crud.get_liked_videos(user_id=current_user['id'])
 
 
 @router.post(
@@ -151,12 +155,20 @@ async def get_liked_videos(
 async def add_video(
         new_video: CreateVideo,
         admin: Mapping = Depends(auth.get_current_admin),
-) -> None | Mapping:
+) -> Video:
     errors = []
-    if await video.get_video_by_slug(new_video.slug):
+
+    if await video_crud.get_video_by_slug(new_video.slug):
         errors.append('Такой slug уже занят')
-    if await video.get_video_by_yt_id(new_video.yt_id):
+    if await video_crud.get_video_by_yt_id(new_video.yt_id):
         errors.append('Такой yt_id уже существует')
     if errors:
         raise HTTPException(409, errors)
-    return await video.add_video(new_video)
+
+    db_video = await video_crud.add_video(new_video)
+    if not db_video:
+        raise HTTPException(status_code=500, detail='Ошибка добавления видео')
+    video = Video(**db_video)
+    ms_video = MeilisearchVideo(**db_video)
+    await meilisearch_video_repository.create(ms_video)
+    return video
