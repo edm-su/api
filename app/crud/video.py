@@ -1,25 +1,33 @@
 from typing import Mapping
 
-from sqlalchemy import desc, select, func, case, exists, and_
+from sqlalchemy import and_, case, desc, exists, func, select
 from sqlalchemy.sql.elements import Label
 
-from app.db import videos, database, liked_videos
+from app.db import database, liked_videos, videos
 from app.schemas.video import CreateVideo
 
 
 def is_liked(user_id: int) -> Label:
-    return case([
-        (exists(select([liked_videos]).where(
-            liked_videos.c.video_id == videos.c.id).where(
-            liked_videos.c.user_id == user_id)), 't')
-    ], else_='f').label('liked')
+    return case(
+        [
+            (
+                exists(
+                    select([liked_videos])
+                        .where(liked_videos.c.video_id == videos.c.id)
+                        .where(liked_videos.c.user_id == user_id)
+                ),
+                "t",
+            )
+        ],
+        else_="f",
+    ).label("liked")
 
 
 async def add_video(new_video: CreateVideo) -> None | Mapping:
     query = videos.insert().returning(videos)
     db_video = await database.fetch_one(
         query=query,
-        values=new_video.dict(exclude={'liked'}),
+        values=new_video.dict(exclude={"liked"}),
     )
     return db_video
 
@@ -41,7 +49,7 @@ async def get_videos(
         selected_tables.append(is_liked(user_id))
 
     query = select(selected_tables).where(videos.c.deleted == deleted)
-    query = query.order_by(desc('date')).order_by(desc('id'))
+    query = query.order_by(desc("date")).order_by(desc("id"))
     query = query.offset(skip).limit(limit)
     return await database.fetch_all(query=query)
 
@@ -57,7 +65,7 @@ async def get_related_videos(
         selected_tables.append(is_liked(user_id))
 
     query = select(selected_tables).where(videos.c.deleted == deleted)
-    query = query.order_by(videos.c.title.op('<->')(title))
+    query = query.order_by(videos.c.title.op("<->")(title))
     query = query.limit(limit).offset(1)
     return await database.fetch_all(query=query)
 
@@ -68,7 +76,7 @@ async def get_liked_videos(user_id: int) -> list[Mapping]:
         and_(
             videos.c.id == liked_videos.c.video_id,
             videos.c.deleted.is_(False),
-        )
+        ),
     )
     query = select([videos]).select_from(query)
     query = query.where(liked_videos.c.user_id == user_id)
@@ -78,7 +86,7 @@ async def get_liked_videos(user_id: int) -> list[Mapping]:
 
 async def like_video(user_id: int, video_id: int) -> bool:
     query = liked_videos.insert()
-    values = {'user_id': user_id, 'video_id': video_id}
+    values = {"user_id": user_id, "video_id": video_id}
     return bool(await database.execute(query=query, values=values))
 
 
@@ -110,7 +118,9 @@ async def get_video_by_yt_id(yt_id: str) -> None | Mapping:
 
 async def delete_video(video_id: int) -> bool:
     query = videos.update().where(videos.c.id == video_id).returning(videos)
-    return bool(await database.fetch_one(
-        query=query,
-        values={'deleted': True},
-    ))
+    return bool(
+        await database.fetch_one(
+            query=query,
+            values={"deleted": True},
+        )
+    )

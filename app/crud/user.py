@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Dict, Any, Mapping
+from typing import Any, Dict, Mapping
 
 from sqlalchemy import select
 
-from app.db import users, database, users_tokens
-from app.helpers import get_password_hash, generate_secret_code
+from app.db import database, users, users_tokens
+from app.helpers import generate_secret_code, get_password_hash
 
 
 async def create_user(
@@ -12,22 +12,22 @@ async def create_user(
         email: str,
         password: str,
         is_admin: bool = False,
-        is_active: bool = False
+        is_active: bool = False,
 ) -> None | Mapping:
     hashed_password = get_password_hash(password)
 
     query = users.insert().returning(users)
     values = {
-        'username': username,
-        'email': email,
-        'password': hashed_password,
-        'is_admin': is_admin,
-        'activation_code': generate_secret_code()
+        "username": username,
+        "email": email,
+        "password": hashed_password,
+        "is_admin": is_admin,
+        "activation_code": generate_secret_code(),
     }
 
     if is_admin or is_active:
-        values['activation_code'] = ''
-        values['is_active'] = True
+        values["activation_code"] = ""
+        values["is_active"] = True
     return await database.fetch_one(query=query, values=values)
 
 
@@ -56,7 +56,7 @@ async def get_user_by_recovery_code(code: str) -> None | Mapping:
 async def activate_user(code: str) -> bool:
     query = users.update().where(users.c.is_active.is_(False))
     query = query.where(users.c.activation_code == code).returning(users)
-    values = {'is_active': True, 'activation_code': ''}
+    values = {"is_active": True, "activation_code": ""}
     return bool(await database.execute(query=query, values=values))
 
 
@@ -66,8 +66,8 @@ async def generate_recovery_user_code(user_id: int) -> str:
 
     query = users.update().where(users.c.id == user_id)
     values = {
-        'recovery_code': recovery_code,
-        'recovery_code_lifetime_end': lifetime_end,
+        "recovery_code": recovery_code,
+        "recovery_code_lifetime_end": lifetime_end,
     }
     await database.execute(query=query, values=values)
     return recovery_code
@@ -80,11 +80,11 @@ async def change_password(
 ) -> bool:
     query = users.update().where(users.c.id == user_id).returning(users)
     values: Dict[str, Any[str, None]] = {
-        'password': get_password_hash(password),
+        "password": get_password_hash(password),
     }
     if recovery:
         values.update(
-            {'recovery_code': None, 'recovery_code_lifetime_end': None},
+            {"recovery_code": None, "recovery_code_lifetime_end": None},
         )
     return bool(await database.execute(query=query, values=values))
 

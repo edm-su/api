@@ -1,19 +1,19 @@
 from datetime import date, timedelta
 from typing import Mapping
 
-from fastapi import APIRouter, Depends, Query, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from starlette import status
 
 from app.auth import get_current_admin
 from app.crud import livestream
 from app.schemas import livestreams
 
-router = APIRouter(prefix='/livestreams')
+router = APIRouter(prefix="/livestreams")
 
 
 async def find_stream(
         slug: str = Path(...),
-        id_: int = Path(..., alias='id', gt=0),
+        id_: int = Path(..., alias="id", gt=0),
 ) -> Mapping:
     stream = await livestream.find_one(id_, slug=slug)
     if not stream:
@@ -22,10 +22,10 @@ async def find_stream(
 
 
 @router.post(
-    '',
+    "",
     status_code=201,
     response_model=livestreams.LiveStream,
-    tags=['Прямые трансляции'],
+    tags=["Прямые трансляции"],
 )
 async def new_stream(
         stream: livestreams.CreateLiveStream,
@@ -39,15 +39,15 @@ async def new_stream(
     if db_streams:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            'Такая трансляция уже существует',
+            "Такая трансляция уже существует",
         )
     return await livestream.create(stream)
 
 
 @router.get(
-    '',
+    "",
     response_model=list[livestreams.LiveStream],
-    tags=['Прямые трансляции'],
+    tags=["Прямые трансляции"],
 )
 async def get_streams(
         start: date = Query(date.today() - timedelta(days=2)),
@@ -56,15 +56,15 @@ async def get_streams(
     if start + timedelta(days=45) < end:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
-            'Период не может превышать 45 дней',
+            "Период не может превышать 45 дней",
         )
     return await livestream.find(start, end)
 
 
 @router.get(
-    '/{id}:{slug}',
+    "/{id}:{slug}",
     response_model=livestreams.LiveStream,
-    tags=['Прямые трансляции'],
+    tags=["Прямые трансляции"],
 )
 async def get_stream(
         stream: Mapping = Depends(find_stream),
@@ -73,25 +73,25 @@ async def get_stream(
 
 
 @router.delete(
-    '/{id}:{slug}',
+    "/{id}:{slug}",
     status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Прямые трансляции'],
+    tags=["Прямые трансляции"],
 )
 async def delete_stream(
         stream: Mapping = Depends(find_stream),
         admin: Mapping = Depends(get_current_admin),
 ) -> None:
-    await livestream.remove(stream['id'])
+    await livestream.remove(stream["id"])
 
 
 @router.put(
-    '/{id}:{slug}',
+    "/{id}:{slug}",
     response_model=livestreams.LiveStream,
-    tags=['Прямые трансляции'],
+    tags=["Прямые трансляции"],
 )
 async def update_stream(
         updated_stream: livestreams.BaseLiveStream,
         stream: Mapping = Depends(find_stream),
         admin: Mapping = Depends(get_current_admin),
 ) -> Mapping:
-    return await livestream.update(stream['id'], updated_stream)
+    return await livestream.update(stream["id"], updated_stream)

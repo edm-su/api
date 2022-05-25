@@ -13,7 +13,7 @@ from app.settings import settings
 def s3_client() -> BaseClient:
     session = aioboto3.Session()
     s3 = session.client(
-        's3',
+        "s3",
         endpoint_url=settings.s3_endpoint,
         aws_secret_access_key=settings.s3_access_key,
         aws_access_key_id=settings.s3_access_key_id,
@@ -22,12 +22,12 @@ def s3_client() -> BaseClient:
 
 
 def get_password_hash(password: str) -> str:
-    encoded_password = f'{password}{settings.secret_key}'.encode()
+    encoded_password = f"{password}{settings.secret_key}".encode()
     return hashlib.sha256(encoded_password).hexdigest()
 
 
 def generate_secret_code(n: int = 10) -> str:
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=n))
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 
 class Paginator:

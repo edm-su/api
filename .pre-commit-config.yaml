@@ -1,5 +1,15 @@
 exclude: "(alembic/)"
 repos:
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+  - repo: https://github.com/psf/black
+    rev: stable
+    hooks:
+      - id: black
+        language_version: python3.10
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:

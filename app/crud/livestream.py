@@ -3,7 +3,7 @@ from typing import Mapping
 
 from sqlalchemy import between
 
-from app.db import livestreams, database
+from app.db import database, livestreams
 from app.schemas.livestreams import BaseLiveStream
 
 
@@ -52,7 +52,7 @@ async def update(id_: int, livestream: BaseLiveStream) -> None | Mapping:
     return await database.fetch_one(
         query,
         livestream.dict(
-            exclude={'slug'},
+            exclude={"slug"},
             exclude_unset=True,
-        )
+        ),
     )

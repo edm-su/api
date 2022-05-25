@@ -20,21 +20,16 @@ async def test_upload_image(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
-    with open('tests/files/test.jpeg', 'rb') as f:
+    auth_headers = create_auth_header(admin["username"])
+    with open("tests/files/test.jpeg", "rb") as f:
         response = await client.post(
-            '/upload/images',
-            headers=auth_headers,
-            files={
-                'image': f
-            }
+            "/upload/images", headers=auth_headers, files={"image": f}
         )
 
     assert response.status_code == status.HTTP_200_OK
     async with s3_client() as s3:
         assert await s3.head_object(
-            Key=response.json()['file_path'],
-            Bucket=settings.s3_bucket
+            Key=response.json()["file_path"], Bucket=settings.s3_bucket
         )
 
 
@@ -47,13 +42,8 @@ async def test_upload_image_unauthorized(
     :param client:
     :return:
     """
-    with open('tests/files/test.jpeg', 'rb') as f:
-        response = await client.post(
-            '/upload/images',
-            files={
-                'image': f
-            }
-        )
+    with open("tests/files/test.jpeg", "rb") as f:
+        response = await client.post("/upload/images", files={"image": f})
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -69,14 +59,10 @@ async def test_upload_image_by_user(
     :param user:
     :return:
     """
-    auth_headers = create_auth_header(user['username'])
-    with open('tests/files/test.jpeg', 'rb') as f:
+    auth_headers = create_auth_header(user["username"])
+    with open("tests/files/test.jpeg", "rb") as f:
         response = await client.post(
-            '/upload/images',
-            files={
-                'image': f
-            },
-            headers=auth_headers
+            "/upload/images", files={"image": f}, headers=auth_headers
         )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -93,11 +79,8 @@ async def test_upload_image_bad_request(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
-    response = await client.post(
-        '/upload/images',
-        headers=auth_headers
-    )
+    auth_headers = create_auth_header(admin["username"])
+    response = await client.post("/upload/images", headers=auth_headers)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -113,14 +96,10 @@ async def test_upload_large_image(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
-    with open('tests/files/large.jpg', 'rb') as f:
+    auth_headers = create_auth_header(admin["username"])
+    with open("tests/files/large.jpg", "rb") as f:
         response = await client.post(
-            '/upload/images',
-            files={
-                'image': f
-            },
-            headers=auth_headers
+            "/upload/images", files={"image": f}, headers=auth_headers
         )
 
     assert response.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
@@ -137,22 +116,19 @@ async def test_upload_image_url(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
-    url = 'https://www.google.com/images/branding/googlelogo/2x' \
-          '/googlelogo_color_272x92dp.png'
+    auth_headers = create_auth_header(admin["username"])
+    url = (
+        "https://www.google.com/images/branding/googlelogo/2x"
+        "/googlelogo_color_272x92dp.png"
+    )
     response = await client.post(
-        '/upload/image_url',
-        json={
-            'url': url
-        },
-        headers=auth_headers
+        "/upload/image_url", json={"url": url}, headers=auth_headers
     )
 
     assert response.status_code == status.HTTP_200_OK
     async with s3_client() as s3:
         assert await s3.head_object(
-            Key=response.json()['file_path'],
-            Bucket=settings.s3_bucket
+            Key=response.json()["file_path"], Bucket=settings.s3_bucket
         )
 
 
@@ -165,14 +141,11 @@ async def test_upload_image_url_unauthorized(
     :param client:
     :return:
     """
-    url = 'https://www.google.com/images/branding/googlelogo/2x' \
-          '/googlelogo_color_272x92dp.png'
-    response = await client.post(
-        '/upload/image_url',
-        json={
-            'url': url
-        }
+    url = (
+        "https://www.google.com/images/branding/googlelogo/2x"
+        "/googlelogo_color_272x92dp.png"
     )
+    response = await client.post("/upload/image_url", json={"url": url})
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -188,11 +161,8 @@ async def test_upload_image_url_bad_request(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
-    response = await client.post(
-        '/upload/image_url',
-        headers=auth_headers
-    )
+    auth_headers = create_auth_header(admin["username"])
+    response = await client.post("/upload/image_url", headers=auth_headers)
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -208,13 +178,9 @@ async def test_upload_image_url_bad_request_url(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/upload/image_url',
-        json={
-            'url': 'bad_url'
-        },
-        headers=auth_headers
+        "/upload/image_url", json={"url": "bad_url"}, headers=auth_headers
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -231,13 +197,11 @@ async def test_upload_image_url_bad_request_url_2(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/upload/image_url',
-        json={
-            'url': 'https://example.com'
-        },
-        headers=auth_headers
+        "/upload/image_url",
+        json={"url": "https://example.com"},
+        headers=auth_headers,
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -6,9 +6,9 @@ class Token(BaseModel):
 
     class Config:
         json_encoders = {
-            SecretStr: lambda v: v.get_secret_value()if v else None
+            SecretStr: lambda v: v.get_secret_value() if v else None
         }
 
 
 class TokenInfo(BaseModel):
-    name: str = Field('', max_length=64)
+    name: str = Field("", max_length=64)

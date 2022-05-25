@@ -2,7 +2,7 @@ import typing
 from datetime import datetime, timedelta
 
 import jwt
-from fastapi import Depends, HTTPException, Header
+from fastapi import Depends, Header, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 
@@ -11,7 +11,7 @@ from app.helpers import get_password_hash
 from app.schemas.user import TokenData
 from app.settings import settings
 
-oauth_scheme = OAuth2PasswordBearer('/users/token', auto_error=False)
+oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
 
 
 async def get_current_user(
@@ -20,12 +20,12 @@ async def get_current_user(
 ) -> typing.Mapping:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Не удалось проверить учётные данные',
-        headers={'WWW-Authenticate': 'Bearer'},
+        detail="Не удалось проверить учётные данные",
+        headers={"WWW-Authenticate": "Bearer"},
     )
     if not token and authorization:
-        schema, _, token = authorization.partition(' ')
-        if schema.lower() != 'token' or len(token) != 64:
+        schema, _, token = authorization.partition(" ")
+        if schema.lower() != "token" or len(token) != 64:
             raise credentials_exception
         db_user = await user.get_user_by_token(token)
         if db_user is None:
@@ -36,9 +36,9 @@ async def get_current_user(
         payload = jwt.decode(
             token,
             settings.secret_key,
-            algorithms=['HS256'],
+            algorithms=["HS256"],
         )
-        username = payload.get('sub')
+        username = payload.get("sub")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
@@ -62,11 +62,11 @@ async def get_current_user_or_guest(
 async def get_current_admin(
         db_user: dict = Depends(get_current_user),
 ) -> typing.Mapping:
-    if not db_user['is_admin']:
+    if not db_user["is_admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Пользователь не является администратором',
-            headers={'WWW-Authenticate': 'Bearer'},
+            detail="Пользователь не является администратором",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return db_user
 
@@ -78,7 +78,7 @@ async def authenticate_user(
     db_user = await user.get_user_by_username(username=username)
     if not db_user:
         return None
-    if not verify_password(password, db_user['password']):
+    if not verify_password(password, db_user["password"]):
         return None
     return db_user
 
@@ -93,6 +93,6 @@ def create_access_token(
         expires_delta: timedelta = timedelta(days=31),
 ) -> str:
     to_encode = data.copy()
-    to_encode.update({'exp': datetime.utcnow() + expires_delta})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm='HS256')
+    to_encode.update({"exp": datetime.utcnow() + expires_delta})
+    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
     return encoded_jwt

@@ -11,16 +11,16 @@ from app.settings import settings
 
 class TestMeilisearchRepository:
     def test_normalize_index_name(self) -> None:
-        index_name = MeilisearchRepository._normalize_index_name('index')
-        assert index_name == f'index-{settings.meilisearch_index_postfix}'
+        index_name = MeilisearchRepository._normalize_index_name("index")
+        assert index_name == f"index-{settings.meilisearch_index_postfix}"
 
-        settings.meilisearch_index_postfix = ''
-        index_name = MeilisearchRepository._normalize_index_name('index')
-        assert index_name == 'index'
+        settings.meilisearch_index_postfix = ""
+        index_name = MeilisearchRepository._normalize_index_name("index")
+        assert index_name == "index"
 
     @pytest.mark.asyncio
     async def test_close(self, mocker: MockerFixture) -> None:
-        mocker.patch('meilisearch_python_async.Client.aclose')
+        mocker.patch("meilisearch_python_async.Client.aclose")
         await meilisearch_client.close()
         meilisearch_python_async.Client.aclose.assert_called_once()
 

@@ -1,17 +1,17 @@
 from datetime import datetime
 from typing import Mapping
 
-from sqlalchemy import desc, select, func
+from sqlalchemy import desc, func, select
 
-from app.db import posts, database
+from app.db import database, posts
 from app.schemas.post import BasePost
 
 
 async def create_post(post: BasePost, user_id: int) -> None | Mapping:
     query = posts.insert().returning(posts)
     new_post = post.dict()
-    new_post['published_at'] = new_post['published_at'].replace(tzinfo=None)
-    new_post['user_id'] = user_id
+    new_post["published_at"] = new_post["published_at"].replace(tzinfo=None)
+    new_post["user_id"] = user_id
     return await database.fetch_one(query=query, values=new_post)
 
 

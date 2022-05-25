@@ -17,10 +17,10 @@ async def test_read_posts(client: AsyncClient, posts: list[Mapping]) -> None:
     :param posts:
     :return:
     """
-    response = await client.get('/posts')
+    response = await client.get("/posts")
 
     assert response.status_code == status.HTTP_200_OK
-    assert int(response.headers['x-total-count']) == len(posts)
+    assert int(response.headers["x-total-count"]) == len(posts)
     for post in response.json():
         assert Post.validate(post)
 
@@ -54,7 +54,7 @@ async def test_delete_post(
     """
     response = await client.delete(
         f'/posts/{posts[0]["slug"]}',
-        headers=create_auth_header(admin['username']),
+        headers=create_auth_header(admin["username"]),
     )
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -70,19 +70,19 @@ async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
     """
     published_at = datetime.now(timezone.utc) + timedelta(minutes=1)
     new_post = CreatePost(
-        title='Ещё одна заметка',
+        title="Ещё одна заметка",
         text={
             "time": 1605425931108,
             "blocks": [{"type": "paragraph", "data": {"text": "test"}}],
             "version": "2.19.0",
         },
-        slug='new-test-post',
+        slug="new-test-post",
         published_at=published_at,
     )
     response = await client.post(
-        '/posts',
+        "/posts",
         content=new_post.json(),
-        headers=create_auth_header(admin['username']),
+        headers=create_auth_header(admin["username"]),
     )
 
     assert response.status_code == status.HTTP_200_OK

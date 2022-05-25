@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timezone
 from typing import Union
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, validator
 
 
 class BasePost(BaseModel):
@@ -13,21 +13,21 @@ class BasePost(BaseModel):
     published_at: datetime
     thumbnail: str = Field(None)
 
-    @validator('slug')
+    @validator("slug")
     def slug_regexp(cls, v: str) -> str:
         v = v.strip()
-        if re.match('^[a-z0-9]+(?:-[a-z0-9]+)*$', v) is None:
+        if re.match("^[a-z0-9]+(?:-[a-z0-9]+)*$", v) is None:
             raise ValueError(
-                'может состоять только из латинских символов, чисел и -'
+                "может состоять только из латинских символов, чисел и -"
             )
         return v
 
 
 class CreatePost(BasePost):
-    @validator('published_at')
+    @validator("published_at")
     def time_after_now(cls, v: datetime) -> datetime:
         if v < datetime.now(timezone.utc):
-            raise ValueError('должно быть больше текущего')
+            raise ValueError("должно быть больше текущего")
         return v
 
 

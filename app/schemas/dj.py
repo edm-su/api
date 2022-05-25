@@ -20,10 +20,10 @@ class CreateDJ(BaseDJ):
     group_members: list[int] = Field([])
     slug: str = Field(None)
 
-    @validator('slug', always=True)
+    @validator("slug", always=True)
     def generate_slug(cls, v: str, values: dict) -> str:
         if not v:
-            v = slugify(values['name'])
+            v = slugify(values["name"])
         return v
 
 

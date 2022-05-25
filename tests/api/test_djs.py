@@ -22,29 +22,29 @@ async def test_create_dj(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/djs',
+        "/djs",
         content=dj_data.json(),
         headers=auth_headers,
     )
     data = response.json()
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert await dj_crud.find(data['id'])
+    assert await dj_crud.find(data["id"])
     assert DJ.validate(data)
 
     response = await client.post(
-        '/djs',
+        "/djs",
         content=dj_data.json(),
         headers=auth_headers,
     )
 
     assert response.status_code == status.HTTP_409_CONFLICT
     data = response.json()
-    detail = data['detail']
-    assert detail['name'] == 'Такой dj уже существует'
-    assert detail['slug'] == 'Такой slug уже существует'
+    detail = data["detail"]
+    assert detail["name"] == "Такой dj уже существует"
+    assert detail["slug"] == "Такой slug уже существует"
 
 
 @pytest.mark.asyncio
@@ -61,19 +61,19 @@ async def test_create_group(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/djs',
+        "/djs",
         content=group_data.json(),
         headers=auth_headers,
     )
     data = response.json()
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert await dj_crud.find(data['id'])
+    assert await dj_crud.find(data["id"])
     assert DJ.validate(data)
-    assert data['is_group']
-    assert data['group_members']
+    assert data["is_group"]
+    assert data["group_members"]
 
 
 @pytest.mark.asyncio
@@ -89,9 +89,9 @@ async def test_prohibit_adding_by_user(
     :param user:
     :return:
     """
-    auth_headers = create_auth_header(user['username'])
+    auth_headers = create_auth_header(user["username"])
     response = await client.post(
-        '/djs',
+        "/djs",
         content=dj_data.json(),
         headers=auth_headers,
     )
@@ -111,7 +111,7 @@ async def test_prohibit_adding_by_guest(
     :param dj_data:
     :return:
     """
-    response = await client.post('/djs', content=dj_data.json())
+    response = await client.post("/djs", content=dj_data.json())
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert await dj_crud.find(name=dj_data.name) is None
@@ -130,18 +130,16 @@ async def test_delete(
     :param dj:
     :return:
     """
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     response = await client.delete(f'/djs/{dj["slug"]}', headers=headers)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert await dj_crud.find(id_=dj['id']) is None
+    assert await dj_crud.find(id_=dj["id"]) is None
 
 
 @pytest.mark.asyncio
 async def test_prohibit_delete(
-        client: AsyncClient,
-        user: Mapping,
-        dj: Mapping
+        client: AsyncClient, user: Mapping, dj: Mapping
 ) -> None:
     """
     Запрет удаления DJ
@@ -150,13 +148,13 @@ async def test_prohibit_delete(
     :param dj:
     :return:
     """
-    headers = create_auth_header(user['username'])
+    headers = create_auth_header(user["username"])
     user_response = await client.delete(f'/djs/{dj["slug"]}', headers=headers)
     guest_response = await client.delete(f'/djs/{dj["slug"]}')
 
     assert user_response.status_code == status.HTTP_403_FORBIDDEN
     assert guest_response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert await dj_crud.find(id_=dj['id'])
+    assert await dj_crud.find(id_=dj["id"])
 
 
 @pytest.mark.asyncio
@@ -172,12 +170,12 @@ async def test_delete_group(
     :param group:
     :return:
     """
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     response = await client.delete(f'/djs/{group["slug"]}', headers=headers)
-    group_members = await dj_crud.get_groups_members(ids=[group['id']])
+    group_members = await dj_crud.get_groups_members(ids=[group["id"]])
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert await dj_crud.find(id_=group['id']) is None
+    assert await dj_crud.find(id_=group["id"]) is None
     assert not len(group_members)
 
 
@@ -193,21 +191,17 @@ async def test_get_list(
     :param dj:
     :return:
     """
-    response = await client.get('/djs')
+    response = await client.get("/djs")
     data = response.json()
     count = await dj_crud.count()
 
     assert response.status_code == status.HTTP_200_OK
     assert len(data) == count
-    assert response.headers['X-Pagination-Total-Count'] == str(count)
+    assert response.headers["X-Pagination-Total-Count"] == str(count)
 
 
 @pytest.mark.asyncio
-async def test_get(
-        client: AsyncClient,
-        group: Mapping,
-        dj: Mapping
-) -> None:
+async def test_get(client: AsyncClient, group: Mapping, dj: Mapping) -> None:
     """
     Получение DJ
     :param client:
@@ -218,8 +212,8 @@ async def test_get(
     data = response.json()
 
     assert response.status_code == status.HTTP_200_OK
-    assert data['id'] == group['id']
-    assert data['group_members'] == [dj['slug']]
+    assert data["id"] == group["id"]
+    assert data["group_members"] == [dj["slug"]]
 
 
 @pytest.mark.asyncio
@@ -230,10 +224,10 @@ async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
     :param dj:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     new_data = {
-        'name': f'new{dj["name"]}',
-        'real_name': f'new{dj["real_name"]}'
+        "name": f'new{dj["name"]}',
+        "real_name": f'new{dj["real_name"]}',
     }
     response = await client.patch(
         f'/djs/{dj["slug"]}',
@@ -243,10 +237,10 @@ async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
     data = response.json()
 
     assert response.status_code == status.HTTP_200_OK
-    assert data['slug'] == dj['slug']
-    assert data['name'] == new_data['name']
-    db_dj = await dj_crud.find(name=new_data['name'])
-    assert db_dj['slug'] == dj['slug']
+    assert data["slug"] == dj["slug"]
+    assert data["name"] == new_data["name"]
+    db_dj = await dj_crud.find(name=new_data["name"])
+    assert db_dj["slug"] == dj["slug"]
 
 
 @pytest.mark.asyncio
@@ -262,17 +256,17 @@ async def test_prohibit_patch(
     :param user:
     :return:
     """
-    new_data = {'name': 'New name'}
-    auth_headers = create_auth_header(user['username'])
+    new_data = {"name": "New name"}
+    auth_headers = create_auth_header(user["username"])
     response = await client.patch(
         f'/djs/{dj["slug"]}',
         headers=auth_headers,
         json=new_data,
     )
-    db_dj = await dj_crud.find(dj['id'])
+    db_dj = await dj_crud.find(dj["id"])
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert db_dj['name'] == dj['name']
+    assert db_dj["name"] == dj["name"]
 
 
 @pytest.mark.asyncio
@@ -290,33 +284,20 @@ async def test_patch_group(
     :param admin:
     :return:
     """
-    auth_headers = create_auth_header(admin['username'])
+    auth_headers = create_auth_header(admin["username"])
     response = await client.patch(
         f'/djs/{group["slug"]}',
         headers=auth_headers,
-        json={'is_group': False},
+        json={"is_group": False},
     )
     data = response.json()
 
     assert response.status_code == status.HTTP_200_OK
-    assert data['group_members'] == []
-    assert not data['is_group']
-    assert not await dj_crud.get_groups_members([group['id']])
+    assert data["group_members"] == []
+    assert not data["is_group"]
+    assert not await dj_crud.get_groups_members([group["id"]])
 
-    new_data = {'is_group': True, 'group_members': [dj['id']]}
-    response = await client.patch(
-        f'/djs/{group["slug"]}',
-        headers=auth_headers,
-        json=new_data,
-    )
-    data = response.json()
-
-    assert response.status_code == status.HTTP_200_OK
-    assert data['group_members'] == [dj['slug']]
-    assert data['is_group']
-    assert await dj_crud.get_groups_members([group['id']])
-
-    new_data = {'group_members': []}
+    new_data = {"is_group": True, "group_members": [dj["id"]]}
     response = await client.patch(
         f'/djs/{group["slug"]}',
         headers=auth_headers,
@@ -325,6 +306,19 @@ async def test_patch_group(
     data = response.json()
 
     assert response.status_code == status.HTTP_200_OK
-    assert not data['group_members']
-    assert data['is_group']
-    assert not await dj_crud.get_groups_members([group['id']])
+    assert data["group_members"] == [dj["slug"]]
+    assert data["is_group"]
+    assert await dj_crud.get_groups_members([group["id"]])
+
+    new_data = {"group_members": []}
+    response = await client.patch(
+        f'/djs/{group["slug"]}',
+        headers=auth_headers,
+        json=new_data,
+    )
+    data = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert not data["group_members"]
+    assert data["is_group"]
+    assert not await dj_crud.get_groups_members([group["id"]])

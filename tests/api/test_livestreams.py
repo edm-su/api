@@ -6,7 +6,7 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.crud import livestream as livestream_crud
-from app.schemas.livestreams import LiveStream, CreateLiveStream
+from app.schemas.livestreams import CreateLiveStream, LiveStream
 from tests.helpers import create_auth_header
 
 
@@ -23,9 +23,9 @@ async def test_create_livestream(
     :param admin:
     :return:
     """
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/livestreams',
+        "/livestreams",
         content=livestream_data.json(),
         headers=headers,
     )
@@ -33,7 +33,7 @@ async def test_create_livestream(
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert LiveStream.validate(data)
-    assert await livestream_crud.find_one(data['id'])
+    assert await livestream_crud.find_one(data["id"])
 
 
 @pytest.mark.asyncio
@@ -44,15 +44,15 @@ async def test_prevent_duplicate_livestreams(
         admin: Mapping,
 ) -> None:
     """Проверка уникальности прямых трансляций"""
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     response = await client.post(
-        '/livestreams',
+        "/livestreams",
         content=livestream_data.json(),
         headers=headers,
     )
 
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert await livestream_crud.find_one(slug=livestream['slug'])
+    assert await livestream_crud.find_one(slug=livestream["slug"])
 
 
 @pytest.mark.asyncio
@@ -68,9 +68,9 @@ async def test_disallow_creation_livestream_without_privileges(
     :param user:
     :return:
     """
-    headers = create_auth_header(user['username'])
+    headers = create_auth_header(user["username"])
     response = await client.post(
-        '/livestreams',
+        "/livestreams",
         content=livestream_data.json(),
         headers=headers,
     )
@@ -79,7 +79,7 @@ async def test_disallow_creation_livestream_without_privileges(
     assert not await livestream_crud.find_one(title=livestream_data.title)
 
     response = await client.post(
-        '/livestreams',
+        "/livestreams",
         content=livestream_data.json(),
     )
 
@@ -100,11 +100,11 @@ async def test_get_livestreams(
     :param livestream_in_a_month:
     :return:
     """
-    response = await client.get('/livestreams')
+    response = await client.get("/livestreams")
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert data[0]['title'] == livestream['title']
+    assert data[0]["title"] == livestream["title"]
     assert len(data) == 1
 
 
@@ -120,15 +120,15 @@ async def test_period_excess_error(
     start_date = date.today() - timedelta(days=20)
     end_date = start_date + timedelta(days=46)
     response = await client.get(
-        '/livestreams',
+        "/livestreams",
         params={
-            'start': start_date.isoformat(),
-            'end': end_date.isoformat(),
+            "start": start_date.isoformat(),
+            "end": end_date.isoformat(),
         },
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert response.json()['detail'] == 'Период не может превышать 45 дней'
+    assert response.json()["detail"] == "Период не может превышать 45 дней"
 
 
 @pytest.mark.asyncio
@@ -147,7 +147,7 @@ async def test_get_livestream(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()['title'] == livestream['title']
+    assert response.json()["title"] == livestream["title"]
 
 
 @pytest.mark.asyncio
@@ -163,14 +163,14 @@ async def test_remove_livestream(
     :param admin:
     :return:
     """
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     response = await client.delete(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
         headers=headers,
     )
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert not await livestream_crud.find_one(livestream['id'])
+    assert not await livestream_crud.find_one(livestream["id"])
 
 
 @pytest.mark.asyncio
@@ -191,16 +191,16 @@ async def test_removal_without_privileges(
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert await livestream_crud.find_one(livestream['id'])
+    assert await livestream_crud.find_one(livestream["id"])
 
-    headers = create_auth_header(user['username'])
+    headers = create_auth_header(user["username"])
     response = await client.delete(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
         headers=headers,
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert await livestream_crud.find_one(livestream['id'])
+    assert await livestream_crud.find_one(livestream["id"])
 
 
 @pytest.mark.asyncio
@@ -216,11 +216,11 @@ async def test_update_livestream(
     :param admin:
     :return:
     """
-    headers = create_auth_header(admin['username'])
+    headers = create_auth_header(admin["username"])
     stream = dict(livestream)
-    stream['title'] = 'Новое название'
-    stream['start_time'] = stream['start_time'].isoformat()
-    stream['end_time'] = None
+    stream["title"] = "Новое название"
+    stream["start_time"] = stream["start_time"].isoformat()
+    stream["end_time"] = None
     response = await client.put(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
         headers=headers,
@@ -230,9 +230,9 @@ async def test_update_livestream(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert LiveStream.validate(data)
-    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
-    assert db_stream['slug'] == data['slug']
-    assert db_stream['title'] == stream['title']
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream["id"]))
+    assert db_stream["slug"] == data["slug"]
+    assert db_stream["title"] == stream["title"]
 
 
 @pytest.mark.asyncio
@@ -248,22 +248,22 @@ async def test_update_without_privileges(
     :param user:
     :return:
     """
-    headers = create_auth_header(user['username'])
+    headers = create_auth_header(user["username"])
     response = await client.put(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
         headers=headers,
-        json={'title': 'Новый заголовок'},
+        json={"title": "Новый заголовок"},
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
-    assert db_stream['title'] == livestream['title']
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream["id"]))
+    assert db_stream["title"] == livestream["title"]
 
     response = await client.put(
         f'/livestreams/{livestream["id"]}:{livestream["slug"]}',
-        json={'title': 'Новый заголовок'},
+        json={"title": "Новый заголовок"},
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    db_stream = cast(Mapping, await livestream_crud.find_one(livestream['id']))
-    assert db_stream['title'] == livestream['title']
+    db_stream = cast(Mapping, await livestream_crud.find_one(livestream["id"]))
+    assert db_stream["title"] == livestream["title"]

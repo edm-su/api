@@ -6,10 +6,10 @@ from pydantic import BaseModel, validator
 class CommentBase(BaseModel):
     text: str
 
-    @validator('text')
+    @validator("text")
     def max_text_length(cls, v: str) -> str:
         if len(v) > 120:
-            raise ValueError('превышает максимальную длину (120 символов)')
+            raise ValueError("превышает максимальную длину (120 символов)")
         return v
 
 

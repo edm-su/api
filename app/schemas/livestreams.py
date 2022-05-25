@@ -15,17 +15,17 @@ class BaseLiveStream(BaseModel):
     djs: list[str] = Field([])
     slug: str = Field(None)
 
-    @validator('end_time')
+    @validator("end_time")
     def end_time_after_start_time(cls, v: datetime, values: dict) -> datetime:
-        if v and v < values['start_time']:
-            raise ValueError('позже даты окончания')
+        if v and v < values["start_time"]:
+            raise ValueError("позже даты окончания")
         return v
 
 
 class CreateLiveStream(BaseLiveStream):
-    @validator('slug', always=True)
+    @validator("slug", always=True)
     def set_slug(cls, v: str, values: dict) -> str:
-        return slugify(values['title'])
+        return slugify(values["title"])
 
 
 class LiveStream(BaseLiveStream):

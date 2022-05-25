@@ -28,7 +28,7 @@ class MeilisearchRepository:
     def _normalize_index_name(index_name: str) -> str:
         postfix = settings.meilisearch_index_postfix
         if postfix:
-            return f'{index_name}-{postfix}'
+            return f"{index_name}-{postfix}"
         return index_name
 
 

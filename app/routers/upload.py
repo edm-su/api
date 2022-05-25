@@ -1,16 +1,10 @@
 import hashlib
 from io import BytesIO
-from typing import Mapping, IO
+from typing import IO, Mapping
 
 import httpx
 from PIL import Image
-from fastapi import (
-    APIRouter,
-    UploadFile,
-    File,
-    Depends,
-    HTTPException,
-)
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from starlette import status
 
 from app.auth import get_current_admin
@@ -23,39 +17,39 @@ router = APIRouter()
 
 
 @router.post(
-    '/upload/images',
-    tags=['Загрузка', 'Посты'],
-    summary='Загрузка изображений',
+    "/upload/images",
+    tags=["Загрузка", "Посты"],
+    summary="Загрузка изображений",
     response_model=UploadedFile,
 )
 async def upload_image(
         image: UploadFile = File(...),
         admin: Mapping = Depends(get_current_admin),
 ) -> dict[str, str]:
-    if not image.content_type.startswith('image/'):
+    if not image.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Файл должен быть изображением',
+            detail="Файл должен быть изображением",
         )
 
     if get_file_size(image.file) > 5_000_000:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail='Файл не должен превышать 5 мб',
+            detail="Файл не должен превышать 5 мб",
         )
 
     filename = get_md5_hash(image.file)
-    path = f'images/{filename}.jpeg'
+    path = f"images/{filename}.jpeg"
 
     await convert_and_upload_image(image.file, path)
 
-    return {'file_url': f'{settings.static_url}/{path}', 'file_path': path}
+    return {"file_url": f"{settings.static_url}/{path}", "file_path": path}
 
 
 @router.post(
-    '/upload/image_url',
-    tags=['Загрузка', 'Посты'],
-    summary='Загрузка изображений по ссылке',
+    "/upload/image_url",
+    tags=["Загрузка", "Посты"],
+    summary="Загрузка изображений по ссылке",
     response_model=UploadedFile,
 )
 async def upload_image_url(
@@ -65,16 +59,16 @@ async def upload_image_url(
     async with httpx.AsyncClient() as client:
         h = await client.head(image_url.url)
         header = h.headers
-    if not header.get('Content-Type').startswith('image/'):
+    if not header.get("Content-Type").startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Файл должен быть изображением',
+            detail="Файл должен быть изображением",
         )
 
-    if int(header.get('Content-Length')) > 5_000_000:
+    if int(header.get("Content-Length")) > 5_000_000:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail='Файл не должен превышать 5 мб',
+            detail="Файл не должен превышать 5 мб",
         )
 
     async with httpx.AsyncClient() as client:
@@ -84,13 +78,13 @@ async def upload_image_url(
     if get_file_size(image) > 5_000_000:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail='Файл не должен превышать 5 мб',
+            detail="Файл не должен превышать 5 мб",
         )
 
-    path = f'images/{get_md5_hash(image)}.jpeg'
+    path = f"images/{get_md5_hash(image)}.jpeg"
 
     await convert_and_upload_image(image, path)
-    return {'file_url': f'{settings.static_url}/{path}', 'file_path': path}
+    return {"file_url": f"{settings.static_url}/{path}", "file_path": path}
 
 
 def get_md5_hash(file: IO) -> str:
@@ -113,9 +107,9 @@ def get_file_size(file: IO) -> int:
 
 async def convert_and_upload_image(file: IO, path: str) -> None:
     image = Image.open(file)
-    image = image.convert('RGB')
+    image = image.convert("RGB")
     jpeg_file = BytesIO()
-    image.save(jpeg_file, 'JPEG')
+    image.save(jpeg_file, "JPEG")
     jpeg_file.seek(0)
 
     async with s3_client() as client:
@@ -123,6 +117,6 @@ async def convert_and_upload_image(file: IO, path: str) -> None:
             Body=jpeg_file,
             Bucket=settings.s3_bucket,
             Key=path,
-            ContentType='image/jpeg',
-            ACL='public-read',
+            ContentType="image/jpeg",
+            ACL="public-read",
         )

@@ -1,6 +1,6 @@
 from typing import Mapping
 
-from sqlalchemy import select, and_, func
+from sqlalchemy import and_, func, select
 
 from app import db
 from app.schemas import dj as dj_schema
@@ -13,9 +13,9 @@ async def find(
 ) -> Mapping:
     conditions = []
     for k, v in locals().items():
-        if v and k != 'conditions':
-            if k == 'id_':
-                k = 'id'
+        if v and k != "conditions":
+            if k == "id_":
+                k = "id"
             conditions.append(db.djs.columns[k] == v)
     query = db.djs.select()
     query = query.where(and_(*conditions))
@@ -28,10 +28,14 @@ async def create(new_dj: dj_schema.CreateDJ) -> Mapping:
         query = db.djs.insert().returning(db.djs)
         dj = await db.database.fetch_one(
             query,
-            new_dj.dict(exclude={'group_members', }),
+            new_dj.dict(
+                exclude={
+                    "group_members",
+                }
+            ),
         )
         if new_dj.group_members:
-            await add_group_members(dj['id'], new_dj.group_members)
+            await add_group_members(dj["id"], new_dj.group_members)
     return dj
 
 
@@ -73,24 +77,27 @@ async def get_list(skip: int = 0, limit: int = 0) -> Mapping:
 async def update(id_: int, new_data: dj_schema.ChangeDJ) -> Mapping:
     data = new_data.dict(
         exclude_unset=True,
-        exclude={'group_members'},
+        exclude={"group_members"},
     )
     db_dj = await find(id_)
     async with db.database.transaction():
-        if db_dj['is_group'] and not new_data.is_group:
+        if db_dj["is_group"] and not new_data.is_group:
             group_members = await get_groups_members([id_])
             await delete_group_members(
-                [member['id'] for member in group_members]
+                [member["id"] for member in group_members]
             )
-        elif db_dj['is_group'] or new_data.is_group and new_data.group_members:
+        elif db_dj["is_group"] or new_data.is_group and new_data.group_members:
             group_members = await get_groups_members([id_])
-            members_ids = [member['dj_id'] for member in group_members]
+            members_ids = [member["dj_id"] for member in group_members]
             new_members = []
             for new_member in new_data.group_members:
                 if new_member not in members_ids:
                     new_members.append(new_member)
-            old_members = [member['id'] for member in group_members
-                           if member['dj_id'] not in new_data.group_members]
+            old_members = [
+                member["id"]
+                for member in group_members
+                if member["dj_id"] not in new_data.group_members
+            ]
             await delete_group_members(old_members)
             await add_group_members(id_, new_members)
 
@@ -109,9 +116,10 @@ async def delete_group_members(ids: list[int]) -> bool:
 async def add_group_members(group_id: int, ids: list[int]) -> bool:
     values = [
         {
-            'group_id': group_id,
-            'dj_id': group_member,
-        } for group_member in ids
+            "group_id": group_id,
+            "dj_id": group_member,
+        }
+        for group_member in ids
     ]
     query = db.group_members.insert()
     query = query.values(values)

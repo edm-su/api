@@ -16,7 +16,7 @@ async def create_comment(
         text: str,
 ) -> None | Mapping:
     query = comments.insert().returning(comments)
-    values = {'user_id': user_id, 'video_id': video_id, 'text': text}
+    values = {"user_id": user_id, "video_id": video_id, "text": text}
     return await database.fetch_one(query=query, values=values)
 
 

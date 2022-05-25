@@ -9,7 +9,7 @@ from faker import Faker
 from httpx import AsyncClient
 from meilisearch_python_async.task import wait_for_task
 
-from app import tasks, helpers
+from app import helpers, tasks
 from app.crud import dj as djs_crud
 from app.crud import livestream as livestream_crud
 from app.crud import post as post_crud
@@ -28,9 +28,9 @@ from app.schemas.video import CreateVideo, MeilisearchVideo, Video
 from app.settings import settings
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 async def client() -> typing.AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url='http://test') as client:
+    async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
 
 
@@ -41,13 +41,13 @@ async def db_connect() -> typing.AsyncGenerator[None, None]:
     await database.disconnect()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
     loop = get_event_loop()
     yield loop
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def clear_meilisearch() -> None:
     await remove_meilisearch_indexes()
     yield
@@ -58,14 +58,14 @@ async def remove_meilisearch_indexes():
     indexes = await meilisearch_client.indexes()
     if indexes:
         clear_indexes = [
-            index for index in indexes
+            index
+            for index in indexes
             if index.uid.endswith(settings.meilisearch_index_postfix)
         ]
         for index in clear_indexes:
             task = await meilisearch_client.clear_index(index)
             await wait_for_task(
-                meilisearch_client.client.http_client,
-                task.uid
+                meilisearch_client.client.http_client, task.uid
             )
 
 
@@ -77,20 +77,23 @@ async def video_data(faker: Faker) -> dict:
         "date": faker.date(),
         "yt_id": faker.domain_word(),
         "yt_thumbnail": faker.image_url(),
-        "duration": randint(1200, 12000)
+        "duration": randint(1200, 12000),
     }
 
 
 @pytest.fixture
 async def videos(faker: Faker) -> list[typing.Optional[typing.Mapping]]:
-    videos_list = [CreateVideo(
-        title=faker.name(),
-        slug=faker.slug(),
-        date=faker.date(),
-        yt_id=faker.pystr(min_chars=11, max_chars=11),
-        yt_thumbnail=faker.url() + faker.file_path(extension='jpg'),
-        duration=faker.pyint(min_value=1200)
-    ) for _ in range(3)]
+    videos_list = [
+        CreateVideo(
+            title=faker.name(),
+            slug=faker.slug(),
+            date=faker.date(),
+            yt_id=faker.pystr(min_chars=11, max_chars=11),
+            yt_thumbnail=faker.url() + faker.file_path(extension="jpg"),
+            duration=faker.pyint(min_value=1200),
+        )
+        for _ in range(3)
+    ]
     result = [await video_crud.add_video(video) for video in videos_list]
     return result
 
@@ -110,7 +113,7 @@ async def posts(
         slug=faker.slug(),
         published_at=datetime.now(),
     )
-    return [await post_crud.create_post(post, admin['id'])]
+    return [await post_crud.create_post(post, admin["id"])]
 
 
 @pytest.fixture
@@ -118,7 +121,7 @@ async def liked_video(
         admin: typing.Mapping,
         videos: typing.List[typing.Mapping],
 ) -> typing.Mapping:
-    await video_crud.like_video(admin['id'], videos[0]['id'])
+    await video_crud.like_video(admin["id"], videos[0]["id"])
     return videos[0]
 
 
@@ -129,7 +132,7 @@ async def user_data(faker: Faker) -> CreateUser:
         username=faker.user_name(),
         email=faker.email(),
         password=password,
-        password_confirm=password
+        password_confirm=password,
     )
 
 
@@ -165,15 +168,15 @@ async def user(user_data: CreateUser) -> None | typing.Mapping:
 @pytest.fixture
 async def channel_data(faker: Faker) -> dict:
     return {
-        'name': faker.name(),
-        'yt_id': faker.pystr(min_chars=11, max_chars=11),
-        'yt_thumbnail': faker.url() + faker.file_path(extension='jpg')
+        "name": faker.name(),
+        "yt_id": faker.pystr(min_chars=11, max_chars=11),
+        "yt_thumbnail": faker.url() + faker.file_path(extension="jpg"),
     }
 
 
 @pytest.fixture
 async def recovered_user_code(admin: dict) -> str:
-    return await user_crud.generate_recovery_user_code(admin['id'])
+    return await user_crud.generate_recovery_user_code(admin["id"])
 
 
 @pytest.fixture(autouse=True)
@@ -181,7 +184,7 @@ def no_send_email(monkeypatch: MonkeyPatch) -> None:
     def mock_send_email(*args: list, **kwargs: dict) -> None:
         pass
 
-    monkeypatch.setattr(tasks, 'send_email', mock_send_email)
+    monkeypatch.setattr(tasks, "send_email", mock_send_email)
 
 
 @pytest.fixture
@@ -191,7 +194,7 @@ def livestream_data(faker: Faker) -> CreateLiveStream:
         title=faker.company(),
         start_time=start_time.isoformat(),
         end_time=(start_time + timedelta(hours=2)).isoformat(),
-        image=faker.file_path(extension='jpg'),
+        image=faker.file_path(extension="jpg"),
         genres=[faker.name() for _ in range(2)],
         url=faker.uri(),
         djs=[faker.name() for _ in range(2)],
@@ -223,7 +226,7 @@ def dj_data(faker: Faker) -> CreateDJ:
         aliases=[faker.name() for _ in range(3)],
         country=faker.country(),
         genres=[faker.name() for _ in range(2)],
-        image=faker.file_path(extension='jpg'),
+        image=faker.file_path(extension="jpg"),
         birth_date=faker.date(),
         site=faker.url(),
     )
@@ -243,7 +246,7 @@ def group_data(
     dj_data.name = faker.name()
     dj_data.slug = faker.slug()
     dj_data.is_group = True
-    dj_data.group_members = [dj['id']]
+    dj_data.group_members = [dj["id"]]
     return dj_data
 
 
@@ -255,7 +258,7 @@ async def group(group_data: CreateDJ) -> typing.Mapping:
 @pytest.fixture
 async def api_token(admin: typing.Mapping, faker: Faker) -> str:
     token = helpers.generate_token()
-    await tokens_crud.add_token(faker.name(), token, admin['id'])
+    await tokens_crud.add_token(faker.name(), token, admin["id"])
     return token
 
 
@@ -264,7 +267,6 @@ async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
     video = Video(**videos[0])
     task = await meilisearch_video_repository.create(video)
     await wait_for_task(
-        meilisearch_video_repository.client.http_client,
-        task.uid
+        meilisearch_video_repository.client.http_client, task.uid
     )
     return await meilisearch_video_repository.get_by_id(video.id)
