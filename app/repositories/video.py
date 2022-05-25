@@ -67,12 +67,10 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         offset: int = 0,
     ) -> list[MeilisearchVideo | None]:
         documents = await self.index.get_documents(limit=limit, offset=offset)
-        if documents.total > 0:
-            return parse_obj_as(
-                list[MeilisearchVideo | None],
-                documents.results,
-            )
-        return []
+        return parse_obj_as(
+            list[MeilisearchVideo | None],
+            documents.results,
+        )
 
     async def get_by_id(self: Self, id_: int) -> MeilisearchVideo:
         document = await self.index.get_document(str(id_))

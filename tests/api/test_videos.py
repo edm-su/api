@@ -6,11 +6,7 @@ from httpx import AsyncClient
 from meilisearch_python_async.errors import MeilisearchApiError
 from slugify import slugify
 from starlette import status
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_fixed,
-)
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from app.crud import video as videos_crud
 from app.repositories.video import meilisearch_video_repository
@@ -48,9 +44,9 @@ async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
 
 @pytest.mark.asyncio()
 async def test_create_video(
-        client: AsyncClient,
-        admin: Mapping,
-        video_data: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
+    video_data: Mapping,
 ) -> None:
     """
     Создание видео
@@ -77,9 +73,9 @@ async def test_create_video(
 
 @pytest.mark.asyncio()
 async def test_create_video_forbidden(
-        client: AsyncClient,
-        user: Mapping,
-        video_data: Mapping,
+    client: AsyncClient,
+    user: Mapping,
+    video_data: Mapping,
 ) -> None:
     """
     Проверка прав на создание видео
@@ -107,9 +103,9 @@ async def test_create_video_forbidden(
 
 @pytest.mark.asyncio()
 async def test_video_already_exist(
-        client: AsyncClient,
-        admin: Mapping,
-        videos: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
+    videos: Mapping,
 ) -> None:
     """
     Проверка уникальности видео
@@ -135,10 +131,10 @@ async def test_video_already_exist(
 
 @pytest.mark.asyncio()
 async def test_delete_video(
-        client: AsyncClient,
-        videos: Mapping,
-        ms_video: MeilisearchVideo,
-        admin: Mapping,
+    client: AsyncClient,
+    videos: Mapping,
+    ms_video: MeilisearchVideo,
+    admin: Mapping,
 ) -> None:
     """
     Удаление видео
@@ -204,8 +200,8 @@ async def test_read_video(client: AsyncClient, videos: Mapping) -> None:
 
 @pytest.mark.asyncio()
 async def test_read_related_videos(
-        client: AsyncClient,
-        videos: Mapping,
+    client: AsyncClient,
+    videos: Mapping,
 ) -> None:
     """
     Полученеи списка похожих видео
@@ -222,9 +218,9 @@ async def test_read_related_videos(
 
 @pytest.mark.asyncio()
 async def test_like_video(
-        client: AsyncClient,
-        videos: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    videos: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Добавить видео в понравившиеся
@@ -242,9 +238,9 @@ async def test_like_video(
 
 @pytest.mark.asyncio()
 async def test_dislike_video(
-        client: AsyncClient,
-        liked_video: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    liked_video: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Удалить видео из понравившихся
@@ -262,9 +258,9 @@ async def test_dislike_video(
 
 @pytest.mark.asyncio()
 async def test_liked_videos(
-        client: AsyncClient,
-        liked_video: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    liked_video: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Получение списка понравивишхся видео
@@ -284,8 +280,8 @@ async def test_liked_videos(
 
 @pytest.mark.asyncio()
 async def test_liked_videos_by_guest(
-        client: AsyncClient,
-        liked_video: Mapping,
+    client: AsyncClient,
+    liked_video: Mapping,
 ) -> None:
     """
     Проверка авторизации для получения списка понравившихся видео

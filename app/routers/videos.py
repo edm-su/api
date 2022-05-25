@@ -14,8 +14,8 @@ router = APIRouter()
 
 
 async def find_video(
-        slug: str,
-        user: None | Mapping = Depends(auth.get_current_user_or_guest),
+    slug: str,
+    user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> Mapping:
     user_id = user["id"] if user else None
     db_video = await video_crud.get_video_by_slug(slug=slug, user_id=user_id)
@@ -32,9 +32,9 @@ async def find_video(
     summary="Получить список видео",
 )
 async def read_videos(
-        response: Response,
-        pagination: Paginator = Depends(Paginator),
-        user: None | Mapping = Depends(auth.get_current_user_or_guest),
+    response: Response,
+    pagination: Paginator = Depends(Paginator),
+    user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> list[Mapping]:
     user_id = user["id"] if user else None
     db_videos = await video_crud.get_videos(
@@ -80,9 +80,9 @@ async def delete_video(
     summary="Получить похожие видео",
 )
 async def read_related_videos(
-        db_video: Mapping = Depends(find_video),
-        limit: int = Query(default=15, ge=1, le=50),
-        user: Mapping = Depends(auth.get_current_user_or_guest),
+    db_video: Mapping = Depends(find_video),
+    limit: int = Query(default=15, ge=1, le=50),
+    user: Mapping = Depends(auth.get_current_user_or_guest),
 ) -> list[Mapping]:
     user_id = user["id"] if user else None
 
@@ -100,8 +100,8 @@ async def read_related_videos(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def add_liked_video(
-        db_video: Mapping = Depends(find_video),
-        user: Mapping = Depends(auth.get_current_user),
+    db_video: Mapping = Depends(find_video),
+    user: Mapping = Depends(auth.get_current_user),
 ) -> None:
     try:
         await video_crud.like_video(
@@ -122,8 +122,8 @@ async def add_liked_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_liked_video(
-        db_video: Mapping = Depends(find_video),
-        user: Mapping = Depends(auth.get_current_user),
+    db_video: Mapping = Depends(find_video),
+    user: Mapping = Depends(auth.get_current_user),
 ) -> None:
     if not await video_crud.dislike_video(
             user_id=user["id"],
@@ -142,7 +142,7 @@ async def delete_liked_video(
     summary="Получить список понравившихся видео",
 )
 async def get_liked_videos(
-        current_user: Mapping = Depends(auth.get_current_user),
+    current_user: Mapping = Depends(auth.get_current_user),
 ) -> list[Mapping]:
     return await video_crud.get_liked_videos(user_id=current_user["id"])
 

@@ -10,12 +10,10 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    slug: str | None = Field(default=None)
+    slug: str = Field(default=None)
 
 
 class CreateVideo(VideoBase):
-    slug: str = Field(None)
-
     @validator("slug", always=True)
     def generate_slug(cls, v: str, values: dict) -> str:  # noqa: N805, ANN101
         if not v:

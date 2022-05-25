@@ -57,7 +57,8 @@ async def remove_meilisearch_indexes() -> None:
     indexes = await meilisearch_client.indexes()
     if indexes:
         clear_indexes = [
-            index for index in indexes
+            index
+            for index in indexes
             if index.uid.endswith(settings.meilisearch_index_postfix)
         ]
         for index in clear_indexes:
@@ -98,8 +99,8 @@ async def videos(faker: Faker) -> list[typing.Mapping | None]:
 
 @pytest.fixture()
 async def posts(
-        admin: typing.Mapping,
-        faker: Faker,
+    admin: typing.Mapping,
+    faker: Faker,
 ) -> list[None | typing.Mapping]:
     post = BasePost(
         title=faker.name(),
@@ -202,14 +203,14 @@ def livestream_data(faker: Faker) -> CreateLiveStream:
 
 @pytest.fixture()
 async def livestream(
-        livestream_data: CreateLiveStream,
+    livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     return await livestream_crud.create(livestream_data)
 
 
 @pytest.fixture()
 async def livestream_in_a_month(
-        livestream_data: CreateLiveStream,
+    livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     start_time = datetime.now() + timedelta(days=32)
     livestream_data.start_time = start_time
@@ -238,9 +239,9 @@ async def dj(dj_data: CreateDJ) -> None | typing.Mapping:
 
 @pytest.fixture()
 def group_data(
-        faker: Faker,
-        dj: typing.Mapping,
-        dj_data: CreateDJ,
+    faker: Faker,
+    dj: typing.Mapping,
+    dj_data: CreateDJ,
 ) -> CreateDJ:
     dj_data.name = faker.name()
     dj_data.slug = faker.slug()
