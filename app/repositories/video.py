@@ -1,22 +1,23 @@
 from abc import ABC, abstractmethod
+from collections.abc import Coroutine
 from typing import Any
 
 from fastapi.encoders import jsonable_encoder
-from meilisearch_python_async.models.task import TaskInfo
+from meilisearch_python_async.task import wait_for_task
 from pydantic import parse_obj_as
 from typing_extensions import Self
 
 from app.meilisearch import MeilisearchRepository
-from app.schemas.video import MeilisearchVideo
+from app.schemas.video import MeilisearchVideo, VideoBase
 
 
 class VideoRepository(ABC):
     @abstractmethod
-    def create(self: Self, video: Any) -> Any:  # noqa: ANN401
+    def create(self: Self, video: VideoBase) -> Coroutine[Any, Any, VideoBase]:
         pass
 
     @abstractmethod
-    def delete(self: Self, id_: int) -> Any:  # noqa: ANN401
+    def delete(self: Self, id_: int) -> Coroutine[Any, Any, None]:
         pass
 
     @abstractmethod
@@ -25,19 +26,19 @@ class VideoRepository(ABC):
         *,
         limit: int = 20,
         offset: int = 0,
-    ) -> list[Any | None]:
+    ) -> list[VideoBase | None]:
         pass
 
     @abstractmethod
-    def get_by_id(self: Self, id_: int) -> Any:  # noqa: ANN401
+    def get_by_id(self: Self, id_: int) -> Coroutine[Any, Any, VideoBase]:
         pass
 
     @abstractmethod
-    def update(self: Self, video: Any) -> Any:  # noqa: ANN401
+    def update(self: Self, video: VideoBase) -> Coroutine[Any, Any, VideoBase]:
         pass
 
     @abstractmethod
-    def delete_all(self: Self) -> Any:  # noqa: ANN401
+    def delete_all(self: Self) -> Coroutine[Any, Any, None]:
         pass
 
 
@@ -46,12 +47,18 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         index_name = self.normalize_index_name("videos")
         self.index = self.client.index(index_name)
 
-    async def create(self: Self, video: MeilisearchVideo) -> TaskInfo:
+    async def create(  # type: ignore[override]
+            self: Self,
+            video: MeilisearchVideo,
+    ) -> MeilisearchVideo:
         documents = [jsonable_encoder(video)]
-        return await self.index.add_documents(documents)
+        task = await self.index.add_documents(documents)
+        await wait_for_task(self.client.http_client, task.task_uid)
+        return video
 
-    async def delete(self: Self, id_: int) -> TaskInfo:
-        return await self.index.delete_document(str(id_))
+    async def delete(self: Self, id_: int) -> None:
+        task = await self.index.delete_document(str(id_))
+        await wait_for_task(self.client.http_client, task.task_uid)
 
     async def get_all(  # type: ignore[override]
         self: Self,
@@ -71,14 +78,16 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         document = await self.index.get_document(str(id_))
         return MeilisearchVideo.parse_obj(document)
 
-    async def update(
-        self: Self,
-        video: MeilisearchVideo,
-    ) -> TaskInfo:
-        return await self.create(video)
+    async def update(  # type: ignore[override]
+            self: Self,
+            video: MeilisearchVideo,
+    ) -> MeilisearchVideo:
+        await self.create(video)
+        return video
 
-    async def delete_all(self: Self) -> TaskInfo:
-        return await self.clear_index(self.index)
+    async def delete_all(self: Self) -> None:
+        task = await self.clear_index(self.index)
+        await wait_for_task(self.client.http_client, task.task_uid)
 
 
 meilisearch_video_repository = MeilisearchVideoRepository()

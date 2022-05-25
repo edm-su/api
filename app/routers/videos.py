@@ -8,14 +8,14 @@ from app import auth
 from app.crud import video as video_crud
 from app.helpers import Paginator
 from app.repositories.video import meilisearch_video_repository
-from app.schemas.video import CreateVideo, MeilisearchVideo, Video
+from app.schemas.video import CreateVideo, MeilisearchVideo, PgVideo
 
 router = APIRouter()
 
 
 async def find_video(
-    slug: str,
-    user: None | Mapping = Depends(auth.get_current_user_or_guest),
+        slug: str,
+        user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> Mapping:
     user_id = user["id"] if user else None
     db_video = await video_crud.get_video_by_slug(slug=slug, user_id=user_id)
@@ -27,14 +27,14 @@ async def find_video(
 
 @router.get(
     "/videos",
-    response_model=list[Video],
+    response_model=list[PgVideo],
     tags=["Видео"],
     summary="Получить список видео",
 )
 async def read_videos(
-    response: Response,
-    pagination: Paginator = Depends(Paginator),
-    user: None | Mapping = Depends(auth.get_current_user_or_guest),
+        response: Response,
+        pagination: Paginator = Depends(Paginator),
+        user: None | Mapping = Depends(auth.get_current_user_or_guest),
 ) -> list[Mapping]:
     user_id = user["id"] if user else None
     db_videos = await video_crud.get_videos(
@@ -49,7 +49,7 @@ async def read_videos(
 
 @router.get(
     "/videos/{slug}",
-    response_model=Video,
+    response_model=PgVideo,
     tags=["Видео"],
     summary="Получить видео",
 )
@@ -75,14 +75,14 @@ async def delete_video(
 
 @router.get(
     "/videos/{slug}/related",
-    response_model=list[Video],
+    response_model=list[PgVideo],
     tags=["Видео"],
     summary="Получить похожие видео",
 )
 async def read_related_videos(
-    db_video: Mapping = Depends(find_video),
-    limit: int = Query(default=15, ge=1, le=50),
-    user: Mapping = Depends(auth.get_current_user_or_guest),
+        db_video: Mapping = Depends(find_video),
+        limit: int = Query(default=15, ge=1, le=50),
+        user: Mapping = Depends(auth.get_current_user_or_guest),
 ) -> list[Mapping]:
     user_id = user["id"] if user else None
 
@@ -100,8 +100,8 @@ async def read_related_videos(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def add_liked_video(
-    db_video: Mapping = Depends(find_video),
-    user: Mapping = Depends(auth.get_current_user),
+        db_video: Mapping = Depends(find_video),
+        user: Mapping = Depends(auth.get_current_user),
 ) -> None:
     try:
         await video_crud.like_video(
@@ -122,12 +122,12 @@ async def add_liked_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_liked_video(
-    db_video: Mapping = Depends(find_video),
-    user: Mapping = Depends(auth.get_current_user),
+        db_video: Mapping = Depends(find_video),
+        user: Mapping = Depends(auth.get_current_user),
 ) -> None:
     if not await video_crud.dislike_video(
-        user_id=user["id"],
-        video_id=db_video["id"],
+            user_id=user["id"],
+            video_id=db_video["id"],
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -137,27 +137,27 @@ async def delete_liked_video(
 
 @router.get(
     "/users/liked_videos",
-    response_model=list[Video],
+    response_model=list[PgVideo],
     tags=["Видео", "Пользователи"],
     summary="Получить список понравившихся видео",
 )
 async def get_liked_videos(
-    current_user: Mapping = Depends(auth.get_current_user),
+        current_user: Mapping = Depends(auth.get_current_user),
 ) -> list[Mapping]:
     return await video_crud.get_liked_videos(user_id=current_user["id"])
 
 
 @router.post(
     "/videos",
-    response_model=Video,
+    response_model=PgVideo,
     tags=["Видео"],
     summary="Добавить видео",
     status_code=status.HTTP_201_CREATED,
 )
 async def add_video(
-    new_video: CreateVideo,
-    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
-) -> Video:
+        new_video: CreateVideo,
+        admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
+) -> PgVideo:
     errors = []
 
     if await video_crud.get_video_by_slug(new_video.slug):
@@ -170,7 +170,7 @@ async def add_video(
     db_video = await video_crud.add_video(new_video)
     if not db_video:
         raise HTTPException(status_code=500, detail="Ошибка добавления видео")
-    video = Video(**db_video)
+    video = PgVideo(**db_video)
     ms_video = MeilisearchVideo(**db_video)
     await meilisearch_video_repository.create(ms_video)
     return video

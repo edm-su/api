@@ -13,7 +13,7 @@ class BaseLiveStream(BaseModel):
     genres: list[str] = Field([])
     url: HttpUrl
     djs: list[str] = Field([])
-    slug: str = Field(None)
+    slug: str = Field(default=None)
 
     @validator("end_time")
     def end_time_after_start_time(

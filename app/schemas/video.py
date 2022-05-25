@@ -10,7 +10,7 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    liked: bool = Field(default=False)
+    slug: str | None = Field(default=None)
 
 
 class CreateVideo(VideoBase):
@@ -19,22 +19,20 @@ class CreateVideo(VideoBase):
     @validator("slug", always=True)
     def generate_slug(cls, v: str, values: dict) -> str:  # noqa: N805, ANN101
         if not v:
-            v = slugify(values["title"])
-        return v  # noqa: RET504
+            return slugify(values["title"])
+        return v
+
+    class Config:
+        fields = {"id": {"exclude": True}}
 
 
-class Video(VideoBase):
+class PgVideo(VideoBase):
     id: int
-    slug: str = Field(None)
+    liked: bool = Field(default=False)
 
 
-class MeilisearchVideo(BaseModel):
+class MeilisearchVideo(VideoBase):
     id: int
-    title: str
-    date: date
-    slug: str
-    yt_thumbnail: str
-    duration: int
 
     class Config:
         json_encoders = {date: lambda d: int(d.strftime("%s"))}

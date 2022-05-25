@@ -17,14 +17,14 @@ class BaseDJ(BaseModel):
 
 
 class CreateDJ(BaseDJ):
-    group_members: list[int] = Field([])
-    slug: str = Field(None)
+    group_members: list[int] = Field(default=[])
+    slug: str = Field(default=None)
 
     @validator("slug", always=True)
     def generate_slug(cls, v: str, values: dict) -> str:  # noqa: N805, ANN101
         if not v:
-            v = slugify(values["name"])
-        return v  # noqa: RET504
+            return slugify(values["name"])
+        return v
 
 
 class ChangeDJ(BaseDJ):

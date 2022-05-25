@@ -57,8 +57,7 @@ async def remove_meilisearch_indexes() -> None:
     indexes = await meilisearch_client.indexes()
     if indexes:
         clear_indexes = [
-            index
-            for index in indexes
+            index for index in indexes
             if index.uid.endswith(settings.meilisearch_index_postfix)
         ]
         for index in clear_indexes:
@@ -99,8 +98,8 @@ async def videos(faker: Faker) -> list[typing.Mapping | None]:
 
 @pytest.fixture()
 async def posts(
-    admin: typing.Mapping,
-    faker: Faker,
+        admin: typing.Mapping,
+        faker: Faker,
 ) -> list[None | typing.Mapping]:
     post = BasePost(
         title=faker.name(),
@@ -189,10 +188,11 @@ def _no_send_email(monkeypatch: MonkeyPatch) -> None:
 @pytest.fixture()
 def livestream_data(faker: Faker) -> CreateLiveStream:
     start_time: datetime = faker.future_datetime()
+    end_time = start_time + timedelta(hours=2)
     return CreateLiveStream(
         title=faker.company(),
-        start_time=start_time.isoformat(),
-        end_time=(start_time + timedelta(hours=2)).isoformat(),
+        start_time=start_time,
+        end_time=end_time,
         image=faker.file_path(extension="jpg"),
         genres=[faker.name() for _ in range(2)],
         url=faker.uri(),
@@ -202,14 +202,14 @@ def livestream_data(faker: Faker) -> CreateLiveStream:
 
 @pytest.fixture()
 async def livestream(
-    livestream_data: CreateLiveStream,
+        livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     return await livestream_crud.create(livestream_data)
 
 
 @pytest.fixture()
 async def livestream_in_a_month(
-    livestream_data: CreateLiveStream,
+        livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     start_time = datetime.now() + timedelta(days=32)
     livestream_data.start_time = start_time
@@ -238,9 +238,9 @@ async def dj(dj_data: CreateDJ) -> None | typing.Mapping:
 
 @pytest.fixture()
 def group_data(
-    faker: Faker,
-    dj: typing.Mapping,
-    dj_data: CreateDJ,
+        faker: Faker,
+        dj: typing.Mapping,
+        dj_data: CreateDJ,
 ) -> CreateDJ:
     dj_data.name = faker.name()
     dj_data.slug = faker.slug()
@@ -264,9 +264,5 @@ async def api_token(admin: typing.Mapping, faker: Faker) -> str:
 @pytest.fixture()
 async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
     video = MeilisearchVideo(**videos[0])
-    task = await meilisearch_video_repository.create(video)
-    await wait_for_task(
-        meilisearch_video_repository.client.http_client,
-        task.task_uid,
-    )
-    return await meilisearch_video_repository.get_by_id(video.id)
+    await meilisearch_video_repository.create(video)
+    return video

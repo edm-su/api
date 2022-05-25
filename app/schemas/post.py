@@ -6,11 +6,11 @@ from pydantic import BaseModel, Field, validator
 
 class BasePost(BaseModel):
     title: str
-    annotation: str = Field(None)
+    annotation: str | None = Field(default=None)
     text: dict[str, int | list[dict[str, str | dict]] | str]
     slug: str
     published_at: datetime
-    thumbnail: str = Field(None)
+    thumbnail: str | None = Field(default=None)
 
     @validator("slug")
     def slug_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
