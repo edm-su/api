@@ -1,28 +1,24 @@
 from collections.abc import Mapping
 
-from asyncpg import UniqueViolationError
+from databases.interfaces import Record
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from starlette import status
 
 from app import auth
 from app.crud import video as video_crud
+from app.depencies import (
+    create_ms_video_repository,
+    create_pg_video_repository,
+    find_video,
+)
 from app.helpers import Paginator
-from app.repositories.video import meilisearch_video_repository
+from app.repositories.video import (
+    MeilisearchVideoRepository,
+    PostgresVideoRepository,
+)
 from app.schemas.video import CreateVideo, MeilisearchVideo, PgVideo
 
 router = APIRouter()
-
-
-async def find_video(
-    slug: str,
-    user: None | Mapping = Depends(auth.get_current_user_or_guest),
-) -> Mapping:
-    user_id = user["id"] if user else None
-    db_video = await video_crud.get_video_by_slug(slug=slug, user_id=user_id)
-
-    if not db_video:
-        raise HTTPException(status_code=404, detail="Видео не найдено")
-    return db_video
 
 
 @router.get(
@@ -34,15 +30,15 @@ async def find_video(
 async def read_videos(
     response: Response,
     pagination: Paginator = Depends(Paginator),
-    user: None | Mapping = Depends(auth.get_current_user_or_guest),
-) -> list[Mapping]:
-    user_id = user["id"] if user else None
-    db_videos = await video_crud.get_videos(
-        skip=pagination.skip,
+    pg_video_repository: PostgresVideoRepository = Depends(
+        create_pg_video_repository,
+    ),
+) -> list[PgVideo | None]:
+    db_videos = await pg_video_repository.get_all(
+        offset=pagination.skip,
         limit=pagination.limit,
-        user_id=user_id,
     )
-    count = await video_crud.get_videos_count()
+    count = await pg_video_repository.count()
     response.headers["X-Total-Count"] = str(count)
     return db_videos
 
@@ -65,12 +61,16 @@ async def read_video(db_video: Mapping = Depends(find_video)) -> Mapping:
 )
 async def delete_video(
     admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
-    db_video: Mapping = Depends(find_video),
+    pg_video: PgVideo = Depends(find_video),
+    ms_video_repository: MeilisearchVideoRepository = Depends(
+        create_ms_video_repository,
+    ),
+    pg_video_repository: PostgresVideoRepository = Depends(
+        create_pg_video_repository,
+    ),
 ) -> None:
-    if await video_crud.delete_video(db_video["id"]):
-        await meilisearch_video_repository.delete(db_video["id"])
-    else:
-        raise HTTPException(status_code=500, detail="Ошибка удаления видео")
+    await pg_video_repository.delete(pg_video.id)
+    await ms_video_repository.delete(pg_video.id)
 
 
 @router.get(
@@ -78,73 +78,20 @@ async def delete_video(
     response_model=list[PgVideo],
     tags=["Видео"],
     summary="Получить похожие видео",
+    deprecated=True,
 )
 async def read_related_videos(
-    db_video: Mapping = Depends(find_video),
+    pg_video: PgVideo = Depends(find_video),
     limit: int = Query(default=15, ge=1, le=50),
     user: Mapping = Depends(auth.get_current_user_or_guest),
-) -> list[Mapping]:
+) -> list[Record]:
     user_id = user["id"] if user else None
 
     return await video_crud.get_related_videos(
-        title=db_video["title"],
+        title=pg_video.title,
         limit=limit,
         user_id=user_id,
     )
-
-
-@router.post(
-    "/videos/{slug}/like",
-    tags=["Видео", "Пользователи"],
-    summary="Добавление понравившегося видео",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def add_liked_video(
-    db_video: Mapping = Depends(find_video),
-    user: Mapping = Depends(auth.get_current_user),
-) -> None:
-    try:
-        await video_crud.like_video(
-            user_id=user["id"],
-            video_id=db_video["id"],
-        )
-    except UniqueViolationError:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Видео уже понравилось ранее",
-        ) from None
-
-
-@router.delete(
-    "/videos/{slug}/like",
-    tags=["Видео", "Пользователи"],
-    summary="Удаление понравившегося видео",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def delete_liked_video(
-    db_video: Mapping = Depends(find_video),
-    user: Mapping = Depends(auth.get_current_user),
-) -> None:
-    if not await video_crud.dislike_video(
-            user_id=user["id"],
-            video_id=db_video["id"],
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Видео не найдено в понравившихся",
-        )
-
-
-@router.get(
-    "/users/liked_videos",
-    response_model=list[PgVideo],
-    tags=["Видео", "Пользователи"],
-    summary="Получить список понравившихся видео",
-)
-async def get_liked_videos(
-    current_user: Mapping = Depends(auth.get_current_user),
-) -> list[Mapping]:
-    return await video_crud.get_liked_videos(user_id=current_user["id"])
 
 
 @router.post(
@@ -155,22 +102,27 @@ async def get_liked_videos(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_video(
-        new_video: CreateVideo,
-        admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
+    new_video: CreateVideo,
+    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
+    pg_video_repository: PostgresVideoRepository = Depends(
+        create_pg_video_repository,
+    ),
+    ms_video_repository: MeilisearchVideoRepository = Depends(
+        create_ms_video_repository,
+    ),
 ) -> PgVideo:
     errors = []
 
-    if await video_crud.get_video_by_slug(new_video.slug):
+    if await pg_video_repository.get_by_slug(new_video.slug):
         errors.append("Такой slug уже занят")
-    if await video_crud.get_video_by_yt_id(new_video.yt_id):
+    if await pg_video_repository.get_by_yt_id(new_video.yt_id):
         errors.append("Такой yt_id уже существует")
     if errors:
         raise HTTPException(409, errors)
 
-    db_video = await video_crud.add_video(new_video)
-    if not db_video:
-        raise HTTPException(status_code=500, detail="Ошибка добавления видео")
-    video = PgVideo(**db_video)
-    ms_video = MeilisearchVideo(**db_video)
-    await meilisearch_video_repository.create(ms_video)
-    return video
+    pg_video = await pg_video_repository.create(
+        video=new_video,
+    )
+    ms_video = MeilisearchVideo(**pg_video.dict())
+    await ms_video_repository.create(ms_video)
+    return pg_video

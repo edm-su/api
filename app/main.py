@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
-from app.meilisearch import meilisearch_client
+from app.meilisearch import (
+    ms_client,
+    config_ms,
+)
 from app.routers import (
     comments,
     djs,
@@ -10,6 +13,7 @@ from app.routers import (
     posts,
     tokens,
     upload,
+    user_videos,
     users,
     videos,
 )
@@ -21,18 +25,20 @@ app = FastAPI(openapi_url=openapi_url, debug=settings.debug)
 
 @app.on_event("startup")
 async def startup() -> None:
+    await config_ms(ms_client)
     await database.connect()
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     await database.disconnect()
-    await meilisearch_client.close()
+    await ms_client.aclose()
 
 
 origins = ["https://edm.su", "http://localhost:3000"]
 
 app.include_router(videos.router)
+app.include_router(user_videos.router)
 app.include_router(tokens.router)
 app.include_router(users.router)
 app.include_router(comments.router)
@@ -40,7 +46,6 @@ app.include_router(posts.router)
 app.include_router(upload.router)
 app.include_router(livestreams.router)
 app.include_router(djs.router)
-
 
 app.add_middleware(
     CORSMiddleware,

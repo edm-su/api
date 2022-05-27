@@ -1,20 +1,14 @@
 from collections.abc import Mapping
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, Response
 
 from app.auth import get_current_admin, get_current_user
-from app.crud import comment, video
+from app.crud import comment
+from app.depencies import find_video
 from app.helpers import Paginator
 from app.schemas.comment import Comment, CommentBase
 
 router = APIRouter()
-
-
-async def find_video(video_slug: str) -> Mapping:
-    db_video = await video.get_video_by_slug(slug=video_slug)
-    if not db_video:
-        raise HTTPException(status_code=404, detail="Видео не найдено")
-    return db_video
 
 
 @router.post(

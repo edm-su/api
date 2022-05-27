@@ -24,13 +24,14 @@ class CreateVideo(VideoBase):
         fields = {"id": {"exclude": True}}
 
 
-class PgVideo(VideoBase):
-    id: int
-    liked: bool = Field(default=False)
-
-
-class MeilisearchVideo(VideoBase):
+class DbVideo(VideoBase):
     id: int
 
+
+class PgVideo(DbVideo):
+    pass
+
+
+class MeilisearchVideo(DbVideo):
     class Config:
         json_encoders = {date: lambda d: int(d.strftime("%s"))}
