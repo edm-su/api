@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     s3_endpoint: str
     s3_access_key: str
     s3_access_key_id: str
+    s3_region: str = "us-east-1"
 
     smtp_server: str
     smtp_port: int
