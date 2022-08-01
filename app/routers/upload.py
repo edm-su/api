@@ -3,8 +3,8 @@ from io import BytesIO
 from typing import IO, Mapping
 
 import httpx
-from PIL import Image
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from PIL import Image
 from starlette import status
 
 from app.auth import get_current_admin
@@ -23,8 +23,8 @@ router = APIRouter()
     response_model=UploadedFile,
 )
 async def upload_image(
-        image: UploadFile = File(...),
-        admin: Mapping = Depends(get_current_admin),
+    image: UploadFile = File(...),
+    admin: Mapping = Depends(get_current_admin),
 ) -> dict[str, str]:
     if not image.content_type.startswith("image/"):
         raise HTTPException(
@@ -53,8 +53,8 @@ async def upload_image(
     response_model=UploadedFile,
 )
 async def upload_image_url(
-        image_url: ImageURLDTO,
-        admin: Mapping = Depends(get_current_admin),
+    image_url: ImageURLDTO,
+    admin: Mapping = Depends(get_current_admin),
 ) -> dict[str, str]:
     async with httpx.AsyncClient() as client:
         h = await client.head(image_url.url)
