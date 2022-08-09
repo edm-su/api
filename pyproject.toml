@@ -10,7 +10,7 @@ python = "^3.10"
 alembic = "^1.9"
 fastapi = { version = "0.94.1", extras = ["all"] }
 Pillow = "^9.4.0"
-SQLAlchemy = "^1.4"
+SQLAlchemy = { extras = ["asyncio"], version = "^1.4" }
 PyJWT = "^2.6.0"
 gunicorn = "^20.1.0"
 types-python-slugify = "^8.0.0"
