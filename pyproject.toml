@@ -14,7 +14,7 @@ SQLAlchemy = "^1.4"
 PyJWT = "^2.4.0"
 email-validator = "1.2.1"
 python-multipart = "^0.0.5"
-httpx = "^0.22.0"
+httpx = "^0.23.0"
 gunicorn = "^20.1.0"
 types-python-slugify = "^5.0.2"
 databases = { version = "^0.6", extras = ["postgresql"] }
