@@ -33,7 +33,7 @@ flake8 = "^5.0.4"
 mypy = "^0.971"
 Faker = "^13.11.1"
 pytest-cov = "^3.0.0"
-pytest-mock = "^3.7.0"
+pytest-mock = "^3.8.2"
 tenacity = "^8.0.1"
 isort = "^5.10.1"
 
