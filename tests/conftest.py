@@ -1,6 +1,7 @@
 import time
 import typing
 from asyncio import AbstractEventLoop, get_event_loop
+from contextlib import suppress
 from datetime import datetime, timedelta
 
 import pytest
@@ -8,29 +9,49 @@ from _pytest.monkeypatch import MonkeyPatch
 from faker import Faker
 from httpx import AsyncClient
 from meilisearch_python_async.task import wait_for_task
+from sqlalchemy import (
+    create_engine,
+    event,
+)
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+)
+from sqlalchemy.orm import sessionmaker
 
-from app import helpers, tasks
+from app import (
+    helpers,
+    tasks,
+)
 from app.crud import dj as djs_crud
 from app.crud import livestream as livestream_crud
 from app.crud import post as post_crud
 from app.crud import token as tokens_crud
 from app.crud import user as user_crud
-from app.db import database
+from app.db import (
+    database,
+    metadata,
+)
+from app.internal.usecase.repository.video import PostgresVideoRepository
 from app.main import app
 from app.meilisearch import (
     config_ms,
     ms_client,
 )
+from app.pkg.postgres import get_session
 from app.repositories.user_video import PostgresUserVideoRepository
-from app.repositories.video import (
-    MeilisearchVideoRepository,
-    PostgresVideoRepository,
-)
 from app.schemas.dj import CreateDJ
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
-from app.schemas.user import CreateUser, User
-from app.schemas.video import CreateVideo, MeilisearchVideo, PgVideo
+from app.schemas.user import (
+    CreateUser,
+    User,
+)
+from app.schemas.video import (
+    CreateVideo,
+    PgVideo,
+)
 from app.settings import settings
 
 
@@ -38,6 +59,80 @@ from app.settings import settings
 async def client() -> typing.AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url="http://test") as client:
         yield client
+
+
+@pytest.fixture(scope="session")
+def _setup_db() -> typing.Generator:
+    engine = create_engine(settings.database_url.replace("+asyncpg", ""))
+    conn = engine.connect()
+    conn.execute("commit")
+    try:
+        conn.execute("drop database test")
+    except SQLAlchemyError:
+        pass
+    finally:
+        conn.close()
+
+    conn = engine.connect()
+    conn.execute("commit")
+    conn.execute("create database test")
+    conn.close()
+
+    yield
+
+    conn = engine.connect()
+    conn.execute("commit")
+    with suppress(SQLAlchemyError):
+        conn.execute("drop database test")
+    conn.close()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _setup_test_db(setup_db: typing.Generator) -> typing.Generator:
+    engine = create_engine(settings.database_url.replace("+asyncpg", ""))
+
+    with engine.begin():
+        metadata.drop_all(engine)
+        metadata.create_all(engine)
+        yield
+        metadata.drop_all(engine)
+
+
+@pytest.fixture()
+async def pg_session() -> typing.AsyncGenerator:
+    async_engine = create_async_engine(settings.database_url)
+    async with async_engine.connect() as conn:
+        await conn.begin()
+        await conn.begin_nested()
+        AsyncSessionLocal = sessionmaker(  # noqa: N806
+            autocommit=False,
+            autoflush=False,
+            bind=conn,
+            future=True,
+            class_=AsyncSession,
+        )
+
+        async_session: AsyncSession = AsyncSessionLocal()  # type: ignore[valid-type]  # noqa: E501
+
+        @event.listens_for(async_session.sync_session, "after_transaction_end")
+        def end_savepoint(
+            session: AsyncSession,
+            **kwargs: dict[str, typing.Any],
+        ) -> None:
+            if conn.closed:
+                return
+            if not conn.in_nested_transaction:
+                conn.sync_connection.begin_nested()
+
+        def test_get_session() -> typing.Generator:
+            with suppress(SQLAlchemyError):
+                yield AsyncSessionLocal
+
+        app.dependency_overrides[get_session] = test_get_session
+
+        yield async_session
+        await async_session.close()
+        await conn.rollback()
 
 
 @pytest.fixture(autouse=True)
@@ -82,18 +177,8 @@ async def remove_meilisearch_indexes() -> None:
 
 
 @pytest.fixture(scope="session")
-def pg_video_repository() -> PostgresVideoRepository:
-    return PostgresVideoRepository(database)
-
-
-@pytest.fixture(scope="session")
 def pg_user_video_repository() -> PostgresUserVideoRepository:
     return PostgresUserVideoRepository(database)
-
-
-@pytest.fixture(scope="session")
-def ms_video_repository() -> MeilisearchVideoRepository:
-    return MeilisearchVideoRepository(ms_client)
 
 
 @pytest.fixture()
@@ -300,12 +385,3 @@ async def api_token(admin: typing.Mapping, faker: Faker) -> str:
     token = helpers.generate_token()
     await tokens_crud.add_token(faker.name(), token, admin["id"])
     return token
-
-
-@pytest.fixture()
-async def ms_video(
-    pg_video: PgVideo,
-    ms_video_repository: MeilisearchVideoRepository,
-) -> MeilisearchVideo:
-    video = MeilisearchVideo(**pg_video.dict())
-    return await ms_video_repository.create(video)

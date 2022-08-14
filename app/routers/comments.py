@@ -1,12 +1,23 @@
 from collections.abc import Mapping
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Response,
+)
 
-from app.auth import get_current_admin, get_current_user
+from app.auth import (
+    get_current_admin,
+    get_current_user,
+)
 from app.crud import comment
-from app.depencies import find_video
 from app.helpers import Paginator
-from app.schemas.comment import Comment, CommentBase
+from app.internal.controller.http.v1.depencies.video import find_video
+from app.internal.entity.video import Video
+from app.schemas.comment import (
+    Comment,
+    CommentBase,
+)
 
 router = APIRouter()
 
@@ -19,12 +30,12 @@ router = APIRouter()
 )
 async def new_comment(
     text: CommentBase,
-    db_video: dict = Depends(find_video),
+    video: Video = Depends(find_video),
     current_user: dict = Depends(get_current_user),
 ) -> Mapping | None:
     return await comment.create_comment(
         user_id=current_user["id"],
-        video_id=db_video["id"],
+        video_id=video.id,
         text=text.text,
     )
 
@@ -36,9 +47,9 @@ async def new_comment(
     summary="Получить комментарии к видео",
 )
 async def read_comments(
-    db_video: Mapping = Depends(find_video),
+    video: Video = Depends(find_video),
 ) -> list[Mapping]:
-    return await comment.get_comments_for_video(video_id=db_video["id"])
+    return await comment.get_comments_for_video(video_id=video.id)
 
 
 @router.get(

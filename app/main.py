@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
+from app.internal.controller.http.router import api_router
 from app.meilisearch import (
     ms_client,
     config_ms,
@@ -18,9 +19,7 @@ from app.routers import (
     upload,
     user_videos,
     users,
-    videos,
 )
-from app.internal.controller.http.router import api_router
 from app.settings import settings
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
@@ -71,7 +70,6 @@ async def shutdown() -> None:
 
 origins = ["https://edm.su", "http://localhost:3000"]
 
-# app.include_router(videos.router)
 app.include_router(user_videos.router)
 app.include_router(tokens.router)
 app.include_router(users.router)

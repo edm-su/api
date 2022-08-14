@@ -1,13 +1,21 @@
 from collections.abc import Mapping
-from datetime import date, timedelta
-from typing import cast
+from datetime import (
+    date,
+    timedelta,
+)
+from typing import (
+    cast,
+)
 
 import pytest
 from httpx import AsyncClient
 from starlette import status
 
 from app.crud import livestream as livestream_crud
-from app.schemas.livestreams import CreateLiveStream, LiveStream
+from app.schemas.livestreams import (
+    CreateLiveStream,
+    LiveStream,
+)
 from tests.helpers import create_auth_header
 
 

@@ -7,6 +7,7 @@ from sqlalchemy import (
     select,
     func,
 )
+from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import videos
@@ -93,21 +94,28 @@ class PostgresVideoRepository(AbstractVideoRepository):
         self,
         slug: str,
     ) -> Video | None:
-        result = await self.session.get(videos, videos.c.slug == slug)
-        return Video(**result) if result else None
+        query = select([videos]).where(videos.c.slug == slug)
+        result: Result = await self.session.execute(query)
+        video = result.first()
+        return Video(**video) if video else None
 
     async def get_by_yt_id(
         self,
         yt_id: str,
     ) -> Video | None:
-        result = await self.session.get(videos, videos.c.yt_id == yt_id)
-        return Video(**result) if result else None
+        query = select([videos]).where(videos.c.yt_id == yt_id)
+        result: Result = await self.session.execute(query)
+        video = result.first()
+        return Video(**video) if video else None
 
     async def get_by_id(
         self,
         id_: int,
     ) -> Video | None:
-        pass
+        query = select([videos]).where(videos.c.id == id_)
+        result: Result = await self.session.execute(query)
+        video = result.first()
+        return Video(**video) if video else None
 
     async def create(
         self,
@@ -128,7 +136,8 @@ class PostgresVideoRepository(AbstractVideoRepository):
         self,
         id_: int,
     ) -> None:
-        pass
+        query = videos.delete().where(videos.c.id == id_)
+        await self.session.execute(query)
 
     async def count(self) -> int:
         query = select([func.count(videos.c.id)])
