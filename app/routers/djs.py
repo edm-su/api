@@ -27,8 +27,8 @@ async def find_dj(slug: str = Path(..., title="slug")) -> None | Mapping:
     response_model=dj_schema.DJ,
 )
 async def create_dj(
-        dj: dj_schema.CreateDJ,
-        admin: Mapping = Depends(get_current_admin),
+    dj: dj_schema.CreateDJ,
+    admin: Mapping = Depends(get_current_admin),
 ) -> dj_schema.DJ:
     errors = {}
     if await dj_crud.find(name=dj.name):
@@ -50,16 +50,16 @@ async def create_dj(
 
 @router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dj(
-        dj: Mapping = Depends(find_dj),
-        admin: Mapping = Depends(get_current_admin),
+    dj: Mapping = Depends(find_dj),
+    admin: Mapping = Depends(get_current_admin),
 ) -> None:
     await dj_crud.delete(dj["id"])
 
 
 @router.get("", response_model=list[dj_schema.DJ])
 async def get_list(
-        response: Response,
-        pagination: Paginator = Depends(Paginator),
+    response: Response,
+    pagination: Paginator = Depends(Paginator),
 ) -> list[dj_schema.DJ]:
     count = await dj_crud.count()
     response.headers["X-Pagination-Total-Count"] = str(count)
@@ -109,9 +109,9 @@ async def get(db_dj: Mapping = Depends(find_dj)) -> dj_schema.DJ:
 
 @router.patch("/{slug}", response_model=dj_schema.DJ)
 async def patch(
-        new_data: dj_schema.ChangeDJ,
-        db_dj: Mapping = Depends(find_dj),
-        admin: Mapping = Depends(get_current_admin),
+    new_data: dj_schema.ChangeDJ,
+    db_dj: Mapping = Depends(find_dj),
+    admin: Mapping = Depends(get_current_admin),
 ) -> dj_schema.DJ:
     changed_dj = await dj_crud.update(db_dj["id"], new_data)
     result = dj_schema.DJ(**changed_dj)

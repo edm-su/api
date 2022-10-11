@@ -41,9 +41,9 @@ async def test_read_post(client: AsyncClient, posts: list[Mapping]) -> None:
 
 @pytest.mark.asyncio
 async def test_delete_post(
-        client: AsyncClient,
-        posts: list[Mapping],
-        admin: dict,
+    client: AsyncClient,
+    posts: list[Mapping],
+    admin: dict,
 ) -> None:
     """
     Удаление поста

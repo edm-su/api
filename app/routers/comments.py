@@ -24,9 +24,9 @@ async def find_video(video_slug: str) -> Mapping:
     summary="Оставить комментарий",
 )
 async def new_comment(
-        text: CommentBase,
-        db_video: dict = Depends(find_video),
-        current_user: dict = Depends(get_current_user),
+    text: CommentBase,
+    db_video: dict = Depends(find_video),
+    current_user: dict = Depends(get_current_user),
 ) -> Mapping:
     return await comment.create_comment(
         user_id=current_user["id"],
@@ -42,7 +42,7 @@ async def new_comment(
     summary="Получить комментарии к видео",
 )
 async def read_comments(
-        db_video: Mapping = Depends(find_video),
+    db_video: Mapping = Depends(find_video),
 ) -> list[Mapping]:
     return await comment.get_comments_for_video(video_id=db_video["id"])
 
@@ -54,9 +54,9 @@ async def read_comments(
     summary="Получить список комментариев ко всем видео",
 )
 async def comments_list(
-        response: Response,
-        admin: Mapping = Depends(get_current_admin),
-        pagination: Paginator = Depends(Paginator),
+    response: Response,
+    admin: Mapping = Depends(get_current_admin),
+    pagination: Paginator = Depends(Paginator),
 ) -> list[Mapping]:
     response.headers["X-Total_Count"] = str(await comment.get_comments_count())
     return await comment.get_comments(

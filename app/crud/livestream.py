@@ -8,16 +8,16 @@ from app.schemas.livestreams import BaseLiveStream
 
 
 async def create(
-        livestream: BaseLiveStream,
+    livestream: BaseLiveStream,
 ) -> None | Mapping:
     query = livestreams.insert(values=livestream.dict()).returning(livestreams)
     return await database.fetch_one(query)
 
 
 async def find_one(
-        id_: int = None,
-        title: str = None,
-        slug: str = None,
+    id_: int = None,
+    title: str = None,
+    slug: str = None,
 ) -> None | Mapping:
     query = livestreams.select()
     if id_:
@@ -31,9 +31,9 @@ async def find_one(
 
 
 async def find(
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
-        slug: str = None,
+    start: date = date.today() - timedelta(days=2),
+    end: date = date.today() + timedelta(days=31),
+    slug: str = None,
 ) -> list[Mapping]:
     query = livestreams.select()
     query = query.where(between(livestreams.c.start_time, start, end))

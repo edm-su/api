@@ -22,8 +22,8 @@ async def get_post_by_slug(slug: str) -> None | Mapping:
 
 
 async def get_posts(
-        skip: int = 0,
-        limit: int = 12,
+    skip: int = 0,
+    limit: int = 12,
 ) -> list[Mapping]:
     query = posts.select()
     query = query.where(posts.c.published_at <= datetime.now())

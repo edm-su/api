@@ -100,8 +100,8 @@ async def videos(faker: Faker) -> list[typing.Optional[typing.Mapping]]:
 
 @pytest.fixture
 async def posts(
-        admin: typing.Mapping,
-        faker: Faker,
+    admin: typing.Mapping,
+    faker: Faker,
 ) -> list[None | typing.Mapping]:
     post = BasePost(
         title=faker.name(),
@@ -118,8 +118,8 @@ async def posts(
 
 @pytest.fixture
 async def liked_video(
-        admin: typing.Mapping,
-        videos: typing.List[typing.Mapping],
+    admin: typing.Mapping,
+    videos: typing.List[typing.Mapping],
 ) -> typing.Mapping:
     await video_crud.like_video(admin["id"], videos[0]["id"])
     return videos[0]
@@ -203,14 +203,14 @@ def livestream_data(faker: Faker) -> CreateLiveStream:
 
 @pytest.fixture
 async def livestream(
-        livestream_data: CreateLiveStream,
+    livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     return await livestream_crud.create(livestream_data)
 
 
 @pytest.fixture
 async def livestream_in_a_month(
-        livestream_data: CreateLiveStream,
+    livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     start_time = datetime.now() + timedelta(days=32)
     livestream_data.start_time = start_time
@@ -239,9 +239,9 @@ async def dj(dj_data: CreateDJ) -> None | typing.Mapping:
 
 @pytest.fixture
 def group_data(
-        faker: Faker,
-        dj: typing.Mapping,
-        dj_data: CreateDJ,
+    faker: Faker,
+    dj: typing.Mapping,
+    dj_data: CreateDJ,
 ) -> CreateDJ:
     dj_data.name = faker.name()
     dj_data.slug = faker.slug()

@@ -13,8 +13,8 @@ def is_liked(user_id: int) -> Label:
             (
                 exists(
                     select([liked_videos])
-                        .where(liked_videos.c.video_id == videos.c.id)
-                        .where(liked_videos.c.user_id == user_id)
+                    .where(liked_videos.c.video_id == videos.c.id)
+                    .where(liked_videos.c.user_id == user_id)
                 ),
                 "t",
             )
@@ -39,10 +39,10 @@ async def get_videos_count(deleted: bool = False) -> int:
 
 
 async def get_videos(
-        skip: int = 0,
-        limit: int = 25,
-        deleted: bool = False,
-        user_id: int = None,
+    skip: int = 0,
+    limit: int = 25,
+    deleted: bool = False,
+    user_id: int = None,
 ) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
@@ -55,10 +55,10 @@ async def get_videos(
 
 
 async def get_related_videos(
-        title: str,
-        limit: int = 25,
-        user_id: int = None,
-        deleted: bool = False,
+    title: str,
+    limit: int = 25,
+    user_id: int = None,
+    deleted: bool = False,
 ) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
@@ -98,9 +98,9 @@ async def dislike_video(user_id: int, video_id: int) -> bool:
 
 
 async def get_video_by_slug(
-        slug: str,
-        deleted: bool = False,
-        user_id: int = None,
+    slug: str,
+    deleted: bool = False,
+    user_id: int = None,
 ) -> None | Mapping:
     selected_tables = [videos]
     if user_id:

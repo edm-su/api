@@ -78,9 +78,10 @@ jobs:
           aws --endpoint http://localhost:9000 s3api create-bucket --bucket edm-su-test --acl public-read
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4.1.0
+      - uses: actions/setup-python@v4.3.0
         with:
           python-version-file: ".python-version"
+          check-latest: true
           cache: 'poetry'
       - name: Install dependencies
         run: |

@@ -30,8 +30,8 @@ async def find_post(slug: str) -> Mapping:
     summary="Добавление поста",
 )
 async def create_post(
-        new_post: CreatePost,
-        admin: Mapping = Depends(get_current_admin),
+    new_post: CreatePost,
+    admin: Mapping = Depends(get_current_admin),
 ) -> Mapping:
     try:
         return await post.create_post(post=new_post, user_id=admin["id"])
@@ -50,8 +50,8 @@ async def create_post(
     summary="Получение списка постов",
 )
 async def get_posts(
-        response: Response,
-        paginate: Paginator = Depends(Paginator),
+    response: Response,
+    paginate: Paginator = Depends(Paginator),
 ) -> list[Mapping]:
     response.headers["X-Total-Count"] = str(await post.get_posts_count())
     return await post.get_posts(skip=paginate.skip, limit=paginate.limit)
@@ -74,8 +74,8 @@ async def get_post(db_post: Mapping = Depends(find_post)) -> Mapping:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_post(
-        slug: str,
-        admin: Mapping = Depends(get_current_admin),
+    slug: str,
+    admin: Mapping = Depends(get_current_admin),
 ) -> None:
     if not await post.delete_post(slug=slug):
         raise HTTPException(

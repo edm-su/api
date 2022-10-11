@@ -33,9 +33,9 @@ def generate_secret_code(n: int = 10) -> str:
 
 class Paginator:
     def __init__(
-            self,
-            skip: int = Query(default=0, ge=0),
-            limit: int = Query(default=25, ge=1, le=50),
+        self,
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=25, ge=1, le=50),
     ):
         self.skip = skip
         self.limit = limit

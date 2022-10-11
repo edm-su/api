@@ -21,8 +21,8 @@ router = fastapi.APIRouter()
     response_model=MyUser,
 )
 async def user_register(
-        new_user: CreateUser,
-        background_tasks: fastapi.BackgroundTasks,
+    new_user: CreateUser,
+    background_tasks: fastapi.BackgroundTasks,
 ) -> None | Mapping:
     if await user.get_user_by_email(new_user.email):
         raise fastapi.HTTPException(
@@ -57,7 +57,7 @@ async def user_register(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def user_activate(
-        code: str = fastapi.Query(..., regex=r"^[A-Z\d]{10}$"),
+    code: str = fastapi.Query(..., regex=r"^[A-Z\d]{10}$"),
 ) -> None:
     if not await user.activate_user(code=code):
         raise fastapi.HTTPException(
@@ -74,7 +74,7 @@ async def user_activate(
     summary="Авторизация и получение access_token",
 )
 async def login(
-        form_data: OAuth2PasswordRequestForm = fastapi.Depends(),
+    form_data: OAuth2PasswordRequestForm = fastapi.Depends(),
 ) -> dict[str, str | bytes]:
     db_user = await authenticate_user(
         username=form_data.username,
@@ -108,7 +108,7 @@ async def login(
     summary="Получение данных пользователя",
 )
 async def read_current_user(
-        current_user: MyUser = fastapi.Depends(get_current_user),
+    current_user: MyUser = fastapi.Depends(get_current_user),
 ) -> MyUser:
     return current_user
 
@@ -120,8 +120,8 @@ async def read_current_user(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def user_recovery(
-        email: EmailStr,
-        background_tasks: fastapi.BackgroundTasks,
+    email: EmailStr,
+    background_tasks: fastapi.BackgroundTasks,
 ) -> None:
     db_user = await user.get_user_by_email(email=email)
     if not db_user:
@@ -140,9 +140,9 @@ async def user_recovery(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def change_password(
-        new_password: UserPassword,
-        old_password: str = fastapi.Body(..., min_length=6),
-        current_user: Mapping = fastapi.Depends(get_current_user),
+    new_password: UserPassword,
+    old_password: str = fastapi.Body(..., min_length=6),
+    current_user: Mapping = fastapi.Depends(get_current_user),
 ) -> None:
     if get_password_hash(old_password) == current_user["password"]:
         await user.change_password(
