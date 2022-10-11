@@ -11,8 +11,8 @@ from tests.helpers import create_auth_header
 
 @pytest.mark.asyncio
 async def test_upload_image(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения
@@ -35,7 +35,7 @@ async def test_upload_image(
 
 @pytest.mark.asyncio
 async def test_upload_image_unauthorized(
-        client: AsyncClient,
+    client: AsyncClient,
 ) -> None:
     """
     Тест загрузка изображения без авторизации
@@ -50,8 +50,8 @@ async def test_upload_image_unauthorized(
 
 @pytest.mark.asyncio
 async def test_upload_image_by_user(
-        client: AsyncClient,
-        user: Mapping,
+    client: AsyncClient,
+    user: Mapping,
 ) -> None:
     """
     Тест загрузка изображения пользователем
@@ -70,8 +70,8 @@ async def test_upload_image_by_user(
 
 @pytest.mark.asyncio
 async def test_upload_image_bad_request(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения без файла
@@ -87,8 +87,8 @@ async def test_upload_image_bad_request(
 
 @pytest.mark.asyncio
 async def test_upload_large_image(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения с большим размером
@@ -107,8 +107,8 @@ async def test_upload_large_image(
 
 @pytest.mark.asyncio
 async def test_upload_image_url(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения по url
@@ -134,7 +134,7 @@ async def test_upload_image_url(
 
 @pytest.mark.asyncio
 async def test_upload_image_url_unauthorized(
-        client: AsyncClient,
+    client: AsyncClient,
 ) -> None:
     """
     Тест загрузка изображения без авторизации
@@ -152,8 +152,8 @@ async def test_upload_image_url_unauthorized(
 
 @pytest.mark.asyncio
 async def test_upload_image_url_bad_request(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения без url
@@ -169,8 +169,8 @@ async def test_upload_image_url_bad_request(
 
 @pytest.mark.asyncio
 async def test_upload_image_url_bad_request_url(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения без url
@@ -188,8 +188,8 @@ async def test_upload_image_url_bad_request_url(
 
 @pytest.mark.asyncio
 async def test_upload_image_url_bad_request_url_2(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Тест загрузка изображения без url

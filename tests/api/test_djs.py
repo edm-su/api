@@ -11,9 +11,9 @@ from tests.helpers import create_auth_header
 
 @pytest.mark.asyncio
 async def test_create_dj(
-        client: AsyncClient,
-        dj_data: CreateDJ,
-        admin: Mapping,
+    client: AsyncClient,
+    dj_data: CreateDJ,
+    admin: Mapping,
 ) -> None:
     """
     Создание диджея
@@ -49,10 +49,10 @@ async def test_create_dj(
 
 @pytest.mark.asyncio
 async def test_create_group(
-        client: AsyncClient,
-        group_data: CreateDJ,
-        admin: Mapping,
-        dj: Mapping,
+    client: AsyncClient,
+    group_data: CreateDJ,
+    admin: Mapping,
+    dj: Mapping,
 ) -> None:
     """
     Создание группы
@@ -78,9 +78,9 @@ async def test_create_group(
 
 @pytest.mark.asyncio
 async def test_prohibit_adding_by_user(
-        client: AsyncClient,
-        dj_data: CreateDJ,
-        user: Mapping,
+    client: AsyncClient,
+    dj_data: CreateDJ,
+    user: Mapping,
 ) -> None:
     """
     Запрет создания DJ пользователям
@@ -102,8 +102,8 @@ async def test_prohibit_adding_by_user(
 
 @pytest.mark.asyncio
 async def test_prohibit_adding_by_guest(
-        client: AsyncClient,
-        dj_data: CreateDJ,
+    client: AsyncClient,
+    dj_data: CreateDJ,
 ) -> None:
     """
     Запрет создания DJ гостем
@@ -119,9 +119,9 @@ async def test_prohibit_adding_by_guest(
 
 @pytest.mark.asyncio
 async def test_delete(
-        client: AsyncClient,
-        admin: Mapping,
-        dj: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
+    dj: Mapping,
 ) -> None:
     """
     Удаление DJ
@@ -139,7 +139,7 @@ async def test_delete(
 
 @pytest.mark.asyncio
 async def test_prohibit_delete(
-        client: AsyncClient, user: Mapping, dj: Mapping
+    client: AsyncClient, user: Mapping, dj: Mapping
 ) -> None:
     """
     Запрет удаления DJ
@@ -159,9 +159,9 @@ async def test_prohibit_delete(
 
 @pytest.mark.asyncio
 async def test_delete_group(
-        client: AsyncClient,
-        admin: Mapping,
-        group: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
+    group: Mapping,
 ) -> None:
     """
     Удаление группы
@@ -181,9 +181,9 @@ async def test_delete_group(
 
 @pytest.mark.asyncio
 async def test_get_list(
-        client: AsyncClient,
-        group: Mapping,
-        dj: Mapping,
+    client: AsyncClient,
+    group: Mapping,
+    dj: Mapping,
 ) -> None:
     """
     Получение списка DJs
@@ -245,9 +245,9 @@ async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
 
 @pytest.mark.asyncio
 async def test_prohibit_patch(
-        client: AsyncClient,
-        dj: Mapping,
-        user: Mapping,
+    client: AsyncClient,
+    dj: Mapping,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на изменение DJ
@@ -271,10 +271,10 @@ async def test_prohibit_patch(
 
 @pytest.mark.asyncio
 async def test_patch_group(
-        client: AsyncClient,
-        dj: Mapping,
-        group: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    dj: Mapping,
+    group: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Изменение членов группы

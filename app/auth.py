@@ -15,8 +15,8 @@ oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
 
 
 async def get_current_user(
-        authorization: typing.Optional[str] = Header(None),
-        token: str = Depends(oauth_scheme),
+    authorization: typing.Optional[str] = Header(None),
+    token: str = Depends(oauth_scheme),
 ) -> typing.Mapping:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,7 +51,7 @@ async def get_current_user(
 
 
 async def get_current_user_or_guest(
-        token: str = Depends(oauth_scheme),
+    token: str = Depends(oauth_scheme),
 ) -> typing.Optional[typing.Mapping]:
     if token:
         db_user = await get_current_user(token=token)
@@ -60,7 +60,7 @@ async def get_current_user_or_guest(
 
 
 async def get_current_admin(
-        db_user: dict = Depends(get_current_user),
+    db_user: dict = Depends(get_current_user),
 ) -> typing.Mapping:
     if not db_user["is_admin"]:
         raise HTTPException(
@@ -72,8 +72,8 @@ async def get_current_admin(
 
 
 async def authenticate_user(
-        username: str,
-        password: str,
+    username: str,
+    password: str,
 ) -> typing.Optional[typing.Mapping]:
     db_user = await user.get_user_by_username(username=username)
     if not db_user:
@@ -88,9 +88,9 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 
 def create_access_token(
-        *,
-        data: dict,
-        expires_delta: timedelta = timedelta(days=31),
+    *,
+    data: dict,
+    expires_delta: timedelta = timedelta(days=31),
 ) -> str:
     to_encode = data.copy()
     to_encode.update({"exp": datetime.utcnow() + expires_delta})

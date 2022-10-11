@@ -48,7 +48,7 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         return await self.index.delete_document(str(id_))
 
     async def get_all(  # type: ignore[override]
-            self, *, limit: int = 20, offset: int = 0
+        self, *, limit: int = 20, offset: int = 0
     ) -> list[MeilisearchVideo | None]:
         documents = await self.index.get_documents(limit=limit, offset=offset)
         if documents:
@@ -62,8 +62,8 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         return MeilisearchVideo.parse_obj(document)
 
     async def update(
-            self,
-            video: MeilisearchVideo,
+        self,
+        video: MeilisearchVideo,
     ) -> TaskId:
         return await self.create(video)
 

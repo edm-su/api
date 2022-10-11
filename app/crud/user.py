@@ -8,11 +8,11 @@ from app.helpers import generate_secret_code, get_password_hash
 
 
 async def create_user(
-        username: str,
-        email: str,
-        password: str,
-        is_admin: bool = False,
-        is_active: bool = False,
+    username: str,
+    email: str,
+    password: str,
+    is_admin: bool = False,
+    is_active: bool = False,
 ) -> None | Mapping:
     hashed_password = get_password_hash(password)
 
@@ -74,9 +74,9 @@ async def generate_recovery_user_code(user_id: int) -> str:
 
 
 async def change_password(
-        user_id: int,
-        password: str,
-        recovery: bool = False,
+    user_id: int,
+    password: str,
+    recovery: bool = False,
 ) -> bool:
     query = users.update().where(users.c.id == user_id).returning(users)
     values: Dict[str, Any[str, None]] = {

@@ -40,7 +40,7 @@ class TestMeilisearchVideoRepository:
 
     @pytest.mark.asyncio
     async def test_update(
-            self, ms_video: MeilisearchVideo, videos: list[Mapping]
+        self, ms_video: MeilisearchVideo, videos: list[Mapping]
     ) -> None:
         video = ms_video.copy()
         video.title = "New title"
@@ -53,8 +53,8 @@ class TestMeilisearchVideoRepository:
 
     @pytest.mark.asyncio
     async def test_delete_all(
-            self,
-            ms_video: MeilisearchVideo,
+        self,
+        ms_video: MeilisearchVideo,
     ) -> None:
         task = await meilisearch_video_repository.delete_all()
         await wait_for_task(

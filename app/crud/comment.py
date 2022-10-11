@@ -11,9 +11,9 @@ async def get_comments_for_video(video_id: int) -> list[Mapping]:
 
 
 async def create_comment(
-        user_id: int,
-        video_id: int,
-        text: str,
+    user_id: int,
+    video_id: int,
+    text: str,
 ) -> None | Mapping:
     query = comments.insert().returning(comments)
     values = {"user_id": user_id, "video_id": video_id, "text": text}

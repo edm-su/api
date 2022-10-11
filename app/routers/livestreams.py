@@ -12,8 +12,8 @@ router = APIRouter(prefix="/livestreams")
 
 
 async def find_stream(
-        slug: str = Path(...),
-        id_: int = Path(..., alias="id", gt=0),
+    slug: str = Path(...),
+    id_: int = Path(..., alias="id", gt=0),
 ) -> Mapping:
     stream = await livestream.find_one(id_, slug=slug)
     if not stream:
@@ -28,8 +28,8 @@ async def find_stream(
     tags=["Прямые трансляции"],
 )
 async def new_stream(
-        stream: livestreams.CreateLiveStream,
-        admin: Mapping = Depends(get_current_admin),
+    stream: livestreams.CreateLiveStream,
+    admin: Mapping = Depends(get_current_admin),
 ) -> Mapping:
     db_streams = await livestream.find(
         stream.start_time,
@@ -50,8 +50,8 @@ async def new_stream(
     tags=["Прямые трансляции"],
 )
 async def get_streams(
-        start: date = Query(date.today() - timedelta(days=2)),
-        end: date = Query(date.today() + timedelta(days=31)),
+    start: date = Query(date.today() - timedelta(days=2)),
+    end: date = Query(date.today() + timedelta(days=31)),
 ) -> list[Mapping]:
     if start + timedelta(days=45) < end:
         raise HTTPException(
@@ -67,7 +67,7 @@ async def get_streams(
     tags=["Прямые трансляции"],
 )
 async def get_stream(
-        stream: Mapping = Depends(find_stream),
+    stream: Mapping = Depends(find_stream),
 ) -> None | Mapping:
     return stream
 
@@ -78,8 +78,8 @@ async def get_stream(
     tags=["Прямые трансляции"],
 )
 async def delete_stream(
-        stream: Mapping = Depends(find_stream),
-        admin: Mapping = Depends(get_current_admin),
+    stream: Mapping = Depends(find_stream),
+    admin: Mapping = Depends(get_current_admin),
 ) -> None:
     await livestream.remove(stream["id"])
 
@@ -90,8 +90,8 @@ async def delete_stream(
     tags=["Прямые трансляции"],
 )
 async def update_stream(
-        updated_stream: livestreams.BaseLiveStream,
-        stream: Mapping = Depends(find_stream),
-        admin: Mapping = Depends(get_current_admin),
+    updated_stream: livestreams.BaseLiveStream,
+    stream: Mapping = Depends(find_stream),
+    admin: Mapping = Depends(get_current_admin),
 ) -> Mapping:
     return await livestream.update(stream["id"], updated_stream)

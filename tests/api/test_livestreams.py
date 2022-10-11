@@ -12,9 +12,9 @@ from tests.helpers import create_auth_header
 
 @pytest.mark.asyncio
 async def test_create_livestream(
-        client: AsyncClient,
-        livestream_data: CreateLiveStream,
-        admin: Mapping,
+    client: AsyncClient,
+    livestream_data: CreateLiveStream,
+    admin: Mapping,
 ) -> None:
     """
     Создание трансляции
@@ -38,10 +38,10 @@ async def test_create_livestream(
 
 @pytest.mark.asyncio
 async def test_prevent_duplicate_livestreams(
-        client: AsyncClient,
-        livestream_data: CreateLiveStream,
-        livestream: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    livestream_data: CreateLiveStream,
+    livestream: Mapping,
+    admin: Mapping,
 ) -> None:
     """Проверка уникальности прямых трансляций"""
     headers = create_auth_header(admin["username"])
@@ -57,9 +57,9 @@ async def test_prevent_duplicate_livestreams(
 
 @pytest.mark.asyncio
 async def test_disallow_creation_livestream_without_privileges(
-        client: AsyncClient,
-        livestream_data: CreateLiveStream,
-        user: Mapping,
+    client: AsyncClient,
+    livestream_data: CreateLiveStream,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на добавление
@@ -89,9 +89,9 @@ async def test_disallow_creation_livestream_without_privileges(
 
 @pytest.mark.asyncio
 async def test_get_livestreams(
-        client: AsyncClient,
-        livestream: Mapping,
-        livestream_in_a_month: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
+    livestream_in_a_month: Mapping,
 ) -> None:
     """
     Получение списка трансляций
@@ -110,7 +110,7 @@ async def test_get_livestreams(
 
 @pytest.mark.asyncio
 async def test_period_excess_error(
-        client: AsyncClient,
+    client: AsyncClient,
 ) -> None:
     """
     Валидация дат периода выборки
@@ -133,8 +133,8 @@ async def test_period_excess_error(
 
 @pytest.mark.asyncio
 async def test_get_livestream(
-        client: AsyncClient,
-        livestream: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
 ) -> None:
     """
     Получить трансляцию
@@ -152,9 +152,9 @@ async def test_get_livestream(
 
 @pytest.mark.asyncio
 async def test_remove_livestream(
-        client: AsyncClient,
-        livestream: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Удалить трансляцию
@@ -175,9 +175,9 @@ async def test_remove_livestream(
 
 @pytest.mark.asyncio
 async def test_removal_without_privileges(
-        client: AsyncClient,
-        livestream: Mapping,
-        user: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на удаление
@@ -205,9 +205,9 @@ async def test_removal_without_privileges(
 
 @pytest.mark.asyncio
 async def test_update_livestream(
-        client: AsyncClient,
-        livestream: Mapping,
-        admin: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
+    admin: Mapping,
 ) -> None:
     """
     Обноавление трансляции
@@ -237,9 +237,9 @@ async def test_update_livestream(
 
 @pytest.mark.asyncio
 async def test_update_without_privileges(
-        client: AsyncClient,
-        livestream: Mapping,
-        user: Mapping,
+    client: AsyncClient,
+    livestream: Mapping,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на обновление

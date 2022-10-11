@@ -13,7 +13,7 @@ from tests.helpers import create_auth_header
 
 @pytest.mark.asyncio
 async def test_create_user(
-        client: AsyncClient, user_data: user_schemas.CreateUser
+    client: AsyncClient, user_data: user_schemas.CreateUser
 ) -> None:
     """
     Регистрация
@@ -35,8 +35,8 @@ async def test_create_user(
 
 @pytest.mark.asyncio
 async def test_activate_user(
-        client: AsyncClient,
-        non_activated_user: Mapping,
+    client: AsyncClient,
+    non_activated_user: Mapping,
 ) -> None:
     """
     Подтверждение пользователя
@@ -52,9 +52,9 @@ async def test_activate_user(
 
 @pytest.mark.asyncio
 async def test_login(
-        client: AsyncClient,
-        admin: Mapping,
-        user_data: user_schemas.CreateUser,
+    client: AsyncClient,
+    admin: Mapping,
+    user_data: user_schemas.CreateUser,
 ) -> None:
     """
     Авторизация
@@ -94,8 +94,8 @@ async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
 
 @pytest.mark.asyncio
 async def test_request_recovery_user(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Запрос восстановления пользователя
@@ -110,9 +110,9 @@ async def test_request_recovery_user(
 
 @pytest.mark.asyncio
 async def test_change_password(
-        client: AsyncClient,
-        admin: Mapping,
-        user_data: user_schemas.CreateUser,
+    client: AsyncClient,
+    admin: Mapping,
+    user_data: user_schemas.CreateUser,
 ) -> None:
     """
     Изменение пароля
@@ -138,8 +138,8 @@ async def test_change_password(
 
 @pytest.mark.asyncio
 async def test_reset_password(
-        client: AsyncClient,
-        recovered_user_code: str,
+    client: AsyncClient,
+    recovered_user_code: str,
 ) -> None:
     """
     Сброс пароля
@@ -174,8 +174,8 @@ async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
 
 @pytest.mark.asyncio
 async def test_create_api_token(
-        client: AsyncClient,
-        admin: Mapping,
+    client: AsyncClient,
+    admin: Mapping,
 ) -> None:
     """
     Создание api токена
@@ -198,8 +198,8 @@ async def test_create_api_token(
 
 @pytest.mark.asyncio
 async def test_create_api_token_without_auth(
-        client: AsyncClient,
-        user: Mapping,
+    client: AsyncClient,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на создание api токена
@@ -226,9 +226,9 @@ async def test_create_api_token_without_auth(
 
 @pytest.mark.asyncio
 async def test_api_token_authentication(
-        client: AsyncClient,
-        api_token: str,
-        livestream_data: CreateLiveStream,
+    client: AsyncClient,
+    api_token: str,
+    livestream_data: CreateLiveStream,
 ) -> None:
     """
     Авторизация с использованием api токена

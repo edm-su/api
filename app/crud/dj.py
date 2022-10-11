@@ -7,9 +7,9 @@ from app.schemas import dj as dj_schema
 
 
 async def find(
-        id_: int = None,
-        name: str = None,
-        slug: str = None,
+    id_: int = None,
+    name: str = None,
+    slug: str = None,
 ) -> Mapping:
     conditions = []
     for k, v in locals().items():
