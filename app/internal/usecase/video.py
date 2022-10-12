@@ -1,18 +1,15 @@
 import logging
 from abc import ABC
 
-from app.internal.entity.video import (
-    Video,
-    NewVideoDto,
-)
+from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import (
+    VideoNotFoundException,
     VideoSlugNotUniqueException,
     VideoYtIdNotUniqueException,
-    VideoNotFoundException,
 )
 from app.internal.usecase.repository.video import (
-    AbstractVideoRepository,
     AbstractFullTextVideoRepository,
+    AbstractVideoRepository,
 )
 
 
@@ -75,9 +72,7 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
         video = await self.repository.get_by_id(id_)
         if not video:
             raise VideoNotFoundException()
-        await self.repository.delete(
-            id_
-        )
+        await self.repository.delete(id_)
         try:
             await self.full_text_repo.delete(id_)
         except Exception as e:

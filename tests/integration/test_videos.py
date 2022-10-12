@@ -1,6 +1,4 @@
-from typing import (
-    Mapping,
-)
+from typing import Mapping
 
 import pytest
 from faker import Faker
@@ -8,13 +6,10 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.internal.entity.video import (
-    Video,
-    NewVideoDto,
-)
+from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.repository.video import (
-    PostgresVideoRepository,
     MeilisearchVideoRepository,
+    PostgresVideoRepository,
 )
 from app.meilisearch import ms_client
 from tests.helpers import create_auth_header

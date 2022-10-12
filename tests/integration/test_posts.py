@@ -1,18 +1,11 @@
 from collections.abc import Mapping
-from datetime import (
-    datetime,
-    timedelta,
-    timezone,
-)
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from httpx import AsyncClient
 from starlette import status
 
-from app.schemas.post import (
-    CreatePost,
-    Post,
-)
+from app.schemas.post import CreatePost, Post
 from tests.helpers import create_auth_header
 
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from . import video
+from . import comment, video
 
 router = APIRouter()
-router.include_router(video.router, prefix="/videos", tags=["videos"])
+router.include_router(video.router, prefix="/videos")
+router.include_router(comment.router, prefix="/comments")

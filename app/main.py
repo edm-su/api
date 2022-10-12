@@ -6,18 +6,13 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
 from app.internal.controller.http.router import api_router
-from app.meilisearch import (
-    ms_client,
-    config_ms,
-)
-from app.routers import (
-    comments,
+from app.meilisearch import config_ms, ms_client
+from app.routers import (  # user_videos,
     djs,
     livestreams,
     posts,
     tokens,
     upload,
-    user_videos,
     users,
 )
 from app.settings import settings
@@ -70,10 +65,9 @@ async def shutdown() -> None:
 
 origins = ["https://edm.su", "http://localhost:3000"]
 
-app.include_router(user_videos.router)
+# app.include_router(user_videos.router)
 app.include_router(tokens.router)
 app.include_router(users.router)
-app.include_router(comments.router)
 app.include_router(posts.router)
 app.include_router(upload.router)
 app.include_router(livestreams.router)

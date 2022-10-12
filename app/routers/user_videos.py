@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from app import auth
-from app.depencies import create_pg_user_video_repository, find_video
+from app.internal.controller.http.v1.depencies.video import find_video
 from app.repositories.user_video import PostgresUserVideoRepository
 from app.schemas.user import User
 from app.schemas.video import PgVideo

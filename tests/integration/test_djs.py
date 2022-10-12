@@ -5,10 +5,7 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.crud import dj as dj_crud
-from app.schemas.dj import (
-    DJ,
-    CreateDJ,
-)
+from app.schemas.dj import DJ, CreateDJ
 from tests.helpers import create_auth_header
 
 

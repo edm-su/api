@@ -3,18 +3,12 @@ from abc import ABC
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.task import wait_for_task
-from sqlalchemy import (
-    select,
-    func,
-)
+from sqlalchemy import func, select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import videos
-from app.internal.entity.video import (
-    Video,
-    NewVideoDto,
-)
+from app.internal.entity.video import NewVideoDto, Video
 from app.meilisearch import normalize_ms_index_name
 
 

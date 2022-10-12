@@ -1,9 +1,6 @@
 from typing import AsyncIterator
 
-from fastapi import (
-    Depends,
-    HTTPException,
-)
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import sessionmaker
 from starlette import status
 

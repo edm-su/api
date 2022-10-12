@@ -1,9 +1,6 @@
 from datetime import date
-from pydantic import (
-    BaseModel,
-    Field,
-    validator,
-)
+
+from pydantic import BaseModel, Field, validator
 from slugify import slugify
 
 

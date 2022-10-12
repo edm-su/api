@@ -1,36 +1,24 @@
-from typing import (
-    Mapping,
-)
+from typing import Mapping
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Response,
-)
+from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
 from app import auth
 from app.helpers import Paginator
 from app.internal.controller.http.v1.depencies.video import (
-    create_get_all_videos_usecase,
     create_count_videos_usecase,
-    create_delete_video_usecase,
     create_create_video_usecase,
+    create_delete_video_usecase,
+    create_get_all_videos_usecase,
     find_video,
 )
-from app.internal.entity.video import (
-    Video,
-    NewVideoDto,
-)
-from app.internal.usecase.exceptions.video import (
-    VideoException,
-)
+from app.internal.entity.video import NewVideoDto, Video
+from app.internal.usecase.exceptions.video import VideoException
 from app.internal.usecase.video import (
-    GetAllVideosUseCase,
-    GetCountVideosUseCase,
     CreateVideoUseCase,
     DeleteVideoUseCase,
+    GetAllVideosUseCase,
+    GetCountVideosUseCase,
 )
 
 router = APIRouter()
@@ -68,9 +56,7 @@ async def get_videos(
     summary="Получить видео",
 )
 async def read_video(
-    video: Video = Depends(
-        find_video
-    ),
+    video: Video = Depends(find_video),
 ) -> Video:
     return video
 
@@ -83,12 +69,8 @@ async def read_video(
 )
 async def delete_video(
     admin: Mapping = Depends(auth.get_current_admin),
-    video: Video = Depends(
-        find_video
-    ),
-    usecase: DeleteVideoUseCase = Depends(
-        create_delete_video_usecase
-    ),
+    video: Video = Depends(find_video),
+    usecase: DeleteVideoUseCase = Depends(create_delete_video_usecase),
 ) -> None:
     try:
         await usecase.execute(video.id)
@@ -108,9 +90,7 @@ async def delete_video(
 async def add_video(
     new_video: NewVideoDto,
     admin: Mapping = Depends(auth.get_current_admin),
-    usecase: CreateVideoUseCase = Depends(
-        create_create_video_usecase
-    ),
+    usecase: CreateVideoUseCase = Depends(create_create_video_usecase),
 ) -> Video:
     try:
         video = await usecase.execute(new_video)
