@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import desc, func, select
 
 from app.db import database, posts
-from app.schemas.post import BasePost
+from app.internal.entity.post import BasePost
 
 
 async def create_post(post: BasePost, user_id: int) -> None | Mapping:

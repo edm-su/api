@@ -5,7 +5,7 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 
-from app.schemas.post import CreatePost, Post
+from app.internal.entity.post import CreatePost, Post
 from tests.helpers import create_auth_header
 
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from starlette import status
 
 from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.video import VideoNotFoundException
+from app.internal.usecase.exceptions.video import NotFoundException
 from app.internal.usecase.repository.video import (
     PostgresVideoRepository,
     MeilisearchVideoRepository,
@@ -76,7 +76,7 @@ async def find_video(
 ) -> Video:
     try:
         return await usecase.execute(slug)
-    except VideoNotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e.message),

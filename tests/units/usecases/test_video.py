@@ -6,23 +6,23 @@ from pytest_mock import MockFixture
 
 from app.internal.entity.video import NewVideoDto
 from app.internal.usecase.exceptions.video import (
-    VideoSlugNotUniqueException,
+    NotFoundException,
+    SlugNotUniqueException,
     VideoYtIdNotUniqueException,
-    VideoNotFoundException,
 )
 from app.internal.usecase.repository.video import (
+    AbstractFullTextVideoRepository,
+    AbstractVideoRepository,
     MeilisearchVideoRepository,
     PostgresVideoRepository,
-    AbstractVideoRepository,
-    AbstractFullTextVideoRepository,
 )
 from app.internal.usecase.video import (
-    GetAllVideosUseCase,
-    Video,
-    GetCountVideosUseCase,
-    GetVideoBySlugUseCase,
     CreateVideoUseCase,
     DeleteVideoUseCase,
+    GetAllVideosUseCase,
+    GetCountVideosUseCase,
+    GetVideoBySlugUseCase,
+    Video,
 )
 
 
@@ -280,7 +280,7 @@ class TestCreateVideoUseCase:
         mock_by_slug: None,
     ) -> None:
         """Raise exception if slug is not unique."""
-        with pytest.raises(VideoSlugNotUniqueException):
+        with pytest.raises(SlugNotUniqueException):
             await usecase.execute(new_video)
 
     @pytest.mark.asyncio
@@ -372,7 +372,7 @@ class TestDeleteVideoUseCase:
             "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_id",
             return_value=None,
         )
-        with pytest.raises(VideoNotFoundException):
+        with pytest.raises(NotFoundException):
             await usecase.execute(100_000_000)
         usecase.repository.get_by_id: AsyncMock  # type: ignore
         usecase.repository.get_by_id.assert_awaited_once_with(100_000_000)  # type: ignore

@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field, validator
 
+from app.schemas.user import User
+
 
 class BasePost(BaseModel):
     title: str
@@ -28,6 +30,10 @@ class CreatePost(BasePost):
             error = "должно быть больше текущего"
             raise ValueError(error)
         return v
+
+
+class NewPostDTO(CreatePost):
+    user: User
 
 
 class Post(BasePost):
