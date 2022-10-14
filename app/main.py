@@ -7,13 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.db import database
 from app.internal.controller.http.router import api_router
 from app.meilisearch import config_ms, ms_client
-from app.routers import (  # user_videos,
-    djs,
-    livestreams,
-    tokens,
-    upload,
-    users,
-)
+from app.routers import djs, livestreams, tokens, users  # user_videos,
 from app.settings import settings
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
@@ -67,7 +61,6 @@ origins = ["https://edm.su", "http://localhost:3000"]
 # app.include_router(user_videos.router)
 app.include_router(tokens.router)
 app.include_router(users.router)
-app.include_router(upload.router)
 app.include_router(livestreams.router)
 app.include_router(djs.router)
 app.include_router(tokens.router)
