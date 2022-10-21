@@ -325,7 +325,7 @@ python-dateutil = ">=2.4"
 
 [[package]]
 name = "fastapi"
-version = "0.85.0"
+version = "0.85.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 category = "main"
 optional = false
@@ -1332,8 +1332,8 @@ faker = [
     {file = "Faker-13.16.0.tar.gz", hash = "sha256:25c5be99bc5fd8676eea8c1490e0de87f6d9734651c7af2cefc99b322b2936f4"},
 ]
 fastapi = [
-    {file = "fastapi-0.85.0-py3-none-any.whl", hash = "sha256:1803d962f169dc9f8dde54a64b22eb16f6d81573f54401971f90f0a67234a8b4"},
-    {file = "fastapi-0.85.0.tar.gz", hash = "sha256:bb219cfafd0d2ccf8f32310c9a257a06b0210bd8e2a03706a6f5a9f9f1416878"},
+    {file = "fastapi-0.85.1-py3-none-any.whl", hash = "sha256:de3166b6b1163dc22da4dc4ebdc3192fcbac7700dd1870a1afa44de636a636b5"},
+    {file = "fastapi-0.85.1.tar.gz", hash = "sha256:1facd097189682a4ff11cbd01334a992e51b56be663b2bd50c2c09523624f144"},
 ]
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
