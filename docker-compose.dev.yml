@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:14.5
+    environment:
+      POSTGRES_PASSWORD: postgrespw
+      POSTGRES_USER: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "55000:5432"
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    volumes:
+      - minio:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  meili:
+    image: getmeili/meilisearch:v0.27.2
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili:/data.ms
+
+volumes:
+  postgres:
+  minio:
+  meili:
