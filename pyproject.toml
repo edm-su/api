@@ -23,7 +23,7 @@ python-slugify = { extras = ["unidecode"], version = "^6.1" }
 aiohttp = "^3.8.1"
 psycopg2 = "^2.9.2"
 aioboto3 = "^10.1.0"
-meilisearch-python-async = "0.24.1"
+meilisearch-python-async = "0.28.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
