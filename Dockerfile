@@ -25,6 +25,7 @@ WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./
 
 RUN poetry install --no-dev
+RUN pip install setuptools
 
 
 FROM builder-base as development
