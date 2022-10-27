@@ -33,13 +33,14 @@ async def shutdown() -> None:
 origins = ["https://edm.su", "http://localhost:3000"]
 
 app.include_router(videos.router)
+app.include_router(tokens.router)
 app.include_router(users.router)
 app.include_router(comments.router)
 app.include_router(posts.router)
 app.include_router(upload.router)
 app.include_router(livestreams.router)
 app.include_router(djs.router)
-app.include_router(tokens.router)
+
 
 app.add_middleware(
     CORSMiddleware,
