@@ -21,7 +21,7 @@ databases = { version = "^0.6", extras = ["postgresql"] }
 uvicorn = { extras = ["standard"], version = "^0.19.0" }
 python-slugify = { extras = ["unidecode"], version = "^6.1" }
 aiohttp = "^3.8.1"
-psycopg2 = "^2.9.2"
+psycopg2 = "^2.9.5"
 aioboto3 = "^10.1.0"
 meilisearch-python-async = "0.24.1"
 
