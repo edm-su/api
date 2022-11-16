@@ -13,6 +13,11 @@ jobs:
   test:
     environment: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.10"
+          - 3.11
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
       FRONTEND_URL: http://localhost:3000
@@ -80,22 +85,22 @@ jobs:
         run: pipx install poetry
       - uses: actions/setup-python@v4.3.0
         with:
-          python-version-file: ".python-version"
+          python-version: ${{ matrix.python-version }}
           check-latest: true
           cache: 'poetry'
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
+          poetry env use "${{ matrix.python-version }}"
           poetry install --no-interaction
       - name: Upgrade migrations
         run: |
-          poetry env use "3.10"
+          poetry env use "${{ matrix.python-version }}"
           poetry run alembic upgrade head
         env:
           PYTHONPATH: .
       - name: Run tests
         run: |
-          poetry env use "3.10"
+          poetry env use "${{ matrix.python-version }}"
           poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
