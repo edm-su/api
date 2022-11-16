@@ -19,7 +19,7 @@ jobs:
           - "3.10"
           - 3.11
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/edm_su_test
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/edm_su_test
       FRONTEND_URL: http://localhost:3000
       SECRET_KEY: test
       DEBUG: True
