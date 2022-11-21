@@ -7,15 +7,15 @@ from starlette import status
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.video import NotFoundException
 from app.internal.usecase.repository.video import (
-    PostgresVideoRepository,
     MeilisearchVideoRepository,
+    PostgresVideoRepository,
 )
 from app.internal.usecase.video import (
+    CreateVideoUseCase,
+    DeleteVideoUseCase,
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
-    DeleteVideoUseCase,
-    CreateVideoUseCase,
 )
 from app.meilisearch import ms_client
 from app.pkg.postgres import get_session

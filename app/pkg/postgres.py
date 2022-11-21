@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.settings import settings
 
-logger = logging.getLogger('app')
+logger = logging.getLogger("app")
 
 async_engine = create_async_engine(
     settings.database_url,

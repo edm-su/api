@@ -53,7 +53,7 @@ class PostgresPostRepository(AbstractPostRepository):
         query = query.where(posts.c.published_at <= datetime.now())
 
         result_proxy = await self.session.execute(query)
-        result = result_proxy.scalars().first()
+        result = result_proxy.first()
 
         return (
             Post(
