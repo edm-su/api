@@ -8,28 +8,23 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
       - name: Setup python
         uses: actions/setup-python@v4.3.0
         with:
           python-version: 3.11
           check-latest: true
-      - name: Isort
-        uses: jamescurtin/isort-action@master
-
-      - name: Black
-        uses: psf/black@stable
-
-      - name: Flake8
-        uses: usama2490/lintly-flake8-github-action@v1.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: MyPy
-        uses: tsuyoshicho/action-mypy@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          level: warning
-          target: ./app
+          cache: 'poetry'
+      - name: Install dependencies
+        run: |
+          poetry install --only lint
+      - name: Install Reviewdog
+        uses: reviewdog/action-setup@v1
+      - name: Run reviewdog
+        run: |
+          reviewdog -reporter=github-pr-check -fail-on-error=true -conf=.reviewdog.yml
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
