@@ -21,17 +21,22 @@ psycopg2 = "^2.9.5"
 aioboto3 = "^10.1.0"
 meilisearch-python-async = "0.24.1"
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
+[tool.poetry.group.test.dependencies]
 pytest = "^7.2.0"
 pytest-asyncio = "^0"
-flake8 = "^6.0.0"
-mypy = "^0.991"
 Faker = "^15.3.3"
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.10.0"
 tenacity = "^8.0.1"
+
+[tool.poetry.group.lint]
+optional = true
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^6.0.0"
+mypy = "^0.991"
 isort = "^5.10.1"
+black = "^22.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
