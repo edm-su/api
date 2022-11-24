@@ -48,7 +48,8 @@ class TestCreateCommentUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.comment.PostgresCommentRepository.create",
+            "app.internal.usecase.repository.comment"
+            ".PostgresCommentRepository.create",
             return_value=Comment(
                 id=1,
                 user_id=1,
@@ -94,7 +95,8 @@ class TestGetAllCommentsUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.comment.PostgresCommentRepository.get_all",
+            "app.internal.usecase.repository.comment"
+            ".PostgresCommentRepository.get_all",
             return_value=[
                 Comment(
                     id=1,
@@ -136,7 +138,8 @@ class TestCountCommentsUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.comment.PostgresCommentRepository.count",
+            "app.internal.usecase.repository.comment"
+            ".PostgresCommentRepository.count",
             return_value=1,
         )
 
@@ -166,7 +169,8 @@ class GetVideoCommentsUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.comment.PostgresCommentRepository.get_all",
+            "app.internal.usecase.repository"
+            ".comment.PostgresCommentRepository.get_all",
             return_value=[
                 Comment(
                     id=1,

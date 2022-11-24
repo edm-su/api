@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -32,5 +34,5 @@ class TestUploadImageUseCase:
     async def test_upload_image(self, usecase: UploadImageUseCase) -> None:
         await usecase.execute()
 
-        usecase.repository.upload: AsyncMock  # type: ignore
+        usecase.repository.upload: AsyncMock
         usecase.repository.upload.assert_awaited_once()

@@ -46,7 +46,8 @@ class TestGetAllVideosUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_all",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_all",
             return_value=[
                 Video(
                     id=faker.pyint(),
@@ -92,7 +93,8 @@ class TestGetCountVideosUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.count",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.count",
             return_value=faker.pyint(),
         )
 
@@ -124,7 +126,8 @@ class TestGetVideoBySlugUseCase:
         faker: Faker,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_slug",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_slug",
             return_value=Video(
                 id=faker.pyint(),
                 slug="slug",
@@ -154,8 +157,8 @@ class TestGetVideoBySlugUseCase:
         video = await usecase.execute("slug")
         assert video is not None
 
-        usecase.repository.get_by_slug: AsyncMock  # type: ignore
-        usecase.repository.get_by_slug.assert_awaited_once_with("slug")  # type: ignore
+        usecase.repository.get_by_slug: AsyncMock
+        usecase.repository.get_by_slug.assert_awaited_once_with("slug")
 
 
 class TestCreateVideoUseCase:
@@ -166,14 +169,16 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.create",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.create",
             return_value=Video(
                 id=1,
                 **new_video.dict(),
             ),
         )
         mocker.patch(
-            "app.internal.usecase.repository.video.MeilisearchVideoRepository.create",
+            "app.internal.usecase.repository.video"
+            ".MeilisearchVideoRepository.create",
             return_value=Video(
                 id=1,
                 **new_video.dict(),
@@ -205,7 +210,8 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_slug",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_slug",
             return_value=Video(
                 id=1,
                 **new_video.dict(),
@@ -219,7 +225,8 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_yt_id",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_yt_id",
             return_value=Video(
                 id=1,
                 **new_video.dict(),
@@ -233,11 +240,13 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_slug",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_slug",
             return_value=None,
         )
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_yt_id",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_yt_id",
             return_value=None,
         )
 
@@ -266,10 +275,10 @@ class TestCreateVideoUseCase:
         assert video.yt_thumbnail == new_video.yt_thumbnail
         assert video.date == new_video.date
 
-        usecase.repository.create: AsyncMock  # type: ignore
-        usecase.repository.create.assert_awaited_once_with(new_video)  # type: ignore
-        usecase.full_text_repo.create: AsyncMock  # type: ignore
-        usecase.full_text_repo.create.assert_awaited_once_with(video)  # type: ignore
+        usecase.repository.create: AsyncMock
+        usecase.repository.create.assert_awaited_once_with(new_video)
+        usecase.full_text_repo.create: AsyncMock
+        usecase.full_text_repo.create.assert_awaited_once_with(video)
 
     @pytest.mark.asyncio
     async def test_create_video_with_invalid_slug(
@@ -294,7 +303,8 @@ class TestCreateVideoUseCase:
     ) -> None:
         """Raise exception if yt_id is not unique."""
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_slug",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_slug",
             return_value=None,
         )
         with pytest.raises(VideoYtIdNotUniqueException):
@@ -308,11 +318,13 @@ class TestDeleteVideoUseCase:
         mocker: MockFixture,
     ) -> None:
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.delete",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.delete",
             return_value=None,
         )
         mocker.patch(
-            "app.internal.usecase.repository.video.MeilisearchVideoRepository.delete",
+            "app.internal.usecase.repository.video"
+            ".MeilisearchVideoRepository.delete",
             return_value=None,
         )
 
@@ -348,18 +360,19 @@ class TestDeleteVideoUseCase:
             ),
         )
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_id",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_id",
             return_value=Video,
         )
 
         await usecase.execute(video.id)
 
-        usecase.repository.delete: AsyncMock  # type: ignore
-        usecase.repository.delete.assert_awaited_once_with(video.id)  # type: ignore
-        usecase.full_text_repo.delete: AsyncMock  # type: ignore
-        usecase.full_text_repo.delete.assert_awaited_once_with(video.id)  # type: ignore
-        usecase.repository.get_by_id: AsyncMock  # type: ignore
-        usecase.repository.get_by_id.assert_awaited_once_with(video.id)  # type: ignore
+        usecase.repository.delete: AsyncMock
+        usecase.repository.delete.assert_awaited_once_with(video.id)
+        usecase.full_text_repo.delete: AsyncMock
+        usecase.full_text_repo.delete.assert_awaited_once_with(video.id)
+        usecase.repository.get_by_id: AsyncMock
+        usecase.repository.get_by_id.assert_awaited_once_with(video.id)
 
     @pytest.mark.asyncio
     async def test_delete_video_with_invalid_id(
@@ -369,12 +382,13 @@ class TestDeleteVideoUseCase:
     ) -> None:
         """Raise exception if id is not found."""
         mocker.patch(
-            "app.internal.usecase.repository.video.PostgresVideoRepository.get_by_id",
+            "app.internal.usecase.repository.video"
+            ".PostgresVideoRepository.get_by_id",
             return_value=None,
         )
         with pytest.raises(NotFoundException):
             await usecase.execute(100_000_000)
-        usecase.repository.get_by_id: AsyncMock  # type: ignore
-        usecase.repository.get_by_id.assert_awaited_once_with(100_000_000)  # type: ignore
-        usecase.repository.delete: AsyncMock  # type: ignore
-        usecase.repository.delete.assert_not_called()  # type: ignore
+        usecase.repository.get_by_id: AsyncMock
+        usecase.repository.get_by_id.assert_awaited_once_with(100_000_000)
+        usecase.repository.delete: AsyncMock
+        usecase.repository.delete.assert_not_called()

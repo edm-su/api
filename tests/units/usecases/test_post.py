@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, tzinfo
+from datetime import timezone
 from unittest.mock import AsyncMock
 
 import pytest

@@ -1,7 +1,7 @@
 from abc import ABC
 from datetime import datetime
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import posts
