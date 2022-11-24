@@ -85,7 +85,7 @@ class UploadImageUseCase(BaseUploadUseCase):
                 f"/{md5}.{converter.extension}"
             )
             result[converter.extension] = path
-        return ImageURLs(**result)
+        return ImageURLs.parse_obj(result)
 
 
 class UploadImageURLUseCase(UploadImageUseCase):
