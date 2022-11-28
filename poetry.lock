@@ -2022,7 +2022,7 @@ files = [
 name = "types-python-slugify"
 version = "8.0.0.2"
 description = "Typing stubs for python-slugify"
-category = "main"
+category = "dev"
 optional = false
 python-versions = "*"
 files = [
@@ -2507,4 +2507,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e46131e2dc60639b9b98044752ded3b89b3d5b619caea6de678b1fe625583a2d"
+content-hash = "eb4c5305262d72e516e07e7e574214172afb7b990a02c3e9dab02a2294bc229d"

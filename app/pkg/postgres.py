@@ -22,8 +22,8 @@ AsyncSessionLocal = sessionmaker(
 )
 
 
-async def get_session() -> AsyncIterator[sessionmaker]:
+async def get_session() -> AsyncIterator[AsyncSession]:
     try:
         yield AsyncSessionLocal
     except SQLAlchemyError as e:
-        raise logger.exception(e)
+        raise logger.exception(e)  # type: ignore[func-returns-value]
