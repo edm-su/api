@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.10"
 alembic = "^1.9"
 fastapi = { version = "^0", extras = ["all"] }
-Pillow = "^9.3.0"
+Pillow = "^9.4.0"
 SQLAlchemy = "^1.4"
 PyJWT = "^2.6.0"
 gunicorn = "^20.1.0"
