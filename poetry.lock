@@ -264,7 +264,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "databases"
-version = "0.6.1"
+version = "0.7.0"
 description = "Async database support for Python."
 category = "main"
 optional = false
@@ -272,7 +272,7 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 asyncpg = {version = "*", optional = true, markers = "extra == \"postgresql\""}
-sqlalchemy = ">=1.4,<1.5"
+sqlalchemy = ">=1.4.42,<1.5"
 
 [package.extras]
 aiomysql = ["aiomysql"]
@@ -1107,7 +1107,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9a493d026ebf56bae1aeb0fb38ba4ae648c1611a0038f0cd513072bad1c37a71"
+content-hash = "6c2672c6cf218f0212ddbbd2385ae71315096d43b493689fa1b2c30a2a1ef93c"
 
 [metadata.files]
 aioboto3 = [
@@ -1367,8 +1367,8 @@ coverage = [
     {file = "coverage-6.5.0.tar.gz", hash = "sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84"},
 ]
 databases = [
-    {file = "databases-0.6.1-py3-none-any.whl", hash = "sha256:47fae85d82d8227049f08b154019913c3ad2f6057ceb0b5ebb36703be6f5666b"},
-    {file = "databases-0.6.1.tar.gz", hash = "sha256:0a69c6983a27e10a5b75ffa094486f1febadd9d5a8db016e69b8c2f6a354dc30"},
+    {file = "databases-0.7.0-py3-none-any.whl", hash = "sha256:cf5da4b8a3e3cd038c459529725ebb64931cbbb7a091102664f20ef8f6cefd0d"},
+    {file = "databases-0.7.0.tar.gz", hash = "sha256:ea2d419d3d2eb80595b7ceb8f282056f080af62efe2fb9bcd83562f93ec4b674"},
 ]
 dnspython = [
     {file = "dnspython-2.2.1-py3-none-any.whl", hash = "sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f"},

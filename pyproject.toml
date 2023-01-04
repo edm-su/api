@@ -14,7 +14,7 @@ SQLAlchemy = "^1.4"
 PyJWT = "^2.6.0"
 gunicorn = "^20.1.0"
 types-python-slugify = "^7.0.0"
-databases = { version = "^0.6", extras = ["postgresql"] }
+databases = { version = "^0.7", extras = ["postgresql"] }
 python-slugify = { extras = ["unidecode"], version = "^7.0" }
 aiohttp = "^3.8.1"
 psycopg2 = "^2.9.5"
