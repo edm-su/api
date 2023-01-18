@@ -24,7 +24,7 @@ meilisearch-python-async = "0.24.1"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
 pytest-asyncio = "^0"
-Faker = "^15.3.3"
+Faker = "^15.3.4"
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.10.0"
 tenacity = "^8.0.1"
