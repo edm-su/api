@@ -18,7 +18,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/EgorHenek/edm_su_api
+            ghcr.io/edm-su/api
           tags: |
             type=sha
             type=semver,pattern={{version}}
