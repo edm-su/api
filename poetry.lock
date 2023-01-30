@@ -1100,22 +1100,22 @@ files = [
 
 [[package]]
 name = "meilisearch-python-async"
-version = "0.24.1"
+version = "0.29.2"
 description = "A Python async client for the Meilisearch API"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "meilisearch-python-async-0.24.1.tar.gz", hash = "sha256:89db043fc54aa39f69d176f527e1c583ba2a062207a8a67f3fecfb1a17edee25"},
-    {file = "meilisearch_python_async-0.24.1-py3-none-any.whl", hash = "sha256:c7878d1a5f284f7b4ad84f7ff12ea5ccec302e94bc3fbbfdf4bf39842a40bc6c"},
+    {file = "meilisearch_python_async-0.29.2-py3-none-any.whl", hash = "sha256:7bf7b8571435eef4c022df5786e6992a305145479e8f66505a3ba6c529893c6f"},
+    {file = "meilisearch_python_async-0.29.2.tar.gz", hash = "sha256:ef430c98c6120e09efa029394b2a4a8205b44ed78ae306f0a35019db43be1438"},
 ]
 
 [package.dependencies]
-aiofiles = ">=0.7,<0.9"
-camel-converter = ">=1.0.0,<2.0.0"
-httpx = ">=0.17,<0.24"
-pydantic = ">=1.8,<2.0"
-PyJWT = ">=2.3.0,<3.0.0"
+aiofiles = ">=0.7"
+camel-converter = ">=1.0.0"
+httpx = ">=0.17"
+pydantic = ">=1.8"
+PyJWT = ">=2.3.0"
 
 [[package]]
 name = "multidict"
@@ -2431,4 +2431,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "68fdb03d907ee2daf04620a6355177fd66548cda8823e8b24e8a5a0e5cdad006"
+content-hash = "aa12a4567017301274af32d70d57175dbcd551c6ce667613ad3cebc1bee30fe9"
