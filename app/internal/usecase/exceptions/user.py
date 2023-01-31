@@ -20,4 +20,14 @@ class UserAlreadyExistsException(UserException):
 
 class WrongActivationCodeException(UserException):
     def __init__(self) -> None:
-        super().__init__(f"Wrong activation code")
+        super().__init__("Wrong activation code")
+
+
+class WrongPasswordException(UserException):
+    def __init__(self) -> None:
+        super().__init__("Wrong password")
+
+
+class WrongResetCodeException(UserException):
+    def __init__(self) -> None:
+        super().__init__("Wrong reset code")

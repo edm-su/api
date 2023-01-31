@@ -4,8 +4,8 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 
+from app.internal.entity.user import User
 from app.repositories.user_video import PostgresUserVideoRepository
-from app.schemas.user import User
 from app.schemas.video import PgVideo
 from tests.helpers import create_auth_header
 

@@ -8,7 +8,11 @@ from starlette import status
 
 from app.crud import user
 from app.helpers import get_password_hash
-from app.schemas.user import TokenData
+from app.internal.controller.http.v1.depencies.user import (
+    create_get_user_by_username_usecase,
+)
+from app.internal.entity.user import TokenData, User
+from app.internal.usecase.user import GetUserByUsernameUseCase
 from app.settings import settings
 
 oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
@@ -17,7 +21,10 @@ oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
 async def get_current_user(
     authorization: str | None = Header(None),
     token: str = Depends(oauth_scheme),
-) -> typing.Mapping:
+    usecase: GetUserByUsernameUseCase = Depends(
+        create_get_user_by_username_usecase,
+    ),
+) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось проверить учётные данные",
@@ -45,7 +52,7 @@ async def get_current_user(
         token_data = TokenData(username=username)
     except jwt.PyJWTError:
         raise credentials_exception
-    db_user = await user.get_user_by_username(token_data.username)
+    db_user = await usecase.execute(token_data.username)
     if db_user is None:
         raise credentials_exception
     return db_user
@@ -53,16 +60,16 @@ async def get_current_user(
 
 async def get_current_user_or_guest(
     token: str = Depends(oauth_scheme),
-) -> typing.Mapping | None:
+) -> User | None:
     if token:
         return await get_current_user(token=token)
     return None
 
 
 async def get_current_admin(
-    db_user: dict = Depends(get_current_user),
-) -> typing.Mapping:
-    if not db_user["is_admin"]:
+    db_user: User = Depends(get_current_user),
+) -> User:
+    if not db_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Пользователь не является администратором",

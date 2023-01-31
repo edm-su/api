@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
 
+from app.internal.entity.user import CreateUser, MyUser, User
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsException,
     UserNotFoundException,
@@ -16,7 +17,6 @@ from app.internal.usecase.user import (
     GetUserByIdUseCase,
     GetUserByUsernameUseCase,
 )
-from app.schemas.user import CreateUser, MyUser, User
 
 
 @pytest.fixture

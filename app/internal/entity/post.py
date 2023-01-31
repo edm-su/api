@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field, validator
 
-from app.schemas.user import User
+from app.internal.entity.user import User
 
 
 class BasePost(BaseModel):

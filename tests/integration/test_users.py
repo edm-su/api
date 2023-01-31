@@ -6,7 +6,7 @@ from starlette import status
 
 from app.crud import livestream as livestream_crud
 from app.crud import token as token_crud
-from app.schemas import user as user_schemas
+from app.internal.entity import user as user_schemas
 from app.schemas.livestreams import CreateLiveStream
 from tests.helpers import create_auth_header
 

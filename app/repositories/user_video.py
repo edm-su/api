@@ -6,7 +6,7 @@ from databases import Database
 from sqlalchemy import and_, false, select
 
 from app.db import liked_videos, videos
-from app.schemas.user import User
+from app.internal.entity.user import User
 from app.schemas.video import DbVideo, PgVideo
 
 

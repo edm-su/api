@@ -6,6 +6,7 @@ from faker import Faker
 from pytest_mock import MockerFixture
 
 from app.internal.entity.post import NewPostDTO, Post
+from app.internal.entity.user import User
 from app.internal.usecase.exceptions.video import (
     NotFoundException,
     SlugNotUniqueException,
@@ -18,7 +19,6 @@ from app.internal.usecase.post import (
     GetPostCountUseCase,
 )
 from app.internal.usecase.repository.post import PostgresPostRepository
-from app.schemas.user import User
 
 
 @pytest.fixture

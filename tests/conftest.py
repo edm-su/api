@@ -22,6 +22,7 @@ from app.crud import token as tokens_crud
 from app.crud import user as user_crud
 from app.db import database, metadata
 from app.internal.entity.post import BasePost
+from app.internal.entity.user import CreateUser, User
 from app.internal.usecase.repository.video import PostgresVideoRepository
 from app.main import app
 from app.meilisearch import (
@@ -32,7 +33,6 @@ from app.pkg.postgres import get_session
 from app.repositories.user_video import PostgresUserVideoRepository
 from app.schemas.dj import CreateDJ
 from app.schemas.livestreams import CreateLiveStream
-from app.schemas.user import CreateUser, User
 from app.schemas.video import CreateVideo, PgVideo
 from app.settings import settings
 

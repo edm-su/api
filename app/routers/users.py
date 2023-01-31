@@ -8,7 +8,13 @@ from starlette import status
 from app.auth import authenticate_user, create_access_token, get_current_user
 from app.crud import user
 from app.helpers import get_password_hash
-from app.schemas.user import CreateUser, MyUser, Token, User, UserPassword
+from app.internal.entity.user import (
+    CreateUser,
+    MyUser,
+    Token,
+    User,
+    UserPassword,
+)
 from app.tasks import send_activate_email, send_recovery_email
 
 router = fastapi.APIRouter()

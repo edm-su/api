@@ -5,8 +5,8 @@ from starlette import status
 
 from app import auth
 from app.internal.controller.http.v1.depencies.video import find_video
+from app.internal.entity.user import User
 from app.repositories.user_video import PostgresUserVideoRepository
-from app.schemas.user import User
 from app.schemas.video import PgVideo
 
 router = APIRouter()

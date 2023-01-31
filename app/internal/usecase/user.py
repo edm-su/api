@@ -1,13 +1,25 @@
 from abc import ABC
+from datetime import datetime, timedelta
 
-from app.helpers import get_password_hash
+from pydantic import SecretStr
+
+from app.helpers import generate_secret_code, get_password_hash
+from app.internal.entity.user import (
+    ActivateUserDto,
+    ChangePasswordByResetCodeDto,
+    ChangePasswordDto,
+    NewUserDto,
+    ResetPasswordDto,
+    User,
+)
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsException,
     UserNotFoundException,
     WrongActivationCodeException,
+    WrongPasswordException,
+    WrongResetCodeException,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
-from app.schemas.user import CreateUser, MyUser, NewUserDto, User
 
 
 class AbstractUserUseCase(ABC):
@@ -19,23 +31,22 @@ class AbstractUserUseCase(ABC):
 
 
 class CreateUserUseCase(AbstractUserUseCase):
-    async def execute(self, new_user: CreateUser) -> User:
+    async def execute(self, new_user: NewUserDto) -> NewUserDto:
         if await self.repository.get_by_email(new_user.email):
             raise UserAlreadyExistsException("email")
         if await self.repository.get_by_username(new_user.username):
             raise UserAlreadyExistsException("username", new_user.username)
 
-        return await self.repository.create(
-            NewUserDto(
-                username=new_user.username,
-                email=new_user.email,
-                password=get_password_hash(new_user.password),
-            )
+        new_user.hashed_password = SecretStr(
+            get_password_hash(new_user.password.get_secret_value())
         )
+        new_user.activation_code = SecretStr(generate_secret_code())
+
+        return await self.repository.create(new_user)
 
 
 class ActivateUserUseCase(AbstractUserUseCase):
-    async def execute(self, code: str) -> bool:
+    async def execute(self, code: ActivateUserDto) -> bool:
         activated = await self.repository.activate(code)
         if not activated:
             raise WrongActivationCodeException()
@@ -43,7 +54,7 @@ class ActivateUserUseCase(AbstractUserUseCase):
 
 
 class GetUserByUsernameUseCase(AbstractUserUseCase):
-    async def execute(self, username: str) -> MyUser:
+    async def execute(self, username: str) -> User:
         user = await self.repository.get_by_username(username)
         if not user:
             raise UserNotFoundException("username", username)
@@ -56,3 +67,53 @@ class GetUserByIdUseCase(AbstractUserUseCase):
         if not user:
             raise UserNotFoundException("id", user_id)
         return User(**user.dict())
+
+
+class ResetPasswordUseCase(AbstractUserUseCase):
+    # TODO: после выноса отправки почты в отдельное приложение,
+    # сделать возврат bool
+    async def execute(self, email: str) -> ResetPasswordDto:
+        user = await self.repository.get_by_email(email)
+        if not user:
+            raise UserNotFoundException("email", email)
+
+        data = ResetPasswordDto(
+            id=user.id,
+            code=SecretStr(generate_secret_code()),
+            expires=datetime.now() + timedelta(hours=1),
+        )
+
+        await self.repository.set_reset_password_code(data)
+        return data
+
+
+class ChangePasswordUseCase(AbstractUserUseCase):
+    async def execute(self, data: ChangePasswordDto) -> bool:
+        data.hashed_old_password = SecretStr(
+            get_password_hash(data.old_password.get_secret_value())
+        )
+
+        data.hashed_new_password = SecretStr(
+            get_password_hash(data.new_password.get_secret_value())
+        )
+
+        if not await self.repository.change_password(data):
+            raise WrongPasswordException()
+
+        return True
+
+
+class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
+    async def execute(self, data: ChangePasswordByResetCodeDto) -> bool:
+        user = await self.repository.get_by_id(data.id)
+        if not user:
+            raise UserNotFoundException("id", data.id)
+
+        data.hashed_new_password = SecretStr(
+            get_password_hash(data.new_password.get_secret_value())
+        )
+
+        if not await self.repository.change_password_by_reset_code(data):
+            raise WrongResetCodeException()
+
+        return True
