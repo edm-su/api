@@ -1,0 +1,16 @@
+name: Convention Label
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PR
+        uses: bcoe/conventional-release-labels@v1
+        with:
+          type_labels: '{"fix": "fix", "feat": "feature", "docs": "docs", "style": "style", "refactor": "refactoring", "ci": "ci", "perf": "perfomance", "test": "test", "breaking": "breaking"}'
