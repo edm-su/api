@@ -42,13 +42,14 @@ class User(BaseModel):
     id: int = Field(..., gt=0)
     username: str = Field(..., min_length=3)
     email: EmailStr = Field(...)
-    hashed_password: SecretStr | None = Field(None, alias="password")
-    is_active: bool = Field(False)
-    is_admin: bool = Field(False)
-    is_banned: bool = Field(False)
+    hashed_password: SecretStr | None = Field(default=None, alias="password")
+    activation_code: SecretStr | None = Field(default=None)
+    is_active: bool = Field(default=False)
+    is_admin: bool = Field(default=False)
+    is_banned: bool = Field(default=False)
     created_at: datetime = Field(..., alias="created")
-    last_login: datetime | None = Field(None)
-    last_login_ip: IPvAnyAddress | None = Field(None)
+    last_login: datetime | None = Field(default=None)
+    last_login_ip: IPvAnyAddress | None = Field(default=None)
 
 
 class UserPassword(BaseModel):
@@ -62,12 +63,24 @@ class UserPassword(BaseModel):
         return v
 
 
-class NewUserDto(AdvancedUser):
-    id: int | None = Field(None, gt=0)
+class NewUserDto(BaseModel):
+    username: str = Field(..., min_length=3)
+    email: EmailStr = Field(...)
     password: SecretStr = Field(...)
-    hashed_password: SecretStr | None = Field(None)
-    activation_code: SecretStr | None = Field(None)
-    is_active: bool = Field(False)
+    hashed_password: SecretStr | None = Field(default=None)
+    activation_code: SecretStr | None = Field(default=None)
+    is_active: bool = Field(default=False)
+
+    @validator("username")
+    def username_regexp(cls, v: str) -> str:
+        v = v.strip()
+        if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
+            raise ValueError(
+                "может содержать латинские символы, цифры, "
+                "или знак подчёркивания."
+                " Начинаться и заканчиваться только латинским символом",
+            )
+        return v
 
 
 class ActivateUserDto(BaseModel):
@@ -84,16 +97,16 @@ class ResetPasswordDto(BaseModel):
 class ChangePasswordDto(BaseModel):
     id: int
     old_password: SecretStr
-    hashed_old_password: SecretStr | None = Field(None)
+    hashed_old_password: SecretStr | None = Field(default=None)
     new_password: SecretStr
-    hashed_new_password: SecretStr | None = Field(None)
+    hashed_new_password: SecretStr | None = Field(default=None)
 
 
 class ChangePasswordByResetCodeDto(BaseModel):
     id: int
     code: SecretStr
     new_password: SecretStr
-    hashed_new_password: SecretStr | None = Field(None)
+    hashed_new_password: SecretStr | None = Field(default=None)
 
 
 class CreateUser(AdvancedUser, UserPassword):

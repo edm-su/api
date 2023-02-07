@@ -36,7 +36,10 @@ class GetPostCountUseCase(BasePostUseCase):
 
 
 class GetAllPostsUseCase(BasePostUseCase):
-    async def execute(self, paginator: Paginator = Paginator()) -> list[Post]:
+    async def execute(
+        self,
+        paginator: Paginator = Paginator(),
+    ) -> list[Post | None]:
         return await self.repository.get_all(paginator=paginator)
 
 

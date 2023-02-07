@@ -53,7 +53,8 @@ def new_post(faker: Faker, post: Post) -> NewPostDTO:
         user=User(
             id=1,
             username=faker.user_name(),
-            is_admin=False,
+            email=faker.email(),
+            created=faker.past_datetime(tzinfo=timezone.utc),
         ),
     )
 
@@ -73,7 +74,7 @@ class TestCreatePostUseCase:
 
     async def test_create_post(
         self,
-        usecase: CreatePostUseCase,
+        usecase: AsyncMock,
         post: Post,
         new_post: NewPostDTO,
         mocker: MockerFixture,
@@ -93,7 +94,7 @@ class TestCreatePostUseCase:
 
     async def test_create_post_with_duplicate_slug(
         self,
-        usecase: CreatePostUseCase,
+        usecase: AsyncMock,
         post: Post,
         new_post: NewPostDTO,
         mocker: MockerFixture,
@@ -106,7 +107,6 @@ class TestCreatePostUseCase:
         with pytest.raises(SlugNotUniqueException):
             await usecase.execute(new_post)
 
-        usecase.repository.create: AsyncMock  # type: ignore
         usecase.repository.create.assert_not_awaited()
 
 
@@ -149,12 +149,11 @@ class TestGetAllPostsUseCase:
 
     async def test_get_all_posts(
         self,
-        usecase: GetAllPostsUseCase,
+        usecase: AsyncMock,
     ) -> None:
         posts = await usecase.execute()
         assert len(posts) == 2
 
-        usecase.repository.get_all: AsyncMock  # type: ignore
         usecase.repository.get_all.assert_awaited_once()
 
 
@@ -168,7 +167,7 @@ class TestGetPostBySlugUseCase:
 
     async def test_get_post_by_slug(
         self,
-        usecase: GetPostBySlugUseCase,
+        usecase: AsyncMock,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -179,12 +178,11 @@ class TestGetPostBySlugUseCase:
         )
         assert await usecase.execute(post.slug) == post
 
-        usecase.repository.get_by_slug: AsyncMock  # type: ignore
         usecase.repository.get_by_slug.assert_awaited_once_with(post.slug)
 
     async def test_get_post_by_slug_with_not_existing_slug(
         self,
-        usecase: GetPostBySlugUseCase,
+        usecase: AsyncMock,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -196,7 +194,6 @@ class TestGetPostBySlugUseCase:
         with pytest.raises(NotFoundException):
             await usecase.execute(post.slug)
 
-        usecase.repository.get_by_slug: AsyncMock  # type: ignore
         usecase.repository.get_by_slug.assert_awaited_once_with(post.slug)
 
 
@@ -218,11 +215,10 @@ class TestGetPostCountUseCase:
 
     async def test_get_post_count(
         self,
-        usecase: GetPostCountUseCase,
+        usecase: AsyncMock,
     ) -> None:
         assert await usecase.execute() == 2
 
-        usecase.repository.count: AsyncMock  # type: ignore
         usecase.repository.count.assert_awaited_once()
 
 
@@ -244,7 +240,7 @@ class TestDeletePostUseCase:
 
     async def test_delete_post(
         self,
-        usecase: DeletePostUseCase,
+        usecase: AsyncMock,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -263,7 +259,7 @@ class TestDeletePostUseCase:
 
     async def test_delete_post_with_not_existing_slug(
         self,
-        usecase: DeletePostUseCase,
+        usecase: AsyncMock,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -278,5 +274,4 @@ class TestDeletePostUseCase:
         usecase.repository.delete: AsyncMock  # type: ignore
         usecase.repository.delete.assert_not_awaited()
 
-        usecase.repository.get_by_slug: AsyncMock  # type: ignore
         usecase.repository.get_by_slug.assert_awaited_once_with(post.slug)

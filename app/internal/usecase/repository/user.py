@@ -29,7 +29,7 @@ class AbstractUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def create(self, user: NewUserDto) -> NewUserDto:
+    async def create(self, user: NewUserDto) -> User:
         pass
 
     @abstractmethod
@@ -65,9 +65,17 @@ class PostgresUserRepository(AbstractUserRepository):
         result = result.first()
         return (
             User(
-                created_at=result["created"],
-                hashed_password=SecretStr(result["password"]),
-                **result,
+                id=result["id"],
+                created=result["created"],
+                password=SecretStr(result["password"]),
+                email=result["email"],
+                username=result["username"],
+                is_active=result["is_active"],
+                is_admin=result["is_admin"],
+                is_banned=result["is_banned"],
+                last_login=result["last_login"],
+                last_login_ip=result["last_login_ip"],
+                activation_code=SecretStr(result["activation_code"]),
             )
             if result
             else None
@@ -82,21 +90,34 @@ class PostgresUserRepository(AbstractUserRepository):
     async def get_by_id(self, user_id: int) -> User | None:
         return await self.__get_by([users.c.id == user_id])
 
-    async def create(self, user: NewUserDto) -> NewUserDto:
-        if user.hashed_password is None:
+    async def create(self, new_user: NewUserDto) -> User:
+        if new_user.hashed_password is None:
             raise ValueError("hashed_password is None")
-        if user.activation_code is None:
+        if new_user.activation_code is None:
             raise ValueError("activation_code is None")
 
         values = {
-            "username": user.username,
-            "email": user.email,
-            "password": user.hashed_password.get_secret_value(),
-            "activation_code": user.activation_code.get_secret_value(),
+            "username": new_user.username,
+            "email": new_user.email,
+            "password": new_user.hashed_password.get_secret_value(),
+            "activation_code": new_user.activation_code.get_secret_value(),
         }
-        query = users.insert().values(values)
+        query = users.insert().values(values).returning(users)
         result = await self.session.execute(query)
-        user.id = result.inserted_primary_key[0]
+        result = result.first()
+        user = User(
+            id=result["id"],
+            created=result["created"],
+            password=SecretStr(result["password"]),
+            email=result["email"],
+            username=result["username"],
+            is_active=result["is_activate"],
+            is_admin=result["is_admin"],
+            is_banned=result["is_banned"],
+            last_login=result["last_login"],
+            last_login_ip=result["last_login_ip"],
+            activation_code=SecretStr(result["activation_code"]),
+        )
         return user
 
     async def activate(self, code: ActivateUserDto) -> bool:

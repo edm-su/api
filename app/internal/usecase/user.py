@@ -31,7 +31,7 @@ class AbstractUserUseCase(ABC):
 
 
 class CreateUserUseCase(AbstractUserUseCase):
-    async def execute(self, new_user: NewUserDto) -> NewUserDto:
+    async def execute(self, new_user: NewUserDto) -> User:
         if await self.repository.get_by_email(new_user.email):
             raise UserAlreadyExistsException("email")
         if await self.repository.get_by_username(new_user.username):
@@ -66,7 +66,7 @@ class GetUserByIdUseCase(AbstractUserUseCase):
         user = await self.repository.get_by_id(user_id)
         if not user:
             raise UserNotFoundException("id", user_id)
-        return User(**user.dict())
+        return user
 
 
 class ResetPasswordUseCase(AbstractUserUseCase):
@@ -83,7 +83,8 @@ class ResetPasswordUseCase(AbstractUserUseCase):
             expires=datetime.now() + timedelta(hours=1),
         )
 
-        await self.repository.set_reset_password_code(data)
+        if not await self.repository.set_reset_password_code(data):
+            raise UserNotFoundException("email", email)
         return data
 
 

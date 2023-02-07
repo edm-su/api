@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 from sqlalchemy import func, select
@@ -10,21 +10,26 @@ from app.internal.entity.post import NewPostDTO, Post
 
 
 class AbstractPostRepository(ABC):
+    @abstractmethod
     async def create(
         self,
         post: NewPostDTO,
     ) -> Post:
         pass
 
+    @abstractmethod
     async def get_by_slug(self, slug: str) -> None | Post:
         pass
 
+    @abstractmethod
     async def get_all(self, paginator: Paginator) -> list[None | Post]:
         pass
 
+    @abstractmethod
     async def count(self) -> int:
         pass
 
+    @abstractmethod
     async def delete(self, post: Post) -> bool:
         pass
 
