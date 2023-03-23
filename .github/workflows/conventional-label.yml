@@ -13,4 +13,4 @@ jobs:
       - name: Label PR
         uses: bcoe/conventional-release-labels@v1
         with:
-          type_labels: '{"fix": "fix", "feat": "feature", "docs": "docs", "style": "style", "refactor": "refactoring", "ci": "ci", "perf": "perfomance", "test": "test", "breaking": "breaking"}'
+          type_labels: '{"fix": "fix", "feat": "feature", "docs": "docs", "style": "style", "refactor": "refactoring", "ci": "ci", "perf": "perfomance", "test": "test", "build": "build", "breaking": "breaking"}'

@@ -11,7 +11,7 @@ updates:
       prefix: "Pip"
       prefix-development: "Pip development"
     labels:
-      - "dependencies"
+      - "build(python)"
 
   - package-ecosystem: github-actions
     directory: /
@@ -22,7 +22,7 @@ updates:
     commit-message:
       prefix: "Github actions"
     labels:
-      - "dependencies"
+      - "ci(actions)"
 
   - package-ecosystem: docker
     directory: /
@@ -33,4 +33,4 @@ updates:
     commit-message:
       prefix: "Docker"
     labels:
-      - "dependencies"
+      - "ci(docker)"
