@@ -8,6 +8,7 @@ changelog:
     - title: Dependencies update 🕗
       labels:
         - dependencies
+        - build
     - title: Bug fixes 🐛
       labels:
         - fix
