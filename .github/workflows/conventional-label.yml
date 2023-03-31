@@ -9,6 +9,8 @@ on:
 jobs:
   label:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Label PR
         uses: bcoe/conventional-release-labels@v1
