@@ -8,10 +8,8 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "Pip"
-      prefix-development: "Pip development"
-    labels:
-      - "build(python)"
+      prefix: "build(python)"
+      prefix-development: "build(python-dev)"
 
   - package-ecosystem: github-actions
     directory: /
@@ -20,9 +18,7 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "Github actions"
-    labels:
-      - "ci(actions)"
+      prefix: "ci(actions)"
 
   - package-ecosystem: docker
     directory: /
@@ -31,6 +27,4 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "Docker"
-    labels:
-      - "ci(docker)"
+      prefix: "ci(docker)"
