@@ -1,14 +1,24 @@
-name: CD
+name: Build
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - main
 
 jobs:
   build-docker-image:
-    name: Build Docker Image
+    name: Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -17,13 +27,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: |
-            ghcr.io/edm-su/api
+          images: ghcr.io/${{ github.repository }}
           tags: |
-            type=sha
+            type=ref,event=branch
+            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=sha
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -36,7 +46,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push 🎉
         id: docker_build
