@@ -1,6 +1,7 @@
 import hashlib
+from collections.abc import Mapping
 from io import BytesIO
-from typing import IO, Mapping
+from typing import IO
 
 import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -15,6 +16,8 @@ from app.settings import settings
 
 router = APIRouter()
 
+max_file_size = 5_000_000  # 5 MB
+
 
 @router.post(
     "/upload/images",
@@ -24,7 +27,7 @@ router = APIRouter()
 )
 async def upload_image(
     image: UploadFile = File(...),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> dict[str, str]:
     if not image.content_type.startswith("image/"):
         raise HTTPException(
@@ -32,13 +35,13 @@ async def upload_image(
             detail="Файл должен быть изображением",
         )
 
-    if get_file_size(image.file) > 5_000_000:
+    if get_file_size(image.file) > max_file_size:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="Файл не должен превышать 5 мб",
         )
 
-    filename = get_md5_hash(image.file)
+    filename = calculate_file_hash_sha224(image.file)
     path = f"images/{filename}.jpeg"
 
     await convert_and_upload_image(image.file, path)
@@ -54,7 +57,7 @@ async def upload_image(
 )
 async def upload_image_url(
     image_url: ImageURLDTO,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> dict[str, str]:
     async with httpx.AsyncClient() as client:
         h = await client.head(image_url.url)
@@ -65,7 +68,7 @@ async def upload_image_url(
             detail="Файл должен быть изображением",
         )
 
-    if int(header.get("Content-Length")) > 5_000_000:
+    if int(header.get("Content-Length")) > max_file_size:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="Файл не должен превышать 5 мб",
@@ -75,24 +78,24 @@ async def upload_image_url(
         r = await client.get(image_url.url)
         image = BytesIO(r.content)
 
-    if get_file_size(image) > 5_000_000:
+    if get_file_size(image) > max_file_size:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="Файл не должен превышать 5 мб",
         )
 
-    path = f"images/{get_md5_hash(image)}.jpeg"
+    path = f"images/{calculate_file_hash_sha224(image)}.jpeg"
 
     await convert_and_upload_image(image, path)
     return {"file_url": f"{settings.static_url}/{path}", "file_path": path}
 
 
-def get_md5_hash(file: IO) -> str:
-    md5 = hashlib.md5()
+def calculate_file_hash_sha224(file: IO) -> str:
+    file_hash = hashlib.sha224()
     file.seek(0)
     while chunk := file.read(8192):
-        md5.update(chunk)
-    return md5.hexdigest()
+        file_hash.update(chunk)
+    return file_hash.hexdigest()
 
 
 def get_file_size(file: IO) -> int:

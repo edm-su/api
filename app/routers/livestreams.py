@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import date, timedelta
-from typing import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from starlette import status
@@ -29,13 +29,9 @@ async def find_stream(
 )
 async def new_stream(
     stream: livestreams.CreateLiveStream,
-    admin: Mapping = Depends(get_current_admin),
-) -> Mapping:
-    db_streams = await livestream.find(
-        stream.start_time,
-        stream.end_time,
-        stream.slug,
-    )
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+) -> Mapping | None:
+    db_streams = await livestream.find_one(slug=stream.slug)
     if db_streams:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
@@ -50,8 +46,8 @@ async def new_stream(
     tags=["Прямые трансляции"],
 )
 async def get_streams(
-    start: date = Query(date.today() - timedelta(days=2)),
-    end: date = Query(date.today() + timedelta(days=31)),
+    start: date = Query(date.today() - timedelta(days=2)),  # noqa: B008
+    end: date = Query(date.today() + timedelta(days=31)),  # noqa: B008
 ) -> list[Mapping]:
     if start + timedelta(days=45) < end:
         raise HTTPException(
@@ -79,7 +75,7 @@ async def get_stream(
 )
 async def delete_stream(
     stream: Mapping = Depends(find_stream),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> None:
     await livestream.remove(stream["id"])
 
@@ -92,6 +88,6 @@ async def delete_stream(
 async def update_stream(
     updated_stream: livestreams.BaseLiveStream,
     stream: Mapping = Depends(find_stream),
-    admin: Mapping = Depends(get_current_admin),
-) -> Mapping:
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+) -> Mapping | None:
     return await livestream.update(stream["id"], updated_stream)

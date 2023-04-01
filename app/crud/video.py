@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from sqlalchemy import and_, case, desc, exists, func, select
 from sqlalchemy.sql.elements import Label
@@ -14,10 +14,10 @@ def is_liked(user_id: int) -> Label:
                 exists(
                     select([liked_videos])
                     .where(liked_videos.c.video_id == videos.c.id)
-                    .where(liked_videos.c.user_id == user_id)
+                    .where(liked_videos.c.user_id == user_id),
                 ),
                 "t",
-            )
+            ),
         ],
         else_="f",
     ).label("liked")
@@ -25,24 +25,24 @@ def is_liked(user_id: int) -> Label:
 
 async def add_video(new_video: CreateVideo) -> None | Mapping:
     query = videos.insert().returning(videos)
-    db_video = await database.fetch_one(
+    return await database.fetch_one(
         query=query,
         values=new_video.dict(exclude={"liked"}),
     )
-    return db_video
 
 
-async def get_videos_count(deleted: bool = False) -> int:
+async def get_videos_count(*, include_deleted: bool = False) -> int:
     query = select([func.count()]).select_from(videos)
-    query = query.where(videos.c.deleted == deleted)
+    query = query.where(videos.c.deleted == include_deleted)
     return await database.fetch_val(query=query)
 
 
 async def get_videos(
     skip: int = 0,
     limit: int = 25,
+    *,
     deleted: bool = False,
-    user_id: int = None,
+    user_id: int | None = None,
 ) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
@@ -57,8 +57,9 @@ async def get_videos(
 async def get_related_videos(
     title: str,
     limit: int = 25,
-    user_id: int = None,
+    *,
     deleted: bool = False,
+    user_id: int | None = None,
 ) -> list[Mapping]:
     selected_tables = [videos]
     if user_id:
@@ -75,7 +76,7 @@ async def get_liked_videos(user_id: int) -> list[Mapping]:
         videos,
         and_(
             videos.c.id == liked_videos.c.video_id,
-            videos.c.deleted.is_(False),
+            videos.c.deleted.is_(False),  # noqa: FBT003
         ),
     )
     query = select([videos]).select_from(query)
@@ -99,8 +100,9 @@ async def dislike_video(user_id: int, video_id: int) -> bool:
 
 async def get_video_by_slug(
     slug: str,
+    *,
     deleted: bool = False,
-    user_id: int = None,
+    user_id: int | None = None,
 ) -> None | Mapping:
     selected_tables = [videos]
     if user_id:
@@ -122,5 +124,5 @@ async def delete_video(video_id: int) -> bool:
         await database.fetch_one(
             query=query,
             values={"deleted": True},
-        )
+        ),
     )

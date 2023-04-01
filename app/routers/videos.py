@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -64,7 +64,7 @@ async def read_video(db_video: Mapping = Depends(find_video)) -> Mapping:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-    admin: Mapping = Depends(auth.get_current_admin),
+    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
     db_video: Mapping = Depends(find_video),
 ) -> None:
     if await video_crud.delete_video(db_video["id"]):
@@ -105,13 +105,14 @@ async def add_liked_video(
 ) -> None:
     try:
         await video_crud.like_video(
-            user_id=user["id"], video_id=db_video["id"]
+            user_id=user["id"],
+            video_id=db_video["id"],
         )
     except UniqueViolationError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Видео уже понравилось ранее",
-        )
+        ) from None
 
 
 @router.delete(
@@ -155,7 +156,7 @@ async def get_liked_videos(
 )
 async def add_video(
     new_video: CreateVideo,
-    admin: Mapping = Depends(auth.get_current_admin),
+    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
 ) -> Video:
     errors = []
 

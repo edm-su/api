@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 from starlette import status
@@ -28,7 +28,7 @@ async def find_dj(slug: str = Path(..., title="slug")) -> None | Mapping:
 )
 async def create_dj(
     dj: dj_schema.CreateDJ,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> dj_schema.DJ:
     errors = {}
     if await dj_crud.find(name=dj.name):
@@ -51,7 +51,7 @@ async def create_dj(
 @router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dj(
     dj: Mapping = Depends(find_dj),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> None:
     await dj_crud.delete(dj["id"])
 
@@ -65,20 +65,20 @@ async def get_list(
     response.headers["X-Pagination-Total-Count"] = str(count)
     response.headers["X-Pagination-Page-Count"] = str(count / pagination.limit)
     response.headers["X-Pagination-Current-Page"] = str(
-        pagination.skip // pagination.limit + 1
+        pagination.skip // pagination.limit + 1,
     )
     response.headers["X-Pagination-Per-Page"] = str(pagination.limit)
 
     result = []
     djs = await dj_crud.get_list(pagination.skip, pagination.limit)
     groups_members = await dj_crud.get_groups_members(
-        [dj["id"] for dj in djs if dj["is_group"]]
+        [dj["id"] for dj in djs if dj["is_group"]],
     )
     members_of_groups = await dj_crud.get_members_of_groups(
-        [dj["id"] for dj in djs if not dj["is_group"]]
+        [dj["id"] for dj in djs if not dj["is_group"]],
     )
     for dj in djs:
-        dj = dj_schema.DJ(**dj)
+        dj = dj_schema.DJ(**dj)  # noqa: PLW2901
         if dj.is_group:
             dj.group_members = [
                 member["slug"]
@@ -87,8 +87,7 @@ async def get_list(
             ]
         else:
             dj.member_of_groups = [
-                group["slug"]
-                for group in members_of_groups
+                group["slug"] for group in members_of_groups
                 if group["dj_id"] == dj.id
             ]
         result.append(dj)
@@ -111,7 +110,7 @@ async def get(db_dj: Mapping = Depends(find_dj)) -> dj_schema.DJ:
 async def patch(
     new_data: dj_schema.ChangeDJ,
     db_dj: Mapping = Depends(find_dj),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> dj_schema.DJ:
     changed_dj = await dj_crud.update(db_dj["id"], new_data)
     result = dj_schema.DJ(**changed_dj)

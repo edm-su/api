@@ -1,5 +1,5 @@
 import re
-from typing import Mapping
+from collections.abc import Mapping
 
 from asyncpg import UniqueViolationError
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -32,7 +32,7 @@ async def find_post(slug: str) -> Mapping:
 async def create_post(
     new_post: CreatePost,
     admin: Mapping = Depends(get_current_admin),
-) -> Mapping:
+) -> Mapping | None:
     try:
         return await post.create_post(post=new_post, user_id=admin["id"])
     except UniqueViolationError as e:
@@ -40,7 +40,7 @@ async def create_post(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Запись с таким значением {message} уже существует",
-        )
+        ) from None
 
 
 @router.get(
@@ -75,11 +75,10 @@ async def get_post(db_post: Mapping = Depends(find_post)) -> Mapping:
 )
 async def delete_post(
     slug: str,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> None:
     if not await post.delete_post(slug=slug):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пост не найден",
         )
-    return None

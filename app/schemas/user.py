@@ -7,14 +7,15 @@ class UserBase(BaseModel):
     username: str
 
     @validator("username")
-    def username_regexp(cls, v: str) -> str:
+    def username_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
         v = v.strip()
         if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            raise ValueError(
+            error = (
                 "может содержать латинские символы, цифры, "
                 "или знак подчёркивания."
-                " Начинаться и заканчиваться только латинским символом",
+                " Начинаться и заканчиваться только латинским символом"
             )
+            raise ValueError(error)
         return v
 
 
@@ -39,16 +40,23 @@ class UserPassword(BaseModel):
     password_confirm: str
 
     @validator("password")
-    def password_complexity(cls, v: str) -> str:
+    def password_complexity(cls, v: str) -> str:  # noqa: ANN101, N805
         min_length = 6
-        if len(v) < 6:
-            raise ValueError(f"минимальная длина пароля {min_length} символов")
+
+        if len(v) < min_length:
+            error = f"минимальная длина пароля {min_length} символов"
+            raise ValueError(error)
         return v
 
     @validator("password_confirm")
-    def password_confirmation(cls, v: str, values: dict) -> str:
+    def password_confirmation(
+        cls,  # noqa: N805, ANN101
+        v: str,
+        values: dict,
+    ) -> str:
         if "password" in values and v != values["password"]:
-            raise ValueError("пароли не совпадают")
+            error = "пароли не совпадают"
+            raise ValueError(error)
         return v
 
 

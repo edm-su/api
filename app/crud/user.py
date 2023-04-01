@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from datetime import datetime, timedelta
-from typing import Any, Dict, Mapping
+from typing import Any
 
 from sqlalchemy import select
 
@@ -11,6 +12,7 @@ async def create_user(
     username: str,
     email: str,
     password: str,
+    *,
     is_admin: bool = False,
     is_active: bool = False,
 ) -> None | Mapping:
@@ -54,7 +56,7 @@ async def get_user_by_recovery_code(code: str) -> None | Mapping:
 
 
 async def activate_user(code: str) -> bool:
-    query = users.update().where(users.c.is_active.is_(False))
+    query = users.update().where(users.c.is_active.is_(False))  # noqa: FBT003
     query = query.where(users.c.activation_code == code).returning(users)
     values = {"is_active": True, "activation_code": ""}
     return bool(await database.execute(query=query, values=values))
@@ -76,10 +78,11 @@ async def generate_recovery_user_code(user_id: int) -> str:
 async def change_password(
     user_id: int,
     password: str,
+    *,
     recovery: bool = False,
 ) -> bool:
     query = users.update().where(users.c.id == user_id).returning(users)
-    values: Dict[str, Any[str, None]] = {
+    values: dict[str, Any[str, None]] = {
         "password": get_password_hash(password),
     }
     if recovery:

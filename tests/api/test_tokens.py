@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from httpx import AsyncClient
 from starlette import status

@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from datetime import date, timedelta
-from typing import Mapping, cast
+from typing import cast
 
 import pytest
 from httpx import AsyncClient
@@ -10,7 +11,7 @@ from app.schemas.livestreams import CreateLiveStream, LiveStream
 from tests.helpers import create_auth_header
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_livestream(
     client: AsyncClient,
     livestream_data: CreateLiveStream,
@@ -36,7 +37,7 @@ async def test_create_livestream(
     assert await livestream_crud.find_one(data["id"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prevent_duplicate_livestreams(
     client: AsyncClient,
     livestream_data: CreateLiveStream,
@@ -55,7 +56,7 @@ async def test_prevent_duplicate_livestreams(
     assert await livestream_crud.find_one(slug=livestream["slug"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_disallow_creation_livestream_without_privileges(
     client: AsyncClient,
     livestream_data: CreateLiveStream,
@@ -87,7 +88,7 @@ async def test_disallow_creation_livestream_without_privileges(
     assert not await livestream_crud.find_one(title=livestream_data.title)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_livestreams(
     client: AsyncClient,
     livestream: Mapping,
@@ -108,7 +109,7 @@ async def test_get_livestreams(
     assert len(data) == 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_period_excess_error(
     client: AsyncClient,
 ) -> None:
@@ -131,7 +132,7 @@ async def test_period_excess_error(
     assert response.json()["detail"] == "Период не может превышать 45 дней"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_livestream(
     client: AsyncClient,
     livestream: Mapping,
@@ -150,7 +151,7 @@ async def test_get_livestream(
     assert response.json()["title"] == livestream["title"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_remove_livestream(
     client: AsyncClient,
     livestream: Mapping,
@@ -173,7 +174,7 @@ async def test_remove_livestream(
     assert not await livestream_crud.find_one(livestream["id"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_removal_without_privileges(
     client: AsyncClient,
     livestream: Mapping,
@@ -203,7 +204,7 @@ async def test_removal_without_privileges(
     assert await livestream_crud.find_one(livestream["id"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_update_livestream(
     client: AsyncClient,
     livestream: Mapping,
@@ -235,7 +236,7 @@ async def test_update_livestream(
     assert db_stream["title"] == stream["title"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_update_without_privileges(
     client: AsyncClient,
     livestream: Mapping,

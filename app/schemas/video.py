@@ -10,17 +10,17 @@ class VideoBase(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    liked: bool = Field(False)
+    liked: bool = Field(default=False)
 
 
 class CreateVideo(VideoBase):
     slug: str = Field(None)
 
     @validator("slug", always=True)
-    def generate_slug(cls, v: str, values: dict) -> str:
+    def generate_slug(cls, v: str, values: dict) -> str:  # noqa: N805, ANN101
         if not v:
             v = slugify(values["title"])
-        return v
+        return v  # noqa: RET504
 
 
 class Video(VideoBase):
