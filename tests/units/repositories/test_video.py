@@ -1,9 +1,9 @@
 from collections.abc import Mapping
-from typing import Self
 
 import pytest
 from meilisearch_python_async.errors import MeiliSearchApiError
 from meilisearch_python_async.task import wait_for_task
+from typing_extensions import Self
 
 from app.repositories.video import meilisearch_video_repository
 from app.schemas.video import MeilisearchVideo

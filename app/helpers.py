@@ -1,12 +1,12 @@
 import hashlib
 import secrets
 import string
-from typing import Self
 from uuid import uuid4
 
 import aioboto3
 from botocore.client import BaseClient
 from fastapi import Query
+from typing_extensions import Self
 
 from app.settings import settings
 

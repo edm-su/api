@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Self
+from typing import Any
 
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async.models.task import TaskId
 from pydantic import parse_obj_as
+from typing_extensions import Self
 
 from app.meilisearch import MeilisearchRepository
 from app.schemas.video import MeilisearchVideo

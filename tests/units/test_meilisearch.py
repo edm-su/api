@@ -1,9 +1,8 @@
-from typing import Self
-
 import meilisearch_python_async
 import pytest
 from meilisearch_python_async.task import wait_for_task
 from pytest_mock import MockerFixture
+from typing_extensions import Self
 
 from app.meilisearch import MeilisearchRepository, meilisearch_client
 from app.repositories.video import meilisearch_video_repository

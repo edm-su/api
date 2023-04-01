@@ -1,8 +1,7 @@
-from typing import Self
-
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.index import Index
 from meilisearch_python_async.models.task import TaskId
+from typing_extensions import Self
 
 from app.settings import settings
 
