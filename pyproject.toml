@@ -33,7 +33,7 @@ tenacity = "^8.0.1"
 optional = true
 
 [tool.poetry.group.lint.dependencies]
-mypy = "^0.991"
+mypy = "^1.1.1"
 ruff = "^0.0.260"
 
 [build-system]
