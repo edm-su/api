@@ -1,16 +1,9 @@
 runner:
-  flake8:
-    cmd: poetry run flake8 .
+  ruff:
+    cmd: poetry run ruff check .
     level: error
-    format: flake8
-  black:
-    cmd: poetry run black --check .
-    level: error
-    format: black
-  isort:
-    cmd: poetry run isort --check .
-    level: error
-    format: isort
+    errorformat:
+      - "%f:%l:%c: %m"
   mypy:
     cmd: poetry run mypy .
     level: warning
