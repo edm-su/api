@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -9,7 +9,7 @@ from app.schemas.dj import DJ, CreateDJ
 from tests.helpers import create_auth_header
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_dj(
     client: AsyncClient,
     dj_data: CreateDJ,
@@ -47,7 +47,7 @@ async def test_create_dj(
     assert detail["slug"] == "Такой slug уже существует"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_group(
     client: AsyncClient,
     group_data: CreateDJ,
@@ -76,7 +76,7 @@ async def test_create_group(
     assert data["group_members"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prohibit_adding_by_user(
     client: AsyncClient,
     dj_data: CreateDJ,
@@ -100,7 +100,7 @@ async def test_prohibit_adding_by_user(
     assert await dj_crud.find(name=dj_data.name) is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prohibit_adding_by_guest(
     client: AsyncClient,
     dj_data: CreateDJ,
@@ -117,7 +117,7 @@ async def test_prohibit_adding_by_guest(
     assert await dj_crud.find(name=dj_data.name) is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete(
     client: AsyncClient,
     admin: Mapping,
@@ -137,9 +137,11 @@ async def test_delete(
     assert await dj_crud.find(id_=dj["id"]) is None
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prohibit_delete(
-    client: AsyncClient, user: Mapping, dj: Mapping
+    client: AsyncClient,
+    user: Mapping,
+    dj: Mapping,
 ) -> None:
     """
     Запрет удаления DJ
@@ -157,7 +159,7 @@ async def test_prohibit_delete(
     assert await dj_crud.find(id_=dj["id"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_group(
     client: AsyncClient,
     admin: Mapping,
@@ -179,7 +181,7 @@ async def test_delete_group(
     assert not len(group_members)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_list(
     client: AsyncClient,
     group: Mapping,
@@ -200,7 +202,7 @@ async def test_get_list(
     assert response.headers["X-Pagination-Total-Count"] == str(count)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get(client: AsyncClient, group: Mapping, dj: Mapping) -> None:
     """
     Получение DJ
@@ -216,7 +218,7 @@ async def test_get(client: AsyncClient, group: Mapping, dj: Mapping) -> None:
     assert data["group_members"] == [dj["slug"]]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
     """
     Изменение DJ
@@ -243,7 +245,7 @@ async def test_patch(client: AsyncClient, dj: Mapping, admin: Mapping) -> None:
     assert db_dj["slug"] == dj["slug"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_prohibit_patch(
     client: AsyncClient,
     dj: Mapping,
@@ -269,7 +271,7 @@ async def test_prohibit_patch(
     assert db_dj["name"] == dj["name"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_patch_group(
     client: AsyncClient,
     dj: Mapping,

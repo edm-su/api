@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -27,7 +27,7 @@ async def new_comment(
     text: CommentBase,
     db_video: dict = Depends(find_video),
     current_user: dict = Depends(get_current_user),
-) -> Mapping:
+) -> Mapping | None:
     return await comment.create_comment(
         user_id=current_user["id"],
         video_id=db_video["id"],
@@ -55,7 +55,7 @@ async def read_comments(
 )
 async def comments_list(
     response: Response,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
     pagination: Paginator = Depends(Paginator),
 ) -> list[Mapping]:
     response.headers["X-Total_Count"] = str(await comment.get_comments_count())

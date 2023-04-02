@@ -6,7 +6,7 @@ from slugify import slugify
 
 class BaseDJ(BaseModel):
     name: str = Field(min_length=1, max_length=32)
-    is_group: bool = Field(False)
+    is_group: bool = Field(default=False)
     real_name: str = Field(None, max_length=128)
     aliases: list[str] = Field(None)
     country: str = Field(None)
@@ -21,10 +21,10 @@ class CreateDJ(BaseDJ):
     slug: str = Field(None)
 
     @validator("slug", always=True)
-    def generate_slug(cls, v: str, values: dict) -> str:
+    def generate_slug(cls, v: str, values: dict) -> str:  # noqa: N805, ANN101
         if not v:
             v = slugify(values["name"])
-        return v
+        return v  # noqa: RET504
 
 
 class ChangeDJ(BaseDJ):

@@ -15,7 +15,7 @@ oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
 
 
 async def get_current_user(
-    authorization: typing.Optional[str] = Header(None),
+    authorization: str | None = Header(None),
     token: str = Depends(oauth_scheme),
 ) -> typing.Mapping:
     credentials_exception = HTTPException(
@@ -25,7 +25,8 @@ async def get_current_user(
     )
     if not token and authorization:
         schema, _, token = authorization.partition(" ")
-        if schema.lower() != "token" or len(token) != 64:
+        token_length = 64
+        if schema.lower() != "token" or len(token) != token_length:
             raise credentials_exception
         db_user = await user.get_user_by_token(token)
         if db_user is None:
@@ -40,7 +41,7 @@ async def get_current_user(
         )
         username = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            raise credentials_exception  # noqa: TRY301
         token_data = TokenData(username=username)
     except jwt.PyJWTError:
         raise credentials_exception
@@ -52,10 +53,9 @@ async def get_current_user(
 
 async def get_current_user_or_guest(
     token: str = Depends(oauth_scheme),
-) -> typing.Optional[typing.Mapping]:
+) -> typing.Mapping | None:
     if token:
-        db_user = await get_current_user(token=token)
-        return db_user
+        return await get_current_user(token=token)
     return None
 
 
@@ -74,7 +74,7 @@ async def get_current_admin(
 async def authenticate_user(
     username: str,
     password: str,
-) -> typing.Optional[typing.Mapping]:
+) -> typing.Mapping | None:
     db_user = await user.get_user_by_username(username=username)
     if not db_user:
         return None
@@ -94,5 +94,4 @@ def create_access_token(
 ) -> str:
     to_encode = data.copy()
     to_encode.update({"exp": datetime.utcnow() + expires_delta})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
-    return encoded_jwt
+    return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")

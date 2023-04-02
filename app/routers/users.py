@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 import fastapi
 from fastapi.security import OAuth2PasswordRequestForm
@@ -64,7 +64,6 @@ async def user_activate(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Неверный код активации",
         )
-    return None
 
 
 @router.post(

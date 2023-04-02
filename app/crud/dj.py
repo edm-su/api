@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from sqlalchemy import and_, func, select
 
@@ -7,16 +7,16 @@ from app.schemas import dj as dj_schema
 
 
 async def find(
-    id_: int = None,
-    name: str = None,
-    slug: str = None,
+    id_: int | None = None,  # noqa: ARG001
+    name: str | None = None,  # noqa: ARG001
+    slug: str | None = None,  # noqa: ARG001
 ) -> Mapping:
     conditions = []
-    for k, v in locals().items():
-        if v and k != "conditions":
-            if k == "id_":
-                k = "id"
-            conditions.append(db.djs.columns[k] == v)
+    for key, value in locals().items():
+        if value and key != "conditions":
+            if key == "id_":
+                key = "id"  # noqa: PLW2901
+            conditions.append(db.djs.columns[key] == value)
     query = db.djs.select()
     query = query.where(and_(*conditions))
     query = query.limit(1)
@@ -31,7 +31,7 @@ async def create(new_dj: dj_schema.CreateDJ) -> Mapping:
             new_dj.dict(
                 exclude={
                     "group_members",
-                }
+                },
             ),
         )
         if new_dj.group_members:
@@ -84,7 +84,7 @@ async def update(id_: int, new_data: dj_schema.ChangeDJ) -> Mapping:
         if db_dj["is_group"] and not new_data.is_group:
             group_members = await get_groups_members([id_])
             await delete_group_members(
-                [member["id"] for member in group_members]
+                [member["id"] for member in group_members],
             )
         elif db_dj["is_group"] or new_data.is_group and new_data.group_members:
             group_members = await get_groups_members([id_])

@@ -28,7 +28,7 @@ def upgrade():
         sa.Column("video_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
-            ["video_id"], ["videos.id"], ondelete="CASCADE"
+            ["video_id"], ["videos.id"], ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

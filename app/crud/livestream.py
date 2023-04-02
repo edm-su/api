@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import date, timedelta
-from typing import Mapping
 
 from sqlalchemy import between
 
@@ -15,9 +15,9 @@ async def create(
 
 
 async def find_one(
-    id_: int = None,
-    title: str = None,
-    slug: str = None,
+    id_: int | None = None,
+    title: str | None = None,
+    slug: str | None = None,
 ) -> None | Mapping:
     query = livestreams.select()
     if id_:
@@ -31,10 +31,14 @@ async def find_one(
 
 
 async def find(
-    start: date = date.today() - timedelta(days=2),
-    end: date = date.today() + timedelta(days=31),
-    slug: str = None,
+    start: date | None = None,
+    end: date | None = None,
 ) -> list[Mapping]:
+    if start is None:
+        start = date.today() - timedelta(days=2)
+    if end is None:
+        end = date.today() + timedelta(days=31)
+
     query = livestreams.select()
     query = query.where(between(livestreams.c.start_time, start, end))
     query = query.order_by(livestreams.c.start_time)

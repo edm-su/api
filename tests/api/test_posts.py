@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
-from typing import Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -9,7 +9,7 @@ from app.schemas.post import CreatePost, Post
 from tests.helpers import create_auth_header
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_posts(client: AsyncClient, posts: list[Mapping]) -> None:
     """
     Получение списка постов
@@ -25,7 +25,7 @@ async def test_read_posts(client: AsyncClient, posts: list[Mapping]) -> None:
         assert Post.validate(post)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_post(client: AsyncClient, posts: list[Mapping]) -> None:
     """
     Получение поста
@@ -39,7 +39,7 @@ async def test_read_post(client: AsyncClient, posts: list[Mapping]) -> None:
     assert Post.validate(response.json())
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_post(
     client: AsyncClient,
     posts: list[Mapping],
@@ -60,7 +60,7 @@ async def test_delete_post(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_post(client: AsyncClient, admin: Mapping) -> None:
     """
     Создание поста

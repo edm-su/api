@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Mapping
 
 from sqlalchemy import desc, func, select
 

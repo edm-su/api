@@ -1,7 +1,7 @@
+import time
 import typing
 from asyncio import AbstractEventLoop, get_event_loop
 from datetime import datetime, timedelta
-from random import randint
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -35,26 +35,25 @@ async def client() -> typing.AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture(autouse=True)
-async def db_connect() -> typing.AsyncGenerator[None, None]:
+async def _db_connect() -> typing.AsyncGenerator[None, None]:
     await database.connect()
     yield
     await database.disconnect()
 
 
 @pytest.fixture(scope="session")
-def event_loop() -> typing.Generator[AbstractEventLoop, None, None]:
-    loop = get_event_loop()
-    yield loop
+def event_loop() -> AbstractEventLoop:
+    return get_event_loop()
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def clear_meilisearch() -> None:
+async def _clear_meilisearch() -> typing.AsyncGenerator:
     await remove_meilisearch_indexes()
     yield
     await remove_meilisearch_indexes()
 
 
-async def remove_meilisearch_indexes():
+async def remove_meilisearch_indexes() -> None:
     indexes = await meilisearch_client.indexes()
     if indexes:
         clear_indexes = [
@@ -65,11 +64,12 @@ async def remove_meilisearch_indexes():
         for index in clear_indexes:
             task = await meilisearch_client.clear_index(index)
             await wait_for_task(
-                meilisearch_client.client.http_client, task.uid
+                meilisearch_client.client.http_client,
+                task.uid,
             )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def video_data(faker: Faker) -> dict:
     title = faker.sentence(nb_words=3)
     return {
@@ -77,12 +77,12 @@ async def video_data(faker: Faker) -> dict:
         "date": faker.date(),
         "yt_id": faker.domain_word(),
         "yt_thumbnail": faker.image_url(),
-        "duration": randint(1200, 12000),
+        "duration": faker.pyint(min_value=1200, max_value=12000),
     }
 
 
-@pytest.fixture
-async def videos(faker: Faker) -> list[typing.Optional[typing.Mapping]]:
+@pytest.fixture()
+async def videos(faker: Faker) -> list[typing.Mapping | None]:
     videos_list = [
         CreateVideo(
             title=faker.name(),
@@ -94,11 +94,10 @@ async def videos(faker: Faker) -> list[typing.Optional[typing.Mapping]]:
         )
         for _ in range(3)
     ]
-    result = [await video_crud.add_video(video) for video in videos_list]
-    return result
+    return [await video_crud.add_video(video) for video in videos_list]
 
 
-@pytest.fixture
+@pytest.fixture()
 async def posts(
     admin: typing.Mapping,
     faker: Faker,
@@ -106,7 +105,7 @@ async def posts(
     post = BasePost(
         title=faker.name(),
         text={
-            "time": datetime.now().timestamp(),
+            "time": int(time.time()),
             "blocks": [{"type": "paragraph", "data": {"text": "test"}}],
             "version": "2.19.0",
         },
@@ -116,16 +115,16 @@ async def posts(
     return [await post_crud.create_post(post, admin["id"])]
 
 
-@pytest.fixture
+@pytest.fixture()
 async def liked_video(
     admin: typing.Mapping,
-    videos: typing.List[typing.Mapping],
+    videos: list[typing.Mapping],
 ) -> typing.Mapping:
     await video_crud.like_video(admin["id"], videos[0]["id"])
     return videos[0]
 
 
-@pytest.fixture
+@pytest.fixture()
 async def user_data(faker: Faker) -> CreateUser:
     password = faker.password()
     return CreateUser(
@@ -136,7 +135,7 @@ async def user_data(faker: Faker) -> CreateUser:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def admin(user_data: CreateUser) -> None | typing.Mapping:
     return await user_crud.create_user(
         username=user_data.username,
@@ -146,7 +145,7 @@ async def admin(user_data: CreateUser) -> None | typing.Mapping:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def non_activated_user(user_data: CreateUser) -> None | typing.Mapping:
     return await user_crud.create_user(
         username=user_data.username,
@@ -155,7 +154,7 @@ async def non_activated_user(user_data: CreateUser) -> None | typing.Mapping:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def user(user_data: CreateUser) -> None | typing.Mapping:
     return await user_crud.create_user(
         username=user_data.username,
@@ -165,7 +164,7 @@ async def user(user_data: CreateUser) -> None | typing.Mapping:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def channel_data(faker: Faker) -> dict:
     return {
         "name": faker.name(),
@@ -174,20 +173,20 @@ async def channel_data(faker: Faker) -> dict:
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 async def recovered_user_code(admin: dict) -> str:
     return await user_crud.generate_recovery_user_code(admin["id"])
 
 
 @pytest.fixture(autouse=True)
-def no_send_email(monkeypatch: MonkeyPatch) -> None:
+def _no_send_email(monkeypatch: MonkeyPatch) -> None:
     def mock_send_email(*args: list, **kwargs: dict) -> None:
         pass
 
     monkeypatch.setattr(tasks, "send_email", mock_send_email)
 
 
-@pytest.fixture
+@pytest.fixture()
 def livestream_data(faker: Faker) -> CreateLiveStream:
     start_time: datetime = faker.future_datetime()
     return CreateLiveStream(
@@ -201,14 +200,14 @@ def livestream_data(faker: Faker) -> CreateLiveStream:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def livestream(
     livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
     return await livestream_crud.create(livestream_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def livestream_in_a_month(
     livestream_data: CreateLiveStream,
 ) -> None | typing.Mapping:
@@ -218,7 +217,7 @@ async def livestream_in_a_month(
     return await livestream_crud.create(livestream_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 def dj_data(faker: Faker) -> CreateDJ:
     return CreateDJ(
         name=faker.name(),
@@ -232,12 +231,12 @@ def dj_data(faker: Faker) -> CreateDJ:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def dj(dj_data: CreateDJ) -> None | typing.Mapping:
     return await djs_crud.create(dj_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 def group_data(
     faker: Faker,
     dj: typing.Mapping,
@@ -250,23 +249,24 @@ def group_data(
     return dj_data
 
 
-@pytest.fixture
+@pytest.fixture()
 async def group(group_data: CreateDJ) -> typing.Mapping:
     return await djs_crud.create(group_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def api_token(admin: typing.Mapping, faker: Faker) -> str:
     token = helpers.generate_token()
     await tokens_crud.add_token(faker.name(), token, admin["id"])
     return token
 
 
-@pytest.fixture
+@pytest.fixture()
 async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
     video = Video(**videos[0])
     task = await meilisearch_video_repository.create(video)
     await wait_for_task(
-        meilisearch_video_repository.client.http_client, task.uid
+        meilisearch_video_repository.client.http_client,
+        task.uid,
     )
     return await meilisearch_video_repository.get_by_id(video.id)

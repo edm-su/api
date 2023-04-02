@@ -1,4 +1,5 @@
-from typing import Mapping
+from collections.abc import Callable, Mapping
+from typing import Any
 
 import pytest
 from httpx import AsyncClient
@@ -17,11 +18,15 @@ from tests.helpers import create_auth_header
     stop=stop_after_attempt(10),
     wait=wait_fixed(0.2),
 )
-async def async_retry(func, *args, **kwargs):
+async def async_retry(
+    func: Callable,
+    *args: Any,  # noqa: ANN401
+    **kwargs: Any,  # noqa: ANN401
+) -> Any:  # noqa: ANN401
     return await func(*args, **kwargs)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
     """
     Получение списка видео
@@ -37,7 +42,7 @@ async def test_read_videos(client: AsyncClient, videos: Mapping) -> None:
     assert int(response.headers["x-total-count"]) == len(videos)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_video(
     client: AsyncClient,
     admin: Mapping,
@@ -61,11 +66,12 @@ async def test_create_video(
     assert response.status_code == status.HTTP_201_CREATED
     assert await videos_crud.get_video_by_slug(data["slug"])
     assert await async_retry(
-        meilisearch_video_repository.get_by_id, data["id"]
+        meilisearch_video_repository.get_by_id,
+        data["id"],
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_video_forbidden(
     client: AsyncClient,
     user: Mapping,
@@ -95,7 +101,7 @@ async def test_create_video_forbidden(
     assert not await videos_crud.get_video_by_slug(slug)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_video_already_exist(
     client: AsyncClient,
     admin: Mapping,
@@ -123,7 +129,7 @@ async def test_video_already_exist(
     assert "Такой yt_id уже существует" in error["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_video(
     client: AsyncClient,
     videos: Mapping,
@@ -149,9 +155,11 @@ async def test_delete_video(
         await meilisearch_video_repository.get_by_id(ms_video.id)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_video_forbidden(
-    client: AsyncClient, videos: Mapping, user: Mapping
+    client: AsyncClient,
+    videos: Mapping,
+    user: Mapping,
 ) -> None:
     """
     Проверка прав на удаление видео
@@ -176,7 +184,7 @@ async def test_delete_video_forbidden(
     assert await videos_crud.get_video_by_slug(video["slug"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_video(client: AsyncClient, videos: Mapping) -> None:
     """
     Получение видео
@@ -190,7 +198,7 @@ async def test_read_video(client: AsyncClient, videos: Mapping) -> None:
     assert Video.validate(response.json())
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_related_videos(
     client: AsyncClient,
     videos: Mapping,
@@ -208,7 +216,7 @@ async def test_read_related_videos(
         assert Video.validate(video)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_like_video(
     client: AsyncClient,
     videos: Mapping,
@@ -228,7 +236,7 @@ async def test_like_video(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dislike_video(
     client: AsyncClient,
     liked_video: Mapping,
@@ -248,7 +256,7 @@ async def test_dislike_video(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_liked_videos(
     client: AsyncClient,
     liked_video: Mapping,
@@ -270,7 +278,7 @@ async def test_liked_videos(
     assert liked_video["slug"] in [video["slug"] for video in response.json()]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_liked_videos_by_guest(
     client: AsyncClient,
     liked_video: Mapping,

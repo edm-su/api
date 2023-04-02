@@ -23,7 +23,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("title", sa.String(length=256), nullable=False),
         sa.Column(
-            "cancelled", sa.Boolean(), server_default="f", nullable=True
+            "cancelled", sa.Boolean(), server_default="f", nullable=True,
         ),
         sa.Column("start_time", sa.DateTime(), nullable=True),
         sa.Column("end_time", sa.DateTime(), nullable=True),
@@ -35,10 +35,10 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_livestreams_slug"), "livestreams", ["slug"], unique=False
+        op.f("ix_livestreams_slug"), "livestreams", ["slug"], unique=False,
     )
     op.create_index(
-        op.f("ix_livestreams_title"), "livestreams", ["title"], unique=False
+        op.f("ix_livestreams_title"), "livestreams", ["title"], unique=False,
     )
     # ### end Alembic commands ###
 

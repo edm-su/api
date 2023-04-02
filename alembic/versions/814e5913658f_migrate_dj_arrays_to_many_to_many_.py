@@ -6,8 +6,9 @@ Create Date: 2021-03-12 10:30:29.668701
 
 """
 import sqlalchemy as sa
-from alembic import op
 from sqlalchemy.dialects import postgresql
+
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "814e5913658f"
@@ -37,7 +38,7 @@ def upgrade():
     op.drop_column("djs", "member_of_groups")
     op.drop_column("djs", "group_members")
     op.add_column(
-        "djs", sa.Column("is_group", sa.Boolean(), server_default="f")
+        "djs", sa.Column("is_group", sa.Boolean(), server_default="f"),
     )
     # ### end Alembic commands ###
 

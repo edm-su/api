@@ -6,7 +6,7 @@ class Token(BaseModel):
 
     class Config:
         json_encoders = {
-            SecretStr: lambda v: v.get_secret_value() if v else None
+            SecretStr: lambda v: v.get_secret_value() if v else None,
         }
 
 

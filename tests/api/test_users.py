@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -11,9 +11,10 @@ from app.schemas.livestreams import CreateLiveStream
 from tests.helpers import create_auth_header
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_user(
-    client: AsyncClient, user_data: user_schemas.CreateUser
+    client: AsyncClient,
+    user_data: user_schemas.CreateUser,
 ) -> None:
     """
     Регистрация
@@ -33,7 +34,7 @@ async def test_create_user(
     assert response.json()["is_admin"] is False
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_activate_user(
     client: AsyncClient,
     non_activated_user: Mapping,
@@ -50,7 +51,7 @@ async def test_activate_user(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_login(
     client: AsyncClient,
     admin: Mapping,
@@ -75,7 +76,7 @@ async def test_login(
     assert user_schemas.Token.validate(response.json())
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
     """
     Получение информации о пользователе
@@ -92,7 +93,7 @@ async def test_get_current_user(client: AsyncClient, admin: Mapping) -> None:
     assert user_schemas.MyUser.validate(response.json())
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_request_recovery_user(
     client: AsyncClient,
     admin: Mapping,
@@ -108,7 +109,7 @@ async def test_request_recovery_user(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_change_password(
     client: AsyncClient,
     admin: Mapping,
@@ -136,7 +137,7 @@ async def test_change_password(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_reset_password(
     client: AsyncClient,
     recovered_user_code: str,
@@ -147,7 +148,7 @@ async def test_reset_password(
     :param recovered_user_code:
     :return:
     """
-    password = "new-password"
+    password = "new-password"  # noqa: S105
     data = user_schemas.UserPassword(
         password=password,
         password_confirm=password,
@@ -158,7 +159,7 @@ async def test_reset_password(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
     """
     Информация о пользователе
@@ -172,7 +173,7 @@ async def test_read_user(client: AsyncClient, admin: Mapping) -> None:
     assert user_schemas.User.validate(response.json())
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_api_token(
     client: AsyncClient,
     admin: Mapping,
@@ -196,7 +197,7 @@ async def test_create_api_token(
     assert await token_crud.find_token(response_data["token"])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_api_token_without_auth(
     client: AsyncClient,
     user: Mapping,
@@ -224,7 +225,7 @@ async def test_create_api_token_without_auth(
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_api_token_authentication(
     client: AsyncClient,
     api_token: str,
