@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 
 import pytest
-from meilisearch_python_async.errors import MeiliSearchApiError
+from meilisearch_python_async.errors import MeilisearchApiError
 from meilisearch_python_async.task import wait_for_task
 from typing_extensions import Self
 
@@ -28,7 +28,7 @@ class TestMeilisearchVideoRepository:
             meilisearch_video_repository.client.http_client,
             task.uid,
         )
-        with pytest.raises(MeiliSearchApiError):
+        with pytest.raises(MeilisearchApiError):
             await meilisearch_video_repository.get_by_id(ms_video.id)
 
     @pytest.mark.asyncio()
@@ -67,6 +67,6 @@ class TestMeilisearchVideoRepository:
             meilisearch_video_repository.client.http_client,
             task.uid,
         )
-        with pytest.raises(MeiliSearchApiError):
+        with pytest.raises(MeilisearchApiError):
             await meilisearch_video_repository.get_by_id(ms_video.id)
         assert not await meilisearch_video_repository.get_all()

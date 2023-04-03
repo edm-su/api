@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 from httpx import AsyncClient
-from meilisearch_python_async.errors import MeiliSearchApiError
+from meilisearch_python_async.errors import MeilisearchApiError
 from slugify import slugify
 from starlette import status
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -151,7 +151,7 @@ async def test_delete_video(
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert not await videos_crud.get_video_by_slug(videos[0]["slug"])
-    with pytest.raises(MeiliSearchApiError):
+    with pytest.raises(MeilisearchApiError):
         await meilisearch_video_repository.get_by_id(ms_video.id)
 
 
