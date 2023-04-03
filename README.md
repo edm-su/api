@@ -5,7 +5,7 @@
 * Python >= 3.10
 * PostgreSQL >= 9.6
 * Poetry
-* Meilisearch >= 0.26
+* Meilisearch >= 1.0.0
 
 ## Установка
 
