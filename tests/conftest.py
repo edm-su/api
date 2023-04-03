@@ -65,7 +65,7 @@ async def remove_meilisearch_indexes() -> None:
             task = await meilisearch_client.clear_index(index)
             await wait_for_task(
                 meilisearch_client.client.http_client,
-                task.uid,
+                task.task_uid,
             )
 
 
@@ -267,6 +267,6 @@ async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
     task = await meilisearch_video_repository.create(video)
     await wait_for_task(
         meilisearch_video_repository.client.http_client,
-        task.uid,
+        task.task_uid,
     )
     return await meilisearch_video_repository.get_by_id(video.id)

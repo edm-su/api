@@ -1,6 +1,6 @@
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.index import Index
-from meilisearch_python_async.models.task import TaskId
+from meilisearch_python_async.models.task import TaskInfo
 from typing_extensions import Self
 
 from app.settings import settings
@@ -16,7 +16,7 @@ class MeilisearchRepository:
         await self.client.aclose()
 
     @staticmethod
-    async def clear_index(index: Index) -> TaskId:
+    async def clear_index(index: Index) -> TaskInfo:
         return await index.delete_all_documents()
 
     async def indexes(self: Self) -> list[Index] | None:

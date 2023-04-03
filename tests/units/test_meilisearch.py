@@ -31,7 +31,7 @@ class TestMeilisearchRepository:
         task = await meilisearch_client.clear_index(index)
         await wait_for_task(
             meilisearch_client.client.http_client,
-            task.uid,
+            task.task_uid,
         )
 
         assert await meilisearch_video_repository.get_all() == []

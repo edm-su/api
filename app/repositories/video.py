@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from fastapi.encoders import jsonable_encoder
-from meilisearch_python_async.models.task import TaskId
+from meilisearch_python_async.models.task import TaskInfo
 from pydantic import parse_obj_as
 from typing_extensions import Self
 
@@ -46,11 +46,11 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
         index_name = self.normalize_index_name("videos")
         self.index = self.client.index(index_name)
 
-    async def create(self: Self, video: MeilisearchVideo) -> TaskId:
+    async def create(self: Self, video: MeilisearchVideo) -> TaskInfo:
         documents = [jsonable_encoder(video)]
         return await self.index.add_documents(documents)
 
-    async def delete(self: Self, id_: int) -> TaskId:
+    async def delete(self: Self, id_: int) -> TaskInfo:
         return await self.index.delete_document(str(id_))
 
     async def get_all(  # type: ignore[override]
@@ -74,10 +74,10 @@ class MeilisearchVideoRepository(VideoRepository, MeilisearchRepository):
     async def update(
         self: Self,
         video: MeilisearchVideo,
-    ) -> TaskId:
+    ) -> TaskInfo:
         return await self.create(video)
 
-    async def delete_all(self: Self) -> TaskId:
+    async def delete_all(self: Self) -> TaskInfo:
         return await self.clear_index(self.index)
 
 
