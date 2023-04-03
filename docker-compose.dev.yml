@@ -8,7 +8,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
-      - "55000:5432"
+      - "5432:5432"
 
   mailhog:
     image: mailhog/mailhog
@@ -29,7 +29,7 @@ services:
       - "9001:9001"
 
   meili:
-    image: getmeili/meilisearch:v0.27.2
+    image: getmeili/meilisearch:v1.1.0
     ports:
       - "7700:7700"
     volumes:

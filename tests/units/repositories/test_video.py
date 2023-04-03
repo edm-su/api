@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 
 import pytest
-from meilisearch_python_async.errors import MeiliSearchApiError
+from meilisearch_python_async.errors import MeilisearchApiError
 from meilisearch_python_async.task import wait_for_task
 from typing_extensions import Self
 
@@ -16,7 +16,7 @@ class TestMeilisearchVideoRepository:
         task = await meilisearch_video_repository.create(video)
         await wait_for_task(
             meilisearch_video_repository.client.http_client,
-            task.uid,
+            task.task_uid,
         )
 
         assert await meilisearch_video_repository.get_by_id(video.id)
@@ -26,9 +26,9 @@ class TestMeilisearchVideoRepository:
         task = await meilisearch_video_repository.delete(ms_video.id)
         await wait_for_task(
             meilisearch_video_repository.client.http_client,
-            task.uid,
+            task.task_uid,
         )
-        with pytest.raises(MeiliSearchApiError):
+        with pytest.raises(MeilisearchApiError):
             await meilisearch_video_repository.get_by_id(ms_video.id)
 
     @pytest.mark.asyncio()
@@ -52,7 +52,7 @@ class TestMeilisearchVideoRepository:
         task = await meilisearch_video_repository.update(video)
         await wait_for_task(
             meilisearch_video_repository.client.http_client,
-            task.uid,
+            task.task_uid,
         )
         updated_video = await meilisearch_video_repository.get_by_id(video.id)
         assert updated_video != ms_video
@@ -65,8 +65,8 @@ class TestMeilisearchVideoRepository:
         task = await meilisearch_video_repository.delete_all()
         await wait_for_task(
             meilisearch_video_repository.client.http_client,
-            task.uid,
+            task.task_uid,
         )
-        with pytest.raises(MeiliSearchApiError):
+        with pytest.raises(MeilisearchApiError):
             await meilisearch_video_repository.get_by_id(ms_video.id)
         assert not await meilisearch_video_repository.get_all()

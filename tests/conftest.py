@@ -24,7 +24,7 @@ from app.schemas.dj import CreateDJ
 from app.schemas.livestreams import CreateLiveStream
 from app.schemas.post import BasePost
 from app.schemas.user import CreateUser
-from app.schemas.video import CreateVideo, MeilisearchVideo, Video
+from app.schemas.video import CreateVideo, MeilisearchVideo
 from app.settings import settings
 
 
@@ -65,7 +65,7 @@ async def remove_meilisearch_indexes() -> None:
             task = await meilisearch_client.clear_index(index)
             await wait_for_task(
                 meilisearch_client.client.http_client,
-                task.uid,
+                task.task_uid,
             )
 
 
@@ -263,10 +263,10 @@ async def api_token(admin: typing.Mapping, faker: Faker) -> str:
 
 @pytest.fixture()
 async def ms_video(videos: list[typing.Mapping]) -> MeilisearchVideo:
-    video = Video(**videos[0])
+    video = MeilisearchVideo(**videos[0])
     task = await meilisearch_video_repository.create(video)
     await wait_for_task(
         meilisearch_video_repository.client.http_client,
-        task.uid,
+        task.task_uid,
     )
     return await meilisearch_video_repository.get_by_id(video.id)
