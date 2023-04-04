@@ -19,4 +19,3 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
           release-type: python
           package-name: edm-su-api
-          command: release-pr
