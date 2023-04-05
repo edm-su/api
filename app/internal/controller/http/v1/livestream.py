@@ -1,5 +1,5 @@
+from collections.abc import Mapping
 from datetime import date, timedelta
-from typing import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
@@ -18,8 +18,8 @@ from app.internal.entity.livestreams import (
     LiveStream,
 )
 from app.internal.usecase.exceptions.livestream import (
-    LiveStreamAlreadyExistsException,
-    LiveStreamNotFoundException,
+    LiveStreamAlreadyExistsError,
+    LiveStreamNotFoundError,
 )
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
@@ -43,15 +43,15 @@ async def new_stream(
     usecase: CreateLiveStreamUseCase = Depends(
         create_create_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> LiveStream:
     try:
         return await usecase.execute(stream)
-    except LiveStreamAlreadyExistsException:
+    except LiveStreamAlreadyExistsError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Прямая трансляция с таким slug уже существует",
-        )
+        ) from None
 
 
 @router.get(
@@ -98,15 +98,15 @@ async def delete_stream(
     usecase: DeleteLiveStreamUseCase = Depends(
         create_delete_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> None:
     try:
         await usecase.execute(stream.id)
-    except LiveStreamNotFoundException:
+    except LiveStreamNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Прямая трансляция не найдена",
-        )
+        ) from None
 
 
 @router.put(
@@ -121,13 +121,13 @@ async def update_stream(
     usecase: UpdateLiveStreamUseCase = Depends(
         create_update_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> LiveStream:
     stream = LiveStream(**updated_stream.dict(), id=stream.id)
     try:
         return await usecase.execute(stream)
-    except LiveStreamNotFoundException:
+    except LiveStreamNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Прямая трансляция не найдена",
-        )
+        ) from None

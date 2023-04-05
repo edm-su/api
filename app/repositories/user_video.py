@@ -31,7 +31,7 @@ class UserVideoRepository(ABC):
 
 
 class PostgresUserVideoRepository(UserVideoRepository):
-    def __init__(self, session: Database):
+    def __init__(self, session: Database) -> None:
         self.__session = session
 
     async def like_video(self, user: User, video: DbVideo) -> bool:
@@ -44,7 +44,7 @@ class PostgresUserVideoRepository(UserVideoRepository):
     async def unlike_video(self, user: User, video: DbVideo) -> bool:
         query = liked_videos.delete().where(
             (liked_videos.c.user_id == user.id)
-            & (liked_videos.c.video_id == video.id)
+            & (liked_videos.c.video_id == video.id),
         )
         return await self.__execute(query)
 
@@ -74,7 +74,7 @@ class PostgresUserVideoRepository(UserVideoRepository):
                         videos.c.id == liked_videos.c.video_id,
                         videos.c.deleted == false(),
                     ),
-                )
+                ),
             )
             .where(liked_videos.c.user_id == user.id)
             .limit(limit)
@@ -87,6 +87,6 @@ class PostgresUserVideoRepository(UserVideoRepository):
     async def is_liked(self, user: User, video: DbVideo) -> bool:
         query = liked_videos.select().where(
             (liked_videos.c.user_id == user.id)
-            & (liked_videos.c.video_id == video.id)
+            & (liked_videos.c.video_id == video.id),
         )
         return await self.__session.fetch_val(query) is not None

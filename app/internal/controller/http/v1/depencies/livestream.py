@@ -1,10 +1,9 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+from app.internal.entity.livestreams import LiveStream
 
-from app.internal.usecase.exceptions.livestream import (
-    LiveStreamNotFoundException,
-)
+from app.internal.usecase.exceptions.livestream import LiveStreamNotFoundError
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
     DeleteLiveStreamUseCase,
@@ -16,7 +15,6 @@ from app.internal.usecase.repository.livestream import (
     PostgresLiveStreamRepository,
 )
 from app.pkg.postgres import get_session
-from app.schemas.livestreams import LiveStream
 
 
 async def create_pg_repository(
@@ -62,8 +60,8 @@ async def find_live_stream(
 ) -> LiveStream | None:
     try:
         return await usecase.execute(live_stream_id=live_stream_id)
-    except LiveStreamNotFoundException:
+    except LiveStreamNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Прямая трансляция не найдена",
-        )
+        ) from None

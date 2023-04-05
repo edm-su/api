@@ -34,4 +34,4 @@ class Settings(BaseSettings):
     smtp_password: str
 
 
-settings = Settings()
+settings = Settings.parse_obj({})

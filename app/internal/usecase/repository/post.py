@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import Self
 
 from app.db import posts
 from app.helpers import Paginator
@@ -12,33 +13,48 @@ from app.internal.entity.post import NewPostDTO, Post
 class AbstractPostRepository(ABC):
     @abstractmethod
     async def create(
-        self,
+        self: Self,
         post: NewPostDTO,
     ) -> Post:
         pass
 
     @abstractmethod
-    async def get_by_slug(self, slug: str) -> None | Post:
+    async def get_by_slug(
+        self: Self,
+        slug: str,
+    ) -> None | Post:
         pass
 
     @abstractmethod
-    async def get_all(self, paginator: Paginator) -> list[None | Post]:
+    async def get_all(
+        self: Self,
+        paginator: Paginator,
+    ) -> list[None | Post]:
         pass
 
     @abstractmethod
-    async def count(self) -> int:
+    async def count(self: Self) -> int:
         pass
 
     @abstractmethod
-    async def delete(self, post: Post) -> bool:
+    async def delete(
+        self: Self,
+        post: Post,
+    ) -> bool:
         pass
 
 
 class PostgresPostRepository(AbstractPostRepository):
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self: Self,
+        session: AsyncSession,
+    ) -> None:
         self.session = session
 
-    async def create(self, post: NewPostDTO) -> Post:
+    async def create(
+        self: Self,
+        post: NewPostDTO,
+    ) -> Post:
         post.published_at = post.published_at.replace(tzinfo=None)
         query = posts.insert().values(**post.dict())
         result = await self.session.execute(query)
@@ -53,7 +69,10 @@ class PostgresPostRepository(AbstractPostRepository):
             thumbnail=post.thumbnail,
         )
 
-    async def get_by_slug(self, slug: str) -> None | Post:
+    async def get_by_slug(
+        self: Self,
+        slug: str,
+    ) -> None | Post:
         query = posts.select().where(posts.c.slug == slug)
         query = query.where(posts.c.published_at <= datetime.now())
 
@@ -75,7 +94,10 @@ class PostgresPostRepository(AbstractPostRepository):
             else None
         )
 
-    async def get_all(self, paginator: Paginator) -> list[None | Post]:
+    async def get_all(
+        self: Self,
+        paginator: Paginator,
+    ) -> list[None | Post]:
         query = posts.select().where(posts.c.published_at <= datetime.now())
         query = query.order_by(posts.c.published_at.desc())
         query = query.offset(paginator.skip).limit(paginator.limit)
@@ -84,12 +106,15 @@ class PostgresPostRepository(AbstractPostRepository):
 
         return [Post(**row) async for row in result]
 
-    async def count(self) -> int:
+    async def count(self: Self) -> int:
         query = select([func.count()]).select_from(posts)
         result = await self.session.execute(query)
         return result.scalar()
 
-    async def delete(self, post: Post) -> bool:
+    async def delete(
+        self: Self,
+        post: Post,
+    ) -> bool:
         query = posts.delete().where(posts.c.id == post.id)
         result = await self.session.execute(query)
         return bool(result.rowcount)

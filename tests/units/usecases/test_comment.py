@@ -1,30 +1,30 @@
-from datetime import datetime
 from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
+from typing_extensions import Self
 
 from app.internal.entity.comment import Comment, NewCommentDto
+from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.comment import (
     CreateCommentUseCase,
     GetAllCommentsUseCase,
     GetCountCommentsUseCase,
+    GetVideoCommentsUseCase,
 )
 from app.internal.usecase.repository.comment import (
     AbstractCommentRepository,
-    PostgresCommentRepository,
 )
 
 
-@pytest.fixture
-def repository(mocker: MockerFixture) -> PostgresCommentRepository:
-    session = mocker.MagicMock()
-    return PostgresCommentRepository(session)
+@pytest.fixture()
+def repository(mocker: MockerFixture) -> AbstractCommentRepository:
+    return AsyncMock(AbstractCommentRepository)
 
 
-@pytest.fixture
+@pytest.fixture()
 def video(faker: Faker) -> Video:
     return Video(
         id=1,
@@ -32,173 +32,160 @@ def video(faker: Faker) -> Video:
         slug=faker.pystr(),
         duration=faker.pyint(),
         yt_id=faker.pystr(),
-        yt_thumbnail=f"https://i.ytimg.com/vi/{faker.pystr()}" f"/default.jpg",
-        date=faker.date_between(
+        yt_thumbnail=f"https://i.ytimg.com/vi/{faker.pystr()}/default.jpg",
+        date=faker.date_time_between(
             start_date="-1y",
-            end_date="today",
+        ),
+    )
+
+@pytest.fixture()
+def comment(
+    faker: Faker,
+    user: User,
+    video: Video,
+) -> Comment:
+    return Comment(
+        id=faker.pyint(),
+        user_id=user.id,
+        video_id=video.id,
+        text=faker.pystr(),
+        published_at=faker.date_time_between(
+            start_date="-1y",
+        ),
+    )
+
+@pytest.fixture()
+def user(faker: Faker) -> User:
+    return User(
+        id=1,
+        username=faker.pystr(),
+        email=faker.email(),
+        created=faker.date_time_between(
+            start_date="-1y",
         ),
     )
 
 
 class TestCreateCommentUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
+        comment: Comment,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.comment"
-            ".PostgresCommentRepository.create",
-            return_value=Comment(
-                id=1,
-                user_id=1,
-                video_id=1,
-                text="test",
-                published_at=datetime.now(),
-            ),
-        )
+        repository.create.return_value = comment
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: AbstractCommentRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> CreateCommentUseCase:
         return CreateCommentUseCase(repository)
 
     async def test_create_comment(
-        self,
+        self: Self,
         usecase: CreateCommentUseCase,
         video: Video,
+        user: User,
+        comment: Comment,
+        repository: AsyncMock,
     ) -> None:
-        comment = await usecase.execute(
+        new_comment = await usecase.execute(
             NewCommentDto(
-                text="test",
-                user_id=1,
+                text=comment.text,
+                user=user,
                 video=video,
-            )
+            ),
         )
-        assert comment.id == 1
-        assert comment.user_id == 1
-        assert comment.video_id == 1
-        assert comment.text == "test"
+        assert new_comment.id == comment.id
+        assert new_comment.user_id == user.id
+        assert new_comment.video_id == video.id
+        assert new_comment.text == comment.text
 
-        usecase.repository.create: AsyncMock  # type: ignore
-        usecase.repository.create.assert_awaited_once()
+        repository.create.assert_awaited_once()  # type: ignore[attr-defined]
 
 
 class TestGetAllCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
+        comment: Comment,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.comment"
-            ".PostgresCommentRepository.get_all",
-            return_value=[
-                Comment(
-                    id=1,
-                    user_id=1,
-                    video_id=1,
-                    text="test",
-                    published_at=datetime.now(),
-                )
-            ],
-        )
+        repository.get_all.return_value = [comment]
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: AbstractCommentRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> GetAllCommentsUseCase:
         return GetAllCommentsUseCase(repository)
 
     async def test_get_all_comments(
-        self,
+        self: Self,
         usecase: GetAllCommentsUseCase,
+        comment: Comment,
+        repository: AsyncMock,
     ) -> None:
         comments = await usecase.execute()
         assert len(comments) == 1
-        assert comments[0].id == 1
-        assert comments[0].user_id == 1
-        assert comments[0].video_id == 1
-        assert comments[0].text == "test"
+        assert comments[0] == comment
 
-        usecase.repository.get_all: AsyncMock  # type: ignore
-        usecase.repository.get_all.assert_awaited_once()
+        repository.get_all.assert_awaited_once()  # type: ignore[attr-defined]
 
 
 class TestCountCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.comment"
-            ".PostgresCommentRepository.count",
-            return_value=1,
-        )
+        repository.count.return_value = 1
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: AbstractCommentRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> GetCountCommentsUseCase:
         return GetCountCommentsUseCase(repository)
 
     async def test_get_all_comments(
-        self,
+        self: Self,
         usecase: GetCountCommentsUseCase,
+        repository: AsyncMock,
     ) -> None:
         count = await usecase.execute()
         assert count == 1
 
-        usecase.repository.count: AsyncMock  # type: ignore
-        usecase.repository.count.assert_awaited_once()
+        repository.count.assert_awaited_once()  # type: ignore[attr-defined]
 
 
-class GetVideoCommentsUseCase:
+class TestGetVideoCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
+        comment: Comment,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository"
-            ".comment.PostgresCommentRepository.get_all",
-            return_value=[
-                Comment(
-                    id=1,
-                    user_id=1,
-                    video_id=1,
-                    text="test",
-                    published_at=datetime.now(),
-                )
-            ],
-        )
+        repository.get_video_comments.return_value = [comment]
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: AbstractCommentRepository,
-    ) -> GetAllCommentsUseCase:
-        return GetAllCommentsUseCase(repository)
+        self: Self,
+        repository: AsyncMock,
+    ) -> GetVideoCommentsUseCase:
+        return GetVideoCommentsUseCase(repository)
 
-    async def test_get_all_comments(
-        self,
-        usecase: GetAllCommentsUseCase,
+    async def test_get_video_comments(
+        self: Self,
+        usecase: GetVideoCommentsUseCase,
+        repository: AsyncMock,
+        video: Video,
+        comment: Comment,
+        user: User,
     ) -> None:
-        comments = await usecase.execute()
+        comments = await usecase.execute(video)
         assert len(comments) == 1
-        assert comments[0].id == 1
-        assert comments[0].user_id == 1
-        assert comments[0].video_id == 1
-        assert comments[0].text == "test"
+        assert comments[0] == comment
 
-        usecase.repository.get_all: AsyncMock  # type: ignore
-        usecase.repository.get_all.assert_awaited_once()
+        repository.get_video_comments.assert_awaited_once_with(user.id)  # type: ignore[attr-defined]  # noqa: E501

@@ -1,11 +1,11 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import sessionmaker
 from starlette import status
 
 from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.video import NotFoundException
+from app.internal.usecase.exceptions.video import NotFoundError
 from app.internal.usecase.repository.video import (
     MeilisearchVideoRepository,
     PostgresVideoRepository,
@@ -25,7 +25,7 @@ async def create_pg_repository(
     *,
     db_session: AsyncIterator[sessionmaker] = Depends(get_session),
 ) -> PostgresVideoRepository:
-    async with db_session.begin() as session:
+    async with db_session.begin() as session: # type: ignore[attr-defined]
         return PostgresVideoRepository(session)
 
 
@@ -76,8 +76,8 @@ async def find_video(
 ) -> Video:
     try:
         return await usecase.execute(slug)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e.message),
-        )
+        ) from e

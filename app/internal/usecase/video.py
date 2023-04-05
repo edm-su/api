@@ -1,11 +1,15 @@
 import logging
-from abc import ABC
+
+from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import (
-    NotFoundException,
-    SlugNotUniqueException,
-    VideoYtIdNotUniqueException,
+    NotFoundError,
+    SlugNotUniqueError,
+    VideoYtIdNotUniqueError,
+)
+from app.internal.usecase.repository.exceptions.full_text import (
+    FullTextRepositoryError,
 )
 from app.internal.usecase.repository.video import (
     AbstractFullTextVideoRepository,
@@ -13,9 +17,9 @@ from app.internal.usecase.repository.video import (
 )
 
 
-class BaseVideoUseCase(ABC):
+class BaseVideoUseCase():
     def __init__(
-        self,
+        self: Self,
         repository: AbstractVideoRepository,
     ) -> None:
         self.repository = repository
@@ -23,7 +27,7 @@ class BaseVideoUseCase(ABC):
 
 class AbstractFullTextVideoUseCase(BaseVideoUseCase):
     def __init__(
-        self,
+        self: Self,
         repository: AbstractVideoRepository,
         full_text_repo: AbstractFullTextVideoRepository,
     ) -> None:
@@ -33,7 +37,7 @@ class AbstractFullTextVideoUseCase(BaseVideoUseCase):
 
 class GetAllVideosUseCase(BaseVideoUseCase):
     async def execute(
-        self,
+        self: Self,
         offset: int = 0,
         limit: int = 20,
     ) -> list[Video]:
@@ -44,36 +48,36 @@ class GetAllVideosUseCase(BaseVideoUseCase):
 
 
 class GetCountVideosUseCase(BaseVideoUseCase):
-    async def execute(self) -> int:
+    async def execute(self: Self) -> int:
         return await self.repository.count()
 
 
 class GetVideoBySlugUseCase(BaseVideoUseCase):
-    async def execute(self, slug: str) -> Video | None:
+    async def execute(self: Self, slug: str) -> Video:
         video = await self.repository.get_by_slug(slug)
         if video is None:
-            raise NotFoundException(entity="video")
+            raise NotFoundError(entity="video")
         return video
 
 
 class CreateVideoUseCase(AbstractFullTextVideoUseCase):
-    async def execute(self, new_video: NewVideoDto) -> Video:
+    async def execute(self: Self, new_video: NewVideoDto) -> Video:
         if await self.repository.get_by_slug(new_video.slug):
-            raise SlugNotUniqueException(new_video.slug, "Video")
+            raise SlugNotUniqueError(new_video.slug, "Video")
         if await self.repository.get_by_yt_id(new_video.yt_id):
-            raise VideoYtIdNotUniqueException(new_video.yt_id)
+            raise VideoYtIdNotUniqueError(new_video.yt_id)
         video = await self.repository.create(new_video)
         await self.full_text_repo.create(video)
         return video
 
 
 class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
-    async def execute(self, id_: int) -> None:
+    async def execute(self: Self, id_: int) -> None:
         video = await self.repository.get_by_id(id_)
         if not video:
-            raise NotFoundException(entity="video")
+            raise NotFoundError(entity="video")
         await self.repository.delete(id_)
         try:
             await self.full_text_repo.delete(id_)
-        except Exception as e:
+        except FullTextRepositoryError as e:
             logging.getLogger("app").error(e)

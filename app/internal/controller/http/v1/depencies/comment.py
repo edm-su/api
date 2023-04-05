@@ -1,4 +1,4 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from fastapi import Depends
 from sqlalchemy.orm import sessionmaker
@@ -17,7 +17,7 @@ async def create_pg_repository(
     *,
     db_session: AsyncIterator[sessionmaker] = Depends(get_session),
 ) -> PostgresCommentRepository:
-    async with db_session.begin() as session:
+    async with db_session.begin() as session:  # type: ignore[attr-defined]
         return PostgresCommentRepository(session)
 
 

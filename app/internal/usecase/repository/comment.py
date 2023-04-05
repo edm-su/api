@@ -1,39 +1,50 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import Self
 
 from app.db import comments
 from app.internal.entity.comment import Comment, NewCommentDto
 
 
 class AbstractCommentRepository(ABC):
+    @abstractmethod
     async def create(
-        self,
+        self: Self,
         comment: NewCommentDto,
     ) -> Comment:
         pass
 
+    @abstractmethod
     async def get_all(
-        self,
+        self: Self,
         offset: int = 0,
         limit: int = 20,
     ) -> list[Comment]:
         pass
 
-    async def count(self) -> int:
+    @abstractmethod
+    async def count(self: Self) -> int:
         pass
 
-    async def get_video_comments(self, video_id: int) -> list[Comment]:
+    @abstractmethod
+    async def get_video_comments(
+        self: Self,
+        video_id: int,
+    ) -> list[Comment]:
         pass
 
 
 class PostgresCommentRepository(AbstractCommentRepository):
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self: Self,
+        session: AsyncSession,
+    ) -> None:
         self.session = session
 
     async def create(
-        self,
+        self: Self,
         comment: NewCommentDto,
     ) -> Comment:
         query = comments.insert().values(**comment.dict())
@@ -43,13 +54,13 @@ class PostgresCommentRepository(AbstractCommentRepository):
         return Comment(
             id=result_proxy.inserted_primary_key[0],
             video_id=comment.video.id,
-            user_id=comment.user_id,
+            user_id=comment.user.id,
             text=comment.text,
             published_at=result["published_at"],
         )
 
     async def get_all(
-        self,
+        self: Self,
         offset: int = 0,
         limit: int = 20,
     ) -> list[Comment]:
@@ -62,13 +73,15 @@ class PostgresCommentRepository(AbstractCommentRepository):
         result = await self.session.stream(query)
         return [Comment(**row) async for row in result]
 
-    async def count(self) -> int:
+    async def count(self: Self) -> int:
         query = select([func.count()]).select_from(comments)
         result = await self.session.execute(query)
-        count = await result.scalar().first()
-        return count
+        return await result.scalar().first()
 
-    async def get_video_comments(self, video_id: int) -> list[Comment]:
+    async def get_video_comments(
+        self: Self,
+        video_id: int,
+    ) -> list[Comment]:
         query = comments.select().where(comments.c.video_id == video_id)
         query = query.order_by(comments.c.id)
         result = await self.session.stream(query)

@@ -1,22 +1,29 @@
-from abc import ABC
+from typing_extensions import Self
 
 from app.internal.entity.comment import Comment, NewCommentDto
+from app.internal.entity.video import Video
 from app.internal.usecase.repository.comment import AbstractCommentRepository
 
 
-class BaseCommentUseCase(ABC):
-    def __init__(self, repository: AbstractCommentRepository) -> None:
+class BaseCommentUseCase():
+    def __init__(
+        self: Self,
+        repository: AbstractCommentRepository,
+    ) -> None:
         self.repository = repository
 
 
 class CreateCommentUseCase(BaseCommentUseCase):
-    async def execute(self, new_comment: NewCommentDto) -> Comment:
+    async def execute(
+        self: Self,
+        new_comment: NewCommentDto,
+    ) -> Comment:
         return await self.repository.create(new_comment)
 
 
 class GetAllCommentsUseCase(BaseCommentUseCase):
     async def execute(
-        self,
+        self: Self,
         *,
         offset: int = 0,
         limit: int = 20,
@@ -25,13 +32,13 @@ class GetAllCommentsUseCase(BaseCommentUseCase):
 
 
 class GetCountCommentsUseCase(BaseCommentUseCase):
-    async def execute(self) -> int:
+    async def execute(self: Self) -> int:
         return await self.repository.count()
 
 
 class GetVideoCommentsUseCase(BaseCommentUseCase):
     async def execute(
-        self,
-        video_id: int,
+        self: Self,
+        video: Video,
     ) -> list[Comment]:
-        return await self.repository.get_video_comments(video_id)
+        return await self.repository.get_video_comments(video.id)

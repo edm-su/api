@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, Response
 
@@ -31,13 +31,13 @@ router = APIRouter()
 )
 async def new_comment(
     text: CommentBase,
-    video: Video = Depends(find_video),
+    video: Video = Depends(find_video),  #  TODO: Заменить на User
     current_user: dict = Depends(get_current_user),
     usecase: CreateCommentUseCase = Depends(create_create_comment_usecase),
 ) -> Comment:
     comment = NewCommentDto(
         text=text.text,
-        user_id=current_user["id"],
+        user=current_user, # type: ignore[arg-type]
         video=video,
     )
     return await usecase.execute(comment)
@@ -51,12 +51,12 @@ async def new_comment(
 )
 async def read_comments(
     video: Video = Depends(find_video),
-    paginator: Paginator = Depends(Paginator),
+    # paginator: Paginator = Depends(Paginator), TODO Add pagination
     usecase: GetVideoCommentsUseCase = Depends(
         create_get_video_comments_usecase,
     ),
 ) -> list[Comment]:
-    return await usecase.execute(video_id=video.id)
+    return await usecase.execute(video=video)
 
 
 @router.get(
@@ -67,7 +67,7 @@ async def read_comments(
 )
 async def comments_list(
     response: Response,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
     pagination: Paginator = Depends(Paginator),
     usecase: GetAllCommentsUseCase = Depends(
         create_get_all_comments_usecase,

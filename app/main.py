@@ -19,7 +19,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "default_formatter": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         },
     },
     "handlers": {
@@ -58,7 +58,6 @@ async def shutdown() -> None:
 
 origins = ["https://edm.su", "http://localhost:3000"]
 
-# app.include_router(user_videos.router)
 app.include_router(tokens.router)
 app.include_router(djs.router)
 app.include_router(tokens.router)

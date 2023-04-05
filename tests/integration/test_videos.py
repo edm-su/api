@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 import pytest
 from faker import Faker
@@ -37,7 +37,7 @@ def video_data(faker: Faker) -> NewVideoDto:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 async def setup_data(pg_session: AsyncSession, faker: Faker) -> list[Video]:
     videos = []
     for _ in range(5):
@@ -51,7 +51,7 @@ async def setup_data(pg_session: AsyncSession, faker: Faker) -> list[Video]:
     return videos
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_videos(
     client: AsyncClient,
     setup_data: list[Video],
@@ -65,7 +65,7 @@ async def test_read_videos(
     assert int(response.headers["x-total-count"]) == len(setup_data)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_video(
     client: AsyncClient,
     admin: Mapping,
@@ -89,13 +89,13 @@ async def test_create_video(
     )
     assert (
         await TestMeilisearchVideoRepository(ms_client).get_by_slug(
-            data["slug"]
+            data["slug"],
         )
         is not None
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_create_video_forbidden(
     client: AsyncClient,
     user: Mapping,
@@ -114,7 +114,7 @@ async def test_create_video_forbidden(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert not await PostgresVideoRepository(pg_session).get_by_slug(
-        video.slug
+        video.slug,
     )
 
     response = await client.post(
@@ -124,11 +124,11 @@ async def test_create_video_forbidden(
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert not await PostgresVideoRepository(pg_session).get_by_slug(
-        video.slug
+        video.slug,
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_video_already_exist(
     client: AsyncClient,
     admin: Mapping,
@@ -164,7 +164,7 @@ async def test_video_already_exist(
     assert f"Video with yt_id {video.yt_id} already exists" in error["detail"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_video(
     client: AsyncClient,
     setup_data: list[Video],
@@ -189,7 +189,7 @@ async def test_delete_video(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_delete_video_forbidden(
     client: AsyncClient,
     setup_data: list[Video],
@@ -225,7 +225,7 @@ async def test_delete_video_forbidden(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_video(
     client: AsyncClient,
     setup_data: list[Video],
@@ -241,7 +241,7 @@ async def test_read_video(
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_read_related_videos(
     client: AsyncClient,
     setup_data: list[Video],

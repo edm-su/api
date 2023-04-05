@@ -1,5 +1,4 @@
-import hashlib
-from typing import IO, Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from starlette import status
@@ -24,9 +23,10 @@ router = APIRouter()
 )
 async def upload_image(
     image: UploadFile = File(...),
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> ImageURLs:
-    if not image.content_type.startswith("image/"):
+    if image.content_type is None \
+        or not image.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Файл должен быть изображением",
@@ -39,7 +39,7 @@ async def upload_image(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
-        )
+        ) from e
     return urls
 
 
@@ -51,7 +51,7 @@ async def upload_image(
 )
 async def upload_image_url(
     image_url: ImageURL,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> ImageURLs:
     use_case = UploadImageURLUseCase(S3UploadRepository(), image_url)
     try:
@@ -60,13 +60,5 @@ async def upload_image_url(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
-        )
+        ) from e
     return urls
-
-
-def get_md5_hash(file: IO) -> str:
-    md5 = hashlib.md5()
-    file.seek(0)
-    while chunk := file.read(8192):
-        md5.update(chunk)
-    return md5.hexdigest()

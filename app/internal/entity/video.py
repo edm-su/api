@@ -27,10 +27,10 @@ class NewVideoDto(BaseModel):
         always=True,
     )
     def generate_slug(
-        cls,
+        cls,  # noqa: N805, ANN101
         v: str,
         values: dict,
     ) -> str:
         if not v:
-            v = slugify(values["title"])
+            return slugify(values["title"])
         return v

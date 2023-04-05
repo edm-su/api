@@ -1,5 +1,5 @@
 import logging
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -24,6 +24,7 @@ AsyncSessionLocal = sessionmaker(
 
 async def get_session() -> AsyncIterator[AsyncSession]:
     try:
-        yield AsyncSessionLocal
+        yield AsyncSessionLocal  # type: ignore[assignment]
     except SQLAlchemyError as e:
-        raise logger.exception(e)  # type: ignore[func-returns-value]
+        logger.exception(msg=e)
+        raise e from None

@@ -15,14 +15,15 @@ class UserBase(BaseModel):
     username: str
 
     @validator("username")
-    def username_regexp(cls, v: str) -> str:
+    def username_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
         v = v.strip()
         if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            raise ValueError(
+            error_text = (
                 "может содержать латинские символы, цифры, "
                 "или знак подчёркивания."
-                " Начинаться и заканчиваться только латинским символом",
+                " Начинаться и заканчиваться только латинским символом"
             )
+            raise ValueError(error_text)
         return v
 
 
@@ -56,10 +57,11 @@ class UserPassword(BaseModel):
     password: str
 
     @validator("password")
-    def password_complexity(cls, v: str) -> str:
+    def password_complexity(cls, v: str) -> str:  # noqa: ANN101, N805
         min_length = 6
-        if len(v) < 6:
-            raise ValueError(f"минимальная длина пароля {min_length} символов")
+        if len(v) < min_length:
+            error_text = f"минимальная длина пароля {min_length} символов"
+            raise ValueError(error_text)
         return v
 
 
@@ -72,14 +74,15 @@ class NewUserDto(BaseModel):
     is_active: bool = Field(default=False)
 
     @validator("username")
-    def username_regexp(cls, v: str) -> str:
+    def username_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
         v = v.strip()
         if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            raise ValueError(
+            error_text = (
                 "может содержать латинские символы, цифры, "
                 "или знак подчёркивания."
                 " Начинаться и заканчиваться только латинским символом",
             )
+            raise ValueError(error_text)
         return v
 
 

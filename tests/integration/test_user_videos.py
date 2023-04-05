@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 import pytest
 from httpx import AsyncClient
@@ -10,7 +10,7 @@ from app.schemas.video import PgVideo
 from tests.helpers import create_auth_header
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_like_video(
     client: AsyncClient,
     pg_video: PgVideo,
@@ -26,7 +26,7 @@ async def test_like_video(
     assert await pg_user_video_repository.is_liked(user, pg_video)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_already_liked_video(
     client: AsyncClient,
     liked_video: PgVideo,
@@ -39,7 +39,7 @@ async def test_already_liked_video(
     assert response.status_code == status.HTTP_409_CONFLICT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_like_video_by_user(
     client: AsyncClient,
     pg_video: PgVideo,
@@ -52,7 +52,7 @@ async def test_like_video_by_user(
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_like_video_unauthorized(
     client: AsyncClient,
     pg_video: PgVideo,
@@ -63,7 +63,7 @@ async def test_like_video_unauthorized(
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_unlike_video(
     client: AsyncClient,
     liked_video: PgVideo,
@@ -79,7 +79,7 @@ async def test_unlike_video(
     assert not await pg_user_video_repository.is_liked(admin, liked_video)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_unlike_already_unliked_video(
     client: AsyncClient,
     pg_video: PgVideo,
@@ -95,7 +95,7 @@ async def test_unlike_already_unliked_video(
     assert not await pg_user_video_repository.is_liked(admin, pg_video)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_unlike_video_unauthorized(
     client: AsyncClient,
     liked_video: PgVideo,
@@ -106,7 +106,7 @@ async def test_unlike_video_unauthorized(
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_liked_videos(
     client: AsyncClient,
     liked_video: PgVideo,
@@ -120,7 +120,7 @@ async def test_liked_videos(
     assert liked_video == PgVideo(**response_videos[0])
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_liked_videos_by_guest(
     client: AsyncClient,
     liked_video: PgVideo,

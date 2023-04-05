@@ -4,11 +4,12 @@ from unittest.mock import AsyncMock
 import pytest
 from faker import Faker
 from pytest_mock import MockerFixture
+from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream
+from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
-    LiveStreamAlreadyExistsException,
-    LiveStreamNotFoundException,
+    LiveStreamAlreadyExistsError,
+    LiveStreamNotFoundError,
 )
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
@@ -18,18 +19,16 @@ from app.internal.usecase.livestream import (
     UpdateLiveStreamUseCase,
 )
 from app.internal.usecase.repository.livestream import (
-    PostgresLiveStreamRepository,
+    AbstractLiveStreamRepository,
 )
-from app.schemas.livestreams import LiveStream
 
 
-@pytest.fixture
-def repository(mocker: MockerFixture) -> PostgresLiveStreamRepository:
-    session = mocker.MagicMock()
-    return PostgresLiveStreamRepository(session)
+@pytest.fixture()
+def repository(mocker: MockerFixture) -> AbstractLiveStreamRepository:
+    return AsyncMock(repr=AbstractLiveStreamRepository)
 
 
-@pytest.fixture
+@pytest.fixture()
 def livestream(faker: Faker) -> LiveStream:
     return LiveStream(
         id=faker.pyint(),
@@ -45,7 +44,7 @@ def livestream(faker: Faker) -> LiveStream:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_livestream(faker: Faker, livestream: LiveStream) -> CreateLiveStream:
     return CreateLiveStream(
         title=livestream.title,
@@ -62,226 +61,177 @@ def new_livestream(faker: Faker, livestream: LiveStream) -> CreateLiveStream:
 
 class TestCreateLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
         livestream: LiveStream,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "create",
-            return_value=livestream,
-        )
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "get_by_slug",
-            return_value=None,
-        )
+        repository.create.return_value = livestream
+        repository.get_by_slug.return_value = None
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: PostgresLiveStreamRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> CreateLiveStreamUseCase:
         return CreateLiveStreamUseCase(repository)
 
     async def test_create_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: CreateLiveStreamUseCase,
         livestream: LiveStream,
         new_livestream: CreateLiveStream,
+        repository: AsyncMock,
     ) -> None:
         assert await usecase.execute(new_livestream) == livestream
 
-        usecase.repository.create.assert_awaited_once()
+        repository.create.assert_awaited_once()  # type: ignore[attr-defined]
 
     async def test_create_already_existing_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: CreateLiveStreamUseCase,
         livestream: LiveStream,
         new_livestream: CreateLiveStream,
-        mocker: MockerFixture,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "get_by_slug",
-            return_value=livestream,
-        )
+        repository.get_by_slug.return_value = livestream
 
-        with pytest.raises(LiveStreamAlreadyExistsException):
+        with pytest.raises(LiveStreamAlreadyExistsError):
             await usecase.execute(new_livestream)
 
-        usecase.repository.create.assert_not_awaited()
+        repository.create.assert_not_awaited()  # type: ignore[attr-defined]
 
 
 class TestGetAllLiveStreamsUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "get_all",
-            return_value=[livestream],
-        )
+        repository.get_all.return_value = [livestream]
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: PostgresLiveStreamRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> GetAllLiveStreamsUseCase:
         return GetAllLiveStreamsUseCase(repository)
 
     async def test_get_all_livestreams(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: GetAllLiveStreamsUseCase,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
         assert await usecase.execute() == [livestream]
 
-        usecase.repository.get_all.assert_awaited_once()
+        repository.get_all.assert_awaited_once()  # type: ignore[attr-defined]
 
 
 class TestGetLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "get_by_id",
-            return_value=livestream,
-        )
+        repository.get_by_id.return_value = livestream
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: PostgresLiveStreamRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> GetLiveStreamUseCase:
         return GetLiveStreamUseCase(repository)
 
     async def test_get_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: GetLiveStreamUseCase,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
         assert await usecase.execute(livestream.id) == livestream
 
-        usecase.repository.get_by_id.assert_awaited_once()
+        repository.get_by_id.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
 
 
 class TestUpdateLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
+    def _mock(
+        self: Self,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "update",
-            return_value=livestream,
-        )
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "get_by_slug",
-            return_value=None,
-        )
+        repository.get_by_slug.return_value = None
+        repository.update.return_value = livestream
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: PostgresLiveStreamRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> UpdateLiveStreamUseCase:
         return UpdateLiveStreamUseCase(repository)
 
     async def test_update_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: UpdateLiveStreamUseCase,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
         livestream.title = "new title"
         assert await usecase.execute(livestream) == livestream
 
-        usecase.repository.update.assert_awaited_once()
+        repository.update.assert_awaited_once()  # type: ignore[attr-defined]
 
     async def test_update_not_existing_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: UpdateLiveStreamUseCase,
         livestream: LiveStream,
         mocker: MockerFixture,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "update",
-            return_value=False,
-        )
-        with pytest.raises(LiveStreamNotFoundException):
+        repository.update.return_value = False
+
+        with pytest.raises(LiveStreamNotFoundError):
             await usecase.execute(livestream)
 
-        usecase.repository.update.assert_awaited_once()
+        repository.update.assert_awaited_once()  # type: ignore[attr-defined]
 
 
 class TestDeleteLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def mock(
-        self,
-        mocker: MockerFixture,
-        faker: Faker,
-        livestream: LiveStream,
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "delete",
-            return_value=True,
-        )
+        repository.delete.return_value = True
 
-    @pytest.fixture
+    @pytest.fixture()
     def usecase(
-        self,
-        repository: PostgresLiveStreamRepository,
+        self: Self,
+        repository: AsyncMock,
     ) -> DeleteLiveStreamUseCase:
         return DeleteLiveStreamUseCase(repository)
 
     async def test_delete_livestream(
-        self,
-        usecase: AsyncMock,
+        self: Self,
+        usecase: DeleteLiveStreamUseCase,
         livestream: LiveStream,
+        repository: AsyncMock,
     ) -> None:
-        assert await usecase.execute(livestream.id) is None
+        await usecase.execute(livestream.id)
 
-        usecase.repository.delete.assert_awaited_once()
+        repository.delete.assert_awaited_once()  # type: ignore[attr-defined]
 
     async def test_delete_not_existing_livestream(
-        self,
-        usecase: AsyncMock,
-        mocker: MockerFixture,
+        self: Self,
+        usecase: DeleteLiveStreamUseCase,
+        repository: AsyncMock,
     ) -> None:
-        mocker.patch(
-            "app.internal.usecase.repository.livestream."
-            "PostgresLiveStreamRepository."
-            "delete",
-            return_value=None,
-        )
+        repository.delete.return_value = None
 
-        with pytest.raises(LiveStreamNotFoundException):
+        with pytest.raises(LiveStreamNotFoundError):
             await usecase.execute(0)
 
-        usecase.repository.delete.assert_awaited_once()
+        repository.delete.assert_awaited_once()  # type: ignore[attr-defined]

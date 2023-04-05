@@ -1,16 +1,27 @@
-class UserException(Exception):
+from typing_extensions import Self
+
+
+class UserError(Exception):
     pass
 
 
-class UserNotFoundException(UserException):
-    def __init__(self, key: str, value: int | str) -> None:
+class UserNotFoundError(UserError):
+    def __init__(
+        self: Self,
+        key: str,
+        value: int | str,
+    ) -> None:
         self.key = key
         self.value = value
         super().__init__(f"User with {key} {value} not found")
 
 
-class UserAlreadyExistsException(UserException):
-    def __init__(self, key: str, value: int | str | None = None) -> None:
+class UserAlreadyExistsError(UserError):
+    def __init__(
+        self: Self,
+        key: str,
+        value: int | str | None = None,
+    ) -> None:
         self.key = key
         self.value = value
         if value is None:
@@ -18,16 +29,21 @@ class UserAlreadyExistsException(UserException):
         super().__init__(f"User with {key} {value} already exists")
 
 
-class WrongActivationCodeException(UserException):
-    def __init__(self) -> None:
+class WrongActivationCodeError(UserError):
+    def __init__(self: Self) -> None:
         super().__init__("Wrong activation code")
 
 
-class WrongPasswordException(UserException):
-    def __init__(self) -> None:
+class WrongPasswordError(UserError):
+    def __init__(self: Self) -> None:
         super().__init__("Wrong password")
 
 
-class WrongResetCodeException(UserException):
-    def __init__(self) -> None:
+class WrongResetCodeError(UserError):
+    def __init__(self: Self) -> None:
         super().__init__("Wrong reset code")
+
+
+class NeedOldPasswordOrResetCodeError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("Need old password or reset code")

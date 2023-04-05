@@ -1,10 +1,10 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import sessionmaker
 
 from app.internal.entity.post import Post
-from app.internal.usecase.exceptions.video import NotFoundException
+from app.internal.usecase.exceptions.video import NotFoundError
 from app.internal.usecase.post import (
     CreatePostUseCase,
     DeletePostUseCase,
@@ -20,7 +20,7 @@ async def create_pg_repository(
     *,
     db_session: AsyncIterator[sessionmaker] = Depends(get_session),
 ) -> PostgresPostRepository:
-    async with db_session.begin() as session:
+    async with db_session.begin() as session: # type: ignore[attr-defined]
         return PostgresPostRepository(session)
 
 
@@ -65,8 +65,8 @@ async def find_post(
 ) -> Post:
     try:
         return await usecase.execute(slug)
-    except NotFoundException:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пост не найден",
-        )
+        ) from e

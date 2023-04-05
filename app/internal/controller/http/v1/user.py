@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import (
@@ -27,7 +28,10 @@ from app.internal.entity.user import (
     NewUserDto,
     User,
 )
-from app.internal.usecase.exceptions.user import UserException
+from app.internal.usecase.exceptions.user import (
+    NeedOldPasswordOrResetCodeError,
+    UserError,
+)
 from app.internal.usecase.user import (
     ActivateUserUseCase,
     ChangePasswordByResetCodeUseCase,
@@ -51,14 +55,15 @@ class SignUpRequest(BaseModel):
     )
 
     @validator("username")
-    def username_regexp(cls, v: str) -> str:
+    def username_regexp(cls, v: str) -> str:  # noqa: ANN101, N805
         v = v.strip()
         if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            raise ValueError(
+            text_error = (
                 "может содержать латинские символы, цифры, "
-                "или знак подчёркивания."
-                " Начинаться и заканчиваться только латинским символом",
+                "или знак подчёркивания. "
+                "Начинаться и заканчиваться только латинским символом"
             )
+            raise ValueError(text_error)
         return v
 
 
@@ -67,7 +72,7 @@ class SignUpResponse(BaseModel):
     username: str = Field(..., example="user", title="Имя пользователя")
     email: str = Field(..., example="example@example.com", title="Email")
     is_active: bool = Field(
-        False,
+        вуафгде=False,
         example=False,
         title="Активирован ли пользователь",
     )
@@ -89,17 +94,17 @@ class MeResponse(BaseModel):
     username: str = Field(..., example="user", title="Имя пользователя")
     email: EmailStr = Field(..., example="example@example.com", title="Email")
     is_active: bool = Field(
-        False,
+        default=False,
         example=False,
         title="Активирован ли пользователь",
     )
     is_admin: bool = Field(
-        False,
+        default=False,
         example=False,
         title="Является ли пользователь администратором",
     )
     is_banned: bool = Field(
-        False,
+        default=False,
         example=False,
         title="Забанен ли пользователь",
     )
@@ -148,13 +153,22 @@ class ChangePasswordRequest(BaseModel):
     )
 
     @validator("old_password")
-    def old_password_must_be_present(cls, v, values):
+    def old_password_must_be_present(
+        cls,  # noqa: N805, ANN101
+        v: SecretStr,
+        values: dict[str, Any],
+    ) -> SecretStr:
         if not v and not values.get("reset_code"):
-            raise ValueError("необходимо указать старый пароль или код сброса")
+            text_error = "необходимо указать старый пароль или код сброса"
+            raise ValueError(text_error)
         return v
 
     @validator("reset_code")
-    def reset_code_or_old_password_must_be_present(cls, v, values):
+    def reset_code_or_old_password_must_be_present(
+        cls,  # noqa: ANN101, N805
+        v: SecretStr,
+        values: dict[str, Any],
+    ) -> SecretStr | None:
         if values.get("old_password") and v:
             return None
         return v
@@ -177,14 +191,16 @@ async def sign_up(
             password=request_data.password,
         )
         user = await usecase.execute(new_user)
-    except UserException as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=str(e)
-        )
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        ) from e
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
     if not user.is_active and user.activation_code is not None:
         # TODO: Переделать на отправку через очередь
         background_tasks.add_task(
@@ -220,11 +236,11 @@ async def activate(
     )
     try:
         await usecase.execute(code)
-    except UserException as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
-    return None
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
 
 
 @router.post(
@@ -258,17 +274,16 @@ async def password_reset(
 ) -> None:
     try:
         code = await usecase.execute(request_data.email)
-    except UserException as e:
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),
+        ) from e
     # TODO: Переделать на отправку через очередь
     background_tasks.add_task(
         send_recovery_email,
         request_data.email,
         code.code.get_secret_value(),
     )
-    return None
 
 
 @router.put(
@@ -279,10 +294,10 @@ async def password_reset(
 async def change_password(
     request_data: ChangePasswordRequest,
     change_password_usecase: ChangePasswordUseCase = Depends(
-        create_change_password_usecase
+        create_change_password_usecase,
     ),
     change_by_code_usecase: ChangePasswordByResetCodeUseCase = Depends(
-        create_change_password_by_reset_code_usecase
+        create_change_password_by_reset_code_usecase,
     ),
 ) -> None:
     try:
@@ -292,7 +307,7 @@ async def change_password(
                     id=request_data.user_id,
                     code=request_data.reset_code,
                     new_password=request_data.new_password,
-                )
+                ),
             )
         elif request_data.old_password:
             await change_password_usecase.execute(
@@ -300,15 +315,12 @@ async def change_password(
                     id=request_data.user_id,
                     old_password=request_data.old_password,
                     new_password=request_data.new_password,
-                )
+                ),
             )
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Не указан код сброса пароля или старый пароль",
-            )
-    except UserException as e:
+            raise NeedOldPasswordOrResetCodeError
+    except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
-    return None
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e

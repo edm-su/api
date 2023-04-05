@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
@@ -13,7 +13,7 @@ from app.internal.controller.http.v1.depencies.video import (
     find_video,
 )
 from app.internal.entity.video import NewVideoDto, Video
-from app.internal.usecase.exceptions.video import VideoException
+from app.internal.usecase.exceptions.video import VideoError
 from app.internal.usecase.video import (
     CreateVideoUseCase,
     DeleteVideoUseCase,
@@ -34,10 +34,10 @@ async def get_videos(
     response: Response,
     pagination: Paginator = Depends(Paginator),
     get_all_usecase: GetAllVideosUseCase = Depends(
-        create_get_all_videos_usecase
+        create_get_all_videos_usecase,
     ),
     count_usecase: GetCountVideosUseCase = Depends(
-        create_count_videos_usecase
+        create_count_videos_usecase,
     ),
 ) -> list[Video]:
     db_videos = await get_all_usecase.execute(
@@ -68,16 +68,17 @@ async def read_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-    admin: Mapping = Depends(auth.get_current_admin),
+    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
     video: Video = Depends(find_video),
     usecase: DeleteVideoUseCase = Depends(create_delete_video_usecase),
 ) -> None:
     try:
         await usecase.execute(video.id)
-    except VideoException as e:
+    except VideoError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=e.message
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.message,
+        ) from e
 
 
 @router.post(
@@ -89,13 +90,14 @@ async def delete_video(
 )
 async def add_video(
     new_video: NewVideoDto,
-    admin: Mapping = Depends(auth.get_current_admin),
+    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
     usecase: CreateVideoUseCase = Depends(create_create_video_usecase),
 ) -> Video:
     try:
         video = await usecase.execute(new_video)
-    except VideoException as e:
+    except VideoError as e:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=e.message
-        )
+            status_code=status.HTTP_409_CONFLICT,
+            detail=e.message,
+        ) from e
     return video

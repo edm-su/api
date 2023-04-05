@@ -1,4 +1,4 @@
-from typing import Mapping
+from collections.abc import Mapping
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
@@ -14,13 +14,14 @@ from app.internal.controller.http.v1.depencies.post import (
 )
 from app.internal.entity.post import CreatePost, NewPostDTO, Post
 from app.internal.usecase.exceptions.video import (
-    NotFoundException,
-    SlugNotUniqueException,
+    NotFoundError,
+    SlugNotUniqueError,
 )
 from app.internal.usecase.post import (
     CreatePostUseCase,
     DeletePostUseCase,
     GetAllPostsUseCase,
+    GetPostCountUseCase,
 )
 
 router = APIRouter()
@@ -34,20 +35,20 @@ router = APIRouter()
 )
 async def new_post(
     post: CreatePost,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # TODO: изменить тип на User
     usecase: CreatePostUseCase = Depends(create_create_post_usecase),
 ) -> Post:
     post = NewPostDTO(
         **post.dict(),
-        user=admin,
+        user=admin,  # type: ignore[arg-type]
     )
     try:
         return await usecase.execute(post)
-    except SlugNotUniqueException:
+    except SlugNotUniqueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Пост с таким slug уже существует",
-        )
+        ) from None
 
 
 @router.get(
@@ -60,10 +61,10 @@ async def get_posts(
     response: Response,
     paginate: Paginator = Depends(Paginator),
     usecase: GetAllPostsUseCase = Depends(create_get_all_posts_usecase),
-    count_usecase: GetAllPostsUseCase = Depends(
-        create_get_count_posts_usecase
+    count_usecase: GetPostCountUseCase = Depends(
+        create_get_count_posts_usecase,
     ),
-) -> list[Post]:
+) -> list[Post | None]:
     response.headers["X-Total-Count"] = str(await count_usecase.execute())
     return await usecase.execute(paginator=paginate)
 
@@ -74,7 +75,7 @@ async def get_posts(
     tags=["Посты"],
     summary="Получить пост",
 )
-async def get_post(post: Mapping = Depends(find_post)) -> Post:
+async def get_post(post: Post = Depends(find_post)) -> Post:
     return post
 
 
@@ -86,18 +87,18 @@ async def get_post(post: Mapping = Depends(find_post)) -> Post:
 )
 async def delete_post(
     slug: str,
-    admin: Mapping = Depends(get_current_admin),
+    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
     usecase: DeletePostUseCase = Depends(create_delete_post_usecase),
 ) -> None:
     try:
         return await usecase.execute(slug)
-    except SlugNotUniqueException:
+    except SlugNotUniqueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Пост с таким slug уже существует",
-        )
-    except NotFoundException:
+        ) from None
+    except NotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пост не найден",
-        )
+        ) from None
