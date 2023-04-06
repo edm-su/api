@@ -109,7 +109,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
             select(videos).offset(offset).limit(limit).order_by(videos.c.id)
         )
         result = await self.session.stream(query)
-        return [Video(**row) async for row in result]
+        return [Video(**row) for row in result]
 
     async def get_by_slug(
         self: Self,

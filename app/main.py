@@ -10,7 +10,7 @@ from app.db import database
 from app.internal.controller.http.router import api_router
 from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.meilisearch import config_ms, ms_client
-from app.routers import djs, tokens  # user_videos,
+from app.routers import djs, tokens
 from app.settings import settings
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
