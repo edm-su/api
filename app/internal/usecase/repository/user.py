@@ -12,6 +12,7 @@ from app.internal.entity.user import (
     ChangePasswordDto,
     NewUserDto,
     ResetPasswordDto,
+    SignInDto,
     User,
 )
 
@@ -71,6 +72,13 @@ class AbstractUserRepository(ABC):
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> bool:
+        pass
+
+    @abstractmethod
+    async def sign_in(
+        self: Self,
+        data: SignInDto,
+    ) -> User | None:
         pass
 
 
@@ -226,3 +234,41 @@ class PostgresUserRepository(AbstractUserRepository):
             },
         )
         return bool(await self.session.execute(query))
+
+    async def sign_in(
+        self: Self,
+        data: SignInDto,
+    ) -> User | None:
+        if data.hashed_password is None:
+            error_text = "hashed_password is None"
+            raise ValueError(error_text)
+
+        query = users.update()
+        query = query.where(users.c.email == data.email)
+        query = query.where(
+            users.c.password == data.hashed_password.get_secret_value(),
+        )
+        query = query.values(
+            last_login=datetime.now(),
+        )
+        query = query.returning(users)
+
+        result = await self.session.execute(query)
+        result = result.first()
+
+        if result is None:
+            return None
+
+        return User(
+            id=result["id"],
+            created=result["created"],
+            password=SecretStr(result["password"]),
+            email=result["email"],
+            username=result["username"],
+            is_active=result["is_active"],
+            is_admin=result["is_admin"],
+            is_banned=result["is_banned"],
+            last_login=result["last_login"],
+            last_login_ip=result["last_login_ip"],
+            activation_code=SecretStr(result["activation_code"]),
+        )

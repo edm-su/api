@@ -1,11 +1,14 @@
 import logging.config
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
+from fastapi.responses import JSONResponse
+from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
 from app.db import database
 from app.internal.controller.http.router import api_router
+from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.meilisearch import config_ms, ms_client
 from app.routers import djs, tokens  # user_videos,
 from app.settings import settings
@@ -62,6 +65,25 @@ app.include_router(tokens.router)
 app.include_router(djs.router)
 app.include_router(tokens.router)
 app.include_router(api_router)
+
+
+@app.exception_handler(AuthError)
+async def auth_exception_handler(
+    response: Response,
+    exc: AuthError,
+) -> JSONResponse:
+    response.headers["WWW-Authenticate"] = "Bearer"
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"error": "invalid_token", "error_description": str(exc)},
+    )
+
+@app.exception_handler(UserError)
+async def user_exception_handler(exc: UserError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={"error": "invalid_client", "error_description": str(exc)},
+    )
 
 
 app.add_middleware(

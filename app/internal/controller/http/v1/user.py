@@ -1,8 +1,14 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Response,
+)
 from pydantic import (
     BaseModel,
     EmailStr,
@@ -13,19 +19,22 @@ from pydantic import (
 )
 from starlette import status
 
-from app.auth import get_current_user
+from app.auth import create_token, get_current_user
 from app.internal.controller.http.v1.depencies.user import (
     create_activate_user_usecase,
     create_change_password_by_reset_code_usecase,
     create_change_password_usecase,
     create_create_user_usecase,
     create_reset_password_usecase,
+    create_sign_in_usecase,
 )
 from app.internal.entity.user import (
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
     ChangePasswordDto,
     NewUserDto,
+    SignInDto,
+    TokenData,
     User,
 )
 from app.internal.usecase.exceptions.user import (
@@ -38,11 +47,11 @@ from app.internal.usecase.user import (
     ChangePasswordUseCase,
     CreateUserUseCase,
     ResetPasswordUseCase,
+    SignInUseCase,
 )
 from app.tasks import send_activate_email, send_recovery_email
 
 router = APIRouter(tags=["Пользователи"])
-
 
 class SignUpRequest(BaseModel):
     username: str = Field(..., example="user", title="Имя пользователя")
@@ -124,6 +133,41 @@ class MeResponse(BaseModel):
         title="IP адрес последнего входа",
         description="Адрес может быть IPv4 или IPv6",
     )
+
+
+class SignInRequest(BaseModel):
+    email: EmailStr = Field(..., example="example@example.com", title="Email")
+    password: SecretStr = Field(
+        ...,
+        example="password",
+        title="Password",
+        min_length=8,
+    )
+    remember_me: bool = Field(
+        default=False,
+        example=False,
+        title="Remember me",
+        description="Issue a refresh token valid for 1 month",
+    )
+
+
+class SignInResponse(BaseModel):
+    access_token: SecretStr = Field(
+        ...,
+        example="access_token",
+        title="Access token",
+    )
+    token_type: str = Field(
+        default="Bearer",
+        title="Token type",
+    )
+    refresh_token: SecretStr | None = Field(
+        default=None,
+        example="refresh_token",
+        title="Refresh token",
+        description="refresh token valid for 1 month",
+    )
+
 
 
 class PasswordResetRequest(BaseModel):
@@ -324,3 +368,42 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
+
+
+@router.post(
+    "/signin",
+    summary="Authentication",
+    response_model=SignInResponse,
+)
+async def sign_in(
+    response: Response,
+    request_data: SignInRequest,
+    usecase: SignInUseCase = Depends(create_sign_in_usecase),
+) -> SignInResponse:
+    user = await usecase.execute(
+        SignInDto(
+            email=request_data.email,
+            password=request_data.password,
+        ),
+    )
+
+    token_data = TokenData(
+        email=user.email,
+        username=user.username,
+        id=user.id,
+        is_admin=user.is_admin,
+    )
+    access_token = create_token(
+        data=token_data,
+        expires_delta=timedelta(minutes=30),
+    )
+
+    response.headers["Cache-Control"] = "no-store"
+    if request_data.remember_me:
+        return SignInResponse(
+            access_token=SecretStr(access_token),
+            refresh_token=SecretStr(create_token(data=token_data)),
+        )
+    return SignInResponse(
+        access_token=SecretStr(access_token),
+    )

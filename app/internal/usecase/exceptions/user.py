@@ -39,6 +39,26 @@ class WrongPasswordError(UserError):
         super().__init__("Wrong password")
 
 
+class WrongPasswordOrEmailError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("Wrong password or email")
+
+
+class UserIsBannedError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("User is banned")
+
+
+class AuthError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("Authentication code error")
+
+
+class UserNotActivatedError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("User not activated")
+
+
 class WrongResetCodeError(UserError):
     def __init__(self: Self) -> None:
         super().__init__("Wrong reset code")

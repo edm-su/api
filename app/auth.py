@@ -2,8 +2,9 @@ import typing
 from datetime import datetime, timedelta
 
 import jwt
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import ValidationError
 from starlette import status
 
 from app.crud import user
@@ -12,49 +13,33 @@ from app.internal.controller.http.v1.depencies.user import (
     create_get_user_by_username_usecase,
 )
 from app.internal.entity.user import TokenData, User
+from app.internal.usecase.exceptions.user import AuthError
 from app.internal.usecase.user import GetUserByUsernameUseCase
 from app.settings import settings
 
-oauth_scheme = OAuth2PasswordBearer("/users/token", auto_error=False)
+oauth_scheme = OAuth2PasswordBearer("/users/signin", auto_error=False)
 
 
 async def get_current_user(
-    authorization: str | None = Header(None),
     token: str = Depends(oauth_scheme),
     usecase: GetUserByUsernameUseCase = Depends(
         create_get_user_by_username_usecase,
     ),
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Не удалось проверить учётные данные",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    if not token and authorization:
-        schema, _, token = authorization.partition(" ")
-        token_length = 64
-        if schema.lower() != "token" or len(token) != token_length:
-            raise credentials_exception
-        db_user = await user.get_user_by_token(token)
-        if db_user is None:
-            raise credentials_exception
-        return db_user
-
     try:
         payload = jwt.decode(
             token,
             settings.secret_key,
             algorithms=["HS256"],
         )
-        username = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except jwt.PyJWTError:
-        raise credentials_exception
+        token_data = TokenData.parse_obj(payload)
+    except jwt.PyJWTError as e:
+        raise AuthError from e
+    except ValidationError as e:
+        raise AuthError from e
     db_user = await usecase.execute(token_data.username)
     if db_user is None:
-        raise credentials_exception
+        raise AuthError
     return db_user
 
 
@@ -94,11 +79,11 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return get_password_hash(password) == hashed_password
 
 
-def create_access_token(
+def create_token(
     *,
-    data: dict,
+    data: TokenData,
     expires_delta: timedelta = timedelta(days=31),
 ) -> str:
-    to_encode = data.copy()
+    to_encode = data.dict()
     to_encode.update({"exp": datetime.utcnow() + expires_delta})
     return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")

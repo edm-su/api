@@ -11,6 +11,7 @@ from app.internal.usecase.user import (
     CreateUserUseCase,
     GetUserByUsernameUseCase,
     ResetPasswordUseCase,
+    SignInUseCase,
 )
 from app.pkg.postgres import get_session
 
@@ -63,3 +64,10 @@ def create_change_password_by_reset_code_usecase(
     repository: PostgresUserRepository = Depends(create_pg_repository),
 ) -> ChangePasswordByResetCodeUseCase:
     return ChangePasswordByResetCodeUseCase(repository)
+
+
+def create_sign_in_usecase(
+    *,
+    repository: PostgresUserRepository = Depends(create_pg_repository),
+) -> SignInUseCase:
+    return SignInUseCase(repository)

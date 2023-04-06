@@ -31,6 +31,12 @@ class AdvancedUser(UserBase):
     email: EmailStr
 
 
+class SignInDto(BaseModel):
+    email: EmailStr
+    password: SecretStr
+    hashed_password: SecretStr | None = Field(default=None)
+
+
 class Admin(BaseModel):
     is_admin: bool
 
@@ -122,4 +128,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    id: int
+    email: EmailStr
     username: str
+    is_admin: bool = Field(default=False)

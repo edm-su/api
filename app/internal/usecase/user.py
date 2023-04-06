@@ -10,13 +10,17 @@ from app.internal.entity.user import (
     ChangePasswordDto,
     NewUserDto,
     ResetPasswordDto,
+    SignInDto,
     User,
 )
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
+    UserIsBannedError,
+    UserNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
+    WrongPasswordOrEmailError,
     WrongResetCodeError,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
@@ -142,3 +146,26 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
             raise WrongResetCodeError
 
         return True
+
+
+class SignInUseCase(AbstractUserUseCase):
+    async def execute(
+        self: Self,
+        data: SignInDto,
+    ) -> User:
+        data.hashed_password = SecretStr(
+            get_password_hash(data.password.get_secret_value()),
+        )
+
+        user = await self.repository.sign_in(data)
+
+        if not user:
+            raise WrongPasswordOrEmailError
+
+        if user.is_banned:
+            raise UserIsBannedError
+
+        if not user.is_active:
+            raise UserNotActivatedError
+
+        return user
