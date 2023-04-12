@@ -50,7 +50,6 @@ def new_livestream(faker: Faker, livestream: LiveStream) -> CreateLiveStream:
         title=livestream.title,
         slug=livestream.slug,
         cancelled=livestream.cancelled,
-        djs=livestream.djs,
         end_time=livestream.end_time,
         start_time=livestream.start_time,
         genres=livestream.genres,

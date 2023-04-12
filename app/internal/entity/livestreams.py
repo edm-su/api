@@ -13,7 +13,6 @@ class BaseLiveStream(BaseModel):
     image: str = Field(None)
     genres: list[str] = Field([])
     url: HttpUrl
-    djs: list[str] = Field([])
     slug: str = Field(None)
 
     @validator("end_time")
