@@ -132,3 +132,13 @@ class TokenData(BaseModel):
     email: EmailStr
     username: str
     is_admin: bool = Field(default=False)
+    token_id: int | None = Field(default=None)
+
+
+class UserTokenDTO(BaseModel):
+    name: str
+    expired_at: datetime | None = Field(default=None)
+
+class UserToken(UserTokenDTO):
+    id: int
+    created_at: datetime

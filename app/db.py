@@ -154,7 +154,6 @@ users_tokens = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("name", sqlalchemy.String(64), nullable=True),
-    sqlalchemy.Column("token", sqlalchemy.String(64), unique=True),
     sqlalchemy.Column(
         "user_id",
         sqlalchemy.ForeignKey("users.id", ondelete="CASCADE"),
@@ -165,5 +164,15 @@ users_tokens = sqlalchemy.Table(
         sqlalchemy.DateTime(timezone=True),
         nullable=False,
         server_default=sqlalchemy.sql.func.now(),
+    ),
+    sqlalchemy.Column(
+        "expired_at",
+        sqlalchemy.DateTime(timezone=True),
+        nullable=True,
+    ),
+    sqlalchemy.Column(
+        "revoked_at",
+        sqlalchemy.DateTime(timezone=True),
+        nullable=True,
     ),
 )

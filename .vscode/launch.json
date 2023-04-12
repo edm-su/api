@@ -9,9 +9,33 @@
             "type": "python",
             "request": "launch",
             "module": "alembic",
-            "args": ["upgrade", "head"],
+            "args": [
+                "upgrade",
+                "head"
+            ],
             "cwd": "${workspaceFolder}/",
             "envFile": "${workspaceFolder}/.dev.env"
+        },
+        {
+            "name": "Generage alembic migration",
+            "type": "python",
+            "request": "launch",
+            "module": "alembic",
+            "args": [
+                "revision",
+                "--autogenerate",
+                "-m",
+                "${input:migrationMessage}"
+            ],
+            "cwd": "${workspaceFolder}/",
+            "envFile": "${workspaceFolder}/.dev.env"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "migrationMessage",
+            "type": "promptString",
+            "description": "Alembic migration message",
         }
     ]
 }
