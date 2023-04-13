@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
-from app.db import database
 from app.internal.controller.http.router import api_router
 from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.meilisearch import config_ms, ms_client
@@ -49,12 +48,10 @@ logging.config.dictConfig(LOGGING_CONFIG)
 @app.on_event("startup")
 async def startup() -> None:
     await config_ms(ms_client)
-    await database.connect()
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    await database.disconnect()
     await ms_client.aclose()
 
 
