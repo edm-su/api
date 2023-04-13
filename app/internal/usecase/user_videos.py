@@ -1,6 +1,5 @@
-from typing import Self
+from typing_extensions import Self
 
-from app.helpers import Paginator
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.user_videos import (
