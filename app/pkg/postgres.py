@@ -1,30 +1,17 @@
-import logging
-from collections.abc import AsyncIterator
-
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from app.settings import settings
-
-logger = logging.getLogger("app")
 
 async_engine = create_async_engine(
     settings.database_url,
     pool_pre_ping=True,
 )
 
-AsyncSessionLocal = sessionmaker(
+async_session = async_sessionmaker(
     bind=async_engine,
-    class_=AsyncSession,
     autoflush=False,
-    future=True,
+    expire_on_commit=False,
 )
-
-
-async def get_session() -> AsyncIterator[AsyncSession]:
-    try:
-        yield AsyncSessionLocal  # type: ignore[assignment]
-    except SQLAlchemyError as e:
-        logger.exception(msg=e)
-        raise e from None

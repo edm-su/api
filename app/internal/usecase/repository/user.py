@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from pydantic import SecretStr
+from sqlalchemy import false
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
@@ -98,24 +99,26 @@ class PostgresUserRepository(AbstractUserRepository):
             query = query.where(whereclause)
 
         result = await self.session.execute(query)
-        result = result.first()
-        return (
-            User(
-                id=result["id"],
-                created=result["created"],
-                password=SecretStr(result["password"]),
-                email=result["email"],
-                username=result["username"],
-                is_active=result["is_active"],
-                is_admin=result["is_admin"],
-                is_banned=result["is_banned"],
-                last_login=result["last_login"],
-                last_login_ip=result["last_login_ip"],
-                activation_code=SecretStr(result["activation_code"]),
-            )
-            if result
-            else None
-        )
+        result_row = result.mappings().first()
+
+        if result_row:
+            activation_code = None
+            if result_row["activation_code"]:
+                activation_code = SecretStr(result_row["activation_code"])
+            return User(
+                    id=result_row["id"],
+                    created=result_row["created"],
+                    password=SecretStr(result_row["password"]),
+                    email=result_row["email"],
+                    username=result_row["username"],
+                    is_active=result_row["is_active"],
+                    is_admin=result_row["is_admin"],
+                    is_banned=result_row["is_banned"],
+                    last_login=result_row["last_login"],
+                    last_login_ip=result_row["last_login_ip"],
+                    activation_code=activation_code,
+                )
+        return None
 
     async def get_by_email(
         self: Self,
@@ -154,19 +157,19 @@ class PostgresUserRepository(AbstractUserRepository):
         }
         query = users.insert().values(values).returning(users)
         result = await self.session.execute(query)
-        result = result.first()
+        result_row = result.mappings().one()
         return User(
-            id=result["id"],
-            created=result["created"],
-            password=SecretStr(result["password"]),
-            email=result["email"],
-            username=result["username"],
-            is_active=result["is_activate"],
-            is_admin=result["is_admin"],
-            is_banned=result["is_banned"],
-            last_login=result["last_login"],
-            last_login_ip=result["last_login_ip"],
-            activation_code=SecretStr(result["activation_code"]),
+            id=result_row["id"],
+            created=result_row["created"],
+            password=SecretStr(result_row["password"]),
+            email=result_row["email"],
+            username=result_row["username"],
+            is_active=result_row["is_active"],
+            is_admin=result_row["is_admin"],
+            is_banned=result_row["is_banned"],
+            last_login=result_row["last_login"],
+            last_login_ip=result_row["last_login_ip"],
+            activation_code=SecretStr(result_row["activation_code"]),
         )
 
     async def activate(
@@ -174,13 +177,15 @@ class PostgresUserRepository(AbstractUserRepository):
         code: ActivateUserDto,
     ) -> bool:
         query = users.update()
-        query = query.where(users.c.is_activate.is_(False))  # noqa: FBT003
+        query = query.where(users.c.is_active == false())
         query = query.where(
             users.c.activation_code == code.activation_code.get_secret_value(),
         )
         query = query.where(users.c.id == code.id)
-        query = query.values(is_activate=True, activation_code=None)
-        return bool(await self.session.execute(query))
+        query = query.values(is_active=True, activation_code=None)
+        query = query.returning(users)
+        result = await self.session.execute(query)
+        return bool(result.scalar_one_or_none())
 
     async def set_reset_password_code(
         self: Self,
@@ -193,18 +198,27 @@ class PostgresUserRepository(AbstractUserRepository):
                 "recovery_code_lifetime_end": data.expires,
             },
         )
-        return bool(await self.session.execute(query))
+        query = query.returning(users)
+        result = await self.session.execute(query)
+        return bool(result.scalar_one_or_none())
 
     async def change_password(
         self: Self,
         data: ChangePasswordDto,
     ) -> bool:
-        query = users.update().where(users.c.id == data.id)
-        query = query.where(users.c.password == data.hashed_old_password)
-
         if data.hashed_new_password is None:
             error_text = "hashed_new_password is None"
             raise ValueError(error_text)
+
+        if data.hashed_old_password is None:
+            error_text = "hashed_old_password is None"
+            raise ValueError(error_text)
+
+        query = users.update().where(users.c.id == data.id)
+        query = query.where(
+            users.c.password == data.hashed_old_password.get_secret_value(),
+        )
+
         query = query.values(
             {
                 "password": data.hashed_new_password.get_secret_value(),
@@ -212,14 +226,18 @@ class PostgresUserRepository(AbstractUserRepository):
                 "recovery_code_lifetime_end": None,
             },
         )
-        return bool(await self.session.execute(query))
+        query = query.returning(users)
+        result = await self.session.execute(query)
+        return bool(result.scalar_one_or_none())
 
     async def change_password_by_reset_code(
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> bool:
         query = users.update().where(users.c.id == data.id)
-        query = query.where(users.c.recovery_code == data.code)
+        query = query.where(
+            users.c.recovery_code == data.code.get_secret_value(),
+        )
         query = query.where(
             users.c.recovery_code_lifetime_end > datetime.now(),
         )
@@ -233,7 +251,10 @@ class PostgresUserRepository(AbstractUserRepository):
                 "recovery_code_lifetime_end": None,
             },
         )
-        return bool(await self.session.execute(query))
+        query = query.returning(users)
+
+        result = await self.session.execute(query)
+        return bool(result.scalar_one_or_none())
 
     async def sign_in(
         self: Self,
@@ -253,8 +274,7 @@ class PostgresUserRepository(AbstractUserRepository):
         )
         query = query.returning(users)
 
-        result = await self.session.execute(query)
-        result = result.first()
+        result = (await self.session.execute(query)).mappings().one_or_none()
 
         if result is None:
             return None
