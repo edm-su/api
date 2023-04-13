@@ -154,9 +154,11 @@ class PostgresUserRepository(AbstractUserRepository):
             "email": new_user.email,
             "password": new_user.hashed_password.get_secret_value(),
             "activation_code": new_user.activation_code.get_secret_value(),
+            "is_active": new_user.is_active,
         }
         query = users.insert().values(values).returning(users)
         result = await self.session.execute(query)
+        await self.session.commit()
         result_row = result.mappings().one()
         return User(
             id=result_row["id"],
@@ -185,6 +187,7 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.values(is_active=True, activation_code=None)
         query = query.returning(users)
         result = await self.session.execute(query)
+        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def set_reset_password_code(
@@ -200,6 +203,7 @@ class PostgresUserRepository(AbstractUserRepository):
         )
         query = query.returning(users)
         result = await self.session.execute(query)
+        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def change_password(
@@ -218,7 +222,6 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.where(
             users.c.password == data.hashed_old_password.get_secret_value(),
         )
-
         query = query.values(
             {
                 "password": data.hashed_new_password.get_secret_value(),
@@ -227,23 +230,25 @@ class PostgresUserRepository(AbstractUserRepository):
             },
         )
         query = query.returning(users)
+
         result = await self.session.execute(query)
+        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def change_password_by_reset_code(
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> bool:
-        query = users.update().where(users.c.id == data.id)
-        query = query.where(
-            users.c.recovery_code == data.code.get_secret_value(),
-        )
-        query = query.where(
-            users.c.recovery_code_lifetime_end > datetime.now(),
-        )
         if data.hashed_new_password is None:
             error_text = "hashed_new_password is None"
             raise ValueError(error_text)
+
+        query = users.update().where(
+            (users.c.id == data.id) &
+            (users.c.recovery_code == data.code.get_secret_value()) &
+            (users.c.recovery_code_lifetime_end > datetime.now()),
+        )
+
         query = query.values(
             {
                 "password": data.hashed_new_password.get_secret_value(),
@@ -254,6 +259,7 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.returning(users)
 
         result = await self.session.execute(query)
+        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def sign_in(
@@ -275,6 +281,7 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.returning(users)
 
         result = (await self.session.execute(query)).mappings().one_or_none()
+        await self.session.commit()
 
         if result is None:
             return None

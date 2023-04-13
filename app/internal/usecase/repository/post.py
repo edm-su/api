@@ -56,10 +56,22 @@ class PostgresPostRepository(AbstractPostRepository):
         post: NewPostDTO,
     ) -> Post:
         post.published_at = post.published_at.replace(tzinfo=None)
-        query = posts.insert().values(**post.dict())
-        result = await self.session.execute(query)
+        values = {
+            "title": post.title,
+            "annotation": post.annotation,
+            "text": post.text,
+            "slug": post.slug,
+            "published_at": post.published_at,
+            "thumbnail": post.thumbnail,
+            "user_id": post.user.id,
+        }
+
+        query = posts.insert().values(values)
+        query = query.returning(posts.c.id)
+        result = (await self.session.execute(query)).mappings().one()
+        await self.session.commit()
         return Post(
-            id=result.inserted_primary_key[0],
+            id=result["id"],
             title=post.title,
             text=post.text,
             slug=post.slug,

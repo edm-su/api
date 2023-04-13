@@ -3,7 +3,7 @@
     "-v",
     "--cov=app/",
     "--cov-report=xml",
-    "--pdb",
+    // "--pdb",
     "tests/"
   ],
   "python.testing.unittestEnabled": false,

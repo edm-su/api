@@ -66,37 +66,6 @@ class TestPostgresUserRepository:
         assert user
         assert user.is_active
 
-    async def test_set_reset_password_code(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        reset_password_data: ResetPasswordDto,
-    ) -> None:
-        result = await postgres_user_repository.set_reset_password_code(
-            reset_password_data,
-        )
-        assert result
-
-    async def test_change_password(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        change_password_data: ChangePasswordDto,
-    ) -> None:
-        result = await postgres_user_repository.change_password(
-            change_password_data,
-        )
-        assert result
-
-    async def test_change_password_by_reset_code(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        change_password_with_code_data: ChangePasswordByResetCodeDto,
-        pg_reset_user: bool,  # noqa: FBT001
-    ) -> None:
-        result = await postgres_user_repository.change_password_by_reset_code(
-            change_password_with_code_data,
-        )
-        assert result
-
     async def test_sign_in(
         self: Self,
         postgres_user_repository: PostgresUserRepository,
@@ -109,6 +78,36 @@ class TestPostgresUserRepository:
         assert result
         assert isinstance(result, User)
         assert result.id == pg_user.id
+
+    async def test_change_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        change_password_data: ChangePasswordDto,
+    ) -> None:
+        result = await postgres_user_repository.change_password(
+            change_password_data,
+        )
+        assert result
+
+    async def test_set_reset_password_code(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        reset_password_data: ResetPasswordDto,
+    ) -> None:
+        result = await postgres_user_repository.set_reset_password_code(
+            reset_password_data,
+        )
+        assert result
+
+    async def test_change_password_by_reset_code(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        change_password_with_code_data: ChangePasswordByResetCodeDto,
+    ) -> None:
+        result = await postgres_user_repository.change_password_by_reset_code(
+            change_password_with_code_data,
+        )
+        assert result
 
 class TestPostgresUserRepositoryBoundary():
     async def test_get_by_invalid_email(
@@ -134,7 +133,7 @@ class TestPostgresUserRepositoryBoundary():
         postgres_user_repository: PostgresUserRepository,
         pg_user: User,
     ) -> None:
-        fake_id = 1 + pg_user.id
+        fake_id = 1_000 + pg_user.id
         result = await postgres_user_repository.get_by_id(fake_id)
         assert result is None
 
@@ -160,7 +159,6 @@ class TestPostgresUserRepositoryBoundary():
 
     async def test_change_password_with_wrong_reset_code(
         self: Self,
-        pg_reset_user: bool,  # noqa: FBT001
         postgres_user_repository: PostgresUserRepository,
         change_password_with_code_data: ChangePasswordByResetCodeDto,
     ) -> None:
