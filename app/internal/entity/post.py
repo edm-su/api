@@ -11,7 +11,7 @@ class BasePost(BaseModel):
     annotation: str | None = Field(default=None)
     text: dict[str, int | list[dict[str, str | dict]] | str]
     slug: str
-    published_at: datetime
+    published_at: datetime | None = Field(default=None)
     thumbnail: str | None = Field(default=None)
 
     @validator("slug")
@@ -24,8 +24,13 @@ class BasePost(BaseModel):
 
 
 class CreatePost(BasePost):
-    @validator("published_at")
-    def time_after_now(cls, v: datetime) -> datetime:  # noqa: ANN101, N805
+    @validator("published_at", always=True)
+    def time_after_now(
+        cls,  # noqa: ANN101, N805
+        v: datetime,
+    ) -> datetime:
+        if v is None:
+            return datetime.now(timezone.utc)
         if v < datetime.now(timezone.utc):
             error = "должно быть больше текущего"
             raise ValueError(error)

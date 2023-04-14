@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.db import posts
-from app.helpers import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 
 
@@ -28,7 +27,8 @@ class AbstractPostRepository(ABC):
     @abstractmethod
     async def get_all(
         self: Self,
-        paginator: Paginator,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[None | Post]:
         pass
 
@@ -55,7 +55,8 @@ class PostgresPostRepository(AbstractPostRepository):
         self: Self,
         post: NewPostDTO,
     ) -> Post:
-        post.published_at = post.published_at.replace(tzinfo=None)
+        if post.published_at:
+            post.published_at = post.published_at.replace(tzinfo=None)
         values = {
             "title": post.title,
             "annotation": post.annotation,
@@ -108,25 +109,30 @@ class PostgresPostRepository(AbstractPostRepository):
 
     async def get_all(
         self: Self,
-        paginator: Paginator,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[None | Post]:
         query = posts.select().where(posts.c.published_at <= datetime.now())
         query = query.order_by(posts.c.published_at.desc())
-        query = query.offset(paginator.skip).limit(paginator.limit)
+        query = query.offset(skip).limit(limit)
 
         result = await self.session.stream(query)
+        rows = await result.mappings().all()
 
-        return [Post(**row) async for row in result]
+        return [Post(**row) for row in rows]
 
     async def count(self: Self) -> int:
-        query = select([func.count()]).select_from(posts)
+        query = select(func.count()).select_from(posts)
+        query = query.where(posts.c.published_at <= datetime.now())
         result = await self.session.execute(query)
-        return result.scalar()
+        return result.scalar_one()
 
     async def delete(
         self: Self,
         post: Post,
     ) -> bool:
-        query = posts.delete().where(posts.c.id == post.id)
-        result = await self.session.execute(query)
-        return bool(result.rowcount)
+        query = posts.delete().returning(posts.c.id).where(
+            posts.c.id == post.id,
+        )
+        result = (await self.session.execute(query)).scalar_one_or_none()
+        return bool(result)
