@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.db import liked_videos, videos
-from app.helpers import Paginator
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
 
@@ -59,10 +58,10 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         video: Video,
     ) -> None:
         query = liked_videos.insert().values(
-          user_id=user.id,
-          video_id=video.id,
+            user_id=user.id,
+            video_id=video.id,
         )
-        return await self._session.execute(query)
+        await self._session.execute(query)
 
     async def unlike_video(
         self: Self,
@@ -70,10 +69,10 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         video: Video,
     ) -> None:
         query = liked_videos.delete().where(
-          (liked_videos.c.user_id == user.id)
-          & (liked_videos.c.video_id == video.id),
+            (liked_videos.c.user_id == user.id)
+            & (liked_videos.c.video_id == video.id),
         )
-        return await self._session.execute(query)
+        await self._session.execute(query)
 
     async def get_user_videos(
         self: Self,
@@ -83,7 +82,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         offset: int = 0,
     ) -> list[Video]:
         query = (
-            select([videos])
+            select(videos)
             .select_from(
                 liked_videos.join(
                     videos,
@@ -98,7 +97,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
             .offset(offset)
             .order_by(liked_videos.c.created_at.desc())
         )
-        result = await self._session.stream(query)
+        result = (await self._session.execute(query)).mappings().all()
         return [Video(**video) for video in result]
 
     async def is_liked(
@@ -106,12 +105,13 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         user: User,
         video: Video,
     ) -> bool:
-        query = (
-            select([exists().where(and_(
-                liked_videos.c.user_id == user.id,
-                liked_videos.c.video_id == video.id,
-                videos.c.deleted == false(),
-            ))])
-            .select_from(liked_videos.join(videos))
-        )
-        return await self._session.scalar(query)
+        query = select(
+            exists().where(
+                and_(
+                    liked_videos.c.user_id == user.id,
+                    liked_videos.c.video_id == video.id,
+                    videos.c.deleted == false(),
+                ),
+            ),
+        ).select_from(liked_videos.join(videos))
+        return bool(await self._session.scalar(query))

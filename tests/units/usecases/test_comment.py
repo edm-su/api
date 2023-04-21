@@ -38,6 +38,7 @@ def video(faker: Faker) -> Video:
         ),
     )
 
+
 @pytest.fixture()
 def comment(
     faker: Faker,
@@ -53,6 +54,7 @@ def comment(
             start_date="-1y",
         ),
     )
+
 
 @pytest.fixture()
 def user(faker: Faker) -> User:

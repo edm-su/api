@@ -28,11 +28,13 @@ def create_like_video_usecase(
 ) -> LikeVideoUseCase:
     return LikeVideoUseCase(repository)
 
+
 def create_unlike_video_usecase(
     *,
     repository: PostgresUserVideosRepository = Depends(create_pg_repository),
 ) -> UnlikeVideoUseCase:
     return UnlikeVideoUseCase(repository)
+
 
 def create_get_user_videos_usecase(
     *,

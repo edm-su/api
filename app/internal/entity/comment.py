@@ -19,6 +19,7 @@ class CommentBase(BaseModel):
             raise ValueError(error_text)
         return v
 
+
 class NewCommentDto(CommentBase):
     user: User
     video: Video

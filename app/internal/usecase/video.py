@@ -17,7 +17,7 @@ from app.internal.usecase.repository.video import (
 )
 
 
-class BaseVideoUseCase():
+class BaseVideoUseCase:
     def __init__(
         self: Self,
         repository: AbstractVideoRepository,

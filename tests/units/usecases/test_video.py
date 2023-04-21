@@ -34,6 +34,7 @@ def repository(mocker: MockFixture) -> AsyncMock:
 def full_text_repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractFullTextVideoRepository)
 
+
 @pytest.fixture()
 def video(faker: Faker) -> Video:
     return Video(

@@ -10,7 +10,7 @@ from app.internal.usecase.exceptions.video import (
 from app.internal.usecase.repository.post import AbstractPostRepository
 
 
-class BasePostUseCase():
+class BasePostUseCase:
     def __init__(
         self: Self,
         repository: AbstractPostRepository,
@@ -49,7 +49,10 @@ class GetAllPostsUseCase(BasePostUseCase):
         self: Self,
         paginator: Paginator,
     ) -> list[Post | None]:
-        return await self.repository.get_all(paginator=paginator)
+        return await self.repository.get_all(
+            skip=paginator.skip,
+            limit=paginator.limit,
+        )
 
 
 class DeletePostUseCase(BasePostUseCase):

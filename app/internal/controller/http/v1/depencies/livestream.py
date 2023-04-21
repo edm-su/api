@@ -18,10 +18,9 @@ from app.pkg.postgres import get_session
 
 
 async def create_pg_repository(
-    db_session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> PostgresLiveStreamRepository:
-    async with db_session.begin() as session:
-        return PostgresLiveStreamRepository(session)
+    return PostgresLiveStreamRepository(session)
 
 
 def create_get_all_live_streams_usecase(

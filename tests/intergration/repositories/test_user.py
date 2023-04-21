@@ -109,7 +109,8 @@ class TestPostgresUserRepository:
         )
         assert result
 
-class TestPostgresUserRepositoryBoundary():
+
+class TestPostgresUserRepositoryBoundary:
     async def test_get_by_invalid_email(
         self: Self,
         postgres_user_repository: PostgresUserRepository,

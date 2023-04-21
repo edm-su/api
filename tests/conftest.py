@@ -11,6 +11,7 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     yield loop
     loop.close()
 
+
 @pytest.fixture(scope="session")
 def faker() -> Faker:
     return Faker()

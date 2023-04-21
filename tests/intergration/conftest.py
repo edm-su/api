@@ -26,6 +26,7 @@ async def _setup_db() -> None:
         await conn.run_sync(metadata.drop_all)
         await conn.run_sync(metadata.create_all)
 
+
 @pytest.fixture(scope="session")
 async def pg_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
@@ -54,7 +55,7 @@ def new_user_data(faker: Faker) -> NewUserDto:
 
 @pytest.fixture(scope="session")
 async def pg_user(
-    postgres_user_repository:PostgresUserRepository,
+    postgres_user_repository: PostgresUserRepository,
     faker: Faker,
 ) -> User:
     password = faker.password()
@@ -68,9 +69,10 @@ async def pg_user(
     )
     return await postgres_user_repository.create(user)
 
+
 @pytest.fixture(scope="session")
 async def pg_nonactive_user(
-    postgres_user_repository:PostgresUserRepository,
+    postgres_user_repository: PostgresUserRepository,
     faker: Faker,
 ) -> User:
     password = faker.password()
@@ -84,9 +86,10 @@ async def pg_nonactive_user(
     )
     return await postgres_user_repository.create(user)
 
+
 @pytest.fixture(scope="session")
 async def pg_change_password_user(
-    postgres_user_repository:PostgresUserRepository,
+    postgres_user_repository: PostgresUserRepository,
     faker: Faker,
 ) -> User:
     password = faker.password()
@@ -100,15 +103,17 @@ async def pg_change_password_user(
     )
     return await postgres_user_repository.create(user)
 
+
 @pytest.fixture(scope="session")
 def activate_user_data(pg_nonactive_user: User) -> ActivateUserDto:
     if pg_nonactive_user.activation_code is None:
         message = "Activation code is None"
         raise ValueError(message)
     return ActivateUserDto(
-        id = pg_nonactive_user.id,
+        id=pg_nonactive_user.id,
         activation_code=pg_nonactive_user.activation_code,
     )
+
 
 @pytest.fixture(scope="session")
 def reset_password_data(
@@ -116,13 +121,14 @@ def reset_password_data(
     faker: Faker,
 ) -> ResetPasswordDto:
     return ResetPasswordDto(
-        id = pg_change_password_user.id,
-        code = SecretStr(faker.pystr(max_chars=10)),
+        id=pg_change_password_user.id,
+        code=SecretStr(faker.pystr(max_chars=10)),
         expires=faker.date_time_between(
             start_date="now",
             end_date="+1y",
         ),
     )
+
 
 @pytest.fixture(scope="session")
 def change_password_data(
@@ -132,12 +138,13 @@ def change_password_data(
 ) -> ChangePasswordDto:
     new_password = faker.password()
     return ChangePasswordDto(
-        id = pg_change_password_user.id,
+        id=pg_change_password_user.id,
         old_password=new_user_data.password,
         new_password=SecretStr(new_password),
         hashed_old_password=pg_change_password_user.hashed_password,
         hashed_new_password=SecretStr(get_password_hash(new_password)),
     )
+
 
 @pytest.fixture(scope="session")
 def change_password_with_code_data(
@@ -147,11 +154,12 @@ def change_password_with_code_data(
 ) -> ChangePasswordByResetCodeDto:
     password = faker.password()
     return ChangePasswordByResetCodeDto(
-        id = pg_change_password_user.id,
+        id=pg_change_password_user.id,
         code=reset_password_data.code,
         new_password=SecretStr(password),
         hashed_new_password=SecretStr(get_password_hash(password)),
     )
+
 
 @pytest.fixture(scope="session")
 def sign_in_data(
@@ -160,6 +168,6 @@ def sign_in_data(
 ) -> SignInDto:
     return SignInDto(
         email=pg_user.email,
-        hashed_password = pg_user.hashed_password,
+        hashed_password=pg_user.hashed_password,
         password=new_user_data.password,
     )

@@ -139,6 +139,7 @@ class UserTokenDTO(BaseModel):
     name: str
     expired_at: datetime | None = Field(default=None)
 
+
 class UserToken(UserTokenDTO):
     id: int
     created_at: datetime

@@ -22,6 +22,7 @@ class CreateAPITokenRequest(BaseModel):
     name: str
     expired_at: datetime | None = Field(default=None)
 
+
 class CreateAPITokenResponse(BaseModel):
     id: int
     name: str
@@ -29,10 +30,13 @@ class CreateAPITokenResponse(BaseModel):
     created_at: datetime
     token: str
 
+
 class GetAllAPITokensResponse(BaseModel):
     tokens: list[UserToken | None]
 
+
 router = APIRouter(tags=["User API Tokens"])
+
 
 @router.post(
     "/",
@@ -68,6 +72,7 @@ async def create_api_token(
         token=jwt_token,
     )
 
+
 @router.get(
     "/",
     summary="Get all api tokens",
@@ -83,6 +88,7 @@ async def get_all_api_tokens(
     return GetAllAPITokensResponse(
         tokens=await usecase.execute(admin),
     )
+
 
 @router.delete(
     "/{token_id}",

@@ -31,7 +31,10 @@ def downgrade():
         sa.Column("id", sa.INTEGER(), autoincrement=True, nullable=False),
         sa.Column("url", sa.VARCHAR(), autoincrement=False, nullable=False),
         sa.Column(
-            "network", sa.VARCHAR(), autoincrement=False, nullable=False,
+            "network",
+            sa.VARCHAR(),
+            autoincrement=False,
+            nullable=False,
         ),
         sa.Column("dj_id", sa.INTEGER(), autoincrement=False, nullable=False),
         sa.ForeignKeyConstraint(
@@ -68,7 +71,9 @@ def downgrade():
             name="djs_videos_dj_id_fkey",
         ),
         sa.ForeignKeyConstraint(
-            ["video_id"], ["videos.id"], name="djs_videos_video_id_fkey",
+            ["video_id"],
+            ["videos.id"],
+            name="djs_videos_video_id_fkey",
         ),
     )
     # ### end Alembic commands ###

@@ -48,11 +48,11 @@ class PostgresCommentRepository(AbstractCommentRepository):
         comment: NewCommentDto,
     ) -> Comment:
         query = comments.insert().values(**comment.dict())
-        query = query.returning(comments.c.published_at)
-        result_proxy = await self.session.execute(query)
-        result = await result_proxy.fetchone()
+        query = query.returning(comments.c.id, comments.c.published_at)
+
+        result = (await self.session.execute(query)).mappings().one()
         return Comment(
-            id=result_proxy.inserted_primary_key[0],
+            id=result["id"],
             video_id=comment.video.id,
             user_id=comment.user.id,
             text=comment.text,
@@ -70,19 +70,24 @@ class PostgresCommentRepository(AbstractCommentRepository):
             .limit(limit)
             .order_by(comments.c.id)
         )
-        result = await self.session.stream(query)
-        return [Comment(**row) async for row in result]
+
+        result = (await self.session.execute(query)).mappings().all()
+        return [Comment(**row) for row in result]
 
     async def count(self: Self) -> int:
-        query = select([func.count()]).select_from(comments)
-        result = await self.session.execute(query)
-        return await result.scalar().first()
+        query = select(func.count()).select_from(comments)
+
+        return (await self.session.execute(query)).scalar_one()
 
     async def get_video_comments(
         self: Self,
         video_id: int,
     ) -> list[Comment]:
-        query = comments.select().where(comments.c.video_id == video_id)
-        query = query.order_by(comments.c.id)
-        result = await self.session.stream(query)
-        return [Comment(**row) async for row in result]
+        query = (
+            comments.select()
+            .where(comments.c.video_id == video_id)
+            .order_by(comments.c.id)
+        )
+
+        result = (await self.session.execute(query)).mappings().all()
+        return [Comment(**row) for row in result]

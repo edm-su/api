@@ -37,7 +37,7 @@ async def new_comment(
 ) -> Comment:
     comment = NewCommentDto(
         text=text.text,
-        user=current_user, # type: ignore[arg-type]
+        user=current_user,  # type: ignore[arg-type]
         video=video,
     )
     return await usecase.execute(comment)

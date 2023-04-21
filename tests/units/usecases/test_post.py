@@ -59,6 +59,7 @@ def new_post(
         user=user,
     )
 
+
 @pytest.fixture()
 def user(faker: Faker) -> User:
     return User(

@@ -53,6 +53,7 @@ from app.tasks import send_activate_email, send_recovery_email
 
 router = APIRouter(tags=["Пользователи"])
 
+
 class SignUpRequest(BaseModel):
     username: str = Field(..., example="user", title="Имя пользователя")
     email: EmailStr = Field(..., example="example@example.com", title="Email")
@@ -167,7 +168,6 @@ class SignInResponse(BaseModel):
         title="Refresh token",
         description="refresh token valid for 1 month",
     )
-
 
 
 class PasswordResetRequest(BaseModel):
@@ -320,7 +320,8 @@ async def password_reset(
         code = await usecase.execute(request_data.email)
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e),
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     # TODO: Переделать на отправку через очередь
     background_tasks.add_task(

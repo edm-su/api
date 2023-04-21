@@ -12,7 +12,7 @@ from app.internal.usecase.repository.livestream import (
 )
 
 
-class AbstractLiveStreamUseCase():
+class AbstractLiveStreamUseCase:
     def __init__(
         self: Self,
         repository: AbstractLiveStreamRepository,
@@ -59,7 +59,7 @@ class UpdateLiveStreamUseCase(AbstractLiveStreamUseCase):
     async def execute(
         self: Self,
         live_stream: LiveStream,
-    )-> LiveStream:
+    ) -> LiveStream:
         updated = await self.repository.update(live_stream=live_stream)
         if not updated:
             raise LiveStreamNotFoundError(live_stream_id=live_stream.id)

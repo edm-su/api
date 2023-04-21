@@ -30,28 +30,45 @@ def downgrade():
         "djs_genres",
         sa.Column("dj_id", sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column(
-            "genre_id", sa.INTEGER(), autoincrement=False, nullable=True,
+            "genre_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=True,
         ),
         sa.ForeignKeyConstraint(
-            ["dj_id"], ["djs.id"], name="djs_genres_dj_id_fkey",
+            ["dj_id"],
+            ["djs.id"],
+            name="djs_genres_dj_id_fkey",
         ),
         sa.ForeignKeyConstraint(
-            ["genre_id"], ["genres.id"], name="djs_genres_genre_id_fkey",
+            ["genre_id"],
+            ["genres.id"],
+            name="djs_genres_genre_id_fkey",
         ),
     )
     op.create_table(
         "videos_genres",
         sa.Column(
-            "video_id", sa.INTEGER(), autoincrement=False, nullable=True,
+            "video_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=True,
         ),
         sa.Column(
-            "genre_id", sa.INTEGER(), autoincrement=False, nullable=True,
+            "genre_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=True,
         ),
         sa.ForeignKeyConstraint(
-            ["genre_id"], ["genres.id"], name="videos_genres_genre_id_fkey",
+            ["genre_id"],
+            ["genres.id"],
+            name="videos_genres_genre_id_fkey",
         ),
         sa.ForeignKeyConstraint(
-            ["video_id"], ["videos.id"], name="videos_genres_video_id_fkey",
+            ["video_id"],
+            ["videos.id"],
+            name="videos_genres_video_id_fkey",
         ),
     )
     op.create_table(

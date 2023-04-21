@@ -1,7 +1,5 @@
-from collections.abc import AsyncIterator
-
 from fastapi import Depends
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.internal.usecase.repository.user import PostgresUserRepository
 from app.internal.usecase.user import (
@@ -18,10 +16,9 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: AsyncIterator[sessionmaker] = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> PostgresUserRepository:
-    async with db_session.begin() as session:  # type: ignore[attr-defined]
-        return PostgresUserRepository(session)
+    return PostgresUserRepository(session)
 
 
 def create_create_user_usecase(

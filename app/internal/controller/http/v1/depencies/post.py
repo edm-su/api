@@ -20,7 +20,7 @@ async def create_pg_repository(
     *,
     db_session: AsyncIterator[sessionmaker] = Depends(get_session),
 ) -> PostgresPostRepository:
-    async with db_session.begin() as session: # type: ignore[attr-defined]
+    async with db_session.begin() as session:  # type: ignore[attr-defined]
         return PostgresPostRepository(session)
 
 

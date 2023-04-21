@@ -34,9 +34,9 @@ class TestUploadImageUseCase:
             yield UploadImageUseCase(repository, f)
 
     async def test_upload_image(
-            self: Self,
-            usecase: UploadImageUseCase,
-        ) -> None:
+        self: Self,
+        usecase: UploadImageUseCase,
+    ) -> None:
         await usecase.execute()
 
         usecase.repository.upload.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501

@@ -26,7 +26,7 @@ from app.internal.usecase.exceptions.user import (
 from app.internal.usecase.repository.user import AbstractUserRepository
 
 
-class AbstractUserUseCase():
+class AbstractUserUseCase:
     def __init__(
         self: Self,
         repository: AbstractUserRepository,

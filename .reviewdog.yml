@@ -8,3 +8,7 @@ runner:
     cmd: poetry run mypy .
     level: warning
     format: mypy
+  black:
+    cmd: poetry run black --check .
+    level: error
+    format: black

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
@@ -7,10 +6,8 @@ from meilisearch_python_async.errors import MeilisearchError
 from meilisearch_python_async.task import wait_for_task
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.expression import false
 from typing_extensions import Self
-
-if TYPE_CHECKING:
-    from sqlalchemy.engine import Result
 
 from app.db import videos
 from app.internal.entity.video import NewVideoDto, Video
@@ -106,54 +103,76 @@ class PostgresVideoRepository(AbstractVideoRepository):
         limit: int = 20,
     ) -> list[Video]:
         query = (
-            select(videos).offset(offset).limit(limit).order_by(videos.c.id)
+            select(videos)
+            .where(videos.c.deleted == false())
+            .offset(offset)
+            .limit(limit)
+            .order_by(videos.c.id)
         )
-        result = await self.session.stream(query)
+
+        result = (await self.session.execute(query)).mappings().all()
         return [Video(**row) for row in result]
 
     async def get_by_slug(
         self: Self,
         slug: str,
     ) -> Video | None:
-        query = select([videos]).where(videos.c.slug == slug)
-        result: Result = await self.session.execute(query)
-        video = result.first()
-        return Video(**video) if video else None # type: ignore[return]
+        query = (
+            select(videos)
+            .where(videos.c.slug == slug)
+            .where(videos.c.deleted_at == false())
+        )
+
+        result = (await self.session.execute(query)).mappings().one_or_none()
+        return Video(**result) if result else None
 
     async def get_by_yt_id(
         self: Self,
         yt_id: str,
     ) -> Video | None:
-        query = select([videos]).where(videos.c.yt_id == yt_id)
-        result: Result = await self.session.execute(query)
-        video = result.first()
-        return Video(**video) if video else None
+        query = (
+            select(videos)
+            .where(videos.c.yt_id == yt_id)
+            .where(videos.c.deleted_at == false())
+        )
+
+        result = (await self.session.execute(query)).mappings().one_or_none()
+        return Video(**result) if result else None
 
     async def get_by_id(
         self: Self,
         id_: int,
     ) -> Video | None:
-        query = select([videos]).where(videos.c.id == id_)
-        result: Result = await self.session.execute(query)
-        video = result.first()
-        return Video(**video) if video else None
+        query = (
+            select(videos)
+            .where(videos.c.id == id_)
+            .where(videos.c.deleted == false())
+        )
+
+        result = (await self.session.execute(query)).mappings().one_or_none()
+        return Video(**result) if result else None
 
     async def create(
         self: Self,
         video: NewVideoDto,
     ) -> Video:
-        query = videos.insert().values(**video.dict())
-        result = await self.session.execute(query)
-        return Video(id=result.inserted_primary_key[0], **video.dict())
+        query = videos.insert().values(**video.dict()).returning(videos.c.id)
+
+        result = (await self.session.execute(query)).scalar_one()
+        return Video(id=result, **video.dict())
 
     async def update(
         self: Self,
         id_: int,
         video: Video,
     ) -> Video:
-        query = videos.update()
-        query = query.where(videos.c.id == id_)
-        query = query.values(**video.dict())
+        query = (
+            videos.update()
+            .where(videos.c.id == id_)
+            .where(videos.c.deleted == false())
+            .values(**video.dict())
+        )
+
         await self.session.execute(query)
         return video
 
@@ -161,13 +180,16 @@ class PostgresVideoRepository(AbstractVideoRepository):
         self: Self,
         id_: int,
     ) -> None:
-        query = videos.delete().where(videos.c.id == id_)
+        query = videos.update().where(videos.c.id == id_).values(deleted=True)
+
         await self.session.execute(query)
 
     async def count(self: Self) -> int:
-        query = select([func.count(videos.c.id)])
-        result = await self.session.execute(query)
-        return result.scalar()
+        query = select(func.count(videos.c.id)).where(
+            videos.c.deleted == false(),
+        )
+
+        return (await self.session.execute(query)).scalar_one()
 
 
 class MeilisearchVideoRepository(AbstractFullTextVideoRepository):

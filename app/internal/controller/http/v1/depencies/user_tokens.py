@@ -21,17 +21,20 @@ async def create_pg_repository(
     async with db_session.begin() as session:  # type: ignore[attr-defined]
         return PostgresUserTokensRepository(session)
 
+
 def create_create_user_token_usecase(
     *,
     repository: PostgresUserTokensRepository = Depends(create_pg_repository),
 ) -> CreateUserTokenUseCase:
     return CreateUserTokenUseCase(repository)
 
+
 def create_get_user_tokens_usecase(
     *,
     repository: PostgresUserTokensRepository = Depends(create_pg_repository),
 ) -> GetAllUserTokensUseCase:
     return GetAllUserTokensUseCase(repository)
+
 
 def create_revoke_user_token_usecase(
     *,

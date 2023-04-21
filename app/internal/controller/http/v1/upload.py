@@ -25,8 +25,9 @@ async def upload_image(
     image: UploadFile = File(...),
     admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
 ) -> ImageURLs:
-    if image.content_type is None \
-        or not image.content_type.startswith("image/"):
+    if image.content_type is None or not image.content_type.startswith(
+        "image/",
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Файл должен быть изображением",

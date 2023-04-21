@@ -11,10 +11,10 @@ from app.internal.usecase.repository.user_videos import (
 )
 
 
-class BaseUserVideosUseCase():
+class BaseUserVideosUseCase:
     def __init__(
-      self: Self,
-      repository: AbstractUserVideosRepository,
+        self: Self,
+        repository: AbstractUserVideosRepository,
     ) -> None:
         self.repository = repository
 

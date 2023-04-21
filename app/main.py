@@ -71,6 +71,7 @@ async def auth_exception_handler(
         content={"error": "invalid_token", "error_description": str(exc)},
     )
 
+
 @app.exception_handler(UserError)
 async def user_exception_handler(exc: UserError) -> JSONResponse:
     return JSONResponse(

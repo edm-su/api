@@ -27,6 +27,7 @@ from app.internal.usecase.user_videos import (
 
 router = APIRouter(tags=["Liked Videos"])
 
+
 @router.post(
     "/videos/{slug}/like",
     summary="Like video",
@@ -45,6 +46,7 @@ async def like_video(
             detail=str(e),
         ) from e
 
+
 @router.delete(
     "/videos/{slug}/like",
     summary="Unlike video",
@@ -62,6 +64,7 @@ async def unlike_video(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         ) from e
+
 
 @router.get(
     "/user/{username}/videos",

@@ -18,7 +18,10 @@ depends_on = None
 
 def upgrade():
     op.alter_column(
-        "channels", "youtube_id", new_column_name="yt_id", nullable=False,
+        "channels",
+        "youtube_id",
+        new_column_name="yt_id",
+        nullable=False,
     )
     op.alter_column(
         "channels",
@@ -27,7 +30,8 @@ def upgrade():
         nullable=False,
     )
     op.add_column(
-        "channels", sa.Column("yt_banner", sa.String(), nullable=True),
+        "channels",
+        sa.Column("yt_banner", sa.String(), nullable=True),
     )
     op.drop_constraint("channels_youtube_id_key", "channels", type_="unique")
     op.create_unique_constraint("channels_yt_id_key", "channels", ["yt_id"])
@@ -36,7 +40,9 @@ def upgrade():
 def downgrade():
     op.drop_constraint("channels_yt_id_key", "channels", type_="unique")
     op.create_unique_constraint(
-        "channels_youtube_id_key", "channels", ["youtube_id"],
+        "channels_youtube_id_key",
+        "channels",
+        ["youtube_id"],
     )
     op.drop_column("channels", "yt_banner")
     op.alter_column(
@@ -46,5 +52,8 @@ def downgrade():
         nullable=False,
     )
     op.alter_column(
-        "channels", "yt_id", new_column_name="youtube_id", nullable=False,
+        "channels",
+        "yt_id",
+        new_column_name="youtube_id",
+        nullable=False,
     )

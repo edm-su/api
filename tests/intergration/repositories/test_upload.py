@@ -10,6 +10,7 @@ from app.internal.usecase.repository.upload import S3UploadRepository
 def s3_upload_repository() -> S3UploadRepository:
     return S3UploadRepository()
 
+
 class TestS3Upload:
     @pytest.mark.asyncio()
     async def test_upload(

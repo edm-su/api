@@ -69,8 +69,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
     ) -> LiveStream | None:
         query = livestreams.select().where(livestreams.c.id == live_stream_id)
 
-        result_proxy = await self.session.execute(query)
-        result = result_proxy.first()
+        result = (await self.session.execute(query)).mappings().first()
         return LiveStream(**result) if result else None
 
     async def get_by_slug(
@@ -84,8 +83,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
             between(livestreams.c.start_time, start, end),
         )
 
-        result_proxy = await self.session.execute(query)
-        result = result_proxy.first()
+        result = (await self.session.execute(query)).mappings().first()
         return LiveStream(**result) if result else None
 
     async def get_all(
@@ -97,17 +95,19 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
             between(livestreams.c.start_time, start, end),
         )
 
-        result = await self.session.stream(query)
-        return [LiveStream(**row) async for row in result]
+        result = (await self.session.execute(query)).mappings().all()
+        return [LiveStream(**row) for row in result]
 
     async def create(
         self: Self,
         live_stream: CreateLiveStream,
     ) -> LiveStream:
         query = livestreams.insert().values(**live_stream.dict())
-        result = await self.session.execute(query)
+        query = query.returning(livestreams.c.id)
+
+        result = (await self.session.execute(query)).scalar_one()
         return LiveStream(
-            id=result.inserted_primary_key[0],
+            id=result,
             **live_stream.dict(),
         )
 
@@ -117,13 +117,16 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
     ) -> bool:
         query = livestreams.update().values(**live_stream.dict())
         query = query.where(livestreams.c.id == live_stream.id)
-        result = await self.session.execute(query)
-        return bool(result.rowcount)
+        query = query.returning(livestreams.c.id)
+
+        result = (await self.session.execute(query)).scalar_one_or_none()
+        return bool(result)
 
     async def delete(
         self: Self,
         live_stream_id: int,
     ) -> bool:
         query = livestreams.delete().where(livestreams.c.id == live_stream_id)
-        result = await self.session.execute(query)
-        return bool(result.rowcount)
+
+        result = (await self.session.execute(query)).scalar_one_or_none()
+        return bool(result)

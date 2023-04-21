@@ -5,7 +5,7 @@ from app.internal.entity.video import Video
 from app.internal.usecase.repository.comment import AbstractCommentRepository
 
 
-class BaseCommentUseCase():
+class BaseCommentUseCase:
     def __init__(
         self: Self,
         repository: AbstractCommentRepository,

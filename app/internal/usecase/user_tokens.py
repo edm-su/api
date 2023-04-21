@@ -7,12 +7,13 @@ from app.internal.usecase.repository.user_tokens import (
 )
 
 
-class BaseUserTokensUseCase():
+class BaseUserTokensUseCase:
     def __init__(
         self: Self,
         repository: AbstractUserTokensRepository,
     ) -> None:
         self.repository = repository
+
 
 class GetAllUserTokensUseCase(BaseUserTokensUseCase):
     async def execute(
@@ -20,6 +21,7 @@ class GetAllUserTokensUseCase(BaseUserTokensUseCase):
         user: User,
     ) -> list[UserToken | None]:
         return await self.repository.get_user_tokens(user)
+
 
 class RevokeUserTokenUseCase(BaseUserTokensUseCase):
     async def execute(
@@ -31,6 +33,7 @@ class RevokeUserTokenUseCase(BaseUserTokensUseCase):
         if not token:
             raise UserTokenNotFoundError
         await self.repository.revoke(token, user)
+
 
 class CreateUserTokenUseCase(BaseUserTokensUseCase):
     async def execute(

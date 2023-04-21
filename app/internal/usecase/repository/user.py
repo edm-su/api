@@ -106,18 +106,18 @@ class PostgresUserRepository(AbstractUserRepository):
             if result_row["activation_code"]:
                 activation_code = SecretStr(result_row["activation_code"])
             return User(
-                    id=result_row["id"],
-                    created=result_row["created"],
-                    password=SecretStr(result_row["password"]),
-                    email=result_row["email"],
-                    username=result_row["username"],
-                    is_active=result_row["is_active"],
-                    is_admin=result_row["is_admin"],
-                    is_banned=result_row["is_banned"],
-                    last_login=result_row["last_login"],
-                    last_login_ip=result_row["last_login_ip"],
-                    activation_code=activation_code,
-                )
+                id=result_row["id"],
+                created=result_row["created"],
+                password=SecretStr(result_row["password"]),
+                email=result_row["email"],
+                username=result_row["username"],
+                is_active=result_row["is_active"],
+                is_admin=result_row["is_admin"],
+                is_banned=result_row["is_banned"],
+                last_login=result_row["last_login"],
+                last_login_ip=result_row["last_login_ip"],
+                activation_code=activation_code,
+            )
         return None
 
     async def get_by_email(
@@ -244,9 +244,9 @@ class PostgresUserRepository(AbstractUserRepository):
             raise ValueError(error_text)
 
         query = users.update().where(
-            (users.c.id == data.id) &
-            (users.c.recovery_code == data.code.get_secret_value()) &
-            (users.c.recovery_code_lifetime_end > datetime.now()),
+            (users.c.id == data.id)
+            & (users.c.recovery_code == data.code.get_secret_value())
+            & (users.c.recovery_code_lifetime_end > datetime.now()),
         )
 
         query = query.values(

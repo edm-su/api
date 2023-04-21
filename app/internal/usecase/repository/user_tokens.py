@@ -40,6 +40,7 @@ class AbstractUserTokensRepository(ABC):
     ) -> None:
         pass
 
+
 class PostgresUserTokensRepository(AbstractUserTokensRepository):
     def __init__(
         self: Self,
@@ -58,11 +59,10 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
             "expired_at": token.expired_at,
         }
 
-        query = users_tokens.insert(values)
+        query = users_tokens.insert().values(values)
         query = query.returning(users_tokens.c.id, users_tokens.c.created_at)
 
-        result = await self._session.execute(query)
-        result = result.first()
+        result = (await self._session.execute(query)).mappings().one()
         return UserToken(
             id=result["id"],
             name=token.name,
@@ -75,11 +75,10 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         user: User,
     ) -> list[UserToken | None]:
         query = users_tokens.select().where(
-            (users_tokens.c.user_id == user.id) &
-            (users_tokens.c.revoked_at.is_(None)),
+            (users_tokens.c.user_id == user.id)
+            & (users_tokens.c.revoked_at.is_(None)),
         )
-        result = await self._session.execute(query)
-        result = result.scalars().all()
+        result = (await self._session.execute(query)).mappings().all()
         return [
             UserToken(
                 id=token["id"],
@@ -96,12 +95,11 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         user: User,
     ) -> UserToken | None:
         query = users_tokens.select().where(
-            (users_tokens.c.id == id_) &
-            (users_tokens.c.user_id == user.id) &
-            (users_tokens.c.revoked_at.is_(None)),
+            (users_tokens.c.id == id_)
+            & (users_tokens.c.user_id == user.id)
+            & (users_tokens.c.revoked_at.is_(None)),
         )
-        result = await self._session.execute(query)
-        result = result.scalars().first()
+        result = (await self._session.execute(query)).mappings().one()
         return UserToken(
             id=result["id"],
             name=result["name"],
@@ -117,8 +115,9 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         values = {
             "revoked_at": datetime.utcnow(),
         }
-        query = users_tokens.update(values).where(
-            (users_tokens.c.id == token.id) &
-            (users_tokens.c.user_id == user.id),
+        query = users_tokens.update().values(values)
+        query = query.where(
+            (users_tokens.c.id == token.id)
+            & (users_tokens.c.user_id == user.id),
         )
-        return await self._session.execute(query)
+        await self._session.execute(query)

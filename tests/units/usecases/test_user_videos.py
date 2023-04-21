@@ -25,6 +25,7 @@ from app.internal.usecase.user_videos import (
 def repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractUserVideosRepository)
 
+
 @pytest.fixture()
 def video(faker: Faker) -> Video:
     return Video(
@@ -39,6 +40,7 @@ def video(faker: Faker) -> Video:
         yt_thumbnail=faker.image_url(),
         duration=faker.pyint(),
     )
+
 
 @pytest.fixture()
 def user(faker: Faker) -> User:

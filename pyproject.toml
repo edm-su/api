@@ -36,7 +36,8 @@ optional = true
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
 mypy = "^1.1.1"
-ruff = "^0.0.260"
+ruff = "^0.0.262"
+black = "^23.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -113,3 +114,7 @@ extend-immutable-calls = [
   "fastapi.File",
   "datetime.date.today",
 ]
+
+[tool.black]
+line-length = 79
+target-version = ["py310"]

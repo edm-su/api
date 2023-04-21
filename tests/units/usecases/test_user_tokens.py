@@ -22,6 +22,7 @@ from app.internal.usecase.user_tokens import (
 def repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractUserTokensRepository)
 
+
 @pytest.fixture()
 def user_token(faker: Faker) -> UserToken:
     return UserToken(
@@ -33,6 +34,7 @@ def user_token(faker: Faker) -> UserToken:
             end_date="+1y",
         ),
     )
+
 
 @pytest.fixture()
 def user(faker: Faker) -> User:
@@ -111,6 +113,7 @@ class TestCreateUserTokenUseCase:
         assert result == user_token
 
         repository.create.assert_awaited_once_with(token, user)
+
 
 class TestRevokeUserTokenUseCase:
     @pytest.fixture(autouse=True)

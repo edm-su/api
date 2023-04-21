@@ -117,7 +117,6 @@ class TestCreateUserUseCase:
             repository_method = repository.get_by_username
         repository_method.return_value = user
 
-
         with pytest.raises(UserAlreadyExistsError):
             await usecase.execute(new_user)
 

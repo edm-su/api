@@ -23,9 +23,9 @@ class ImageConverter(ABC):
     extension: str
 
     def __init__(
-            self: Self,
-            file: IO[bytes],
-        ) -> None:
+        self: Self,
+        file: IO[bytes],
+    ) -> None:
         self.file = file
         self.converted_file = None
 

@@ -1,4 +1,3 @@
-import typing
 from datetime import datetime, timedelta
 
 import jwt
@@ -7,7 +6,6 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 from starlette import status
 
-from app.crud import user
 from app.helpers import get_password_hash
 from app.internal.controller.http.v1.depencies.user import (
     create_get_user_by_username_usecase,
@@ -60,18 +58,6 @@ async def get_current_admin(
             detail="Пользователь не является администратором",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return db_user
-
-
-async def authenticate_user(
-    username: str,
-    password: str,
-) -> typing.Mapping | None:
-    db_user = await user.get_user_by_username(username=username)
-    if not db_user:
-        return None
-    if not verify_password(password, db_user["password"]):
-        return None
     return db_user
 
 

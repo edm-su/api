@@ -16,6 +16,7 @@ def repository(
 ) -> PostgresPostRepository:
     return PostgresPostRepository(pg_session)
 
+
 @pytest.fixture()
 def new_post_data(
     faker: Faker,
@@ -33,6 +34,7 @@ def new_post_data(
         user=pg_user,
     )
 
+
 @pytest.fixture()
 async def pg_post(
     faker: Faker,
@@ -46,6 +48,7 @@ async def pg_post(
         user=pg_user,
     )
     return await repository.create(post)
+
 
 class TestPostgresPostRepository:
     async def test_get_by_slug(

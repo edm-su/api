@@ -131,8 +131,12 @@ class PostgresPostRepository(AbstractPostRepository):
         self: Self,
         post: Post,
     ) -> bool:
-        query = posts.delete().returning(posts.c.id).where(
-            posts.c.id == post.id,
+        query = (
+            posts.delete()
+            .returning(posts.c.id)
+            .where(
+                posts.c.id == post.id,
+            )
         )
         result = (await self.session.execute(query)).scalar_one_or_none()
         return bool(result)
