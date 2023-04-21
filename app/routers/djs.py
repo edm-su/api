@@ -87,7 +87,8 @@ async def get_list(
             ]
         else:
             dj.member_of_groups = [
-                group["slug"] for group in members_of_groups
+                group["slug"]
+                for group in members_of_groups
                 if group["dj_id"] == dj.id
             ]
         result.append(dj)
