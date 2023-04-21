@@ -30,10 +30,16 @@ def downgrade():
         sa.Column("slug", sa.VARCHAR(), autoincrement=False, nullable=False),
         sa.Column("yt_id", sa.VARCHAR(), autoincrement=False, nullable=False),
         sa.Column(
-            "yt_thumbnail", sa.VARCHAR(), autoincrement=False, nullable=False,
+            "yt_thumbnail",
+            sa.VARCHAR(),
+            autoincrement=False,
+            nullable=False,
         ),
         sa.Column(
-            "yt_banner", sa.VARCHAR(), autoincrement=False, nullable=True,
+            "yt_banner",
+            sa.VARCHAR(),
+            autoincrement=False,
+            nullable=True,
         ),
         sa.PrimaryKeyConstraint("id", name="channels_pkey"),
         sa.UniqueConstraint("name", name="channels_name_key"),
@@ -43,7 +49,10 @@ def downgrade():
     op.add_column(
         "videos",
         sa.Column(
-            "channel_id", sa.INTEGER(), autoincrement=False, nullable=True,
+            "channel_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=True,
         ),
     )
     op.create_foreign_key(

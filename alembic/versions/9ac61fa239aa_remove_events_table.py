@@ -40,10 +40,17 @@ def downgrade():
     op.add_column(
         "videos",
         sa.Column(
-            "event_id", sa.INTEGER(), autoincrement=False, nullable=True,
+            "event_id",
+            sa.INTEGER(),
+            autoincrement=False,
+            nullable=True,
         ),
     )
     op.create_foreign_key(
-        "videos_event_id_fkey", "videos", "events", ["event_id"], ["id"],
+        "videos_event_id_fkey",
+        "videos",
+        "events",
+        ["event_id"],
+        ["id"],
     )
     # ### end Alembic commands ###

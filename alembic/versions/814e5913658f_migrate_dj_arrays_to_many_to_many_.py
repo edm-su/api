@@ -38,7 +38,8 @@ def upgrade():
     op.drop_column("djs", "member_of_groups")
     op.drop_column("djs", "group_members")
     op.add_column(
-        "djs", sa.Column("is_group", sa.Boolean(), server_default="f"),
+        "djs",
+        sa.Column("is_group", sa.Boolean(), server_default="f"),
     )
     # ### end Alembic commands ###
 

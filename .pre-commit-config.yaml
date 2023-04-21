@@ -6,6 +6,11 @@ repos:
       - id: mypy
         args: [ --ignore-missing-imports, --disallow-untyped-defs ]
         additional_dependencies: [ pyjwt==2.0.0,  types-python-slugify==8.0.0.2]
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3.10
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v2.1.1
     hooks:
