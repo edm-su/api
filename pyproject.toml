@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-alembic = "^1.9"
+alembic = "^1.10"
 fastapi = { version = "0.94.1", extras = ["all"] }
 Pillow = "^9.4.0"
 SQLAlchemy = "^1.4"
