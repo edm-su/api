@@ -16,7 +16,9 @@ from app.internal.entity.user import (
     SignInDto,
     User,
 )
+from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.repository.user import PostgresUserRepository
+from app.internal.usecase.repository.video import PostgresVideoRepository
 from app.pkg.postgres import async_engine, async_session
 
 
@@ -171,3 +173,29 @@ def sign_in_data(
         hashed_password=pg_user.hashed_password,
         password=new_user_data.password,
     )
+
+
+@pytest.fixture()
+def pg_video_repository(
+    pg_session: AsyncSession,
+) -> PostgresVideoRepository:
+    return PostgresVideoRepository(pg_session)
+
+
+@pytest.fixture()
+async def pg_video(
+    pg_video_repository: PostgresVideoRepository,
+    faker: Faker,
+) -> Video:
+    video = NewVideoDto(
+        title=faker.word(),
+        date=faker.date_between(
+            start_date="-1y",
+            end_date="now",
+        ),
+        yt_id=faker.uuid4(),
+        yt_thumbnail=faker.url(),
+        duration=faker.pyint(),
+        slug=faker.slug(),
+    )
+    return await pg_video_repository.create(video)

@@ -47,8 +47,15 @@ class PostgresCommentRepository(AbstractCommentRepository):
         self: Self,
         comment: NewCommentDto,
     ) -> Comment:
-        query = comments.insert().values(**comment.dict())
-        query = query.returning(comments.c.id, comments.c.published_at)
+        query = (
+            comments.insert()
+            .values(
+                **comment.dict(exclude={"user", "video"}),
+                user_id=comment.user.id,
+                video_id=comment.video.id,
+            )
+            .returning(comments.c.id, comments.c.published_at)
+        )
 
         result = (await self.session.execute(query)).mappings().one()
         return Comment(
