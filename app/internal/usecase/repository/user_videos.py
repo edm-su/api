@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import and_, exists, false, select
+from sqlalchemy import and_, false, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
@@ -105,13 +105,13 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         user: User,
         video: Video,
     ) -> bool:
-        query = select(
-            exists().where(
-                and_(
-                    liked_videos.c.user_id == user.id,
-                    liked_videos.c.video_id == video.id,
-                    videos.c.deleted == false(),
-                ),
-            ),
-        ).select_from(liked_videos.join(videos))
+        query = (
+            liked_videos.select()
+            .where(
+                (liked_videos.c.user_id == user.id)
+                & (liked_videos.c.video_id == video.id)
+                & (videos.c.deleted == false()),
+            )
+            .join(videos)
+        )
         return bool(await self._session.scalar(query))
