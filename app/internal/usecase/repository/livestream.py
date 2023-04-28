@@ -78,9 +78,12 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
     ) -> LiveStream | None:
-        query = livestreams.select().where(livestreams.c.slug == slug)
-        query = query.where(
-            between(livestreams.c.start_time, start, end),
+        query = (
+            livestreams.select()
+            .where(livestreams.c.slug == slug)
+            .where(
+                between(livestreams.c.start_time, start, end),
+            )
         )
 
         result = (await self.session.execute(query)).mappings().first()
@@ -102,8 +105,11 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         self: Self,
         live_stream: CreateLiveStream,
     ) -> LiveStream:
-        query = livestreams.insert().values(**live_stream.dict())
-        query = query.returning(livestreams.c.id)
+        query = (
+            livestreams.insert()
+            .values(**live_stream.dict())
+            .returning(livestreams.c.id)
+        )
 
         result = (await self.session.execute(query)).scalar_one()
         return LiveStream(
@@ -115,9 +121,12 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         self: Self,
         live_stream: LiveStream,
     ) -> bool:
-        query = livestreams.update().values(**live_stream.dict())
-        query = query.where(livestreams.c.id == live_stream.id)
-        query = query.returning(livestreams.c.id)
+        query = (
+            livestreams.update()
+            .values(**live_stream.dict())
+            .where(livestreams.c.id == live_stream.id)
+            .returning(livestreams.c.id)
+        )
 
         result = (await self.session.execute(query)).scalar_one_or_none()
         return bool(result)
@@ -126,7 +135,11 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         self: Self,
         live_stream_id: int,
     ) -> bool:
-        query = livestreams.delete().where(livestreams.c.id == live_stream_id)
+        query = (
+            livestreams.delete()
+            .where(livestreams.c.id == live_stream_id)
+            .returning(livestreams.c.id)
+        )
 
         result = (await self.session.execute(query)).scalar_one_or_none()
         return bool(result)
