@@ -37,7 +37,7 @@ class AbstractUserTokensRepository(ABC):
         self: Self,
         token: UserToken,
         user: User,
-    ) -> None:
+    ) -> bool:
         pass
 
 
@@ -59,8 +59,11 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
             "expired_at": token.expired_at,
         }
 
-        query = users_tokens.insert().values(values)
-        query = query.returning(users_tokens.c.id, users_tokens.c.created_at)
+        query = (
+            users_tokens.insert()
+            .values(values)
+            .returning(users_tokens.c.id, users_tokens.c.created_at)
+        )
 
         result = (await self._session.execute(query)).mappings().one()
         return UserToken(
@@ -99,25 +102,37 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
             & (users_tokens.c.user_id == user.id)
             & (users_tokens.c.revoked_at.is_(None)),
         )
-        result = (await self._session.execute(query)).mappings().one()
-        return UserToken(
-            id=result["id"],
-            name=result["name"],
-            expired_at=result["expired_at"],
-            created_at=result["created_at"],
+
+        result = (await self._session.execute(query)).mappings().one_or_none()
+        return (
+            UserToken(
+                id=result["id"],
+                name=result["name"],
+                expired_at=result["expired_at"],
+                created_at=result["created_at"],
+            )
+            if result
+            else None
         )
 
     async def revoke(
         self: Self,
         token: UserToken,
         user: User,
-    ) -> None:
+    ) -> bool:
         values = {
             "revoked_at": datetime.utcnow(),
         }
-        query = users_tokens.update().values(values)
-        query = query.where(
-            (users_tokens.c.id == token.id)
-            & (users_tokens.c.user_id == user.id),
+
+        query = (
+            users_tokens.update()
+            .values(values)
+            .where(
+                (users_tokens.c.id == token.id)
+                & (users_tokens.c.user_id == user.id),
+            )
+            .returning(users_tokens.c.revoked_at)
         )
-        await self._session.execute(query)
+
+        result = (await self._session.execute(query)).scalar_one_or_none()
+        return bool(result)

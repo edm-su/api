@@ -55,15 +55,15 @@ def new_user_data(faker: Faker) -> NewUserDto:
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 async def pg_user(
     postgres_user_repository: PostgresUserRepository,
     faker: Faker,
 ) -> User:
     password = faker.password()
     user = NewUserDto(
-        email=EmailStr("user@example.com"),
-        username="user",
+        email=EmailStr(faker.email()),
+        username=faker.user_name(),
         password=password,
         hashed_password=SecretStr(get_password_hash(password)),
         is_active=True,
@@ -163,7 +163,7 @@ def change_password_with_code_data(
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def sign_in_data(
     pg_user: User,
     new_user_data: NewUserDto,
