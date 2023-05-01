@@ -64,12 +64,6 @@ videos = sqlalchemy.Table(
     sqlalchemy.Column("yt_thumbnail", sqlalchemy.String, nullable=False),
     sqlalchemy.Column("duration", sqlalchemy.Integer, server_default="0"),
     sqlalchemy.Column("deleted", sqlalchemy.Boolean, server_default="f"),
-    sqlalchemy.Index(
-        "title_idx",
-        "title",
-        postgresql_ops={"title": "gin_trgm_ops"},
-        postgresql_using="gin",
-    ),
 )
 
 liked_videos = sqlalchemy.Table(
