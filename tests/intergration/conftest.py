@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 
 import pytest
 from faker import Faker
+from meilisearch_python_async import Client as MeilisearchClient
 from pydantic import EmailStr, SecretStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +20,8 @@ from app.internal.entity.user import (
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.repository.user import PostgresUserRepository
 from app.internal.usecase.repository.video import PostgresVideoRepository
+from app.meilisearch import config_ms
+from app.meilisearch import ms_client as meilisearch_client
 from app.pkg.postgres import async_engine, async_session
 
 
@@ -33,6 +36,12 @@ async def _setup_db() -> None:
 async def pg_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
+
+
+@pytest.fixture(scope="session")
+async def ms_client() -> MeilisearchClient:
+    await config_ms(meilisearch_client)
+    return meilisearch_client
 
 
 @pytest.fixture(scope="session")

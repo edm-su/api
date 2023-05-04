@@ -66,6 +66,7 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         )
 
         result = (await self._session.execute(query)).mappings().one()
+        await self._session.commit()
         return UserToken(
             id=result["id"],
             name=token.name,
@@ -135,4 +136,5 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         )
 
         result = (await self._session.execute(query)).scalar_one_or_none()
+        await self._session.commit()
         return bool(result)

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
-from meilisearch_python_async.errors import MeilisearchError
 from meilisearch_python_async.task import wait_for_task
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,9 +10,6 @@ from typing_extensions import Self
 
 from app.db import videos
 from app.internal.entity.video import NewVideoDto, Video
-from app.internal.usecase.repository.exceptions.full_text import (
-    FullTextRepositoryError,
-)
 from app.meilisearch import normalize_ms_index_name
 
 
@@ -57,7 +53,6 @@ class AbstractVideoRepository(ABC):
     @abstractmethod
     async def update(
         self: Self,
-        id_: int,
         video: Video,
     ) -> Video:
         pass
@@ -120,7 +115,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = (
             select(videos)
             .where(videos.c.slug == slug)
-            .where(videos.c.deleted_at == false())
+            .where(videos.c.deleted == false())
         )
 
         result = (await self.session.execute(query)).mappings().one_or_none()
@@ -133,7 +128,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = (
             select(videos)
             .where(videos.c.yt_id == yt_id)
-            .where(videos.c.deleted_at == false())
+            .where(videos.c.deleted == false())
         )
 
         result = (await self.session.execute(query)).mappings().one_or_none()
@@ -159,21 +154,22 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = videos.insert().values(**video.dict()).returning(videos.c.id)
 
         result = (await self.session.execute(query)).scalar_one()
+        await self.session.commit()
         return Video(id=result, **video.dict())
 
     async def update(
         self: Self,
-        id_: int,
         video: Video,
     ) -> Video:
         query = (
             videos.update()
-            .where(videos.c.id == id_)
+            .where(videos.c.id == video.id)
             .where(videos.c.deleted == false())
             .values(**video.dict())
         )
 
         await self.session.execute(query)
+        await self.session.commit()
         return video
 
     async def delete(
@@ -183,6 +179,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = videos.update().where(videos.c.id == id_).values(deleted=True)
 
         await self.session.execute(query)
+        await self.session.commit()
 
     async def count(self: Self) -> int:
         query = select(func.count(videos.c.id)).where(
@@ -214,8 +211,5 @@ class MeilisearchVideoRepository(AbstractFullTextVideoRepository):
         self: Self,
         id_: int,
     ) -> None:
-        try:
-            task = await self.index.delete_documents([str(id_)])
-            await wait_for_task(self.client.http_client, task.task_uid)
-        except MeilisearchError as e:
-            raise FullTextRepositoryError(e) from e
+        task = await self.index.delete_documents([str(id_)])
+        await wait_for_task(self.client.http_client, task.task_uid)

@@ -58,6 +58,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
         )
 
         result = (await self.session.execute(query)).mappings().one()
+        await self.session.commit()
         return Comment(
             id=result["id"],
             video_id=comment.video.id,

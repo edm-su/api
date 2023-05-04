@@ -1,5 +1,3 @@
-import logging
-
 from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto, Video
@@ -7,9 +5,6 @@ from app.internal.usecase.exceptions.video import (
     NotFoundError,
     SlugNotUniqueError,
     VideoYtIdNotUniqueError,
-)
-from app.internal.usecase.repository.exceptions.full_text import (
-    FullTextRepositoryError,
 )
 from app.internal.usecase.repository.video import (
     AbstractFullTextVideoRepository,
@@ -77,7 +72,4 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
         if not video:
             raise NotFoundError(entity="video")
         await self.repository.delete(id_)
-        try:
-            await self.full_text_repo.delete(id_)
-        except FullTextRepositoryError as e:
-            logging.getLogger("app").error(e)
+        await self.full_text_repo.delete(id_)

@@ -62,6 +62,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
             video_id=video.id,
         )
         await self._session.execute(query)
+        await self._session.commit()
 
     async def unlike_video(
         self: Self,
@@ -73,6 +74,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
             & (liked_videos.c.video_id == video.id),
         )
         await self._session.execute(query)
+        await self._session.commit()
 
     async def get_user_videos(
         self: Self,

@@ -139,4 +139,5 @@ class PostgresPostRepository(AbstractPostRepository):
             )
         )
         result = (await self.session.execute(query)).scalar_one_or_none()
+        await self.session.commit()
         return bool(result)
