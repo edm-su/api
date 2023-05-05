@@ -29,8 +29,9 @@ class ImageConverter(ABC):
         self.file = file
         self.converted_file = None
 
+    @abstractmethod
     def convert(self: Self) -> None:
-        raise NotImplementedError
+        pass
 
 
 class JPEGImageConverter(ImageConverter):
@@ -45,7 +46,7 @@ class JPEGImageConverter(ImageConverter):
         self.converted_file = jpeg_image  # type: ignore[assignment]
 
 
-class BaseUploadUseCase(ABC):
+class UploadImageUseCase:
     def __init__(
         self: Self,
         repository: AbstractUploadRepository,
@@ -54,9 +55,40 @@ class BaseUploadUseCase(ABC):
         self.repository = repository
         self.file = file
 
-    @abstractmethod
     async def execute(self: Self) -> ImageURLs:
-        pass
+        """
+        Converts the file to JPEG and uploads it to the repository. If the file
+        size is greater than the maximum allowed, raises a FileIsTooLargeError.
+        If the file is not an image, raises a FileIsNotImageError.
+
+        Args:
+            self (Self): The instance of the class.
+
+        Returns:
+            ImageURLs: A dictionary containing the paths of the uploaded images
+        """
+
+        if self._get_file_size() > MAX_FILE_SIZE:
+            raise FileIsTooLargeError(self._get_file_size(), MAX_FILE_SIZE)
+
+        converters = [JPEGImageConverter(self.file)]
+        base_path = "images"
+        sha256 = self._get_sha256_hash()
+        for converter in converters:
+            path = f"{base_path}/{sha256}.{converter.extension}"
+            converter.convert()
+            if converter.converted_file is None:
+                raise FileIsNotImageError
+            await self.repository.upload(converter.converted_file, path)
+
+        result = {}
+        for converter in converters:
+            path = (
+                f"{settings.static_url}/{base_path}"
+                f"/{sha256}.{converter.extension}"
+            )
+            result[converter.extension] = path
+        return ImageURLs.parse_obj(result)
 
     def _get_sha256_hash(self: Self) -> str:
         sha256 = hashlib.sha256()
@@ -72,31 +104,6 @@ class BaseUploadUseCase(ABC):
         return size
 
 
-class UploadImageUseCase(BaseUploadUseCase):
-    async def execute(self: Self) -> ImageURLs:
-        if self._get_file_size() > MAX_FILE_SIZE:
-            raise FileIsTooLargeError(self._get_file_size(), MAX_FILE_SIZE)
-
-        converters = [JPEGImageConverter(self.file)]
-        base_path = "images"
-        md5 = self._get_sha256_hash()
-        for converter in converters:
-            path = f"{base_path}/{md5}.{converter.extension}"
-            converter.convert()
-            if converter.converted_file is None:
-                raise FileIsNotImageError
-            await self.repository.upload(converter.converted_file, path)
-
-        result = {}
-        for converter in converters:
-            path = (
-                f"{settings.static_url}/{base_path}"
-                f"/{md5}.{converter.extension}"
-            )
-            result[converter.extension] = path
-        return ImageURLs.parse_obj(result)
-
-
 class UploadImageURLUseCase(UploadImageUseCase):
     def __init__(
         self: Self,
@@ -107,6 +114,20 @@ class UploadImageURLUseCase(UploadImageUseCase):
         self.image_url = image_url
 
     async def execute(self: Self) -> ImageURLs:
+        """
+        Downloads an image from a given URL and checks
+        if it's a valid image file.
+        If the file exceeds the maximum allowed size,
+        it raises a FileIsTooLargeError.
+        Returns a list of image URLs after processing.
+
+        Args:
+            self (Self): The current object.
+
+        Returns:
+            ImageURLs: A list of image URLs after processing.
+        """
+
         async with httpx.AsyncClient() as client:
             h = await client.head(self.image_url.url)
             header = h.headers
