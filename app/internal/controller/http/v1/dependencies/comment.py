@@ -1,7 +1,5 @@
-from collections.abc import AsyncIterator
-
 from fastapi import Depends
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.internal.usecase.comment import (
     CreateCommentUseCase,
@@ -15,10 +13,9 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: AsyncIterator[sessionmaker] = Depends(get_session),
+    db_session: AsyncSession = Depends(get_session),
 ) -> PostgresCommentRepository:
-    async with db_session.begin() as session:  # type: ignore[attr-defined]
-        return PostgresCommentRepository(session)
+    return PostgresCommentRepository(db_session)
 
 
 def create_create_comment_usecase(

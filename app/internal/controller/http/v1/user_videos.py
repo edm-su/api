@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
-from app.auth import get_current_user
 from app.helpers import Paginator
-from app.internal.controller.http.v1.depencies.user import (
+from app.internal.controller.http.v1.dependencies.auth import get_current_user
+from app.internal.controller.http.v1.dependencies.user import (
     create_get_user_by_username_usecase,
 )
-from app.internal.controller.http.v1.depencies.user_videos import (
+from app.internal.controller.http.v1.dependencies.user_videos import (
     create_get_user_videos_usecase,
     create_like_video_usecase,
     create_unlike_video_usecase,
 )
-from app.internal.controller.http.v1.depencies.video import find_video
+from app.internal.controller.http.v1.dependencies.video import find_video
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.user_videos import (

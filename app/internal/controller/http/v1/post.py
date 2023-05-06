@@ -3,9 +3,9 @@ from collections.abc import Mapping
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app.auth import get_current_admin
 from app.helpers import Paginator
-from app.internal.controller.http.v1.depencies.post import (
+from app.internal.controller.http.v1.dependencies.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.post import (
     create_create_post_usecase,
     create_delete_post_usecase,
     create_get_all_posts_usecase,

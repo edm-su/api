@@ -1,6 +1,7 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import jwt
 from pydantic import (
     BaseModel,
     EmailStr,
@@ -9,6 +10,9 @@ from pydantic import (
     SecretStr,
     validator,
 )
+from typing_extensions import Self
+
+from app.settings import settings
 
 
 class UserBase(BaseModel):
@@ -133,6 +137,20 @@ class TokenData(BaseModel):
     username: str
     is_admin: bool = Field(default=False)
     token_id: int | None = Field(default=None)
+
+    def get_jwt_token(
+        self: Self,
+        expires_delta: timedelta = timedelta(days=31),
+    ) -> str:
+        to_encode = self.dict()
+        to_encode.update({"exp": datetime.utcnow() + expires_delta})
+        return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
+
+    def access_token(self: Self) -> str:
+        return self.get_jwt_token(expires_delta=timedelta(minutes=30))
+
+    def refresh_token(self: Self) -> str:
+        return self.get_jwt_token(expires_delta=timedelta(days=30))
 
 
 class UserTokenDTO(BaseModel):

@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from fastapi import (
@@ -19,8 +19,8 @@ from pydantic import (
 )
 from starlette import status
 
-from app.auth import create_token, get_current_user
-from app.internal.controller.http.v1.depencies.user import (
+from app.internal.controller.http.v1.dependencies.auth import get_current_user
+from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
     create_change_password_by_reset_code_usecase,
     create_change_password_usecase,
@@ -90,7 +90,7 @@ class SignUpResponse(BaseModel):
 
 class ActivateUserRequest(BaseModel):
     id: int = Field(..., example=1, title="ID пользователя")
-    activation_code: SecretStr = Field(
+    activation_code: str = Field(
         ...,
         example="activation_code",
         title="Код активации",
@@ -188,7 +188,7 @@ class ChangePasswordRequest(BaseModel):
         title="Новый пароль",
         min_length=8,
     )
-    reset_code: SecretStr | None = Field(
+    reset_code: str | None = Field(
         None,
         example="reset_code",
         title="Код сброса пароля",
@@ -276,7 +276,7 @@ async def activate(
 ) -> None:
     code = ActivateUserDto(
         id=request_data.id,
-        activation_code=request_data.activation_code,
+        activation_code=SecretStr(request_data.activation_code),
     )
     try:
         await usecase.execute(code)
@@ -350,7 +350,7 @@ async def change_password(
             await change_by_code_usecase.execute(
                 ChangePasswordByResetCodeDto(
                     id=request_data.user_id,
-                    code=request_data.reset_code,
+                    code=SecretStr(request_data.reset_code),
                     new_password=request_data.new_password,
                 ),
             )
@@ -388,23 +388,20 @@ async def sign_in(
         ),
     )
 
-    token_data = TokenData(
+    token = TokenData(
         email=user.email,
         username=user.username,
         id=user.id,
         is_admin=user.is_admin,
-    )
-    access_token = create_token(
-        data=token_data,
-        expires_delta=timedelta(minutes=30),
+        created_at=user.created_at,
     )
 
     response.headers["Cache-Control"] = "no-store"
     if request_data.remember_me:
         return SignInResponse(
-            access_token=SecretStr(access_token),
-            refresh_token=SecretStr(create_token(data=token_data)),
+            access_token=SecretStr(token.access_token()),
+            refresh_token=SecretStr(token.refresh_token()),
         )
     return SignInResponse(
-        access_token=SecretStr(access_token),
+        access_token=SecretStr(token.access_token()),
     )

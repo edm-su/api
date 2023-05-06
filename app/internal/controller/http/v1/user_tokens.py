@@ -3,8 +3,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 from pydantic import BaseModel, Field
 
-from app.auth import create_token, get_current_admin
-from app.internal.controller.http.v1.depencies.user_tokens import (
+from app.internal.controller.http.v1.dependencies.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.user_tokens import (
     create_create_user_token_usecase,
     create_get_user_tokens_usecase,
     create_revoke_user_token_usecase,
@@ -63,7 +63,9 @@ async def create_api_token(
         is_admin=admin.is_admin,
         token_id=token.id,
     )
-    jwt_token = create_token(data=jwt_token_data)
+
+    jwt_token = get_jwt_token(jwt_token_data, request_data.expired_at)
+
     return CreateAPITokenResponse(
         id=token.id,
         name=token.name,
@@ -71,6 +73,16 @@ async def create_api_token(
         created_at=token.created_at,
         token=jwt_token,
     )
+
+
+def get_jwt_token(
+    jwt_token_data: TokenData,
+    expired_at: datetime | None = None,
+) -> str:
+    if expired_at:
+        delta = expired_at - datetime.utcnow()
+        return jwt_token_data.get_jwt_token(delta)
+    return jwt_token_data.get_jwt_token()
 
 
 @router.get(

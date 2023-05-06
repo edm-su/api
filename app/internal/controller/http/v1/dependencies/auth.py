@@ -1,13 +1,10 @@
-from datetime import datetime, timedelta
-
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 from starlette import status
 
-from app.helpers import get_password_hash
-from app.internal.controller.http.v1.depencies.user import (
+from app.internal.controller.http.v1.dependencies.user import (
     create_get_user_by_username_usecase,
 )
 from app.internal.entity.user import TokenData, User
@@ -24,6 +21,8 @@ async def get_current_user(
         create_get_user_by_username_usecase,
     ),
 ) -> User:
+    if not token:
+        raise AuthError
     try:
         payload = jwt.decode(
             token,
@@ -35,6 +34,7 @@ async def get_current_user(
         raise AuthError from e
     except ValidationError as e:
         raise AuthError from e
+    # TODO: Remove get user from db
     db_user = await usecase.execute(token_data.username)
     if db_user is None:
         raise AuthError
@@ -59,17 +59,3 @@ async def get_current_admin(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return db_user
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return get_password_hash(password) == hashed_password
-
-
-def create_token(
-    *,
-    data: TokenData,
-    expires_delta: timedelta = timedelta(days=31),
-) -> str:
-    to_encode = data.dict()
-    to_encode.update({"exp": datetime.utcnow() + expires_delta})
-    return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")

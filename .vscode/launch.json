@@ -14,7 +14,7 @@
                 "head"
             ],
             "cwd": "${workspaceFolder}/",
-            "envFile": "${workspaceFolder}/.dev.env"
+            "envFile": "${workspaceFolder}/.${input:env}.env"
         },
         {
             "name": "Generage alembic migration",
@@ -41,6 +41,16 @@
                 "PYTEST_ADDOPTS": "--no-cov"
             },
             "justMyCode": false
+        },
+        {
+            "name": "Launch",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/main.py",
+            "envFile": "${workspaceFolder}/.${input:env}.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ],
     "inputs": [
@@ -48,6 +58,16 @@
             "id": "migrationMessage",
             "type": "promptString",
             "description": "Alembic migration message",
+        },
+        {
+            "id": "env",
+            "type": "pickString",
+            "description": "Environment",
+            "default": "dev",
+            "options": [
+                "dev",
+                "test"
+            ]
         }
     ]
 }

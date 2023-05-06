@@ -9,11 +9,11 @@ class BaseLiveStream(BaseModel):
     title: str = Field(..., max_length=256, min_length=1)
     cancelled: bool = Field(default=False)
     start_time: datetime
-    end_time: datetime = Field(None)
-    image: str = Field(None)
+    end_time: datetime = Field(...)
+    image: str = Field(...)
     genres: list[str] = Field([])
     url: HttpUrl
-    slug: str = Field(None)
+    slug: str = Field(...)
 
     @validator("end_time")
     def end_time_after_start_time(

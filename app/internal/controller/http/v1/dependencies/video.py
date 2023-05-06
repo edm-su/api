@@ -1,7 +1,5 @@
-from collections.abc import AsyncIterator
-
 from fastapi import Depends, HTTPException
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.internal.entity.video import Video
@@ -23,10 +21,9 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: AsyncIterator[sessionmaker] = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> PostgresVideoRepository:
-    async with db_session.begin() as session:  # type: ignore[attr-defined]
-        return PostgresVideoRepository(session)
+    return PostgresVideoRepository(session)
 
 
 async def create_ms_repository() -> MeilisearchVideoRepository:

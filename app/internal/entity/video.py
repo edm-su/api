@@ -11,7 +11,7 @@ class Video(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    slug: str = Field(None)
+    slug: str = Field(...)
 
 
 class NewVideoDto(BaseModel):
@@ -20,7 +20,7 @@ class NewVideoDto(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    slug: str = Field(None)
+    slug: str | None = Field(None)
 
     @validator(
         "slug",

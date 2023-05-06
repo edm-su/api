@@ -4,8 +4,8 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
 
-from app.auth import get_current_admin
-from app.internal.controller.http.v1.depencies.livestream import (
+from app.internal.controller.http.v1.dependencies.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.livestream import (
     create_create_live_stream_usecase,
     create_delete_live_stream_usecase,
     create_get_all_live_streams_usecase,

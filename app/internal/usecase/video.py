@@ -57,8 +57,8 @@ class GetVideoBySlugUseCase(BaseVideoUseCase):
 
 class CreateVideoUseCase(AbstractFullTextVideoUseCase):
     async def execute(self: Self, new_video: NewVideoDto) -> Video:
-        if await self.repository.get_by_slug(new_video.slug):
-            raise SlugNotUniqueError(new_video.slug, "Video")
+        if await self.repository.get_by_slug(new_video.slug):  # type: ignore[arg-type]  # noqa: E501
+            raise SlugNotUniqueError(new_video.slug, "Video")  # type: ignore[arg-type]  # noqa: E501
         if await self.repository.get_by_yt_id(new_video.yt_id):
             raise VideoYtIdNotUniqueError(new_video.yt_id)
         video = await self.repository.create(new_video)

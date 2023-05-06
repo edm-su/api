@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from starlette import status
 
-from app.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.auth import get_current_admin
 from app.internal.entity.upload import ImageURL, ImageURLs
 from app.internal.usecase.exceptions.upload import UploadError
 from app.internal.usecase.repository.upload import S3UploadRepository

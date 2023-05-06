@@ -1,17 +1,21 @@
 from collections.abc import Mapping
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, status
 
-from app.auth import get_current_admin, get_current_user
 from app.helpers import Paginator
-from app.internal.controller.http.v1.depencies.comment import (
+from app.internal.controller.http.v1.dependencies.auth import (
+    get_current_admin,
+    get_current_user,
+)
+from app.internal.controller.http.v1.dependencies.comment import (
     create_create_comment_usecase,
     create_get_all_comments_usecase,
     create_get_count_comments_usecase,
     create_get_video_comments_usecase,
 )
-from app.internal.controller.http.v1.depencies.video import find_video
+from app.internal.controller.http.v1.dependencies.video import find_video
 from app.internal.entity.comment import Comment, CommentBase, NewCommentDto
+from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.comment import (
     CreateCommentUseCase,
@@ -23,21 +27,26 @@ from app.internal.usecase.comment import (
 router = APIRouter()
 
 
+class NewCommentRequest(CommentBase):
+    pass
+
+
 @router.post(
-    "/videos/{video_slug}/comments",
+    "/videos/{slug}/comments",
     response_model=Comment,
+    status_code=status.HTTP_201_CREATED,
     tags=["Комментарии", "Видео"],
     summary="Оставить комментарий",
 )
 async def new_comment(
-    text: CommentBase,
-    video: Video = Depends(find_video),  #  TODO: Заменить на User
-    current_user: dict = Depends(get_current_user),
+    text: NewCommentRequest,
+    current_user: User = Depends(get_current_user),
+    video: Video = Depends(find_video),
     usecase: CreateCommentUseCase = Depends(create_create_comment_usecase),
 ) -> Comment:
     comment = NewCommentDto(
         text=text.text,
-        user=current_user,  # type: ignore[arg-type]
+        user=current_user,
         video=video,
     )
     return await usecase.execute(comment)

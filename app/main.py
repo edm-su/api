@@ -1,7 +1,7 @@
 import logging.config
 
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -62,18 +62,21 @@ app.include_router(api_router)
 
 @app.exception_handler(AuthError)
 async def auth_exception_handler(
-    response: Response,
+    _: Request,
     exc: AuthError,
 ) -> JSONResponse:
-    response.headers["WWW-Authenticate"] = "Bearer"
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"error": "invalid_token", "error_description": str(exc)},
+        headers={"WWW-Authenticate": "Bearer"},
     )
 
 
 @app.exception_handler(UserError)
-async def user_exception_handler(exc: UserError) -> JSONResponse:
+async def user_exception_handler(
+    _: Request,
+    exc: UserError,
+) -> JSONResponse:
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"error": "invalid_client", "error_description": str(exc)},

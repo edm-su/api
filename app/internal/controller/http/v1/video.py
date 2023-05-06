@@ -3,9 +3,9 @@ from collections.abc import Mapping
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app import auth
 from app.helpers import Paginator
-from app.internal.controller.http.v1.depencies.video import (
+from app.internal.controller.http.v1.dependencies import auth
+from app.internal.controller.http.v1.dependencies.video import (
     create_count_videos_usecase,
     create_create_video_usecase,
     create_delete_video_usecase,
