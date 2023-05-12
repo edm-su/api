@@ -5,7 +5,7 @@ from typing_extensions import Self
 from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
-    LiveStreamNotFoundError,
+    LiveStreamError,
 )
 from app.internal.usecase.repository.livestream import (
     AbstractLiveStreamRepository,
@@ -62,7 +62,7 @@ class UpdateLiveStreamUseCase(AbstractLiveStreamUseCase):
     ) -> LiveStream:
         updated = await self.repository.update(live_stream=live_stream)
         if not updated:
-            raise LiveStreamNotFoundError(live_stream_id=live_stream.id)
+            raise LiveStreamError
         return live_stream
 
 
@@ -73,4 +73,4 @@ class DeleteLiveStreamUseCase(AbstractLiveStreamUseCase):
     ) -> None:
         deleted = await self.repository.delete(live_stream_id=live_stream_id)
         if not deleted:
-            raise LiveStreamNotFoundError(live_stream_id=live_stream_id)
+            raise LiveStreamError

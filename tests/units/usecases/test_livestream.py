@@ -9,7 +9,7 @@ from typing_extensions import Self
 from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
-    LiveStreamNotFoundError,
+    LiveStreamError,
 )
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
@@ -199,7 +199,7 @@ class TestUpdateLiveStreamUseCase:
     ) -> None:
         repository.update.return_value = False
 
-        with pytest.raises(LiveStreamNotFoundError):
+        with pytest.raises(LiveStreamError):
             await usecase.execute(livestream)
 
         repository.update.assert_awaited_once()  # type: ignore[attr-defined]
@@ -237,7 +237,7 @@ class TestDeleteLiveStreamUseCase:
     ) -> None:
         repository.delete.return_value = None
 
-        with pytest.raises(LiveStreamNotFoundError):
+        with pytest.raises(LiveStreamError):
             await usecase.execute(0)
 
         repository.delete.assert_awaited_once()  # type: ignore[attr-defined]

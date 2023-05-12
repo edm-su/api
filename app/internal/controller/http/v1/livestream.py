@@ -19,7 +19,7 @@ from app.internal.entity.livestreams import (
 )
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
-    LiveStreamNotFoundError,
+    LiveStreamError,
 )
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
@@ -49,8 +49,8 @@ async def new_stream(
         return await usecase.execute(stream)
     except LiveStreamAlreadyExistsError:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Прямая трансляция с таким slug уже существует",
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Live stream already exists",
         ) from None
 
 
@@ -67,11 +67,6 @@ async def get_streams(
         create_get_all_live_streams_usecase,
     ),
 ) -> list[LiveStream | None]:
-    if start + timedelta(days=45) < end:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "Период не может превышать 45 дней",
-        )
     return await usecase.execute(start, end)
 
 
@@ -102,10 +97,10 @@ async def delete_stream(
 ) -> None:
     try:
         await usecase.execute(stream.id)
-    except LiveStreamNotFoundError:
+    except LiveStreamError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Прямая трансляция не найдена",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
         ) from None
 
 
@@ -126,8 +121,8 @@ async def update_stream(
     stream = LiveStream(**updated_stream.dict(), id=stream.id)
     try:
         return await usecase.execute(stream)
-    except LiveStreamNotFoundError:
+    except LiveStreamError:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Прямая трансляция не найдена",
         ) from None
