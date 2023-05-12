@@ -102,3 +102,75 @@ class TestNewComment:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestReadComments:
+    @pytest.mark.usefixtures("_mock_find_video")
+    async def test_read_comments(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        comment: Comment,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "app.internal.usecase.comment.GetVideoCommentsUseCase.execute",
+            return_value=[comment],
+        )
+        response = await client.get(
+            f"/videos/{video.slug}/comments",
+        )
+        response_data = response.json()
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response_data) == 1
+        assert response_data[0]["id"] == comment.id
+
+    async def test_test_read_comments_without_video(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+    ) -> None:
+        def mock_find_video() -> Video:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+
+        app.dependency_overrides[find_video] = mock_find_video
+        response = await client.get(f"/videos/{video.slug}/comments")
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestGetAllComments:
+    @pytest.mark.usefixtures("_mock_current_admin")
+    async def test_get_all_comments(
+        self: Self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+        comment: Comment,
+    ) -> None:
+        mocked = mocker.patch(
+            "app.internal.usecase.comment.GetAllCommentsUseCase.execute",
+            return_value=[comment],
+        )
+        mocker.patch(
+            "app.internal.usecase.comment.GetCountCommentsUseCase.execute",
+            return_value=1,
+        )
+        response = await client.get("/comments")
+        response_data = response.json()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response_data[0]["id"] == comment.id
+        assert response.headers["X-Total_Count"] == "1"
+        mocked.assert_awaited_once()
+
+    @pytest.mark.usefixtures("_mock_current_user")
+    async def test_get_all_comments_by_not_admin(
+        self: Self,
+        client: AsyncClient,
+    ) -> None:
+        response = await client.get("/comments")
+        assert response.status_code == status.HTTP_403_FORBIDDEN

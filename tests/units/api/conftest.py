@@ -4,7 +4,10 @@ import pytest
 from faker import Faker
 from httpx import AsyncClient
 
-from app.internal.controller.http.v1.dependencies.auth import get_current_user
+from app.internal.controller.http.v1.dependencies.auth import (
+    get_current_admin,
+    get_current_user,
+)
 from app.internal.entity.user import TokenData, User
 from app.internal.entity.video import Video
 from app.main import app
@@ -21,6 +24,14 @@ def _mock_current_user(
     user: User,
 ) -> None:
     app.dependency_overrides[get_current_user] = lambda: user
+
+
+@pytest.fixture()
+def _mock_current_admin(
+    user: User,
+) -> None:
+    user.is_admin = True
+    app.dependency_overrides[get_current_admin] = lambda: user
 
 
 @pytest.fixture(autouse=True)
