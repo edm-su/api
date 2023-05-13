@@ -8,6 +8,7 @@ from typing_extensions import Self
 from app.helpers import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
+from app.internal.usecase.exceptions.post import PostNotFoundError
 from app.internal.usecase.exceptions.video import (
     NotFoundError,
     SlugNotUniqueError,
@@ -240,7 +241,7 @@ class TestDeletePostUseCase:
     ) -> None:
         repository.get_by_slug.return_value = None
 
-        with pytest.raises(NotFoundError):
+        with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
 
         repository.delete.assert_not_awaited()  # type: ignore[attr-defined]

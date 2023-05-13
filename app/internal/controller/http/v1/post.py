@@ -1,7 +1,4 @@
-from collections.abc import Mapping
-
-from fastapi import APIRouter, Depends, HTTPException, Response
-from starlette import status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.helpers import Paginator
 from app.internal.controller.http.v1.dependencies.auth import get_current_admin
@@ -13,8 +10,12 @@ from app.internal.controller.http.v1.dependencies.post import (
     find_post,
 )
 from app.internal.entity.post import CreatePost, NewPostDTO, Post
+from app.internal.entity.user import User
+from app.internal.usecase.exceptions.post import (
+    PostError,
+    PostNotFoundError,
+)
 from app.internal.usecase.exceptions.video import (
-    NotFoundError,
     SlugNotUniqueError,
 )
 from app.internal.usecase.post import (
@@ -28,31 +29,32 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "",
     response_model=Post,
+    status_code=status.HTTP_201_CREATED,
     tags=["Посты"],
     summary="Добавление поста",
 )
 async def new_post(
     post: CreatePost,
-    admin: Mapping = Depends(get_current_admin),  # TODO: изменить тип на User
+    admin: User = Depends(get_current_admin),
     usecase: CreatePostUseCase = Depends(create_create_post_usecase),
 ) -> Post:
     post = NewPostDTO(
         **post.dict(),
-        user=admin,  # type: ignore[arg-type]
+        user=admin,
     )
     try:
         return await usecase.execute(post)
-    except SlugNotUniqueError:
+    except SlugNotUniqueError as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Пост с таким slug уже существует",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
         ) from None
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[Post],
     tags=["Посты"],
     summary="Получение списка постов",
@@ -87,18 +89,18 @@ async def get_post(post: Post = Depends(find_post)) -> Post:
 )
 async def delete_post(
     slug: str,
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    admin: User = Depends(get_current_admin),  # noqa: ARG001
     usecase: DeletePostUseCase = Depends(create_delete_post_usecase),
 ) -> None:
     try:
-        return await usecase.execute(slug)
-    except SlugNotUniqueError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Пост с таким slug уже существует",
-        ) from None
-    except NotFoundError:
+        await usecase.execute(slug)
+    except PostNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пост не найден",
+            detail=str(e),
+        ) from None
+    except PostError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e),
         ) from None
