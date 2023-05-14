@@ -1,8 +1,8 @@
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class ImageURLs(BaseModel):
-    __root__: dict[str, HttpUrl]
+    jpeg: HttpUrl | None = Field(None)
 
 
 class ImageURL(BaseModel):
