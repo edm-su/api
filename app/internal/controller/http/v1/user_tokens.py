@@ -10,7 +10,9 @@ from app.internal.controller.http.v1.dependencies.user_tokens import (
     create_revoke_user_token_usecase,
 )
 from app.internal.entity.user import TokenData, User, UserToken, UserTokenDTO
-from app.internal.usecase.exceptions.user_tokens import UserTokensError
+from app.internal.usecase.exceptions.user_tokens import (
+    UserTokenNotFoundError,
+)
 from app.internal.usecase.user_tokens import (
     CreateUserTokenUseCase,
     GetAllUserTokensUseCase,
@@ -32,14 +34,14 @@ class CreateAPITokenResponse(BaseModel):
 
 
 class GetAllAPITokensResponse(BaseModel):
-    tokens: list[UserToken | None]
+    __root__: list[UserToken | None]
 
 
 router = APIRouter(tags=["User API Tokens"])
 
 
 @router.post(
-    "/",
+    "",
     summary="Create api token",
     status_code=status.HTTP_201_CREATED,
     response_model=CreateAPITokenResponse,
@@ -86,10 +88,9 @@ def get_jwt_token(
 
 
 @router.get(
-    "/",
+    "",
     summary="Get all api tokens",
-    status_code=status.HTTP_200_OK,
-    response_model=list[GetAllAPITokensResponse],
+    response_model=GetAllAPITokensResponse,
 )
 async def get_all_api_tokens(
     usecase: GetAllUserTokensUseCase = Depends(
@@ -98,7 +99,7 @@ async def get_all_api_tokens(
     admin: User = Depends(get_current_admin),
 ) -> GetAllAPITokensResponse:
     return GetAllAPITokensResponse(
-        tokens=await usecase.execute(admin),
+        __root__=await usecase.execute(admin),
     )
 
 
@@ -116,8 +117,8 @@ async def revoke_api_token(
 ) -> None:
     try:
         await usecase.execute(token_id, admin)
-    except UserTokensError as e:
+    except UserTokenNotFoundError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
