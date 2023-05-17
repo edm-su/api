@@ -2,8 +2,8 @@ from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import (
-    NotFoundError,
     SlugNotUniqueError,
+    VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
 from app.internal.usecase.repository.video import (
@@ -51,7 +51,7 @@ class GetVideoBySlugUseCase(BaseVideoUseCase):
     async def execute(self: Self, slug: str) -> Video:
         video = await self.repository.get_by_slug(slug)
         if video is None:
-            raise NotFoundError(entity="video")
+            raise VideoNotFoundError
         return video
 
 
@@ -70,6 +70,6 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
     async def execute(self: Self, id_: int) -> None:
         video = await self.repository.get_by_id(id_)
         if not video:
-            raise NotFoundError(entity="video")
+            raise VideoNotFoundError
         await self.repository.delete(id_)
         await self.full_text_repo.delete(id_)

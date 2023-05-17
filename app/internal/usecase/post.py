@@ -7,7 +7,6 @@ from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
 )
 from app.internal.usecase.exceptions.video import (
-    NotFoundError,
     SlugNotUniqueError,
 )
 from app.internal.usecase.repository.post import AbstractPostRepository
@@ -38,7 +37,7 @@ class GetPostBySlugUseCase(BasePostUseCase):
     ) -> Post:
         result = await self.repository.get_by_slug(slug)
         if result is None:
-            raise NotFoundError(entity="post")
+            raise PostNotFoundError
         return result
 
 

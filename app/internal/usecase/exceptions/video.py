@@ -22,12 +22,11 @@ class VideoYtIdNotUniqueError(VideoError):
         self.message = f"Video with yt_id {yt_id} already exists"
 
 
-class NotFoundError(VideoError):
+class VideoNotFoundError(VideoError):
     def __init__(
         self: Self,
-        entity: str,
     ) -> None:
-        self.message = f"{entity.upper()} not found"
+        super().__init__("Video not found")
 
 
 class NotDeletedError(VideoError):

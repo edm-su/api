@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.controller.http.v1.dependencies.livestream import (
-    find_live_stream,
+    find_livestream,
 )
 from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
@@ -47,7 +47,7 @@ def livestream(
 
 @pytest.fixture()
 def _mock_find_livestream(livestream: LiveStream) -> None:
-    app.dependency_overrides[find_live_stream] = lambda: livestream
+    app.dependency_overrides[find_livestream] = lambda: livestream
 
 
 class TestNewLiveStream:

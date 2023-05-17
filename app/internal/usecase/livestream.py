@@ -6,6 +6,7 @@ from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
+    LiveStreamNotFoundError,
 )
 from app.internal.usecase.repository.livestream import (
     AbstractLiveStreamRepository,
@@ -36,8 +37,11 @@ class GetLiveStreamUseCase(AbstractLiveStreamUseCase):
     async def execute(
         self: Self,
         live_stream_id: int,
-    ) -> LiveStream | None:
-        return await self.repository.get_by_id(live_stream_id=live_stream_id)
+    ) -> LiveStream:
+        livestream = await self.repository.get_by_id(live_stream_id)
+        if not livestream:
+            raise LiveStreamNotFoundError(live_stream_id)
+        return livestream
 
 
 class CreateLiveStreamUseCase(AbstractLiveStreamUseCase):

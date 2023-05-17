@@ -21,8 +21,6 @@ async def get_current_user(
         create_get_user_by_username_usecase,
     ),
 ) -> User:
-    if not token:
-        raise AuthError
     try:
         payload = jwt.decode(
             token,
@@ -34,19 +32,10 @@ async def get_current_user(
         raise AuthError from e
     except ValidationError as e:
         raise AuthError from e
-    # TODO: Remove get user from db
     db_user = await usecase.execute(token_data.username)
     if db_user is None:
         raise AuthError
     return db_user
-
-
-async def get_current_user_or_guest(
-    token: str = Depends(oauth_scheme),
-) -> User | None:
-    if token:
-        return await get_current_user(token=token)
-    return None
 
 
 async def get_current_admin(

@@ -10,7 +10,7 @@ from app.internal.controller.http.v1.dependencies.livestream import (
     create_delete_live_stream_usecase,
     create_get_all_live_streams_usecase,
     create_update_live_stream_usecase,
-    find_live_stream,
+    find_livestream,
 )
 from app.internal.entity.livestreams import (
     BaseLiveStream,
@@ -77,7 +77,7 @@ async def get_streams(
     summary="Получение прямой трансляции по id",
 )
 async def get_stream(
-    stream: LiveStream = Depends(find_live_stream),
+    stream: LiveStream = Depends(find_livestream),
 ) -> LiveStream:
     return stream
 
@@ -89,7 +89,7 @@ async def get_stream(
     summary="Удаление прямой трансляции по id",
 )
 async def delete_stream(
-    stream: LiveStream = Depends(find_live_stream),
+    stream: LiveStream = Depends(find_livestream),
     usecase: DeleteLiveStreamUseCase = Depends(
         create_delete_live_stream_usecase,
     ),
@@ -112,7 +112,7 @@ async def delete_stream(
 )
 async def update_stream(
     updated_stream: BaseLiveStream,
-    stream: LiveStream = Depends(find_live_stream),
+    stream: LiveStream = Depends(find_livestream),
     usecase: UpdateLiveStreamUseCase = Depends(
         create_update_live_stream_usecase,
     ),

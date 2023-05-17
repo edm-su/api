@@ -7,8 +7,8 @@ from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto
 from app.internal.usecase.exceptions.video import (
-    NotFoundError,
     SlugNotUniqueError,
+    VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
 from app.internal.usecase.repository.video import (
@@ -269,7 +269,7 @@ class TestDeleteVideoUseCase:
         """Raise exception if id is not found."""
         repository.get_by_id.return_value = None
 
-        with pytest.raises(NotFoundError):
+        with pytest.raises(VideoNotFoundError):
             await usecase.execute(100_000_000)
 
         usecase.repository.get_by_id.assert_awaited_once_with(100_000_000)  # type: ignore[attr-defined]  # noqa: E501

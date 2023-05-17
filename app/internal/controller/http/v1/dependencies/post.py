@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import sessionmaker
 
 from app.internal.entity.post import Post
-from app.internal.usecase.exceptions.video import NotFoundError
+from app.internal.usecase.exceptions.post import PostNotFoundError
 from app.internal.usecase.post import (
     CreatePostUseCase,
     DeletePostUseCase,
@@ -65,8 +65,8 @@ async def find_post(
 ) -> Post:
     try:
         return await usecase.execute(slug)
-    except NotFoundError as e:
+    except PostNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пост не найден",
+            detail=str(e),
         ) from e

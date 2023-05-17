@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.video import NotFoundError
+from app.internal.usecase.exceptions.video import VideoNotFoundError
 from app.internal.usecase.repository.video import (
     MeilisearchVideoRepository,
     PostgresVideoRepository,
@@ -73,8 +73,8 @@ async def find_video(
 ) -> Video:
     try:
         return await usecase.execute(slug)
-    except NotFoundError as e:
+    except VideoNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e.message),
+            detail=str(e),
         ) from e

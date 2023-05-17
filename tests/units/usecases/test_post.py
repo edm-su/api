@@ -10,7 +10,6 @@ from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import PostNotFoundError
 from app.internal.usecase.exceptions.video import (
-    NotFoundError,
     SlugNotUniqueError,
 )
 from app.internal.usecase.post import (
@@ -173,7 +172,7 @@ class TestGetPostBySlugUseCase:
     ) -> None:
         repository.get_by_slug.return_value = None
 
-        with pytest.raises(NotFoundError):
+        with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
 
         repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501

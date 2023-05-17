@@ -53,10 +53,10 @@ def create_update_live_stream_usecase(
     return UpdateLiveStreamUseCase(repository=repository)
 
 
-async def find_live_stream(
+async def find_livestream(
     live_stream_id: int,
     usecase: GetLiveStreamUseCase = Depends(create_get_live_stream_usecase),
-) -> LiveStream | None:
+) -> LiveStream:
     try:
         return await usecase.execute(live_stream_id=live_stream_id)
     except LiveStreamNotFoundError:
