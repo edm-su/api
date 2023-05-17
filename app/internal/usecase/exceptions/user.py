@@ -2,7 +2,11 @@ from typing_extensions import Self
 
 
 class UserError(Exception):
-    pass
+    def __init__(
+        self: Self,
+        message: str = "User error",
+    ) -> None:
+        super().__init__(message)
 
 
 class UserNotFoundError(UserError):

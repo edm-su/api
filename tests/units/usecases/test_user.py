@@ -151,7 +151,7 @@ class TestActivateUserUseCase:
     ) -> None:
         repository.activate.return_value = True
 
-        assert await usecase.execute(activate_user)
+        await usecase.execute(activate_user)
 
         usecase.repository.activate.assert_awaited_once_with(activate_user)  # type: ignore[attr-defined]  # noqa: E501
 
@@ -315,7 +315,7 @@ class TestChangePasswordUseCase:
     ) -> None:
         repository.change_password.return_value = True
 
-        assert await usecase.execute(data)
+        await usecase.execute(data)
 
         usecase.repository.change_password.assert_awaited_once_with(data)  # type: ignore[attr-defined]  # noqa: E501
 
@@ -368,7 +368,7 @@ class TestChangePasswordByResetCodeUseCase:
     ) -> None:
         repository.get_by_id.return_value = user
 
-        assert await usecase.execute(data)
+        await usecase.execute(data)
 
         usecase.repository.get_by_id.assert_awaited_once_with(data.id)  # type: ignore[attr-defined]  # noqa: E501
 

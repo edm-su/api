@@ -40,6 +40,7 @@ from app.internal.entity.user import (
 from app.internal.usecase.exceptions.user import (
     NeedOldPasswordOrResetCodeError,
     UserError,
+    UserNotFoundError,
 )
 from app.internal.usecase.user import (
     ActivateUserUseCase,
@@ -222,6 +223,7 @@ class ChangePasswordRequest(BaseModel):
     "",
     response_model=SignUpResponse,
     summary="Регистрация пользователя",
+    status_code=status.HTTP_201_CREATED,
 )
 async def sign_up(
     request_data: SignUpRequest,
@@ -240,22 +242,12 @@ async def sign_up(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         ) from e
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        ) from e
     if not user.is_active and user.activation_code is not None:
         # TODO: Переделать на отправку через очередь
         background_tasks.add_task(
             send_activate_email,
             user.email,
             user.activation_code.get_secret_value(),
-        )
-    if not user.id:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Не удалось создать пользователя",
         )
     return SignUpResponse(
         id=user.id,
@@ -266,7 +258,7 @@ async def sign_up(
 
 
 @router.post(
-    "/activate/{activation_code}",
+    "/activate",
     summary="Активация пользователя",
     status_code=status.HTTP_204_NO_CONTENT,
 )
@@ -287,7 +279,7 @@ async def activate(
         ) from e
 
 
-@router.post(
+@router.get(
     "/me",
     summary="Получение информации о текущем пользователе",
     response_model=MeResponse,
@@ -318,9 +310,14 @@ async def password_reset(
 ) -> None:
     try:
         code = await usecase.execute(request_data.email)
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
     except UserError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e),
         ) from e
     # TODO: Переделать на отправку через очередь
@@ -372,7 +369,7 @@ async def change_password(
 
 
 @router.post(
-    "/signin",
+    "/sign-in",
     summary="Authentication",
     response_model=SignInResponse,
 )
@@ -393,7 +390,6 @@ async def sign_in(
         username=user.username,
         id=user.id,
         is_admin=user.is_admin,
-        created_at=user.created_at,
     )
 
     response.headers["Cache-Control"] = "no-store"

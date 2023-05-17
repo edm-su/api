@@ -15,6 +15,7 @@ from app.internal.entity.user import (
 )
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
+    UserError,
     UserIsBannedError,
     UserNotActivatedError,
     UserNotFoundError,
@@ -59,11 +60,10 @@ class ActivateUserUseCase(AbstractUserUseCase):
     async def execute(
         self: Self,
         code: ActivateUserDto,
-    ) -> bool:
+    ) -> None:
         activated = await self.repository.activate(code)
         if not activated:
             raise WrongActivationCodeError
-        return activated
 
 
 class GetUserByUsernameUseCase(AbstractUserUseCase):
@@ -102,11 +102,11 @@ class ResetPasswordUseCase(AbstractUserUseCase):
         data = ResetPasswordDto(
             id=user.id,
             code=SecretStr(generate_secret_code()),
-            expires=datetime.now() + timedelta(hours=1),
+            expires=datetime.now() + timedelta(hours=24),
         )
 
         if not await self.repository.set_reset_password_code(data):
-            raise UserNotFoundError
+            raise UserError
         return data
 
 
@@ -114,7 +114,7 @@ class ChangePasswordUseCase(AbstractUserUseCase):
     async def execute(
         self: Self,
         data: ChangePasswordDto,
-    ) -> bool:
+    ) -> None:
         data.hashed_old_password = SecretStr(
             get_password_hash(data.old_password.get_secret_value()),
         )
@@ -126,14 +126,12 @@ class ChangePasswordUseCase(AbstractUserUseCase):
         if not await self.repository.change_password(data):
             raise WrongPasswordError
 
-        return True
-
 
 class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
     async def execute(
         self: Self,
         data: ChangePasswordByResetCodeDto,
-    ) -> bool:
+    ) -> None:
         user = await self.repository.get_by_id(data.id)
         if not user:
             raise UserNotFoundError
@@ -144,8 +142,6 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
 
         if not await self.repository.change_password_by_reset_code(data):
             raise WrongResetCodeError
-
-        return True
 
 
 class SignInUseCase(AbstractUserUseCase):
