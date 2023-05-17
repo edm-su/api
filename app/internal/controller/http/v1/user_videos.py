@@ -13,9 +13,9 @@ from app.internal.controller.http.v1.dependencies.user_videos import (
 from app.internal.controller.http.v1.dependencies.video import find_video
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
+from app.internal.usecase.exceptions.user import UserNotFoundError
 from app.internal.usecase.exceptions.user_videos import (
     UserVideoAlreadyLikedError,
-    UserVideoError,
     UserVideoNotLikedError,
 )
 from app.internal.usecase.user import GetUserByUsernameUseCase
@@ -67,7 +67,7 @@ async def unlike_video(
 
 
 @router.get(
-    "/user/{username}/videos",
+    "/users/{username}/videos",
     summary="Get user videos",
     response_model=list[Video],
 )
@@ -86,8 +86,8 @@ async def get_user_videos(
             limit=pagination.limit,
             skip=pagination.skip,
         )
-    except UserVideoError as e:
+    except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User or videos not found",
+            detail=str(e),
         ) from e

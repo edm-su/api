@@ -6,14 +6,8 @@ class UserError(Exception):
 
 
 class UserNotFoundError(UserError):
-    def __init__(
-        self: Self,
-        key: str,
-        value: int | str,
-    ) -> None:
-        self.key = key
-        self.value = value
-        super().__init__(f"User with {key} {value} not found")
+    def __init__(self: Self) -> None:
+        super().__init__("User not found")
 
 
 class UserAlreadyExistsError(UserError):

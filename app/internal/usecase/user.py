@@ -73,7 +73,7 @@ class GetUserByUsernameUseCase(AbstractUserUseCase):
     ) -> User:
         user = await self.repository.get_by_username(username)
         if not user:
-            raise UserNotFoundError(key="username", value=username)
+            raise UserNotFoundError
         return user
 
 
@@ -84,7 +84,7 @@ class GetUserByIdUseCase(AbstractUserUseCase):
     ) -> User:
         user = await self.repository.get_by_id(user_id)
         if not user:
-            raise UserNotFoundError(key="id", value=user_id)
+            raise UserNotFoundError
         return user
 
 
@@ -97,7 +97,7 @@ class ResetPasswordUseCase(AbstractUserUseCase):
     ) -> ResetPasswordDto:
         user = await self.repository.get_by_email(email)
         if not user:
-            raise UserNotFoundError(key="email", value=email)
+            raise UserNotFoundError
 
         data = ResetPasswordDto(
             id=user.id,
@@ -106,7 +106,7 @@ class ResetPasswordUseCase(AbstractUserUseCase):
         )
 
         if not await self.repository.set_reset_password_code(data):
-            raise UserNotFoundError(key="email", value=email)
+            raise UserNotFoundError
         return data
 
 
@@ -136,7 +136,7 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
     ) -> bool:
         user = await self.repository.get_by_id(data.id)
         if not user:
-            raise UserNotFoundError(key="id", value=data.id)
+            raise UserNotFoundError
 
         data.hashed_new_password = SecretStr(
             get_password_hash(data.new_password.get_secret_value()),

@@ -229,7 +229,6 @@ class TestGetUserByIdUseCase:
         self: Self,
         usecase: GetUserByIdUseCase,
         repository: AsyncMock,
-        mocker: MockerFixture,
     ) -> None:
         repository.get_by_id.return_value = None
 
