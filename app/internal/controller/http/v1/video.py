@@ -72,13 +72,7 @@ async def delete_video(
     video: Video = Depends(find_video),
     usecase: DeleteVideoUseCase = Depends(create_delete_video_usecase),
 ) -> None:
-    try:
-        await usecase.execute(video.id)
-    except VideoError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
-        ) from e
+    await usecase.execute(video.id)
 
 
 @router.post(
