@@ -64,7 +64,7 @@ class TestNewLiveStream:
             return_value=livestream,
         )
         response = await client.post(
-            "/livestreams/",
+            "/livestreams",
             content=new_stream_data.json(),
         )
         response_data = response.json()
@@ -87,7 +87,7 @@ class TestNewLiveStream:
             ),
         )
         response = await client.post(
-            "/livestreams/",
+            "/livestreams",
             content=new_stream_data.json(),
         )
         response_data = response.json()
@@ -103,7 +103,7 @@ class TestNewLiveStream:
         new_stream_data: CreateLiveStream,
     ) -> None:
         response = await client.post(
-            "/livestreams/",
+            "/livestreams",
             content=new_stream_data.json(),
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -120,7 +120,7 @@ class TestGetLiveStreams:
             "app.internal.usecase.livestream.GetAllLiveStreamsUseCase.execute",
             return_value=[livestream],
         )
-        response = await client.get("/livestreams/")
+        response = await client.get("/livestreams")
         response_data = response.json()
 
         mocked.assert_awaited_once()

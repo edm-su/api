@@ -32,7 +32,7 @@ router = APIRouter(prefix="/livestreams")
 
 
 @router.post(
-    "/",
+    "",
     status_code=201,
     response_model=LiveStream,
     tags=["Прямые трансляции"],
@@ -55,7 +55,7 @@ async def new_stream(
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[LiveStream],
     tags=["Прямые трансляции"],
     summary="Получение списка прямых трансляций",
