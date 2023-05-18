@@ -17,7 +17,7 @@ from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
     UserError,
     UserIsBannedError,
-    UserNotActivatedError,
+    UserIsNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
@@ -162,6 +162,6 @@ class SignInUseCase(AbstractUserUseCase):
             raise UserIsBannedError
 
         if not user.is_active:
-            raise UserNotActivatedError
+            raise UserIsNotActivatedError
 
         return user

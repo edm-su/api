@@ -40,13 +40,13 @@ class TestAuthUser:
     async def test_get_current_user(
         self: Self,
         token_data: TokenData,
-        usecase: GetUserByUsernameUseCase,
+        usecase: AsyncMock,
         user: User,
     ) -> None:
         token = token_data.get_jwt_token()
         user = await get_current_user(token, usecase)
 
-        usecase.execute.assert_awaited_once()  # type: ignore[attr-defined]
+        usecase.execute.assert_awaited_once()
         assert user.id == token_data.id
 
     async def test_get_current_user_bad_token(
@@ -63,11 +63,11 @@ class TestAuthUser:
 
     async def test_get_current_user_not_found(
         self: Self,
-        usecase: GetUserByUsernameUseCase,
+        usecase: AsyncMock,
         token_data: TokenData,
     ) -> None:
         token = token_data.get_jwt_token()
-        usecase.execute.return_value = None  # type: ignore[attr-defined]
+        usecase.execute.return_value = None
         with pytest.raises(AuthError):
             await get_current_user(token, usecase)
 

@@ -92,6 +92,6 @@ async def add_video(
     except VideoError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
+            detail=str(e),
         ) from e
     return video

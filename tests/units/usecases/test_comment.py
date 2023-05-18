@@ -104,7 +104,7 @@ class TestCreateCommentUseCase:
         assert new_comment.video_id == video.id
         assert new_comment.text == comment.text
 
-        repository.create.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.create.assert_awaited_once()
 
 
 class TestGetAllCommentsUseCase:
@@ -133,7 +133,7 @@ class TestGetAllCommentsUseCase:
         assert len(comments) == 1
         assert comments[0] == comment
 
-        repository.get_all.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.get_all.assert_awaited_once()
 
 
 class TestCountCommentsUseCase:
@@ -159,7 +159,7 @@ class TestCountCommentsUseCase:
         count = await usecase.execute()
         assert count == 1
 
-        repository.count.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.count.assert_awaited_once()
 
 
 class TestGetVideoCommentsUseCase:
@@ -190,4 +190,4 @@ class TestGetVideoCommentsUseCase:
         assert len(comments) == 1
         assert comments[0] == comment
 
-        repository.get_video_comments.assert_awaited_once_with(user.id)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_video_comments.assert_awaited_once_with(user.id)

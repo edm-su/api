@@ -11,10 +11,10 @@ from app.internal.controller.http.v1.dependencies.post import find_post
 from app.internal.entity.post import CreatePost, Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
-    PostNotDeletedError,
     PostNotFoundError,
+    PostSlugNotUniqueError,
+    PostWasNotDeletedError,
 )
-from app.internal.usecase.exceptions.video import SlugNotUniqueError
 from app.main import app
 
 
@@ -88,10 +88,7 @@ class TestNewPost:
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.post.CreatePostUseCase.execute",
-            side_effect=SlugNotUniqueError(
-                slug=new_post_data.slug,
-                entity="post",
-            ),
+            side_effect=PostSlugNotUniqueError(new_post_data.slug),
         )
         response = await client.post(
             "/posts",
@@ -210,7 +207,7 @@ class TestDeletePost:
         app.dependency_overrides[find_post] = lambda: post
         mocked = mocker.patch(
             "app.internal.usecase.post.DeletePostUseCase.execute",
-            side_effect=PostNotDeletedError,
+            side_effect=PostWasNotDeletedError,
         )
         response = await client.delete(f"/posts/{post.slug}")
 

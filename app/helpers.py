@@ -1,7 +1,6 @@
 import hashlib
 import secrets
 import string
-from uuid import uuid4
 
 import aioboto3
 from botocore.client import BaseClient
@@ -40,8 +39,3 @@ class Paginator:
     ) -> None:
         self.skip = skip
         self.limit = limit
-
-
-def generate_token() -> str:
-    token = str(uuid4()) + settings.secret_key
-    return hashlib.sha256(token.encode()).hexdigest()

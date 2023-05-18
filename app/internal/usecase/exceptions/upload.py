@@ -2,11 +2,12 @@ from typing_extensions import Self
 
 
 class UploadError(Exception):
-    message = "Upload error"
+    pass
 
 
 class FileIsNotImageError(UploadError):
-    message = "File is not an image"
+    def __init__(self: Self) -> None:
+        super().__init__("File is not an image")
 
 
 class FileIsTooLargeError(UploadError):
@@ -15,7 +16,7 @@ class FileIsTooLargeError(UploadError):
         file_size: int,
         max_size: int,
     ) -> None:
-        self.message = (
+        super().__init__(
             f"File size is {file_size} bytes, "
-            f"but max size is {max_size} bytes"
+            f"but max size is {max_size} bytes",
         )

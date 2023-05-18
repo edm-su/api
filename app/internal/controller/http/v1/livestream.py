@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -17,6 +16,7 @@ from app.internal.entity.livestreams import (
     CreateLiveStream,
     LiveStream,
 )
+from app.internal.entity.user import User
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
@@ -43,7 +43,7 @@ async def new_stream(
     usecase: CreateLiveStreamUseCase = Depends(
         create_create_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
 ) -> LiveStream:
     try:
         return await usecase.execute(stream)
@@ -93,7 +93,7 @@ async def delete_stream(
     usecase: DeleteLiveStreamUseCase = Depends(
         create_delete_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
 ) -> None:
     try:
         await usecase.execute(stream.id)
@@ -116,7 +116,7 @@ async def update_stream(
     usecase: UpdateLiveStreamUseCase = Depends(
         create_update_live_stream_usecase,
     ),
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
 ) -> LiveStream:
     stream = LiveStream(**updated_stream.dict(), id=stream.id)
     try:

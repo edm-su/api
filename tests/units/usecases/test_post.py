@@ -9,11 +9,9 @@ from app.helpers import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
-    PostNotDeletedError,
     PostNotFoundError,
-)
-from app.internal.usecase.exceptions.video import (
-    SlugNotUniqueError,
+    PostSlugNotUniqueError,
+    PostWasNotDeletedError,
 )
 from app.internal.usecase.post import (
     CreatePostUseCase,
@@ -100,9 +98,9 @@ class TestCreatePostUseCase:
 
         assert await usecase.execute(new_post) == post
 
-        repository.create.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.create.assert_awaited_once()
 
-        repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with(post.slug)
 
     async def test_create_post_with_duplicate_slug(
         self: Self,
@@ -113,10 +111,10 @@ class TestCreatePostUseCase:
     ) -> None:
         repository.get_by_slug.return_value = post
 
-        with pytest.raises(SlugNotUniqueError):
+        with pytest.raises(PostSlugNotUniqueError):
             await usecase.execute(new_post)
 
-        repository.create.assert_not_awaited()  # type: ignore[attr-defined]
+        repository.create.assert_not_awaited()
 
 
 class TestGetAllPostsUseCase:
@@ -144,7 +142,7 @@ class TestGetAllPostsUseCase:
         posts = await usecase.execute(paginator=Paginator())
         assert len(posts) == 1
 
-        repository.get_all.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.get_all.assert_awaited_once()
 
 
 class TestGetPostBySlugUseCase:
@@ -165,7 +163,7 @@ class TestGetPostBySlugUseCase:
 
         assert await usecase.execute(post.slug) == post
 
-        repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with(post.slug)
 
     async def test_get_post_by_slug_with_not_existing_slug(
         self: Self,
@@ -178,7 +176,7 @@ class TestGetPostBySlugUseCase:
         with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
 
-        repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with(post.slug)
 
 
 class TestGetPostCountUseCase:
@@ -187,7 +185,7 @@ class TestGetPostCountUseCase:
         self: Self,
         repository: AsyncMock,
     ) -> None:
-        repository.count.return_value = 2
+        repository.count.return_value = 1
 
     @pytest.fixture()
     def usecase(
@@ -201,9 +199,9 @@ class TestGetPostCountUseCase:
         usecase: GetPostCountUseCase,
         repository: AsyncMock,
     ) -> None:
-        assert await usecase.execute() == 2  # noqa: PLR2004
+        assert await usecase.execute() == 1
 
-        repository.count.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.count.assert_awaited_once()
 
 
 class TestDeletePostUseCase:
@@ -231,9 +229,9 @@ class TestDeletePostUseCase:
 
         await usecase.execute(post.slug)
 
-        repository.delete.assert_awaited_once_with(post)  # type: ignore[attr-defined]  # noqa: E501
+        repository.delete.assert_awaited_once_with(post)
 
-        repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with(post.slug)
 
     async def test_delete_post_with_not_existing_slug(
         self: Self,
@@ -246,9 +244,9 @@ class TestDeletePostUseCase:
         with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
 
-        repository.delete.assert_not_awaited()  # type: ignore[attr-defined]
+        repository.delete.assert_not_awaited()
 
-        repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with(post.slug)
 
     async def test_post_was_not_deleted(
         self: Self,
@@ -259,7 +257,7 @@ class TestDeletePostUseCase:
         repository.get_by_slug.return_value = post
         repository.delete.return_value = False
 
-        with pytest.raises(PostNotDeletedError):
+        with pytest.raises(PostWasNotDeletedError):
             await usecase.execute(post.slug)
         repository.delete.assert_awaited_once()
         repository.get_by_slug.assert_awaited_once_with(post.slug)

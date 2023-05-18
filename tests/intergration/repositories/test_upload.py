@@ -12,7 +12,6 @@ def s3_upload_repository() -> S3UploadRepository:
 
 
 class TestS3Upload:
-    @pytest.mark.asyncio()
     async def test_upload(
         self: Self,
         s3_upload_repository: S3UploadRepository,

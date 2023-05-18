@@ -65,7 +65,6 @@ class TestGetAllUserTokensUseCase:
     ) -> GetAllUserTokensUseCase:
         return GetAllUserTokensUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_get_user_tokens(
         self: Self,
         usecase: GetAllUserTokensUseCase,
@@ -96,7 +95,6 @@ class TestCreateUserTokenUseCase:
     ) -> CreateUserTokenUseCase:
         return CreateUserTokenUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_create_user_token(
         self: Self,
         usecase: CreateUserTokenUseCase,
@@ -132,7 +130,6 @@ class TestRevokeUserTokenUseCase:
     ) -> RevokeUserTokenUseCase:
         return RevokeUserTokenUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_revoke_user_token(
         self: Self,
         usecase: RevokeUserTokenUseCase,
@@ -145,7 +142,6 @@ class TestRevokeUserTokenUseCase:
         repository.revoke.assert_awaited_once_with(user_token, user)
         repository.get_by_id.assert_awaited_once_with(user_token.id, user)
 
-    @pytest.mark.asyncio()
     async def test_revoke_user_token_not_found(
         self: Self,
         usecase: RevokeUserTokenUseCase,

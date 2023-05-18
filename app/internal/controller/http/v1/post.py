@@ -14,9 +14,7 @@ from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostError,
     PostNotFoundError,
-)
-from app.internal.usecase.exceptions.video import (
-    SlugNotUniqueError,
+    PostSlugNotUniqueError,
 )
 from app.internal.usecase.post import (
     CreatePostUseCase,
@@ -46,7 +44,7 @@ async def new_post(
     )
     try:
         return await usecase.execute(post)
-    except SlugNotUniqueError as e:
+    except PostSlugNotUniqueError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
@@ -89,7 +87,7 @@ async def get_post(post: Post = Depends(find_post)) -> Post:
 )
 async def delete_post(
     slug: str,
-    admin: User = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
     usecase: DeletePostUseCase = Depends(create_delete_post_usecase),
 ) -> None:
     try:

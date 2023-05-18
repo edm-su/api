@@ -19,7 +19,7 @@ from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
     UserError,
     UserIsBannedError,
-    UserNotActivatedError,
+    UserIsNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
@@ -97,16 +97,13 @@ class TestCreateUserUseCase:
         usecase: AsyncMock,
         new_user: NewUserDto,
         user: User,
+        repository: AsyncMock,
     ) -> None:
         assert await usecase.execute(new_user) == user
 
-        usecase.repository.get_by_email.assert_awaited_once_with(
-            new_user.email,
-        )
-        usecase.repository.get_by_username.assert_awaited_once_with(
-            new_user.username,
-        )
-        usecase.repository.create.assert_awaited_once()
+        repository.get_by_email.assert_awaited_once_with(new_user.email)
+        repository.get_by_username.assert_awaited_once_with(new_user.username)
+        repository.create.assert_awaited_once()
 
     @pytest.mark.parametrize("get_by", ["email", "username"])
     async def test_create_already_exists_user(
@@ -126,7 +123,7 @@ class TestCreateUserUseCase:
         with pytest.raises(UserAlreadyExistsError):
             await usecase.execute(new_user)
 
-        usecase.repository.create.assert_not_awaited()
+        repository.create.assert_not_awaited()
 
 
 class TestActivateUserUseCase:
@@ -150,20 +147,19 @@ class TestActivateUserUseCase:
 
     async def test_activate_user(
         self: Self,
-        usecase: ActivateUserUseCase,
+        usecase: AsyncMock,
         repository: AsyncMock,
-        user: User,
         activate_user: ActivateUserDto,
     ) -> None:
         repository.activate.return_value = True
 
         await usecase.execute(activate_user)
 
-        usecase.repository.activate.assert_awaited_once_with(activate_user)  # type: ignore[attr-defined]  # noqa: E501
+        repository.activate.assert_awaited_once_with(activate_user)
 
     async def test_activate_user_wrong_code(
         self: Self,
-        usecase: ActivateUserUseCase,
+        usecase: AsyncMock,
         activate_user: ActivateUserDto,
         repository: AsyncMock,
     ) -> None:
@@ -172,7 +168,7 @@ class TestActivateUserUseCase:
         with pytest.raises(WrongActivationCodeError):
             await usecase.execute(activate_user)
 
-        usecase.repository.activate.assert_awaited_once_with(activate_user)  # type: ignore[attr-defined]  # noqa: E501
+        repository.activate.assert_awaited_once_with(activate_user)
 
 
 class TestGetUserByUsernameUseCase:
@@ -185,7 +181,7 @@ class TestGetUserByUsernameUseCase:
 
     async def test_get_user(
         self: Self,
-        usecase: GetUserByUsernameUseCase,
+        usecase: AsyncMock,
         repository: AsyncMock,
         my_user: User,
     ) -> None:
@@ -193,13 +189,11 @@ class TestGetUserByUsernameUseCase:
 
         assert await usecase.execute(my_user.username) == my_user
 
-        usecase.repository.get_by_username.assert_awaited_once_with(  # type: ignore[attr-defined]  # noqa: E501
-            my_user.username,
-        )
+        repository.get_by_username.assert_awaited_once_with(my_user.username)
 
     async def test_user_not_found(
         self: Self,
-        usecase: GetUserByUsernameUseCase,
+        usecase: AsyncMock,
         repository: AsyncMock,
     ) -> None:
         repository.get_by_username.return_value = None
@@ -207,7 +201,7 @@ class TestGetUserByUsernameUseCase:
         with pytest.raises(UserNotFoundError):
             await usecase.execute("test")
 
-        usecase.repository.get_by_username.assert_awaited_once_with("test")  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_username.assert_awaited_once_with("test")
 
 
 class TestGetUserByIdUseCase:
@@ -220,7 +214,7 @@ class TestGetUserByIdUseCase:
 
     async def test_get_user(
         self: Self,
-        usecase: GetUserByIdUseCase,
+        usecase: AsyncMock,
         repository: AsyncMock,
         user: User,
     ) -> None:
@@ -229,7 +223,7 @@ class TestGetUserByIdUseCase:
         result = await usecase.execute(user.id)
         assert result == user
 
-        usecase.repository.get_by_id.assert_awaited_once_with(user.id)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(user.id)
 
     async def test_user_not_found(
         self: Self,
@@ -241,7 +235,7 @@ class TestGetUserByIdUseCase:
         with pytest.raises(UserNotFoundError):
             await usecase.execute(1)
 
-        usecase.repository.get_by_id.assert_awaited_once_with(1)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(1)
 
 
 class TestResetPasswordUseCase:
@@ -272,7 +266,7 @@ class TestResetPasswordUseCase:
         assert result
         assert result.id == user.id
 
-        usecase.repository.set_reset_password_code.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+        repository.set_reset_password_code.assert_awaited_once()
 
     async def test_user_not_found(
         self: Self,
@@ -284,7 +278,7 @@ class TestResetPasswordUseCase:
         with pytest.raises(UserNotFoundError):
             await usecase.execute("test")
 
-        usecase.repository.set_reset_password_code.assert_not_awaited()  # type: ignore[attr-defined]  # noqa: E501
+        repository.set_reset_password_code.assert_not_awaited()
 
     async def test_set_code_error(
         self: Self,
@@ -333,7 +327,7 @@ class TestChangePasswordUseCase:
 
         await usecase.execute(data)
 
-        usecase.repository.change_password.assert_awaited_once_with(data)  # type: ignore[attr-defined]  # noqa: E501
+        repository.change_password.assert_awaited_once_with(data)
 
     async def test_wrong_password(
         self: Self,
@@ -346,7 +340,7 @@ class TestChangePasswordUseCase:
         with pytest.raises(WrongPasswordError):
             await usecase.execute(data)
 
-        usecase.repository.change_password.assert_awaited_once_with(data)  # type: ignore[attr-defined]  # noqa: E501
+        repository.change_password.assert_awaited_once_with(data)
 
 
 class TestChangePasswordByResetCodeUseCase:
@@ -386,9 +380,9 @@ class TestChangePasswordByResetCodeUseCase:
 
         await usecase.execute(data)
 
-        usecase.repository.get_by_id.assert_awaited_once_with(data.id)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(data.id)
 
-        repository.change_password_by_reset_code.assert_awaited_once_with(  # type: ignore[attr-defined]  # noqa: E501
+        repository.change_password_by_reset_code.assert_awaited_once_with(
             data,
         )
 
@@ -403,8 +397,8 @@ class TestChangePasswordByResetCodeUseCase:
         with pytest.raises(UserNotFoundError):
             await usecase.execute(data)
 
-        usecase.repository.get_by_id.assert_awaited_once_with(data.id)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.repository.change_password_by_reset_code.assert_not_awaited()  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(data.id)
+        repository.change_password_by_reset_code.assert_not_awaited()
 
     async def test_wrong_code(
         self: Self,
@@ -419,8 +413,8 @@ class TestChangePasswordByResetCodeUseCase:
         with pytest.raises(WrongResetCodeError):
             await usecase.execute(data)
 
-        usecase.repository.get_by_id.assert_awaited_once_with(data.id)  # type: ignore[attr-defined]  # noqa: E501
-        repository.change_password_by_reset_code.assert_awaited_once_with(  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(data.id)
+        repository.change_password_by_reset_code.assert_awaited_once_with(
             data,
         )
 
@@ -500,6 +494,6 @@ class TestSignInUseCase:
         user.is_active = False
         repository.sign_in.return_value = user
 
-        with pytest.raises(UserNotActivatedError):
+        with pytest.raises(UserIsNotActivatedError):
             await usecase.execute(data)
         repository.sign_in.assert_awaited_once_with(data)

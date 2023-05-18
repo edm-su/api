@@ -19,7 +19,7 @@ from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
     UserError,
     UserIsBannedError,
-    UserNotActivatedError,
+    UserIsNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordOrEmailError,
@@ -387,7 +387,7 @@ class TestSignIn:
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.user.SignInUseCase.execute",
-            side_effect=UserNotActivatedError,
+            side_effect=UserIsNotActivatedError,
         )
         response = await client.post(
             "/users/sign-in",

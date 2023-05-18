@@ -1,5 +1,3 @@
-from collections.abc import Mapping
-
 from fastapi import APIRouter, Depends, Response, status
 
 from app.helpers import Paginator
@@ -76,7 +74,7 @@ async def read_comments(
 )
 async def comments_list(
     response: Response,
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
     pagination: Paginator = Depends(Paginator),
     usecase: GetAllCommentsUseCase = Depends(
         create_get_all_comments_usecase,

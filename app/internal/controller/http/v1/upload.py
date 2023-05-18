@@ -1,10 +1,9 @@
-from collections.abc import Mapping
-
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from starlette import status
 
 from app.internal.controller.http.v1.dependencies.auth import get_current_admin
 from app.internal.entity.upload import ImageURL, ImageURLs
+from app.internal.entity.user import User
 from app.internal.usecase.exceptions.upload import (
     FileIsTooLargeError,
     UploadError,
@@ -26,7 +25,7 @@ router = APIRouter()
 )
 async def upload_image(
     image: UploadFile = File(...),
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
 ) -> ImageURLs:
     if image.content_type is None or not image.content_type.startswith(
         "image/",
@@ -47,7 +46,7 @@ async def upload_image(
     except UploadError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
+            detail=str(e),
         ) from e
     return urls
 
@@ -60,7 +59,7 @@ async def upload_image(
 )
 async def upload_image_url(
     image_url: ImageURL,
-    admin: Mapping = Depends(get_current_admin),  # noqa: ARG001
+    _: User = Depends(get_current_admin),
 ) -> ImageURLs:
     use_case = UploadImageURLUseCase(S3UploadRepository(), image_url)
     try:
@@ -73,6 +72,6 @@ async def upload_image_url(
     except UploadError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
+            detail=str(e),
         ) from e
     return urls

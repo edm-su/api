@@ -45,11 +45,12 @@ class TestUploadImageUseCase:
 
     async def test_upload_image(
         self: Self,
-        usecase: UploadImageUseCase,
+        usecase: AsyncMock,
+        repository: AsyncMock,
     ) -> None:
         await usecase.execute()
 
-        usecase.repository.upload.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+        repository.upload.assert_awaited_once()
 
     async def test_max_upload_size(
         self: Self,
@@ -85,7 +86,8 @@ class TestUploadImageURLUseCase:
     async def test_upload_image_url(
         self: Self,
         httpx_mock: HTTPXMock,
-        usecase: UploadImageURLUseCase,
+        usecase: AsyncMock,
+        repository: AsyncMock,
     ) -> None:
         httpx_mock.add_response(
             method="HEAD",
@@ -102,7 +104,7 @@ class TestUploadImageURLUseCase:
 
         await usecase.execute()
 
-        usecase.repository.upload.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+        repository.upload.assert_awaited_once()
 
     async def test_upload_not_image_url(
         self: Self,

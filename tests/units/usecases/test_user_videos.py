@@ -71,7 +71,6 @@ class TestGetUserVideosUseCase:
     ) -> GetUserVideosUseCase:
         return GetUserVideosUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_get_user_videos(
         self: Self,
         usecase: GetUserVideosUseCase,
@@ -105,7 +104,6 @@ class TestLikeVideoUseCase:
     ) -> LikeVideoUseCase:
         return LikeVideoUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_like_video(
         self: Self,
         usecase: LikeVideoUseCase,
@@ -118,7 +116,6 @@ class TestLikeVideoUseCase:
         repository.is_liked.assert_awaited_once_with(user, video)
         repository.like_video.assert_awaited_once_with(user, video)
 
-    @pytest.mark.asyncio()
     async def test_like_video_already_liked(
         self: Self,
         usecase: LikeVideoUseCase,
@@ -151,7 +148,6 @@ class TestUnlikeVideoUseCase:
     ) -> UnlikeVideoUseCase:
         return UnlikeVideoUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_unlike_video(
         self: Self,
         usecase: UnlikeVideoUseCase,
@@ -164,7 +160,6 @@ class TestUnlikeVideoUseCase:
         repository.is_liked.assert_awaited_once_with(user, video)
         repository.unlike_video.assert_awaited_once_with(user, video)
 
-    @pytest.mark.asyncio()
     async def test_unlike_video_not_liked(
         self: Self,
         usecase: UnlikeVideoUseCase,

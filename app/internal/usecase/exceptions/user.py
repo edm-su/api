@@ -52,9 +52,9 @@ class AuthError(UserError):
         super().__init__("Authentication code error")
 
 
-class UserNotActivatedError(UserError):
+class UserIsNotActivatedError(UserError):
     def __init__(self: Self) -> None:
-        super().__init__("User not activated")
+        super().__init__("User is not activated")
 
 
 class WrongResetCodeError(UserError):

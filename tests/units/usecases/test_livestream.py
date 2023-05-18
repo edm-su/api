@@ -92,7 +92,7 @@ class TestCreateLiveStreamUseCase:
     ) -> None:
         assert await usecase.execute(new_livestream) == livestream
 
-        repository.create.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.create.assert_awaited_once()
 
     async def test_create_already_existing_livestream(
         self: Self,
@@ -106,7 +106,7 @@ class TestCreateLiveStreamUseCase:
         with pytest.raises(LiveStreamAlreadyExistsError):
             await usecase.execute(new_livestream)
 
-        repository.create.assert_not_awaited()  # type: ignore[attr-defined]
+        repository.create.assert_not_awaited()
 
 
 class TestGetAllLiveStreamsUseCase:
@@ -133,7 +133,7 @@ class TestGetAllLiveStreamsUseCase:
     ) -> None:
         assert await usecase.execute() == [livestream]
 
-        repository.get_all.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.get_all.assert_awaited_once()
 
 
 class TestGetLiveStreamUseCase:
@@ -160,7 +160,7 @@ class TestGetLiveStreamUseCase:
     ) -> None:
         assert await usecase.execute(livestream.id) == livestream
 
-        repository.get_by_id.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once()
 
     async def test_livestream_not_found(
         self: Self,
@@ -201,13 +201,12 @@ class TestUpdateLiveStreamUseCase:
         livestream.title = "new title"
         assert await usecase.execute(livestream) == livestream
 
-        repository.update.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.update.assert_awaited_once()
 
     async def test_update_not_existing_livestream(
         self: Self,
         usecase: UpdateLiveStreamUseCase,
         livestream: LiveStream,
-        mocker: MockerFixture,
         repository: AsyncMock,
     ) -> None:
         repository.update.return_value = False
@@ -215,7 +214,7 @@ class TestUpdateLiveStreamUseCase:
         with pytest.raises(LiveStreamError):
             await usecase.execute(livestream)
 
-        repository.update.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.update.assert_awaited_once()
 
 
 class TestDeleteLiveStreamUseCase:
@@ -241,7 +240,7 @@ class TestDeleteLiveStreamUseCase:
     ) -> None:
         await usecase.execute(livestream.id)
 
-        repository.delete.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.delete.assert_awaited_once()
 
     async def test_delete_not_existing_livestream(
         self: Self,
@@ -253,4 +252,4 @@ class TestDeleteLiveStreamUseCase:
         with pytest.raises(LiveStreamError):
             await usecase.execute(0)
 
-        repository.delete.assert_awaited_once()  # type: ignore[attr-defined]
+        repository.delete.assert_awaited_once()

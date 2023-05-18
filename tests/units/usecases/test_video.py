@@ -7,8 +7,8 @@ from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto
 from app.internal.usecase.exceptions.video import (
-    SlugNotUniqueError,
     VideoNotFoundError,
+    VideoSlugNotUniqueError,
     VideoYtIdNotUniqueError,
 )
 from app.internal.usecase.repository.video import (
@@ -70,12 +70,13 @@ class TestGetAllVideosUseCase:
     async def test_get_all_videos(
         self: Self,
         usecase: GetAllVideosUseCase,
+        repository: AsyncMock,
     ) -> None:
         videos = await usecase.execute()
         assert videos is not None
         assert len(videos) == 1
 
-        usecase.repository.get_all.assert_awaited_once_with(offset=0, limit=20)  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_all.assert_awaited_once_with(offset=0, limit=20)
 
 
 class TestGetCountVideosUseCase:
@@ -96,11 +97,12 @@ class TestGetCountVideosUseCase:
     async def test_get_count_videos(
         self: Self,
         usecase: GetCountVideosUseCase,
+        repository: AsyncMock,
     ) -> None:
         count = await usecase.execute()
         assert count == 1
 
-        usecase.repository.count.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+        repository.count.assert_awaited_once()
 
 
 class TestGetVideoBySlugUseCase:
@@ -123,19 +125,22 @@ class TestGetVideoBySlugUseCase:
         self: Self,
         usecase: GetVideoBySlugUseCase,
         video: Video,
+        repository: AsyncMock,
     ) -> None:
         video = await usecase.execute("slug")
         assert video is video
 
-        usecase.repository.get_by_slug.assert_awaited_once_with("slug")  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.assert_awaited_once_with("slug")
 
     async def test_video_not_found_error(
         self: Self,
         usecase: GetVideoBySlugUseCase,
+        repository: AsyncMock,
     ) -> None:
-        usecase.repository.get_by_slug.return_value = None  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_slug.return_value = None
         with pytest.raises(VideoNotFoundError):
             await usecase.execute("slug")
+        repository.get_by_slug.assert_awaited_once_with("slug")
 
 
 class TestCreateVideoUseCase:
@@ -194,14 +199,16 @@ class TestCreateVideoUseCase:
         usecase: CreateVideoUseCase,
         new_video: NewVideoDto,
         video: Video,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
     ) -> None:
         created_video = await usecase.execute(new_video)
         assert created_video is video
 
-        usecase.repository.create.assert_awaited_once_with(new_video)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.full_text_repo.create.assert_awaited_once_with(created_video)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.repository.get_by_slug.assert_awaited_once_with(video.slug)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.repository.get_by_yt_id.assert_awaited_once_with(video.yt_id)  # type: ignore[attr-defined]  # noqa: E501
+        repository.create.assert_awaited_once_with(new_video)
+        full_text_repository.create.assert_awaited_once_with(created_video)
+        repository.get_by_slug.assert_awaited_once_with(video.slug)
+        repository.get_by_yt_id.assert_awaited_once_with(video.yt_id)
 
     @pytest.mark.usefixtures("_mock_by_slug")
     async def test_create_video_with_invalid_slug(
@@ -210,7 +217,7 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
     ) -> None:
         """Raise exception if slug is not unique."""
-        with pytest.raises(SlugNotUniqueError):
+        with pytest.raises(VideoSlugNotUniqueError):
             await usecase.execute(new_video)
 
     @pytest.mark.usefixtures("_mock_by_yt_id")
@@ -252,19 +259,21 @@ class TestDeleteVideoUseCase:
         usecase: DeleteVideoUseCase,
         repository: AsyncMock,
         video: Video,
+        full_text_repository: AsyncMock,
     ) -> None:
         repository.get_by_id.return_value = video
 
         await usecase.execute(video.id)
 
-        usecase.repository.delete.assert_awaited_once_with(video.id)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.full_text_repo.delete.assert_awaited_once_with(video.id)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.repository.get_by_id.assert_awaited_once_with(video.id)  # type: ignore[attr-defined]  # noqa: E501
+        repository.delete.assert_awaited_once_with(video.id)
+        full_text_repository.delete.assert_awaited_once_with(video.id)
+        repository.get_by_id.assert_awaited_once_with(video.id)
 
     async def test_delete_video_with_invalid_id(
         self: Self,
         usecase: DeleteVideoUseCase,
         repository: AsyncMock,
+        full_text_repository: AsyncMock,
     ) -> None:
         """Raise exception if id is not found."""
         repository.get_by_id.return_value = None
@@ -272,6 +281,6 @@ class TestDeleteVideoUseCase:
         with pytest.raises(VideoNotFoundError):
             await usecase.execute(100_000_000)
 
-        usecase.repository.get_by_id.assert_awaited_once_with(100_000_000)  # type: ignore[attr-defined]  # noqa: E501
-        usecase.repository.delete.assert_not_called()  # type: ignore[attr-defined]  # noqa: E501
-        usecase.full_text_repo.delete.assert_not_called()  # type: ignore[attr-defined]  # noqa: E501
+        repository.get_by_id.assert_awaited_once_with(100_000_000)
+        repository.delete.assert_not_called()
+        full_text_repository.delete.assert_not_called()

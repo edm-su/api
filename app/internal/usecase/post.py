@@ -3,11 +3,9 @@ from typing_extensions import Self
 from app.helpers import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.usecase.exceptions.post import (
-    PostNotDeletedError,
     PostNotFoundError,
-)
-from app.internal.usecase.exceptions.video import (
-    SlugNotUniqueError,
+    PostSlugNotUniqueError,
+    PostWasNotDeletedError,
 )
 from app.internal.usecase.repository.post import AbstractPostRepository
 
@@ -26,7 +24,7 @@ class CreatePostUseCase(BasePostUseCase):
         new_post: NewPostDTO,
     ) -> Post:
         if await self.repository.get_by_slug(new_post.slug):
-            raise SlugNotUniqueError(slug=new_post.slug, entity="post")
+            raise PostSlugNotUniqueError(slug=new_post.slug)
         return await self.repository.create(new_post)
 
 
@@ -66,4 +64,4 @@ class DeletePostUseCase(BasePostUseCase):
         if post is None:
             raise PostNotFoundError
         if not await self.repository.delete(post):
-            raise PostNotDeletedError
+            raise PostWasNotDeletedError

@@ -18,7 +18,7 @@ class TestPostgresUserVideosRepository:
         return PostgresUserVideosRepository(pg_session)
 
     @pytest.fixture()
-    async def liked_video(  # noqa: PT004
+    async def _like_video(
         self: Self,
         pg_user: User,
         pg_video: Video,
@@ -37,24 +37,24 @@ class TestPostgresUserVideosRepository:
         response = await repository.is_liked(pg_user, pg_video)
         assert response is True
 
+    @pytest.mark.usefixtures("_like_video")
     async def test_unlike_video(
         self: Self,
         repository: PostgresUserVideosRepository,
         pg_user: User,
         pg_video: Video,
-        liked_video: None,
     ) -> None:
         await repository.unlike_video(pg_user, pg_video)
 
         response = await repository.is_liked(pg_user, pg_video)
         assert response is False
 
+    @pytest.mark.usefixtures("_like_video")
     async def test_get_user_videos(
         self: Self,
         repository: PostgresUserVideosRepository,
         pg_user: User,
         pg_video: Video,
-        liked_video: None,
     ) -> None:
         response = await repository.get_user_videos(pg_user)
 
@@ -66,12 +66,12 @@ class TestPostgresUserVideosRepository:
 
         assert len(response) == 0
 
+    @pytest.mark.usefixtures("_like_video")
     async def test_is_liked(
         self: Self,
         repository: PostgresUserVideosRepository,
         pg_user: User,
         pg_video: Video,
-        liked_video: None,
     ) -> None:
         response = await repository.is_liked(pg_user, pg_video)
 
