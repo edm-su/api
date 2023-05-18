@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/edm-su/api/compare/v1.5.1...v2.0.0) (2023-05-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* rewritten using a clean architecture
+
+### Code Refactoring
+
+* rewritten using a clean architecture ([a21b8c1](https://github.com/edm-su/api/commit/a21b8c1fdde2caab406e408603ac1ca8daa666ba))
+
 ## [1.5.1](https://github.com/edm-su/api/compare/v1.5.0...v1.5.1) (2023-04-03)
 
 
