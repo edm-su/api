@@ -21,4 +21,4 @@ jobs:
           release-type: python
           package-name: edm-su-api
           extra-files: |
-            app/__version__.py
+            app/__init__.py
