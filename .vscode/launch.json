@@ -1,0 +1,73 @@
+{
+    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Alembic upgrade head",
+            "type": "python",
+            "request": "launch",
+            "module": "alembic",
+            "args": [
+                "upgrade",
+                "head"
+            ],
+            "cwd": "${workspaceFolder}/",
+            "envFile": "${workspaceFolder}/.${input:env}.env"
+        },
+        {
+            "name": "Generage alembic migration",
+            "type": "python",
+            "request": "launch",
+            "module": "alembic",
+            "args": [
+                "revision",
+                "--autogenerate",
+                "-m",
+                "${input:migrationMessage}"
+            ],
+            "cwd": "${workspaceFolder}/",
+            "envFile": "${workspaceFolder}/.dev.env"
+        },
+        {
+            "name": "Python: Debug Tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": ["debug-test"],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTEST_ADDOPTS": "--no-cov"
+            },
+            "justMyCode": false
+        },
+        {
+            "name": "Launch",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/main.py",
+            "envFile": "${workspaceFolder}/.${input:env}.env",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "migrationMessage",
+            "type": "promptString",
+            "description": "Alembic migration message",
+        },
+        {
+            "id": "env",
+            "type": "pickString",
+            "description": "Environment",
+            "default": "dev",
+            "options": [
+                "dev",
+                "test"
+            ]
+        }
+    ]
+}

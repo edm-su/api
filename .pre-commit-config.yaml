@@ -5,7 +5,10 @@ repos:
     hooks:
       - id: mypy
         args: [ --ignore-missing-imports, --disallow-untyped-defs ]
-        additional_dependencies: [ pyjwt==2.0.0,  types-python-slugify==8.0.0.2]
+        additional_dependencies:
+        - "pyjwt==2.6.0"
+        - "types-python-slugify==8.0.0.2"
+        - "pydantic==1.10.7"
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
@@ -35,6 +38,6 @@ repos:
         args: ["--no-update"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
   # Ruff version.
-    rev: 'v0.0.260'
+    rev: 'v0.0.262'
     hooks:
       - id: ruff
