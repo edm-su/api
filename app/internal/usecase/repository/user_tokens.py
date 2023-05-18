@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import users_tokens
 from app.internal.entity.user import User, UserToken, UserTokenDTO
+from app.pkg.postgres import users_tokens
 
 
 class AbstractUserTokensRepository(ABC):

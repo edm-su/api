@@ -3,7 +3,6 @@ from collections.abc import Mapping
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app.helpers import Paginator
 from app.internal.controller.http.v1.dependencies import auth
 from app.internal.controller.http.v1.dependencies.video import (
     create_count_videos_usecase,
@@ -12,6 +11,7 @@ from app.internal.controller.http.v1.dependencies.video import (
     create_get_all_videos_usecase,
     find_video,
 )
+from app.internal.entity.paginator import Paginator
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import VideoError
 from app.internal.usecase.video import (

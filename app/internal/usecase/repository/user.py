@@ -6,7 +6,6 @@ from sqlalchemy import false
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import users
 from app.internal.entity.user import (
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
@@ -16,6 +15,7 @@ from app.internal.entity.user import (
     SignInDto,
     User,
 )
+from app.pkg.postgres import users
 
 
 class AbstractUserRepository(ABC):

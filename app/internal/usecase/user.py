@@ -1,9 +1,12 @@
+import hashlib
+import secrets
+import string
 from datetime import datetime, timedelta
 
 from pydantic import SecretStr
 from typing_extensions import Self
 
-from app.helpers import generate_secret_code, get_password_hash
+from app.internal.entity.settings import settings
 from app.internal.entity.user import (
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
@@ -33,6 +36,16 @@ class AbstractUserUseCase:
         repository: AbstractUserRepository,
     ) -> None:
         self.repository = repository
+
+
+def generate_secret_code(n: int = 10) -> str:
+    alphabet = string.ascii_uppercase + string.digits
+    return "".join(secrets.choice(alphabet) for i in range(n))
+
+
+def get_password_hash(password: str) -> str:
+    encoded_password = f"{password}{settings.secret_key}".encode()
+    return hashlib.sha256(encoded_password).hexdigest()
 
 
 class CreateUserUseCase(AbstractUserUseCase):

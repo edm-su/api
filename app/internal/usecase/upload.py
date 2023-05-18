@@ -8,13 +8,13 @@ import httpx
 from PIL import Image
 from typing_extensions import Self
 
+from app.internal.entity.settings import settings
 from app.internal.entity.upload import ImageURL, ImageURLs
 from app.internal.usecase.exceptions.upload import (
     FileIsNotImageError,
     FileIsTooLargeError,
 )
 from app.internal.usecase.repository.upload import AbstractUploadRepository
-from app.settings import settings
 
 MAX_FILE_SIZE = 5_000_000
 

@@ -15,7 +15,7 @@ from app.internal.usecase.video import (
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
 )
-from app.meilisearch import ms_client
+from app.pkg.meilisearch import ms_client
 from app.pkg.postgres import get_session
 
 

@@ -5,8 +5,8 @@ from sqlalchemy import between
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import livestreams
 from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.pkg.postgres import livestreams
 
 
 class AbstractLiveStreamRepository(ABC):

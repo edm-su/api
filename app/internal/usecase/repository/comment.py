@@ -4,8 +4,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import comments
 from app.internal.entity.comment import Comment, NewCommentDto
+from app.pkg.postgres import comments
 
 
 class AbstractCommentRepository(ABC):

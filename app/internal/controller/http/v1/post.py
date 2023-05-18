@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.helpers import Paginator
 from app.internal.controller.http.v1.dependencies.auth import get_current_admin
 from app.internal.controller.http.v1.dependencies.post import (
     create_create_post_usecase,
@@ -9,6 +8,7 @@ from app.internal.controller.http.v1.dependencies.post import (
     create_get_count_posts_usecase,
     find_post,
 )
+from app.internal.entity.paginator import Paginator
 from app.internal.entity.post import CreatePost, NewPostDTO, Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (

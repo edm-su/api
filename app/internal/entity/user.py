@@ -12,7 +12,7 @@ from pydantic import (
 )
 from typing_extensions import Self
 
-from app.settings import settings
+from app.internal.entity.settings import settings
 
 
 class UserBase(BaseModel):

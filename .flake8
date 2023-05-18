@@ -1,3 +1,0 @@
-[flake8]
-exclude = .mypy_cache,.git,alembic
-extend-ignore = E203

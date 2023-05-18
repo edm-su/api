@@ -3,8 +3,8 @@ from typing import IO
 
 from typing_extensions import Self
 
-from app.helpers import s3_client
-from app.settings import settings
+from app.internal.entity.settings import settings
+from app.pkg.s3 import s3_client
 
 
 class AbstractUploadRepository(ABC):

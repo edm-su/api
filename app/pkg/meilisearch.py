@@ -2,7 +2,7 @@ from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.models.settings import MeilisearchSettings
 from meilisearch_python_async.task import wait_for_task
 
-from app.settings import settings
+from app.internal.entity.settings import settings
 
 ms_client = MeilisearchClient(
     url=settings.meilisearch_api_url,

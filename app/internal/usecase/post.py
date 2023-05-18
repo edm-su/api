@@ -1,6 +1,6 @@
 from typing_extensions import Self
 
-from app.helpers import Paginator
+from app.internal.entity.paginator import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,

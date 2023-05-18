@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import false
 from typing_extensions import Self
 
-from app.db import videos
 from app.internal.entity.video import NewVideoDto, Video
-from app.meilisearch import normalize_ms_index_name
+from app.pkg.meilisearch import normalize_ms_index_name
+from app.pkg.postgres import videos
 
 
 class AbstractVideoRepository(ABC):

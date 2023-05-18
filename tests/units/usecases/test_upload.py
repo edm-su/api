@@ -7,6 +7,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 from typing_extensions import Self
 
+from app.internal.entity.settings import settings
 from app.internal.entity.upload import ImageURL
 from app.internal.usecase.exceptions.upload import (
     FileIsNotImageError,
@@ -17,7 +18,6 @@ from app.internal.usecase.upload import (
     UploadImageURLUseCase,
     UploadImageUseCase,
 )
-from app.settings import settings
 
 
 @pytest.fixture()

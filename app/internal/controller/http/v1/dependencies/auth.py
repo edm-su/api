@@ -7,10 +7,10 @@ from starlette import status
 from app.internal.controller.http.v1.dependencies.user import (
     create_get_user_by_username_usecase,
 )
+from app.internal.entity.settings import settings
 from app.internal.entity.user import TokenData, User
 from app.internal.usecase.exceptions.user import AuthError
 from app.internal.usecase.user import GetUserByUsernameUseCase
-from app.settings import settings
 
 oauth_scheme = OAuth2PasswordBearer("/users/signin", auto_error=False)
 

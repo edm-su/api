@@ -7,9 +7,9 @@ from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
 from app.internal.controller.http.router import api_router
+from app.internal.entity.settings import settings
 from app.internal.usecase.exceptions.user import AuthError, UserError
-from app.meilisearch import config_ms, ms_client
-from app.settings import settings
+from app.pkg.meilisearch import config_ms, ms_client
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
 app = FastAPI(openapi_url=openapi_url, debug=False)

@@ -19,6 +19,10 @@ from pydantic import (
 )
 from starlette import status
 
+from app.internal.controller.http.tasks import (
+    send_activate_email,
+    send_recovery_email,
+)
 from app.internal.controller.http.v1.dependencies.auth import get_current_user
 from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
@@ -50,7 +54,6 @@ from app.internal.usecase.user import (
     ResetPasswordUseCase,
     SignInUseCase,
 )
-from app.tasks import send_activate_email, send_recovery_email
 
 router = APIRouter(tags=["Пользователи"])
 

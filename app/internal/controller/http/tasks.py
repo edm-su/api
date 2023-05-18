@@ -2,7 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from app.settings import settings
+from app.internal.entity.settings import settings
 
 
 def send_recovery_email(email: str, code: str) -> None:

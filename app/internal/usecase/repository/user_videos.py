@@ -4,9 +4,9 @@ from sqlalchemy import and_, false, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import liked_videos, videos
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
+from app.pkg.postgres import liked_videos, videos
 
 
 class AbstractUserVideosRepository(ABC):

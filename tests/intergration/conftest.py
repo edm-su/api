@@ -6,8 +6,6 @@ from meilisearch_python_async import Client as MeilisearchClient
 from pydantic import EmailStr, SecretStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import metadata
-from app.helpers import get_password_hash
 from app.internal.entity.user import (
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
@@ -20,9 +18,10 @@ from app.internal.entity.user import (
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.repository.user import PostgresUserRepository
 from app.internal.usecase.repository.video import PostgresVideoRepository
-from app.meilisearch import config_ms
-from app.meilisearch import ms_client as meilisearch_client
-from app.pkg.postgres import async_engine, async_session
+from app.internal.usecase.user import get_password_hash
+from app.pkg.meilisearch import config_ms
+from app.pkg.meilisearch import ms_client as meilisearch_client
+from app.pkg.postgres import async_engine, async_session, metadata
 
 
 @pytest.fixture(autouse=True, scope="session")

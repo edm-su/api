@@ -5,8 +5,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.db import posts
 from app.internal.entity.post import NewPostDTO, Post
+from app.pkg.postgres import posts
 
 
 class AbstractPostRepository(ABC):

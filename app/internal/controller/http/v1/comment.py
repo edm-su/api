@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Response, status
 
-from app.helpers import Paginator
 from app.internal.controller.http.v1.dependencies.auth import (
     get_current_admin,
     get_current_user,
@@ -13,6 +12,7 @@ from app.internal.controller.http.v1.dependencies.comment import (
 )
 from app.internal.controller.http.v1.dependencies.video import find_video
 from app.internal.entity.comment import Comment, CommentBase, NewCommentDto
+from app.internal.entity.paginator import Paginator
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.comment import (
