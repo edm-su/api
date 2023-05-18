@@ -8,8 +8,8 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "build(python)"
-      prefix-development: "build(python-dev)"
+      prefix: "fix(deps)"
+      prefix-development: "fix(deps)"
 
   - package-ecosystem: github-actions
     directory: /
