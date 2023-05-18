@@ -12,6 +12,7 @@ from app.internal.controller.http.v1.dependencies.video import (
     find_video,
 )
 from app.internal.entity.paginator import Paginator
+from app.internal.entity.user import User
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import VideoError
 from app.internal.usecase.video import (
@@ -21,14 +22,13 @@ from app.internal.usecase.video import (
     GetCountVideosUseCase,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["Videos"])
 
 
 @router.get(
     "",
     response_model=list[Video],
-    tags=["Видео"],
-    summary="Получить список видео",
+    summary="Get all videos",
 )
 async def get_videos(
     response: Response,
@@ -51,9 +51,7 @@ async def get_videos(
 
 @router.get(
     "/{slug}",
-    response_model=Video,
-    tags=["Видео"],
-    summary="Получить видео",
+    summary="Get video",
 )
 async def read_video(
     video: Video = Depends(find_video),
@@ -63,12 +61,11 @@ async def read_video(
 
 @router.delete(
     "/{slug}",
-    tags=["Видео"],
-    summary="Удаление видео",
+    summary="Remove video",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
+    _: User = Depends(auth.get_current_admin),
     video: Video = Depends(find_video),
     usecase: DeleteVideoUseCase = Depends(create_delete_video_usecase),
 ) -> None:
@@ -77,14 +74,12 @@ async def delete_video(
 
 @router.post(
     "",
-    response_model=Video,
-    tags=["Видео"],
-    summary="Добавить видео",
+    summary="Add video",
     status_code=status.HTTP_201_CREATED,
 )
 async def add_video(
     new_video: NewVideoDto,
-    admin: Mapping = Depends(auth.get_current_admin),  # noqa: ARG001
+    _: Mapping = Depends(auth.get_current_admin),
     usecase: CreateVideoUseCase = Depends(create_create_video_usecase),
 ) -> Video:
     try:

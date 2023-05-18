@@ -32,7 +32,7 @@ class AbstractCommentRepository(ABC):
     async def get_video_comments(
         self: Self,
         video_id: int,
-    ) -> list[Comment]:
+    ) -> list[Comment | None]:
         pass
 
 
@@ -90,7 +90,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
     async def get_video_comments(
         self: Self,
         video_id: int,
-    ) -> list[Comment]:
+    ) -> list[Comment | None]:
         query = (
             comments.select()
             .where(comments.c.video_id == video_id)

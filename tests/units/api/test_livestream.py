@@ -10,7 +10,7 @@ from typing_extensions import Self
 from app.internal.controller.http.v1.dependencies.livestream import (
     find_livestream,
 )
-from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
@@ -21,13 +21,13 @@ from app.main import app
 @pytest.fixture()
 def new_stream_data(
     faker: Faker,
-) -> CreateLiveStream:
+) -> CreateLiveStreamDTO:
     start_time = faker.date_time_this_month(
         before_now=False,
         after_now=True,
     )
     end_time = start_time + timedelta(hours=2)
-    return CreateLiveStream(
+    return CreateLiveStreamDTO(
         title=faker.word(),
         start_time=start_time,
         end_time=end_time,
@@ -40,7 +40,7 @@ def new_stream_data(
 
 @pytest.fixture()
 def livestream(
-    new_stream_data: CreateLiveStream,
+    new_stream_data: CreateLiveStreamDTO,
 ) -> LiveStream:
     return LiveStream(**new_stream_data.dict(), id=1)
 
@@ -55,7 +55,7 @@ class TestNewLiveStream:
     async def test_new_live_stream(
         self: Self,
         client: AsyncClient,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
         livestream: LiveStream,
         mocker: MockerFixture,
     ) -> None:
@@ -77,7 +77,7 @@ class TestNewLiveStream:
     async def test_already_exists_live_stream(
         self: Self,
         client: AsyncClient,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
@@ -100,7 +100,7 @@ class TestNewLiveStream:
     async def test_new_live_stream_without_permission(
         self: Self,
         client: AsyncClient,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
     ) -> None:
         response = await client.post(
             "/livestreams",
@@ -191,7 +191,7 @@ class TestUpdateLiveStream:
         self: Self,
         client: AsyncClient,
         livestream: LiveStream,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
@@ -211,7 +211,7 @@ class TestUpdateLiveStream:
         self: Self,
         client: AsyncClient,
         livestream: LiveStream,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
     ) -> None:
         response = await client.put(
             f"/livestreams/{livestream.id}",
@@ -225,7 +225,7 @@ class TestUpdateLiveStream:
         self: Self,
         client: AsyncClient,
         livestream: LiveStream,
-        new_stream_data: CreateLiveStream,
+        new_stream_data: CreateLiveStreamDTO,
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(

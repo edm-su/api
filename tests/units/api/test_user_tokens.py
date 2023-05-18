@@ -5,7 +5,9 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http.v1.user_tokens import CreateAPITokenRequest
+from app.internal.controller.http.v1.requests.user_tokens import (
+    CreateAPITokenRequest,
+)
 from app.internal.entity.user import UserToken
 from app.internal.usecase.exceptions.user_tokens import UserTokenNotFoundError
 

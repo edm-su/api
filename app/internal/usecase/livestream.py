@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
@@ -47,7 +47,7 @@ class GetLiveStreamUseCase(AbstractLiveStreamUseCase):
 class CreateLiveStreamUseCase(AbstractLiveStreamUseCase):
     async def execute(
         self: Self,
-        live_stream: CreateLiveStream,
+        live_stream: CreateLiveStreamDTO,
     ) -> LiveStream:
         db_live_stream = await self.repository.get_by_slug(
             slug=live_stream.slug,

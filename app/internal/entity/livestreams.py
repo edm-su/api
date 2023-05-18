@@ -1,8 +1,6 @@
 from datetime import datetime
-from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl, validator
-from slugify import slugify
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class BaseLiveStream(BaseModel):
@@ -11,32 +9,13 @@ class BaseLiveStream(BaseModel):
     start_time: datetime
     end_time: datetime = Field(...)
     image: str = Field(...)
-    genres: list[str] = Field([])
+    genres: list[str | None] = Field([])
     url: HttpUrl
     slug: str = Field(...)
 
-    @validator("end_time")
-    def end_time_after_start_time(
-        cls,  # noqa: N805, ANN101
-        v: datetime,
-        values: dict[str, Any],
-    ) -> datetime:
-        if v and v < values["start_time"]:
-            error_text = "позже даты окончания"
-            raise ValueError(error_text)
-        return v
 
-
-class CreateLiveStream(BaseLiveStream):
-    @validator("slug", always=True)
-    def set_slug(
-        cls,  # noqa: ANN101, N805
-        v: str,
-        values: dict,
-    ) -> str:
-        if not v:
-            return slugify(values["title"])
-        return v
+class CreateLiveStreamDTO(BaseLiveStream):
+    pass
 
 
 class LiveStream(BaseLiveStream):

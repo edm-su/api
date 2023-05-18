@@ -5,7 +5,7 @@ from sqlalchemy import between
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
 from app.pkg.postgres import livestreams
 
 
@@ -37,7 +37,7 @@ class AbstractLiveStreamRepository(ABC):
     @abstractmethod
     async def create(
         self: Self,
-        live_stream: CreateLiveStream,
+        live_stream: CreateLiveStreamDTO,
     ) -> LiveStream:
         pass
 
@@ -103,7 +103,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
 
     async def create(
         self: Self,
-        live_stream: CreateLiveStream,
+        live_stream: CreateLiveStreamDTO,
     ) -> LiveStream:
         query = (
             livestreams.insert()

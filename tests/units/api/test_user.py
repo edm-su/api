@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http.v1.user import (
+from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
     ChangePasswordRequest,
     PasswordResetRequest,

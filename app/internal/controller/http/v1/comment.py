@@ -11,7 +11,8 @@ from app.internal.controller.http.v1.dependencies.comment import (
     create_get_video_comments_usecase,
 )
 from app.internal.controller.http.v1.dependencies.video import find_video
-from app.internal.entity.comment import Comment, CommentBase, NewCommentDto
+from app.internal.controller.http.v1.requests.comment import NewCommentRequest
+from app.internal.entity.comment import Comment, NewCommentDto
 from app.internal.entity.paginator import Paginator
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
@@ -22,19 +23,13 @@ from app.internal.usecase.comment import (
     GetVideoCommentsUseCase,
 )
 
-router = APIRouter()
-
-
-class NewCommentRequest(CommentBase):
-    pass
+router = APIRouter(tags=["Comments"])
 
 
 @router.post(
     "/videos/{slug}/comments",
-    response_model=Comment,
     status_code=status.HTTP_201_CREATED,
-    tags=["Комментарии", "Видео"],
-    summary="Оставить комментарий",
+    summary="Create comment",
 )
 async def new_comment(
     text: NewCommentRequest,
@@ -52,9 +47,7 @@ async def new_comment(
 
 @router.get(
     "/videos/{video_slug}/comments",
-    response_model=list[Comment],
-    tags=["Комментарии", "Видео"],
-    summary="Получить комментарии к видео",
+    summary="Get comments for video",
 )
 async def read_comments(
     video: Video = Depends(find_video),
@@ -62,15 +55,13 @@ async def read_comments(
     usecase: GetVideoCommentsUseCase = Depends(
         create_get_video_comments_usecase,
     ),
-) -> list[Comment]:
+) -> list[Comment | None]:
     return await usecase.execute(video=video)
 
 
 @router.get(
     "/comments",
-    response_model=list[Comment],
-    tags=["Комментарии"],
-    summary="Получить список комментариев ко всем видео",
+    summary="Get comments",
 )
 async def comments_list(
     response: Response,

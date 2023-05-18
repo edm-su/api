@@ -6,7 +6,7 @@ from faker import Faker
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
@@ -53,8 +53,11 @@ def livestream(faker: Faker) -> LiveStream:
 
 
 @pytest.fixture()
-def new_livestream(faker: Faker, livestream: LiveStream) -> CreateLiveStream:
-    return CreateLiveStream(
+def new_livestream(
+    faker: Faker,
+    livestream: LiveStream,
+) -> CreateLiveStreamDTO:
+    return CreateLiveStreamDTO(
         title=livestream.title,
         slug=livestream.slug,
         cancelled=livestream.cancelled,
@@ -87,7 +90,7 @@ class TestCreateLiveStreamUseCase:
         self: Self,
         usecase: CreateLiveStreamUseCase,
         livestream: LiveStream,
-        new_livestream: CreateLiveStream,
+        new_livestream: CreateLiveStreamDTO,
         repository: AsyncMock,
     ) -> None:
         assert await usecase.execute(new_livestream) == livestream
@@ -98,7 +101,7 @@ class TestCreateLiveStreamUseCase:
         self: Self,
         usecase: CreateLiveStreamUseCase,
         livestream: LiveStream,
-        new_livestream: CreateLiveStream,
+        new_livestream: CreateLiveStreamDTO,
         repository: AsyncMock,
     ) -> None:
         repository.get_by_slug.return_value = livestream

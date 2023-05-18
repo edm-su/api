@@ -59,8 +59,8 @@ async def find_livestream(
 ) -> LiveStream:
     try:
         return await usecase.execute(live_stream_id=live_stream_id)
-    except LiveStreamNotFoundError:
+    except LiveStreamNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Прямая трансляция не найдена",
+            detail=str(e),
         ) from None

@@ -1,4 +1,3 @@
-import re
 from datetime import datetime, timedelta
 
 import jwt
@@ -8,7 +7,6 @@ from pydantic import (
     Field,
     IPvAnyAddress,
     SecretStr,
-    validator,
 )
 from typing_extensions import Self
 
@@ -17,18 +15,6 @@ from app.internal.entity.settings import settings
 
 class UserBase(BaseModel):
     username: str
-
-    @validator("username")
-    def username_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
-        v = v.strip()
-        if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            error_text = (
-                "может содержать латинские символы, цифры, "
-                "или знак подчёркивания."
-                " Начинаться и заканчиваться только латинским символом"
-            )
-            raise ValueError(error_text)
-        return v
 
 
 class AdvancedUser(UserBase):
@@ -63,18 +49,6 @@ class User(BaseModel):
     last_login_ip: IPvAnyAddress | None = Field(default=None)
 
 
-class UserPassword(BaseModel):
-    password: str
-
-    @validator("password")
-    def password_complexity(cls, v: str) -> str:  # noqa: ANN101, N805
-        min_length = 6
-        if len(v) < min_length:
-            error_text = f"минимальная длина пароля {min_length} символов"
-            raise ValueError(error_text)
-        return v
-
-
 class NewUserDto(BaseModel):
     username: str = Field(..., min_length=3)
     email: EmailStr = Field(...)
@@ -82,18 +56,6 @@ class NewUserDto(BaseModel):
     hashed_password: SecretStr | None = Field(default=None)
     activation_code: SecretStr | None = Field(default=None)
     is_active: bool = Field(default=False)
-
-    @validator("username")
-    def username_regexp(cls, v: str) -> str:  # noqa: N805, ANN101
-        v = v.strip()
-        if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            error_text = (
-                "может содержать латинские символы, цифры, "
-                "или знак подчёркивания."
-                " Начинаться и заканчиваться только латинским символом",
-            )
-            raise ValueError(error_text)
-        return v
 
 
 class ActivateUserDto(BaseModel):
@@ -120,10 +82,6 @@ class ChangePasswordByResetCodeDto(BaseModel):
     code: SecretStr
     new_password: SecretStr
     hashed_new_password: SecretStr | None = Field(default=None)
-
-
-class CreateUser(AdvancedUser, UserPassword):
-    pass
 
 
 class Token(BaseModel):

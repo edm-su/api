@@ -1,13 +1,18 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Path, status
-from pydantic import BaseModel, Field
 
 from app.internal.controller.http.v1.dependencies.auth import get_current_admin
 from app.internal.controller.http.v1.dependencies.user_tokens import (
     create_create_user_token_usecase,
     create_get_user_tokens_usecase,
     create_revoke_user_token_usecase,
+)
+from app.internal.controller.http.v1.requests.user_tokens import (
+    CreateAPITokenRequest,
+)
+from app.internal.controller.http.v1.responses.user_tokens import (
+    CreateAPITokenResponse,
 )
 from app.internal.entity.user import TokenData, User, UserToken, UserTokenDTO
 from app.internal.usecase.exceptions.user_tokens import (
@@ -19,24 +24,6 @@ from app.internal.usecase.user_tokens import (
     RevokeUserTokenUseCase,
 )
 
-
-class CreateAPITokenRequest(BaseModel):
-    name: str
-    expired_at: datetime | None = Field(default=None)
-
-
-class CreateAPITokenResponse(BaseModel):
-    id: int
-    name: str
-    expired_at: datetime | None = Field(default=None)
-    created_at: datetime
-    token: str
-
-
-class GetAllAPITokensResponse(BaseModel):
-    __root__: list[UserToken | None]
-
-
 router = APIRouter(tags=["User API Tokens"])
 
 
@@ -44,7 +31,6 @@ router = APIRouter(tags=["User API Tokens"])
     "",
     summary="Create api token",
     status_code=status.HTTP_201_CREATED,
-    response_model=CreateAPITokenResponse,
 )
 async def create_api_token(
     request_data: CreateAPITokenRequest,
@@ -90,17 +76,14 @@ def get_jwt_token(
 @router.get(
     "",
     summary="Get all api tokens",
-    response_model=GetAllAPITokensResponse,
 )
 async def get_all_api_tokens(
     usecase: GetAllUserTokensUseCase = Depends(
         create_get_user_tokens_usecase,
     ),
     admin: User = Depends(get_current_admin),
-) -> GetAllAPITokensResponse:
-    return GetAllAPITokensResponse(
-        __root__=await usecase.execute(admin),
-    )
+) -> list[UserToken | None]:
+    return await usecase.execute(admin)
 
 
 @router.delete(

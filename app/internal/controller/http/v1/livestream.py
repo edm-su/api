@@ -11,9 +11,12 @@ from app.internal.controller.http.v1.dependencies.livestream import (
     create_update_live_stream_usecase,
     find_livestream,
 )
+from app.internal.controller.http.v1.requests.livestream import (
+    CreateLiveStreamRequest,
+)
 from app.internal.entity.livestreams import (
     BaseLiveStream,
-    CreateLiveStream,
+    CreateLiveStreamDTO,
     LiveStream,
 )
 from app.internal.entity.user import User
@@ -28,25 +31,33 @@ from app.internal.usecase.livestream import (
     UpdateLiveStreamUseCase,
 )
 
-router = APIRouter(prefix="/livestreams")
+router = APIRouter(prefix="/livestreams", tags=["LiveStreams"])
 
 
 @router.post(
     "",
     status_code=201,
-    response_model=LiveStream,
-    tags=["Прямые трансляции"],
-    summary="Добавление прямой трансляции",
+    summary="Create live stream",
 )
 async def new_stream(
-    stream: CreateLiveStream,
+    stream: CreateLiveStreamRequest,
     usecase: CreateLiveStreamUseCase = Depends(
         create_create_live_stream_usecase,
     ),
     _: User = Depends(get_current_admin),
 ) -> LiveStream:
+    livestram = CreateLiveStreamDTO(
+        title=stream.title,
+        cancelled=stream.cancelled,
+        start_time=stream.start_time,
+        end_time=stream.end_time,
+        image=stream.image,
+        genres=stream.genres,
+        url=stream.url,
+        slug=stream.slug,
+    )
     try:
-        return await usecase.execute(stream)
+        return await usecase.execute(livestram)
     except LiveStreamAlreadyExistsError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -56,9 +67,7 @@ async def new_stream(
 
 @router.get(
     "",
-    response_model=list[LiveStream],
-    tags=["Прямые трансляции"],
-    summary="Получение списка прямых трансляций",
+    summary="Get live streams",
 )
 async def get_streams(
     start: date = Query(date.today() - timedelta(days=2)),
@@ -72,9 +81,7 @@ async def get_streams(
 
 @router.get(
     "/{id}",
-    response_model=LiveStream,
-    tags=["Прямые трансляции"],
-    summary="Получение прямой трансляции по id",
+    summary="Get live stream",
 )
 async def get_stream(
     stream: LiveStream = Depends(find_livestream),
@@ -85,8 +92,7 @@ async def get_stream(
 @router.delete(
     "/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    tags=["Прямые трансляции"],
-    summary="Удаление прямой трансляции по id",
+    summary="Delete live stream",
 )
 async def delete_stream(
     stream: LiveStream = Depends(find_livestream),
@@ -106,9 +112,7 @@ async def delete_stream(
 
 @router.put(
     "/{id}",
-    response_model=LiveStream,
-    tags=["Прямые трансляции"],
-    summary="Обновление прямой трансляции по id",
+    summary="Update live stream",
 )
 async def update_stream(
     updated_stream: BaseLiveStream,
@@ -121,8 +125,8 @@ async def update_stream(
     stream = LiveStream(**updated_stream.dict(), id=stream.id)
     try:
         return await usecase.execute(stream)
-    except LiveStreamError:
+    except LiveStreamError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Прямая трансляция не найдена",
+            detail=str(e),
         ) from None

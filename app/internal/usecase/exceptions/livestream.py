@@ -1,6 +1,6 @@
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO
 
 
 class LiveStreamError(Exception):
@@ -18,7 +18,7 @@ class LiveStreamNotFoundError(LiveStreamError):
 class LiveStreamAlreadyExistsError(LiveStreamError):
     def __init__(
         self: Self,
-        live_stream: CreateLiveStream,
+        live_stream: CreateLiveStreamDTO,
     ) -> None:
         super().__init__(
             f"LiveStream with slug {live_stream.slug} already exists",

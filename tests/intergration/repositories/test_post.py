@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import datetime, timezone
 
 import pytest
 from faker import Faker
@@ -46,6 +46,7 @@ async def pg_post(
         text={"test": "test"},
         slug=faker.slug(),
         user=pg_user,
+        published_at=datetime.utcnow(),
     )
     return await repository.create(post)
 

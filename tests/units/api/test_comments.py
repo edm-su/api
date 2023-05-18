@@ -24,7 +24,7 @@ def comment(
     video: Video,
 ) -> Comment:
     return Comment(
-        text=faker.text(),
+        text=faker.text(max_nb_chars=120),
         id=faker.random_int(min=1, max=1000),
         user_id=user.id,
         video_id=video.id,

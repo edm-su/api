@@ -1,7 +1,3 @@
-import re
-from datetime import datetime
-from typing import Any
-
 from fastapi import (
     APIRouter,
     BackgroundTasks,
@@ -10,12 +6,7 @@ from fastapi import (
     Response,
 )
 from pydantic import (
-    BaseModel,
-    EmailStr,
-    Field,
-    IPvAnyAddress,
     SecretStr,
-    validator,
 )
 from starlette import status
 
@@ -31,6 +22,18 @@ from app.internal.controller.http.v1.dependencies.user import (
     create_create_user_usecase,
     create_reset_password_usecase,
     create_sign_in_usecase,
+)
+from app.internal.controller.http.v1.requests.user import (
+    ActivateUserRequest,
+    ChangePasswordRequest,
+    PasswordResetRequest,
+    SignInRequest,
+    SignUpRequest,
+)
+from app.internal.controller.http.v1.responses.user import (
+    MeResponse,
+    SignInResponse,
+    SignUpResponse,
 )
 from app.internal.entity.user import (
     ActivateUserDto,
@@ -55,177 +58,12 @@ from app.internal.usecase.user import (
     SignInUseCase,
 )
 
-router = APIRouter(tags=["Пользователи"])
-
-
-class SignUpRequest(BaseModel):
-    username: str = Field(..., example="user", title="Имя пользователя")
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    password: SecretStr = Field(
-        ...,
-        example="password",
-        title="Пароль",
-        min_length=8,
-    )
-
-    @validator("username")
-    def username_regexp(cls, v: str) -> str:  # noqa: ANN101, N805
-        v = v.strip()
-        if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
-            text_error = (
-                "может содержать латинские символы, цифры, "
-                "или знак подчёркивания. "
-                "Начинаться и заканчиваться только латинским символом"
-            )
-            raise ValueError(text_error)
-        return v
-
-
-class SignUpResponse(BaseModel):
-    id: int = Field(..., example=1, title="ID пользователя")
-    username: str = Field(..., example="user", title="Имя пользователя")
-    email: str = Field(..., example="example@example.com", title="Email")
-    is_active: bool = Field(
-        вуафгде=False,
-        example=False,
-        title="Активирован ли пользователь",
-    )
-
-
-class ActivateUserRequest(BaseModel):
-    id: int = Field(..., example=1, title="ID пользователя")
-    activation_code: str = Field(
-        ...,
-        example="activation_code",
-        title="Код активации",
-        regex=r"^[A-Z\d]{10}$",
-        description="Код активации должен состоять из 10 символов",
-    )
-
-
-class MeResponse(BaseModel):
-    id: int = Field(..., example=1, title="ID пользователя")
-    username: str = Field(..., example="user", title="Имя пользователя")
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    is_active: bool = Field(
-        default=False,
-        example=False,
-        title="Активирован ли пользователь",
-    )
-    is_admin: bool = Field(
-        default=False,
-        example=False,
-        title="Является ли пользователь администратором",
-    )
-    is_banned: bool = Field(
-        default=False,
-        example=False,
-        title="Забанен ли пользователь",
-    )
-    created_at: datetime = Field(
-        ...,
-        example="2021-01-01T00:00:00",
-        title="Время создания пользователя",
-    )
-    last_login: datetime | None = Field(
-        ...,
-        example="2021-01-01T00:00:00",
-        title="Время последнего входа",
-    )
-    last_login_ip: IPvAnyAddress | None = Field(
-        ...,
-        example="127.0.0.1",
-        title="IP адрес последнего входа",
-        description="Адрес может быть IPv4 или IPv6",
-    )
-
-
-class SignInRequest(BaseModel):
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    password: SecretStr = Field(
-        ...,
-        example="password",
-        title="Password",
-        min_length=8,
-    )
-    remember_me: bool = Field(
-        default=False,
-        example=False,
-        title="Remember me",
-        description="Issue a refresh token valid for 1 month",
-    )
-
-
-class SignInResponse(BaseModel):
-    access_token: SecretStr = Field(
-        ...,
-        example="access_token",
-        title="Access token",
-    )
-    token_type: str = Field(
-        default="Bearer",
-        title="Token type",
-    )
-    refresh_token: SecretStr | None = Field(
-        default=None,
-        example="refresh_token",
-        title="Refresh token",
-        description="refresh token valid for 1 month",
-    )
-
-
-class PasswordResetRequest(BaseModel):
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-
-
-class ChangePasswordRequest(BaseModel):
-    user_id: int = Field(..., example=1, title="ID пользователя")
-    old_password: SecretStr | None = Field(
-        None,
-        example="old_password",
-        title="Старый пароль",
-        min_length=8,
-    )
-    new_password: SecretStr = Field(
-        ...,
-        example="new_password",
-        title="Новый пароль",
-        min_length=8,
-    )
-    reset_code: str | None = Field(
-        None,
-        example="reset_code",
-        title="Код сброса пароля",
-        regex=r"^[A-Z\d]{10}$",
-        description="Код сброса пароля должен состоять из 10 символов",
-    )
-
-    @validator("old_password")
-    def old_password_must_be_present(
-        cls,  # noqa: N805, ANN101
-        v: SecretStr,
-        values: dict[str, Any],
-    ) -> SecretStr:
-        if not v and not values.get("reset_code"):
-            text_error = "необходимо указать старый пароль или код сброса"
-            raise ValueError(text_error)
-        return v
-
-    @validator("reset_code")
-    def reset_code_or_old_password_must_be_present(
-        cls,  # noqa: ANN101, N805
-        v: SecretStr,
-        values: dict[str, Any],
-    ) -> SecretStr | None:
-        if values.get("old_password") and v:
-            return None
-        return v
+router = APIRouter(tags=["Users"])
 
 
 @router.post(
     "",
-    response_model=SignUpResponse,
-    summary="Регистрация пользователя",
+    summary="Sign up",
     status_code=status.HTTP_201_CREATED,
 )
 async def sign_up(
@@ -262,7 +100,7 @@ async def sign_up(
 
 @router.post(
     "/activate",
-    summary="Активация пользователя",
+    summary="Activate user",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def activate(
@@ -284,8 +122,7 @@ async def activate(
 
 @router.get(
     "/me",
-    summary="Получение информации о текущем пользователе",
-    response_model=MeResponse,
+    summary="Get me",
 )
 async def me(user: User = Depends(get_current_user)) -> MeResponse:
     return MeResponse(
@@ -303,7 +140,7 @@ async def me(user: User = Depends(get_current_user)) -> MeResponse:
 
 @router.post(
     "/password/reset",
-    summary="Запрос на сброс пароля",
+    summary="Request password reset",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def password_reset(
@@ -333,7 +170,7 @@ async def password_reset(
 
 @router.put(
     "/password",
-    summary="Смена пароля",
+    summary="Change password",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def change_password(
@@ -374,7 +211,6 @@ async def change_password(
 @router.post(
     "/sign-in",
     summary="Authentication",
-    response_model=SignInResponse,
 )
 async def sign_in(
     response: Response,

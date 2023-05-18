@@ -1,5 +1,3 @@
-from datetime import timezone
-
 import pytest
 from faker import Faker
 from fastapi import status
@@ -8,7 +6,8 @@ from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.controller.http.v1.dependencies.post import find_post
-from app.internal.entity.post import CreatePost, Post
+from app.internal.controller.http.v1.requests.post import CreatePostRequest
+from app.internal.entity.post import Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
@@ -21,8 +20,8 @@ from app.main import app
 @pytest.fixture()
 def new_post_data(
     faker: Faker,
-) -> CreatePost:
-    return CreatePost(
+) -> CreatePostRequest:
+    return CreatePostRequest(
         title=faker.word(),
         slug=faker.slug(),
         text={
@@ -38,15 +37,13 @@ def new_post_data(
             ],
             "version": "2.24.3",
         },
-        published_at=faker.future_datetime(
-            tzinfo=timezone.utc,
-        ),
+        published_at=faker.future_datetime(),
     )
 
 
 @pytest.fixture()
 def post(
-    new_post_data: CreatePost,
+    new_post_data: CreatePostRequest,
     user: User,
 ) -> Post:
     return Post(
@@ -61,7 +58,7 @@ class TestNewPost:
     async def test_new_post(
         self: Self,
         client: AsyncClient,
-        new_post_data: CreatePost,
+        new_post_data: CreatePostRequest,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -83,7 +80,7 @@ class TestNewPost:
     async def test_already_exists_post(
         self: Self,
         client: AsyncClient,
-        new_post_data: CreatePost,
+        new_post_data: CreatePostRequest,
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
@@ -102,7 +99,7 @@ class TestNewPost:
     async def test_unauthorized(
         self: Self,
         client: AsyncClient,
-        new_post_data: CreatePost,
+        new_post_data: CreatePostRequest,
     ) -> None:
         response = await client.post(
             "/posts",

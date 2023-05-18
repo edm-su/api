@@ -8,8 +8,9 @@ from app.internal.controller.http.v1.dependencies.post import (
     create_get_count_posts_usecase,
     find_post,
 )
+from app.internal.controller.http.v1.requests.post import CreatePostRequest
 from app.internal.entity.paginator import Paginator
-from app.internal.entity.post import CreatePost, NewPostDTO, Post
+from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostError,
@@ -23,27 +24,30 @@ from app.internal.usecase.post import (
     GetPostCountUseCase,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["Posts"])
 
 
 @router.post(
     "",
-    response_model=Post,
     status_code=status.HTTP_201_CREATED,
-    tags=["Посты"],
-    summary="Добавление поста",
+    summary="Create post",
 )
 async def new_post(
-    post: CreatePost,
+    post: CreatePostRequest,
     admin: User = Depends(get_current_admin),
     usecase: CreatePostUseCase = Depends(create_create_post_usecase),
 ) -> Post:
-    post = NewPostDTO(
-        **post.dict(),
+    new_post = NewPostDTO(
+        title=post.title,
+        annotation=post.annotation,
+        text=post.text,
+        slug=post.slug,
+        published_at=post.published_at,  # type: ignore[assigned]
+        thumbnail=post.thumbnail,
         user=admin,
     )
     try:
-        return await usecase.execute(post)
+        return await usecase.execute(new_post)
     except PostSlugNotUniqueError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -53,9 +57,7 @@ async def new_post(
 
 @router.get(
     "",
-    response_model=list[Post],
-    tags=["Посты"],
-    summary="Получение списка постов",
+    summary="Get all posts",
 )
 async def get_posts(
     response: Response,
@@ -71,9 +73,7 @@ async def get_posts(
 
 @router.get(
     "/{slug}",
-    response_model=Post,
-    tags=["Посты"],
-    summary="Получить пост",
+    summary="Get post",
 )
 async def get_post(post: Post = Depends(find_post)) -> Post:
     return post
@@ -81,9 +81,8 @@ async def get_post(post: Post = Depends(find_post)) -> Post:
 
 @router.delete(
     "/{slug}",
-    tags=["Посты"],
-    summary="Удалить пост",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete post",
 )
 async def delete_post(
     slug: str,

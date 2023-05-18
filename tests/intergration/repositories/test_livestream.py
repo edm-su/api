@@ -3,7 +3,7 @@ from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStream, LiveStream
+from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
 from app.internal.usecase.repository.livestream import (
     PostgresLiveStreamRepository,
 )
@@ -21,8 +21,8 @@ class TestPostgresLiveStreamRepository:
     def livestream_data(
         self: Self,
         faker: Faker,
-    ) -> CreateLiveStream:
-        return CreateLiveStream(
+    ) -> CreateLiveStreamDTO:
+        return CreateLiveStreamDTO(
             title=faker.word(),
             slug=faker.word(),
             start_time=faker.date_time_between(
@@ -42,7 +42,7 @@ class TestPostgresLiveStreamRepository:
     async def livestream(
         self: Self,
         repository: PostgresLiveStreamRepository,
-        livestream_data: CreateLiveStream,
+        livestream_data: CreateLiveStreamDTO,
     ) -> LiveStream:
         return await repository.create(livestream_data)
 
@@ -87,7 +87,7 @@ class TestPostgresLiveStreamRepository:
     async def test_create(
         self: Self,
         repository: PostgresLiveStreamRepository,
-        livestream_data: CreateLiveStream,
+        livestream_data: CreateLiveStreamDTO,
     ) -> None:
         result = await repository.create(livestream_data)
 

@@ -14,13 +14,12 @@ from app.internal.usecase.upload import (
     UploadImageUseCase,
 )
 
-router = APIRouter()
+router = APIRouter(tags=["Upload"])
 
 
 @router.post(
     "/images",
-    tags=["Загрузка", "Посты"],
-    summary="Загрузка изображений",
+    summary="Upload image",
     response_model=ImageURLs,
 )
 async def upload_image(
@@ -32,7 +31,7 @@ async def upload_image(
     ):
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Файл должен быть изображением",
+            detail="Unsupported media type",
         )
 
     use_case = UploadImageUseCase(S3UploadRepository(), image.file)
@@ -53,8 +52,7 @@ async def upload_image(
 
 @router.post(
     "/image_url",
-    tags=["Загрузка", "Посты"],
-    summary="Загрузка изображений по ссылке",
+    summary="Upload image by url",
     response_model=ImageURLs,
 )
 async def upload_image_url(

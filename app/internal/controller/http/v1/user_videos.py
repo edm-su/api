@@ -69,7 +69,6 @@ async def unlike_video(
 @router.get(
     "/users/{username}/videos",
     summary="Get user videos",
-    response_model=list[Video],
 )
 async def get_user_videos(
     username: str = Path(),

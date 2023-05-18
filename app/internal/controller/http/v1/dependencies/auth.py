@@ -44,7 +44,7 @@ async def get_current_admin(
     if not db_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Пользователь не является администратором",
+            detail="User is not admin",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return db_user
