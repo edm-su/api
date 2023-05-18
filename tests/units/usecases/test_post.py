@@ -8,7 +8,10 @@ from typing_extensions import Self
 from app.helpers import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
-from app.internal.usecase.exceptions.post import PostNotFoundError
+from app.internal.usecase.exceptions.post import (
+    PostNotDeletedError,
+    PostNotFoundError,
+)
 from app.internal.usecase.exceptions.video import (
     SlugNotUniqueError,
 )
@@ -246,3 +249,17 @@ class TestDeletePostUseCase:
         repository.delete.assert_not_awaited()  # type: ignore[attr-defined]
 
         repository.get_by_slug.assert_awaited_once_with(post.slug)  # type: ignore[attr-defined]  # noqa: E501
+
+    async def test_post_was_not_deleted(
+        self: Self,
+        usecase: DeletePostUseCase,
+        post: Post,
+        repository: AsyncMock,
+    ) -> None:
+        repository.get_by_slug.return_value = post
+        repository.delete.return_value = False
+
+        with pytest.raises(PostNotDeletedError):
+            await usecase.execute(post.slug)
+        repository.delete.assert_awaited_once()
+        repository.get_by_slug.assert_awaited_once_with(post.slug)

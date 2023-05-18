@@ -10,6 +10,7 @@ from app.internal.entity.livestreams import CreateLiveStream, LiveStream
 from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
+    LiveStreamNotFoundError,
 )
 from app.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
@@ -160,6 +161,18 @@ class TestGetLiveStreamUseCase:
         assert await usecase.execute(livestream.id) == livestream
 
         repository.get_by_id.assert_awaited_once()  # type: ignore[attr-defined]  # noqa: E501
+
+    async def test_livestream_not_found(
+        self: Self,
+        usecase: GetLiveStreamUseCase,
+        repository: AsyncMock,
+        livestream: LiveStream,
+    ) -> None:
+        repository.get_by_id.return_value = None
+
+        with pytest.raises(LiveStreamNotFoundError):
+            await usecase.execute(livestream.id)
+        repository.get_by_id.assert_awaited_once()
 
 
 class TestUpdateLiveStreamUseCase:

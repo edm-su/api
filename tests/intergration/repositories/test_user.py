@@ -1,3 +1,4 @@
+import pytest
 from pydantic import SecretStr
 from typing_extensions import Self
 
@@ -179,3 +180,57 @@ class TestPostgresUserRepositoryBoundary:
             sign_in_data,
         )
         assert result is None
+
+    async def test_create_without_hashed_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        new_user_data: NewUserDto,
+    ) -> None:
+        new_user_data.hashed_password = None
+        with pytest.raises(ValueError):  # noqa: PT011
+            await postgres_user_repository.create(new_user_data)
+
+    async def test_change_password_without_hashed_new_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        change_password_data: ChangePasswordDto,
+    ) -> None:
+        change_password_data.hashed_new_password = None
+        with pytest.raises(ValueError):  # noqa: PT011
+            await postgres_user_repository.change_password(
+                change_password_data,
+            )
+
+    async def test_change_password_without_hashed_old_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        change_password_data: ChangePasswordDto,
+    ) -> None:
+        change_password_data.hashed_new_password = SecretStr("newpassword")
+        change_password_data.hashed_old_password = None
+        with pytest.raises(ValueError):  # noqa: PT011
+            await postgres_user_repository.change_password(
+                change_password_data,
+            )
+
+    async def test_change_password_by_reset_code_without_hashed_new_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        change_password_with_code_data: ChangePasswordByResetCodeDto,
+    ) -> None:
+        change_password_with_code_data.hashed_new_password = None
+        with pytest.raises(ValueError):  # noqa: PT011
+            await postgres_user_repository.change_password_by_reset_code(
+                change_password_with_code_data,
+            )
+
+    async def test_sign_in_without_hashed_password(
+        self: Self,
+        postgres_user_repository: PostgresUserRepository,
+        sign_in_data: SignInDto,
+    ) -> None:
+        sign_in_data.hashed_password = None
+        with pytest.raises(ValueError):  # noqa: PT011
+            await postgres_user_repository.sign_in(
+                sign_in_data,
+            )

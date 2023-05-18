@@ -12,13 +12,18 @@ from app.internal.entity.user import (
     ChangePasswordByResetCodeDto,
     ChangePasswordDto,
     NewUserDto,
+    SignInDto,
     User,
 )
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
+    UserError,
+    UserIsBannedError,
+    UserNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
+    WrongPasswordOrEmailError,
     WrongResetCodeError,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
@@ -30,6 +35,7 @@ from app.internal.usecase.user import (
     GetUserByIdUseCase,
     GetUserByUsernameUseCase,
     ResetPasswordUseCase,
+    SignInUseCase,
 )
 
 
@@ -280,6 +286,16 @@ class TestResetPasswordUseCase:
 
         usecase.repository.set_reset_password_code.assert_not_awaited()  # type: ignore[attr-defined]  # noqa: E501
 
+    async def test_set_code_error(
+        self: Self,
+        usecase: ResetPasswordUseCase,
+        repository: AsyncMock,
+    ) -> None:
+        repository.set_reset_password_code.return_value = False
+
+        with pytest.raises(UserError):
+            await usecase.execute("test")
+
 
 class TestChangePasswordUseCase:
     @pytest.fixture()
@@ -407,3 +423,83 @@ class TestChangePasswordByResetCodeUseCase:
         repository.change_password_by_reset_code.assert_awaited_once_with(  # type: ignore[attr-defined]  # noqa: E501
             data,
         )
+
+
+class TestSignInUseCase:
+    @pytest.fixture()
+    def usecase(
+        self: Self,
+        repository: AsyncMock,
+    ) -> SignInUseCase:
+        return SignInUseCase(repository)
+
+    @pytest.fixture()
+    def _mock(
+        self: Self,
+        repository: AsyncMock,
+        user: User,
+    ) -> None:
+        user.is_active = True
+        repository.sign_in.return_value = user
+
+    @pytest.fixture()
+    def data(
+        self: Self,
+        user: User,
+    ) -> SignInDto:
+        return SignInDto(
+            email=user.email,
+            password=SecretStr("password"),
+        )
+
+    @pytest.mark.usefixtures("_mock")
+    async def test_sign_in(
+        self: Self,
+        usecase: SignInUseCase,
+        repository: AsyncMock,
+        data: SignInDto,
+    ) -> None:
+        result = await usecase.execute(data)
+
+        repository.sign_in.assert_awaited_once_with(data)
+        assert result
+
+    async def test_wrong_password(
+        self: Self,
+        usecase: SignInUseCase,
+        repository: AsyncMock,
+        data: SignInDto,
+    ) -> None:
+        repository.sign_in.return_value = None
+
+        with pytest.raises(WrongPasswordOrEmailError):
+            await usecase.execute(data)
+        repository.sign_in.assert_awaited_once_with(data)
+
+    async def test_user_is_banned(
+        self: Self,
+        usecase: SignInUseCase,
+        repository: AsyncMock,
+        data: SignInDto,
+        user: User,
+    ) -> None:
+        user.is_banned = True
+        repository.sign_in.return_value = user
+
+        with pytest.raises(UserIsBannedError):
+            await usecase.execute(data)
+        repository.sign_in.assert_awaited_once_with(data)
+
+    async def test_user_is_not_active(
+        self: Self,
+        usecase: SignInUseCase,
+        repository: AsyncMock,
+        data: SignInDto,
+        user: User,
+    ) -> None:
+        user.is_active = False
+        repository.sign_in.return_value = user
+
+        with pytest.raises(UserNotActivatedError):
+            await usecase.execute(data)
+        repository.sign_in.assert_awaited_once_with(data)

@@ -145,17 +145,17 @@ class PostgresUserRepository(AbstractUserRepository):
         if new_user.hashed_password is None:
             error_text = "hashed_password is None"
             raise ValueError(error_text)
-        if new_user.activation_code is None:
-            error_text = "activation_code is None"
-            raise ValueError(error_text)
 
         values = {
             "username": new_user.username,
             "email": new_user.email,
             "password": new_user.hashed_password.get_secret_value(),
-            "activation_code": new_user.activation_code.get_secret_value(),
             "is_active": new_user.is_active,
         }
+        if new_user.activation_code:
+            values[
+                "activation_code"
+            ] = new_user.activation_code.get_secret_value()
         query = users.insert().values(values).returning(users)
         result = await self.session.execute(query)
         await self.session.commit()

@@ -67,7 +67,6 @@ class TestGetAllVideosUseCase:
     ) -> GetAllVideosUseCase:
         return GetAllVideosUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_get_all_videos(
         self: Self,
         usecase: GetAllVideosUseCase,
@@ -94,7 +93,6 @@ class TestGetCountVideosUseCase:
     ) -> GetCountVideosUseCase:
         return GetCountVideosUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_get_count_videos(
         self: Self,
         usecase: GetCountVideosUseCase,
@@ -121,7 +119,6 @@ class TestGetVideoBySlugUseCase:
     ) -> GetVideoBySlugUseCase:
         return GetVideoBySlugUseCase(repository)
 
-    @pytest.mark.asyncio()
     async def test_get_video_by_slug(
         self: Self,
         usecase: GetVideoBySlugUseCase,
@@ -131,6 +128,14 @@ class TestGetVideoBySlugUseCase:
         assert video is video
 
         usecase.repository.get_by_slug.assert_awaited_once_with("slug")  # type: ignore[attr-defined]  # noqa: E501
+
+    async def test_video_not_found_error(
+        self: Self,
+        usecase: GetVideoBySlugUseCase,
+    ) -> None:
+        usecase.repository.get_by_slug.return_value = None  # type: ignore[attr-defined]  # noqa: E501
+        with pytest.raises(VideoNotFoundError):
+            await usecase.execute("slug")
 
 
 class TestCreateVideoUseCase:
@@ -183,7 +188,6 @@ class TestCreateVideoUseCase:
     ) -> CreateVideoUseCase:
         return CreateVideoUseCase(repository, full_text_repository)
 
-    @pytest.mark.asyncio()
     @pytest.mark.usefixtures("_mock_not_found")
     async def test_create_video(
         self: Self,
@@ -199,7 +203,6 @@ class TestCreateVideoUseCase:
         usecase.repository.get_by_slug.assert_awaited_once_with(video.slug)  # type: ignore[attr-defined]  # noqa: E501
         usecase.repository.get_by_yt_id.assert_awaited_once_with(video.yt_id)  # type: ignore[attr-defined]  # noqa: E501
 
-    @pytest.mark.asyncio()
     @pytest.mark.usefixtures("_mock_by_slug")
     async def test_create_video_with_invalid_slug(
         self: Self,
@@ -210,7 +213,6 @@ class TestCreateVideoUseCase:
         with pytest.raises(SlugNotUniqueError):
             await usecase.execute(new_video)
 
-    @pytest.mark.asyncio()
     @pytest.mark.usefixtures("_mock_by_yt_id")
     async def test_create_video_with_invalid_yt_id(
         self: Self,
@@ -245,7 +247,6 @@ class TestDeleteVideoUseCase:
             full_text_repository,
         )
 
-    @pytest.mark.asyncio()
     async def test_delete_video(
         self: Self,
         usecase: DeleteVideoUseCase,
@@ -260,7 +261,6 @@ class TestDeleteVideoUseCase:
         usecase.full_text_repo.delete.assert_awaited_once_with(video.id)  # type: ignore[attr-defined]  # noqa: E501
         usecase.repository.get_by_id.assert_awaited_once_with(video.id)  # type: ignore[attr-defined]  # noqa: E501
 
-    @pytest.mark.asyncio()
     async def test_delete_video_with_invalid_id(
         self: Self,
         usecase: DeleteVideoUseCase,
