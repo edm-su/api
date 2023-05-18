@@ -38,7 +38,7 @@ def full_text_repository(mocker: MockFixture) -> AsyncMock:
 @pytest.fixture()
 def video(faker: Faker) -> Video:
     return Video(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         slug=faker.pystr(),
         title=faker.sentence(),
         date=faker.date_between(

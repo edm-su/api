@@ -26,7 +26,7 @@ def repository(mocker: MockFixture) -> AsyncMock:
 @pytest.fixture()
 def user_token(faker: Faker) -> UserToken:
     return UserToken(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         name=faker.sentence(),
         created_at=datetime.now(),
         expired_at=faker.date_time_between(
@@ -39,7 +39,7 @@ def user_token(faker: Faker) -> UserToken:
 @pytest.fixture()
 def user(faker: Faker) -> User:
     return User(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         username=faker.pystr(),
         email=faker.email(),
         created=faker.date_time_between(

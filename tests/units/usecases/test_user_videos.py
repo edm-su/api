@@ -29,7 +29,7 @@ def repository(mocker: MockFixture) -> AsyncMock:
 @pytest.fixture()
 def video(faker: Faker) -> Video:
     return Video(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         slug=faker.pystr(),
         title=faker.sentence(),
         date=faker.date_between(
@@ -45,7 +45,7 @@ def video(faker: Faker) -> Video:
 @pytest.fixture()
 def user(faker: Faker) -> User:
     return User(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         username=faker.pystr(),
         email=faker.email(),
         created=faker.date_time_between(

@@ -46,7 +46,7 @@ def comment(
     video: Video,
 ) -> Comment:
     return Comment(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         user_id=user.id,
         video_id=video.id,
         text=faker.pystr(),
