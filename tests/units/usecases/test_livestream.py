@@ -32,7 +32,7 @@ def repository(mocker: MockerFixture) -> AbstractLiveStreamRepository:
 @pytest.fixture()
 def livestream(faker: Faker) -> LiveStream:
     return LiveStream(
-        id=faker.pyint(),
+        id=faker.pyint(min_value=1),
         title=faker.pystr(),
         slug=faker.slug(),
         cancelled=faker.pybool(),
