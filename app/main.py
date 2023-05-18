@@ -6,13 +6,18 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
+from app import __version__
 from app.internal.controller.http.router import api_router
 from app.internal.entity.settings import settings
 from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.pkg.meilisearch import config_ms, ms_client
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
-app = FastAPI(openapi_url=openapi_url, debug=False)
+app = FastAPI(
+    openapi_url=openapi_url,
+    debug=False,
+    version=__version__,
+)
 
 
 LOGGING_CONFIG = {

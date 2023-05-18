@@ -20,3 +20,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
           package-name: edm-su-api
+          extra-files: |
+            app/__version__.py
