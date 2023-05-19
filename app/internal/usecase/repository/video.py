@@ -154,7 +154,6 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = videos.insert().values(**video.dict()).returning(videos.c.id)
 
         result = (await self.session.execute(query)).scalar_one()
-        await self.session.commit()
         return Video(id=result, **video.dict())
 
     async def update(
@@ -169,7 +168,6 @@ class PostgresVideoRepository(AbstractVideoRepository):
         )
 
         await self.session.execute(query)
-        await self.session.commit()
         return video
 
     async def delete(
@@ -179,7 +177,6 @@ class PostgresVideoRepository(AbstractVideoRepository):
         query = videos.update().where(videos.c.id == id_).values(deleted=True)
 
         await self.session.execute(query)
-        await self.session.commit()
 
     async def count(self: Self) -> int:
         query = select(func.count(videos.c.id)).where(

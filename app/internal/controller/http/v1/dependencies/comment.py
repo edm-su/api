@@ -15,12 +15,12 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: Annotated[
+    session: Annotated[
         AsyncSession,
         Depends(get_session),
     ],
 ) -> PostgresCommentRepository:
-    return PostgresCommentRepository(db_session)
+    return PostgresCommentRepository(session)
 
 
 PgRepository = Annotated[

@@ -158,7 +158,6 @@ class PostgresUserRepository(AbstractUserRepository):
             ] = new_user.activation_code.get_secret_value()
         query = users.insert().values(values).returning(users)
         result = await self.session.execute(query)
-        await self.session.commit()
         result_row = result.mappings().one()
         return User(
             id=result_row["id"],
@@ -187,7 +186,6 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.values(is_active=True, activation_code=None)
         query = query.returning(users)
         result = await self.session.execute(query)
-        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def set_reset_password_code(
@@ -203,7 +201,6 @@ class PostgresUserRepository(AbstractUserRepository):
         )
         query = query.returning(users)
         result = await self.session.execute(query)
-        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def change_password(
@@ -232,7 +229,6 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.returning(users)
 
         result = await self.session.execute(query)
-        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def change_password_by_reset_code(
@@ -259,7 +255,6 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.returning(users)
 
         result = await self.session.execute(query)
-        await self.session.commit()
         return bool(result.scalar_one_or_none())
 
     async def sign_in(
@@ -281,7 +276,6 @@ class PostgresUserRepository(AbstractUserRepository):
         query = query.returning(users)
 
         result = (await self.session.execute(query)).mappings().one_or_none()
-        await self.session.commit()
 
         if result is None:
             return None
