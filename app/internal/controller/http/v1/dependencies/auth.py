@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -16,10 +18,14 @@ oauth_scheme = OAuth2PasswordBearer("/users/signin", auto_error=False)
 
 
 async def get_current_user(
-    token: str = Depends(oauth_scheme),
-    usecase: GetUserByUsernameUseCase = Depends(
-        create_get_user_by_username_usecase,
-    ),
+    token: Annotated[
+        str,
+        Depends(oauth_scheme),
+    ],
+    usecase: Annotated[
+        GetUserByUsernameUseCase,
+        Depends(create_get_user_by_username_usecase),
+    ],
 ) -> User:
     try:
         payload = jwt.decode(
@@ -38,8 +44,11 @@ async def get_current_user(
     return db_user
 
 
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
 async def get_current_admin(
-    db_user: User = Depends(get_current_user),
+    db_user: CurrentUser,
 ) -> User:
     if not db_user.is_admin:
         raise HTTPException(
@@ -48,3 +57,6 @@ async def get_current_admin(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return db_user
+
+
+CurrentAdmin = Annotated[User, Depends(get_current_admin)]

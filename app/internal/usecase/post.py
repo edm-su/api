@@ -1,6 +1,5 @@
 from typing_extensions import Self
 
-from app.internal.entity.paginator import Paginator
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
@@ -47,11 +46,12 @@ class GetPostCountUseCase(BasePostUseCase):
 class GetAllPostsUseCase(BasePostUseCase):
     async def execute(
         self: Self,
-        paginator: Paginator,
+        skip: int = 0,
+        limit: int = 10,
     ) -> list[Post | None]:
         return await self.repository.get_all(
-            skip=paginator.skip,
-            limit=paginator.limit,
+            skip=skip,
+            limit=limit,
         )
 
 
