@@ -1,7 +1,7 @@
-from collections.abc import AsyncIterator
+from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
@@ -16,28 +16,37 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: AsyncIterator[sessionmaker] = Depends(get_session),
+    db_session: Annotated[
+        AsyncSession,
+        Depends(get_session),
+    ],
 ) -> PostgresUserVideosRepository:
-    async with db_session.begin() as session:  # type: ignore[attr-defined]
-        return PostgresUserVideosRepository(session)
+    async with db_session.begin() as session:
+        return PostgresUserVideosRepository(session)  # type: ignore[arg-type]
+
+
+PgRepository = Annotated[
+    PostgresUserVideosRepository,
+    Depends(create_pg_repository),
+]
 
 
 def create_like_video_usecase(
     *,
-    repository: PostgresUserVideosRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> LikeVideoUseCase:
     return LikeVideoUseCase(repository)
 
 
 def create_unlike_video_usecase(
     *,
-    repository: PostgresUserVideosRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> UnlikeVideoUseCase:
     return UnlikeVideoUseCase(repository)
 
 
 def create_get_user_videos_usecase(
     *,
-    repository: PostgresUserVideosRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> GetUserVideosUseCase:
     return GetUserVideosUseCase(repository)

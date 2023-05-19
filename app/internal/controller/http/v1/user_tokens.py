@@ -1,8 +1,11 @@
 from datetime import datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
-from app.internal.controller.http.v1.dependencies.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.auth import (
+    CurrentAdmin,
+)
 from app.internal.controller.http.v1.dependencies.user_tokens import (
     create_create_user_token_usecase,
     create_get_user_tokens_usecase,
@@ -14,7 +17,7 @@ from app.internal.controller.http.v1.requests.user_tokens import (
 from app.internal.controller.http.v1.responses.user_tokens import (
     CreateAPITokenResponse,
 )
-from app.internal.entity.user import TokenData, User, UserToken, UserTokenDTO
+from app.internal.entity.user import TokenData, UserToken, UserTokenDTO
 from app.internal.usecase.exceptions.user_tokens import (
     UserTokenNotFoundError,
 )
@@ -33,11 +36,12 @@ router = APIRouter(tags=["User API Tokens"])
     status_code=status.HTTP_201_CREATED,
 )
 async def create_api_token(
+    admin: CurrentAdmin,
     request_data: CreateAPITokenRequest,
-    usecase: CreateUserTokenUseCase = Depends(
-        create_create_user_token_usecase,
-    ),
-    admin: User = Depends(get_current_admin),
+    usecase: Annotated[
+        CreateUserTokenUseCase,
+        Depends(create_create_user_token_usecase),
+    ],
 ) -> CreateAPITokenResponse:
     data = UserTokenDTO(
         name=request_data.name,
@@ -78,10 +82,11 @@ def get_jwt_token(
     summary="Get all api tokens",
 )
 async def get_all_api_tokens(
-    usecase: GetAllUserTokensUseCase = Depends(
-        create_get_user_tokens_usecase,
-    ),
-    admin: User = Depends(get_current_admin),
+    admin: CurrentAdmin,
+    usecase: Annotated[
+        GetAllUserTokensUseCase,
+        Depends(create_get_user_tokens_usecase),
+    ],
 ) -> list[UserToken | None]:
     return await usecase.execute(admin)
 
@@ -92,11 +97,15 @@ async def get_all_api_tokens(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def revoke_api_token(
-    token_id: int = Path(title="Token id"),
-    usecase: RevokeUserTokenUseCase = Depends(
-        create_revoke_user_token_usecase,
-    ),
-    admin: User = Depends(get_current_admin),
+    admin: CurrentAdmin,
+    usecase: Annotated[
+        RevokeUserTokenUseCase,
+        Depends(create_revoke_user_token_usecase),
+    ],
+    token_id: Annotated[
+        int,
+        Path,
+    ],
 ) -> None:
     try:
         await usecase.execute(token_id, admin)

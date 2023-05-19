@@ -1,17 +1,22 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.internal.controller.http.v1.dependencies.auth import get_current_admin
+from app.internal.controller.http.v1.dependencies.auth import (
+    CurrentAdmin,
+)
+from app.internal.controller.http.v1.dependencies.paginator import (
+    PaginatorDeps,
+)
 from app.internal.controller.http.v1.dependencies.post import (
+    FindPost,
     create_create_post_usecase,
     create_delete_post_usecase,
     create_get_all_posts_usecase,
     create_get_count_posts_usecase,
-    find_post,
 )
 from app.internal.controller.http.v1.requests.post import CreatePostRequest
-from app.internal.entity.paginator import Paginator
 from app.internal.entity.post import NewPostDTO, Post
-from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostError,
     PostNotFoundError,
@@ -34,8 +39,11 @@ router = APIRouter(tags=["Posts"])
 )
 async def new_post(
     post: CreatePostRequest,
-    admin: User = Depends(get_current_admin),
-    usecase: CreatePostUseCase = Depends(create_create_post_usecase),
+    admin: CurrentAdmin,
+    usecase: Annotated[
+        CreatePostUseCase,
+        Depends(create_create_post_usecase),
+    ],
 ) -> Post:
     new_post = NewPostDTO(
         title=post.title,
@@ -61,21 +69,28 @@ async def new_post(
 )
 async def get_posts(
     response: Response,
-    paginate: Paginator = Depends(Paginator),
-    usecase: GetAllPostsUseCase = Depends(create_get_all_posts_usecase),
-    count_usecase: GetPostCountUseCase = Depends(
-        create_get_count_posts_usecase,
-    ),
+    paginate: PaginatorDeps,
+    usecase: Annotated[
+        GetAllPostsUseCase,
+        Depends(create_get_all_posts_usecase),
+    ],
+    count_usecase: Annotated[
+        GetPostCountUseCase,
+        Depends(create_get_count_posts_usecase),
+    ],
 ) -> list[Post | None]:
     response.headers["X-Total-Count"] = str(await count_usecase.execute())
-    return await usecase.execute(paginator=paginate)
+    return await usecase.execute(
+        paginate.skip,
+        paginate.limit,
+    )
 
 
 @router.get(
     "/{slug}",
     summary="Get post",
 )
-async def get_post(post: Post = Depends(find_post)) -> Post:
+async def get_post(post: FindPost) -> Post:
     return post
 
 
@@ -86,8 +101,11 @@ async def get_post(post: Post = Depends(find_post)) -> Post:
 )
 async def delete_post(
     slug: str,
-    _: User = Depends(get_current_admin),
-    usecase: DeletePostUseCase = Depends(create_delete_post_usecase),
+    _: CurrentAdmin,
+    usecase: Annotated[
+        DeletePostUseCase,
+        Depends(create_delete_post_usecase),
+    ],
 ) -> None:
     try:
         await usecase.execute(slug)

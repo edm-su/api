@@ -1,7 +1,7 @@
-from collections.abc import AsyncIterator
+from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.internal.usecase.repository.user_tokens import (
     PostgresUserTokensRepository,
@@ -16,28 +16,37 @@ from app.pkg.postgres import get_session
 
 async def create_pg_repository(
     *,
-    db_session: AsyncIterator[sessionmaker] = Depends(get_session),
+    db_session: Annotated[
+        AsyncSession,
+        Depends(get_session),
+    ],
 ) -> PostgresUserTokensRepository:
-    async with db_session.begin() as session:  # type: ignore[attr-defined]
-        return PostgresUserTokensRepository(session)
+    async with db_session.begin() as session:
+        return PostgresUserTokensRepository(session)  # type: ignore[arg-type]
+
+
+PgRepository = Annotated[
+    PostgresUserTokensRepository,
+    Depends(create_pg_repository),
+]
 
 
 def create_create_user_token_usecase(
     *,
-    repository: PostgresUserTokensRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> CreateUserTokenUseCase:
     return CreateUserTokenUseCase(repository)
 
 
 def create_get_user_tokens_usecase(
     *,
-    repository: PostgresUserTokensRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> GetAllUserTokensUseCase:
     return GetAllUserTokensUseCase(repository)
 
 
 def create_revoke_user_token_usecase(
     *,
-    repository: PostgresUserTokensRepository = Depends(create_pg_repository),
+    repository: PgRepository,
 ) -> RevokeUserTokenUseCase:
     return RevokeUserTokenUseCase(repository)

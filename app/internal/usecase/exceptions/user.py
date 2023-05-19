@@ -24,7 +24,8 @@ class UserAlreadyExistsError(UserError):
         self.value = value
         if value is None:
             super().__init__(f"User with {key} already exists")
-        super().__init__(f"User with {key} {value} already exists")
+        else:
+            super().__init__(f"User with {key} {value} already exists")
 
 
 class WrongActivationCodeError(UserError):

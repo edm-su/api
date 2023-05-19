@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import (
     APIRouter,
     BackgroundTasks,
@@ -14,7 +16,9 @@ from app.internal.controller.http.tasks import (
     send_activate_email,
     send_recovery_email,
 )
-from app.internal.controller.http.v1.dependencies.auth import get_current_user
+from app.internal.controller.http.v1.dependencies.auth import (
+    CurrentUser,
+)
 from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
     create_change_password_by_reset_code_usecase,
@@ -42,7 +46,6 @@ from app.internal.entity.user import (
     NewUserDto,
     SignInDto,
     TokenData,
-    User,
 )
 from app.internal.usecase.exceptions.user import (
     NeedOldPasswordOrResetCodeError,
@@ -69,7 +72,10 @@ router = APIRouter(tags=["Users"])
 async def sign_up(
     request_data: SignUpRequest,
     background_tasks: BackgroundTasks,
-    usecase: CreateUserUseCase = Depends(create_create_user_usecase),
+    usecase: Annotated[
+        CreateUserUseCase,
+        Depends(create_create_user_usecase),
+    ],
 ) -> SignUpResponse:
     try:
         new_user = NewUserDto(
@@ -105,7 +111,10 @@ async def sign_up(
 )
 async def activate(
     request_data: ActivateUserRequest,
-    usecase: ActivateUserUseCase = Depends(create_activate_user_usecase),
+    usecase: Annotated[
+        ActivateUserUseCase,
+        Depends(create_activate_user_usecase),
+    ],
 ) -> None:
     code = ActivateUserDto(
         id=request_data.id,
@@ -124,7 +133,7 @@ async def activate(
     "/me",
     summary="Get me",
 )
-async def me(user: User = Depends(get_current_user)) -> MeResponse:
+async def me(user: CurrentUser) -> MeResponse:
     return MeResponse(
         id=user.id,
         username=user.username,
@@ -146,7 +155,10 @@ async def me(user: User = Depends(get_current_user)) -> MeResponse:
 async def password_reset(
     request_data: PasswordResetRequest,
     background_tasks: BackgroundTasks,
-    usecase: ResetPasswordUseCase = Depends(create_reset_password_usecase),
+    usecase: Annotated[
+        ResetPasswordUseCase,
+        Depends(create_reset_password_usecase),
+    ],
 ) -> None:
     try:
         code = await usecase.execute(request_data.email)
@@ -175,12 +187,14 @@ async def password_reset(
 )
 async def change_password(
     request_data: ChangePasswordRequest,
-    change_password_usecase: ChangePasswordUseCase = Depends(
-        create_change_password_usecase,
-    ),
-    change_by_code_usecase: ChangePasswordByResetCodeUseCase = Depends(
-        create_change_password_by_reset_code_usecase,
-    ),
+    change_password_usecase: Annotated[
+        ChangePasswordUseCase,
+        Depends(create_change_password_usecase),
+    ],
+    change_by_code_usecase: Annotated[
+        ChangePasswordByResetCodeUseCase,
+        Depends(create_change_password_by_reset_code_usecase),
+    ],
 ) -> None:
     try:
         if request_data.reset_code:
@@ -215,7 +229,10 @@ async def change_password(
 async def sign_in(
     response: Response,
     request_data: SignInRequest,
-    usecase: SignInUseCase = Depends(create_sign_in_usecase),
+    usecase: Annotated[
+        SignInUseCase,
+        Depends(create_sign_in_usecase),
+    ],
 ) -> SignInResponse:
     user = await usecase.execute(
         SignInDto(

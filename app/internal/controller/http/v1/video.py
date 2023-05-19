@@ -1,18 +1,21 @@
-from collections.abc import Mapping
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app.internal.controller.http.v1.dependencies import auth
+from app.internal.controller.http.v1.dependencies.auth import (
+    CurrentAdmin,
+)
+from app.internal.controller.http.v1.dependencies.paginator import (
+    PaginatorDeps,
+)
 from app.internal.controller.http.v1.dependencies.video import (
+    FindVideo,
     create_count_videos_usecase,
     create_create_video_usecase,
     create_delete_video_usecase,
     create_get_all_videos_usecase,
-    find_video,
 )
-from app.internal.entity.paginator import Paginator
-from app.internal.entity.user import User
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import VideoError
 from app.internal.usecase.video import (
@@ -32,13 +35,15 @@ router = APIRouter(tags=["Videos"])
 )
 async def get_videos(
     response: Response,
-    pagination: Paginator = Depends(Paginator),
-    get_all_usecase: GetAllVideosUseCase = Depends(
-        create_get_all_videos_usecase,
-    ),
-    count_usecase: GetCountVideosUseCase = Depends(
-        create_count_videos_usecase,
-    ),
+    pagination: PaginatorDeps,
+    get_all_usecase: Annotated[
+        GetAllVideosUseCase,
+        Depends(create_get_all_videos_usecase),
+    ],
+    count_usecase: Annotated[
+        GetCountVideosUseCase,
+        Depends(create_count_videos_usecase),
+    ],
 ) -> list[Video]:
     db_videos = await get_all_usecase.execute(
         offset=pagination.skip,
@@ -54,7 +59,7 @@ async def get_videos(
     summary="Get video",
 )
 async def read_video(
-    video: Video = Depends(find_video),
+    video: FindVideo,
 ) -> Video:
     return video
 
@@ -65,9 +70,12 @@ async def read_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-    _: User = Depends(auth.get_current_admin),
-    video: Video = Depends(find_video),
-    usecase: DeleteVideoUseCase = Depends(create_delete_video_usecase),
+    _: CurrentAdmin,
+    usecase: Annotated[
+        DeleteVideoUseCase,
+        Depends(create_delete_video_usecase),
+    ],
+    video: FindVideo,
 ) -> None:
     await usecase.execute(video.id)
 
@@ -79,8 +87,11 @@ async def delete_video(
 )
 async def add_video(
     new_video: NewVideoDto,
-    _: Mapping = Depends(auth.get_current_admin),
-    usecase: CreateVideoUseCase = Depends(create_create_video_usecase),
+    _: CurrentAdmin,
+    usecase: Annotated[
+        CreateVideoUseCase,
+        Depends(create_create_video_usecase),
+    ],
 ) -> Video:
     try:
         video = await usecase.execute(new_video)

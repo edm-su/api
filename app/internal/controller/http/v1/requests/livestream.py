@@ -19,7 +19,7 @@ class CreateLiveStreamRequest(BaseModel):
         title="Start time",
         example=datetime.now(),
     )
-    end_time: datetime | None = Field(
+    end_time: datetime = Field(
         ...,
         title="End time",
         example=datetime.now(),
