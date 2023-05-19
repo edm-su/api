@@ -112,7 +112,6 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         )
 
         result = (await self.session.execute(query)).scalar_one()
-        await self.session.commit()
         return LiveStream(
             id=result,
             **live_stream.dict(),
@@ -130,7 +129,6 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         )
 
         result = (await self.session.execute(query)).scalar_one_or_none()
-        await self.session.commit()
         return bool(result)
 
     async def delete(
@@ -144,5 +142,4 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         )
 
         result = (await self.session.execute(query)).scalar_one_or_none()
-        await self.session.commit()
         return bool(result)

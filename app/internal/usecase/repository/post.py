@@ -70,7 +70,6 @@ class PostgresPostRepository(AbstractPostRepository):
         query = posts.insert().values(values)
         query = query.returning(posts.c.id)
         result = (await self.session.execute(query)).mappings().one()
-        await self.session.commit()
         return Post(
             id=result["id"],
             title=post.title,
@@ -139,5 +138,4 @@ class PostgresPostRepository(AbstractPostRepository):
             )
         )
         result = (await self.session.execute(query)).scalar_one_or_none()
-        await self.session.commit()
         return bool(result)
