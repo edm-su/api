@@ -8,11 +8,8 @@ class LiveStreamError(Exception):
 
 
 class LiveStreamNotFoundError(LiveStreamError):
-    def __init__(
-        self: Self,
-        live_stream_id: int,
-    ) -> None:
-        super().__init__(f"LiveStream with id {live_stream_id} not found")
+    def __init__(self: Self) -> None:
+        super().__init__("LiveStream not found")
 
 
 class LiveStreamAlreadyExistsError(LiveStreamError):

@@ -118,7 +118,7 @@ async def activate(
 ) -> None:
     code = ActivateUserDto(
         id=request_data.id,
-        activation_code=SecretStr(request_data.activation_code),
+        activation_code=request_data.activation_code,
     )
     try:
         await usecase.execute(code)

@@ -20,3 +20,6 @@ class CreateLiveStreamDTO(BaseLiveStream):
 
 class LiveStream(BaseLiveStream):
     id: int
+
+    class Config:
+        orm_mode = True

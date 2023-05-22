@@ -4,7 +4,6 @@ from app.internal.entity.post import NewPostDTO, Post
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
-    PostWasNotDeletedError,
 )
 from app.internal.usecase.repository.post import AbstractPostRepository
 
@@ -48,7 +47,7 @@ class GetAllPostsUseCase(BasePostUseCase):
         self: Self,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[Post | None]:
+    ) -> list[Post]:
         return await self.repository.get_all(
             skip=skip,
             limit=limit,
@@ -61,7 +60,4 @@ class DeletePostUseCase(BasePostUseCase):
         slug: str,
     ) -> None:
         post = await self.repository.get_by_slug(slug)
-        if post is None:
-            raise PostNotFoundError
-        if not await self.repository.delete(post):
-            raise PostWasNotDeletedError
+        await self.repository.delete(post)

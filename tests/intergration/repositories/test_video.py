@@ -5,6 +5,7 @@ from meilisearch_python_async.errors import MeilisearchApiError
 from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto, Video
+from app.internal.usecase.exceptions.video import VideoNotFoundError
 from app.internal.usecase.repository.video import (
     MeilisearchVideoRepository,
     PostgresVideoRepository,
@@ -100,9 +101,9 @@ class TestPostgresVideoRepository:
         pg_video: Video,
     ) -> None:
         await pg_video_repository.delete(pg_video.id)
-        video = await pg_video_repository.get_by_id(pg_video.id)
 
-        assert video is None
+        with pytest.raises(VideoNotFoundError):
+            await pg_video_repository.get_by_id(pg_video.id)
 
     async def test_count(
         self: Self,

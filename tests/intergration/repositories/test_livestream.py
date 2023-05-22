@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
+from app.internal.usecase.exceptions.livestream import LiveStreamNotFoundError
 from app.internal.usecase.repository.livestream import (
     PostgresLiveStreamRepository,
 )
@@ -56,9 +57,8 @@ class TestPostgresLiveStreamRepository:
         assert result is not None
         assert result.id == livestream.id
 
-        result = await repository.get_by_id(999_999)
-
-        assert result is None
+        with pytest.raises(LiveStreamNotFoundError):
+            await repository.get_by_id(999_999)
 
     async def test_get_by_slug(
         self: Self,
@@ -70,9 +70,8 @@ class TestPostgresLiveStreamRepository:
         assert result is not None
         assert result.id == livestream.id
 
-        result = await repository.get_by_slug("wrong_slug")
-
-        assert result is None
+        with pytest.raises(LiveStreamNotFoundError):
+            await repository.get_by_slug("wrong_slug")
 
     async def test_get_all(
         self: Self,
@@ -99,9 +98,7 @@ class TestPostgresLiveStreamRepository:
         livestream: LiveStream,
     ) -> None:
         livestream.title = "new title"
-        result = await repository.update(livestream)
-
-        assert result
+        await repository.update(livestream)
 
         db_livestream = await repository.get_by_id(livestream.id)
 
@@ -109,23 +106,18 @@ class TestPostgresLiveStreamRepository:
         assert db_livestream.title == "new title"
 
         livestream.id = 999_999
-        result = await repository.update(livestream)
-
-        assert not result
+        with pytest.raises(LiveStreamNotFoundError):
+            await repository.update(livestream)
 
     async def test_delete(
         self: Self,
         repository: PostgresLiveStreamRepository,
         livestream: LiveStream,
     ) -> None:
-        result = await repository.delete(livestream.id)
+        await repository.delete(livestream.id)
 
-        assert result
+        with pytest.raises(LiveStreamNotFoundError):
+            await repository.get_by_id(livestream.id)
 
-        db_livestream = await repository.get_by_id(livestream.id)
-
-        assert db_livestream is None
-
-        result = await repository.delete(999_999)
-
-        assert not result
+        with pytest.raises(LiveStreamNotFoundError):
+            await repository.delete(999_999)

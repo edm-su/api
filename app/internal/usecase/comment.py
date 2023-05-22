@@ -40,5 +40,5 @@ class GetVideoCommentsUseCase(BaseCommentUseCase):
     async def execute(
         self: Self,
         video: Video,
-    ) -> list[Comment | None]:
+    ) -> list[Comment]:
         return await self.repository.get_video_comments(video.id)

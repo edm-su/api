@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, insert, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.post import NewPostDTO, Post
-from app.pkg.postgres import posts
+from app.internal.usecase.exceptions.post import PostNotFoundError
+from app.pkg.postgres import Post as PGPost
 
 
 class AbstractPostRepository(ABC):
@@ -21,7 +23,7 @@ class AbstractPostRepository(ABC):
     async def get_by_slug(
         self: Self,
         slug: str,
-    ) -> None | Post:
+    ) -> Post:
         pass
 
     @abstractmethod
@@ -29,7 +31,7 @@ class AbstractPostRepository(ABC):
         self: Self,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[None | Post]:
+    ) -> list[Post]:
         pass
 
     @abstractmethod
@@ -40,7 +42,7 @@ class AbstractPostRepository(ABC):
     async def delete(
         self: Self,
         post: Post,
-    ) -> bool:
+    ) -> None:
         pass
 
 
@@ -49,93 +51,77 @@ class PostgresPostRepository(AbstractPostRepository):
         self: Self,
         session: AsyncSession,
     ) -> None:
-        self.session = session
+        self._session = session
 
     async def create(
         self: Self,
         post: NewPostDTO,
     ) -> Post:
-        if post.published_at:
-            post.published_at = post.published_at.replace(tzinfo=None)
-        values = {
-            "title": post.title,
-            "annotation": post.annotation,
-            "text": post.text,
-            "slug": post.slug,
-            "published_at": post.published_at,
-            "thumbnail": post.thumbnail,
-            "user_id": post.user.id,
-        }
-
-        query = posts.insert().values(values)
-        query = query.returning(posts.c.id)
-        result = (await self.session.execute(query)).mappings().one()
-        return Post(
-            id=result["id"],
-            title=post.title,
-            text=post.text,
-            slug=post.slug,
-            published_at=post.published_at,
-            user_id=post.user.id,
-            annotation=post.annotation,
-            thumbnail=post.thumbnail,
+        query = (
+            insert(PGPost)
+            .values(
+                title=post.title,
+                annotation=post.annotation,
+                text=post.text,
+                slug=post.slug,
+                published_at=post.published_at,
+                thumbnail=post.thumbnail,
+                user_id=post.user.id,
+            )
+            .returning(PGPost)
         )
+
+        result = (await self._session.scalars(query)).one()
+        return Post.from_orm(result)
 
     async def get_by_slug(
         self: Self,
         slug: str,
-    ) -> None | Post:
-        query = posts.select().where(posts.c.slug == slug)
-        query = query.where(posts.c.published_at <= datetime.now())
-
-        result_proxy = await self.session.execute(query)
-        result = result_proxy.first()
-
-        return (
-            Post(
-                id=result.id,
-                title=result.title,
-                text=result.text,
-                slug=result.slug,
-                published_at=result.published_at,
-                user_id=result.user_id,
-                annotation=result.annotation,
-                thumbnail=result.thumbnail,
-            )
-            if result
-            else None
+    ) -> Post:
+        query = (
+            select(PGPost)
+            .where(PGPost.slug == slug)
+            .where(PGPost.published_at <= datetime.now())
         )
+
+        try:
+            result = (await self._session.scalars(query)).one()
+            return Post.from_orm(result)
+        except NoResultFound as e:
+            raise PostNotFoundError from e
 
     async def get_all(
         self: Self,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[None | Post]:
-        query = posts.select().where(posts.c.published_at <= datetime.now())
-        query = query.order_by(posts.c.published_at.desc())
-        query = query.offset(skip).limit(limit)
+    ) -> list[Post]:
+        query = (
+            select(PGPost)
+            .where(PGPost.published_at <= datetime.now())
+            .order_by(PGPost.published_at.desc())
+            .offset(skip)
+            .limit(limit)
+        )
 
-        result = await self.session.stream(query)
-        rows = await result.mappings().all()
-
-        return [Post(**row) for row in rows]
+        result = (await self._session.scalars(query)).all()
+        return [Post.from_orm(post) for post in result]
 
     async def count(self: Self) -> int:
-        query = select(func.count()).select_from(posts)
-        query = query.where(posts.c.published_at <= datetime.now())
-        result = await self.session.execute(query)
-        return result.scalar_one()
+        query = (
+            select(func.count())
+            .select_from(PGPost)
+            .where(PGPost.published_at <= datetime.now())
+        )
+
+        return (await self._session.scalars(query)).one()
 
     async def delete(
         self: Self,
         post: Post,
-    ) -> bool:
-        query = (
-            posts.delete()
-            .returning(posts.c.id)
-            .where(
-                posts.c.id == post.id,
-            )
-        )
-        result = (await self.session.execute(query)).scalar_one_or_none()
-        return bool(result)
+    ) -> None:
+        query = delete(PGPost).where(PGPost.id == post.id).returning(PGPost)
+
+        try:
+            (await self._session.scalars(query)).one()
+        except NoResultFound as e:
+            raise PostNotFoundError from e

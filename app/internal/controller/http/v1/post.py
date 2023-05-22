@@ -78,7 +78,7 @@ async def get_posts(
         GetPostCountUseCase,
         Depends(create_get_count_posts_usecase),
     ],
-) -> list[Post | None]:
+) -> list[Post]:
     response.headers["X-Total-Count"] = str(await count_usecase.execute())
     return await usecase.execute(
         paginate.skip,

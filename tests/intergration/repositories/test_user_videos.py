@@ -4,6 +4,7 @@ from typing_extensions import Self
 
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
+from app.internal.usecase.exceptions.user_videos import UserVideoNotLikedError
 from app.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
 )
@@ -48,6 +49,9 @@ class TestPostgresUserVideosRepository:
 
         response = await repository.is_liked(pg_user, pg_video)
         assert response is False
+
+        with pytest.raises(UserVideoNotLikedError):
+            await repository.unlike_video(pg_user, pg_video)
 
     @pytest.mark.usefixtures("_like_video")
     async def test_get_user_videos(

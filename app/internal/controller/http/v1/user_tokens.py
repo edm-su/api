@@ -87,7 +87,7 @@ async def get_all_api_tokens(
         GetAllUserTokensUseCase,
         Depends(create_get_user_tokens_usecase),
     ],
-) -> list[UserToken | None]:
+) -> list[UserToken]:
     return await usecase.execute(admin)
 
 

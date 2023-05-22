@@ -48,6 +48,9 @@ class User(BaseModel):
     last_login: datetime | None = Field(default=None)
     last_login_ip: IPvAnyAddress | None = Field(default=None)
 
+    class Config:
+        orm_mode = True
+
 
 class NewUserDto(BaseModel):
     username: str = Field(..., min_length=3)
@@ -60,7 +63,7 @@ class NewUserDto(BaseModel):
 
 class ActivateUserDto(BaseModel):
     id: int
-    activation_code: SecretStr
+    activation_code: str
 
 
 class ResetPasswordDto(BaseModel):
@@ -119,3 +122,6 @@ class UserTokenDTO(BaseModel):
 class UserToken(UserTokenDTO):
     id: int
     created_at: datetime
+
+    class Config:
+        orm_mode = True
