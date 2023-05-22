@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 from faker import Faker
@@ -7,6 +7,7 @@ from typing_extensions import Self
 
 from app.internal.entity.post import NewPostDTO, Post
 from app.internal.entity.user import User
+from app.internal.usecase.exceptions.post import PostNotFoundError
 from app.internal.usecase.repository.post import PostgresPostRepository
 
 
@@ -29,7 +30,6 @@ def new_post_data(
         published_at=faker.date_time_between(
             start_date="now",
             end_date="+1d",
-            tzinfo=timezone.utc,
         ),
         user=pg_user,
     )
@@ -87,10 +87,9 @@ class TestPostgresPostRepository:
         pg_post: Post,
     ) -> None:
         old_count = await repository.count()
-        result = await repository.delete(pg_post)
+        await repository.delete(pg_post)
         new_count = await repository.count()
 
-        assert result
         assert old_count - 1 == new_count
 
     async def test_create(
@@ -105,3 +104,21 @@ class TestPostgresPostRepository:
         assert post.text == new_post_data.text
         assert post.slug == new_post_data.slug
         assert post.published_at == new_post_data.published_at
+
+
+class TestPostgresRepositoryBoundary:
+    async def test_get_by_wrong_slug(
+        self: Self,
+        repository: PostgresPostRepository,
+    ) -> None:
+        with pytest.raises(PostNotFoundError):
+            await repository.get_by_slug("wrong_slug")
+
+    async def test_delete_not_found(
+        self: Self,
+        repository: PostgresPostRepository,
+        pg_post: Post,
+    ) -> None:
+        pg_post.id = 999_999
+        with pytest.raises(PostNotFoundError):
+            await repository.delete(pg_post)

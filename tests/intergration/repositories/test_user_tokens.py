@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.user import User, UserToken, UserTokenDTO
+from app.internal.usecase.exceptions.user_tokens import UserTokenNotFoundError
 from app.internal.usecase.repository.user_tokens import (
     PostgresUserTokensRepository,
 )
@@ -94,20 +95,18 @@ class TestPostgresUserTokensRepository:
         assert isinstance(token, UserToken)
         assert token.id == user_token.id
 
-        token = await repository.get_by_id(
-            id_=999_999,
-            user=pg_user,
-        )
-
-        assert token is None
+        with pytest.raises(UserTokenNotFoundError):
+            await repository.get_by_id(
+                id_=999_999,
+                user=pg_user,
+            )
 
         pg_user.id = 999_999
-        token = await repository.get_by_id(
-            id_=user_token.id,
-            user=pg_user,
-        )
-
-        assert token is None
+        with pytest.raises(UserTokenNotFoundError):
+            await repository.get_by_id(
+                id_=user_token.id,
+                user=pg_user,
+            )
 
     async def test_revoke(
         self: Self,
@@ -120,9 +119,14 @@ class TestPostgresUserTokensRepository:
             user=pg_user,
         )
 
-        token = await repository.get_by_id(
-            id_=user_token.id,
-            user=pg_user,
-        )
+        with pytest.raises(UserTokenNotFoundError):
+            await repository.get_by_id(
+                id_=user_token.id,
+                user=pg_user,
+            )
 
-        assert token is None
+        with pytest.raises(UserTokenNotFoundError):
+            await repository.revoke(
+                token=user_token,
+                user=pg_user,
+            )

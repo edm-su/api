@@ -19,7 +19,7 @@ class GetAllUserTokensUseCase(BaseUserTokensUseCase):
     async def execute(
         self: Self,
         user: User,
-    ) -> list[UserToken | None]:
+    ) -> list[UserToken]:
         return await self.repository.get_user_tokens(user)
 
 

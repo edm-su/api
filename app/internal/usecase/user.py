@@ -18,7 +18,6 @@ from app.internal.entity.user import (
 )
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
-    UserError,
     UserIsBannedError,
     UserIsNotActivatedError,
     UserNotFoundError,
@@ -74,9 +73,10 @@ class ActivateUserUseCase(AbstractUserUseCase):
         self: Self,
         code: ActivateUserDto,
     ) -> None:
-        activated = await self.repository.activate(code)
-        if not activated:
-            raise WrongActivationCodeError
+        try:
+            await self.repository.activate(code)
+        except UserNotFoundError as e:
+            raise WrongActivationCodeError from e
 
 
 class GetUserByUsernameUseCase(AbstractUserUseCase):
@@ -109,8 +109,6 @@ class ResetPasswordUseCase(AbstractUserUseCase):
         email: str,
     ) -> ResetPasswordDto:
         user = await self.repository.get_by_email(email)
-        if not user:
-            raise UserNotFoundError
 
         data = ResetPasswordDto(
             id=user.id,
@@ -118,8 +116,7 @@ class ResetPasswordUseCase(AbstractUserUseCase):
             expires=datetime.now() + timedelta(hours=24),
         )
 
-        if not await self.repository.set_reset_password_code(data):
-            raise UserError
+        await self.repository.set_reset_password_code(data)
         return data
 
 
@@ -136,8 +133,10 @@ class ChangePasswordUseCase(AbstractUserUseCase):
             get_password_hash(data.new_password.get_secret_value()),
         )
 
-        if not await self.repository.change_password(data):
-            raise WrongPasswordError
+        try:
+            await self.repository.change_password(data)
+        except UserNotFoundError as e:
+            raise WrongPasswordError from e
 
 
 class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
@@ -153,8 +152,10 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
             get_password_hash(data.new_password.get_secret_value()),
         )
 
-        if not await self.repository.change_password_by_reset_code(data):
-            raise WrongResetCodeError
+        try:
+            await self.repository.change_password_by_reset_code(data)
+        except UserNotFoundError as e:
+            raise WrongResetCodeError from e
 
 
 class SignInUseCase(AbstractUserUseCase):

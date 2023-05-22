@@ -10,7 +10,6 @@ from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
-    PostWasNotDeletedError,
 )
 from app.internal.usecase.post import (
     CreatePostUseCase,
@@ -238,7 +237,7 @@ class TestDeletePostUseCase:
         post: Post,
         repository: AsyncMock,
     ) -> None:
-        repository.get_by_slug.return_value = None
+        repository.get_by_slug.side_effect = PostNotFoundError
 
         with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
@@ -254,9 +253,9 @@ class TestDeletePostUseCase:
         repository: AsyncMock,
     ) -> None:
         repository.get_by_slug.return_value = post
-        repository.delete.return_value = False
+        repository.delete.side_effect = PostNotFoundError
 
-        with pytest.raises(PostWasNotDeletedError):
+        with pytest.raises(PostNotFoundError):
             await usecase.execute(post.slug)
         repository.delete.assert_awaited_once()
         repository.get_by_slug.assert_awaited_once_with(post.slug)

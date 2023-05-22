@@ -20,3 +20,6 @@ class Comment(CommentBase):
     user_id: int
     published_at: datetime
     video_id: int
+
+    class Config:
+        orm_mode = True

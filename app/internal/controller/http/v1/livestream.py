@@ -87,7 +87,7 @@ async def get_streams(
         Query,
     ] = date.today()
     + timedelta(days=31),
-) -> list[LiveStream | None]:
+) -> list[LiveStream]:
     return await usecase.execute(start, end)
 
 

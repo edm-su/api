@@ -66,3 +66,8 @@ class WrongResetCodeError(UserError):
 class NeedOldPasswordOrResetCodeError(UserError):
     def __init__(self: Self) -> None:
         super().__init__("Need old password or reset code")
+
+
+class HashedPasswordRequiredError(UserError):
+    def __init__(self: Self) -> None:
+        super().__init__("Hashed password required")

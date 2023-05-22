@@ -13,6 +13,9 @@ class Video(BaseModel):
     duration: int
     slug: str = Field(...)
 
+    class Config:
+        orm_mode = True
+
 
 class NewVideoDto(BaseModel):
     title: str

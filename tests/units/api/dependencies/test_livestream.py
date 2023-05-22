@@ -25,7 +25,7 @@ class TestFindLiveStream:
         self: Self,
     ) -> None:
         usecase = AsyncMock(repr=GetLiveStreamUseCase)
-        usecase.execute.side_effect = LiveStreamNotFoundError(1)
+        usecase.execute.side_effect = LiveStreamNotFoundError
         with pytest.raises(HTTPException):
             await find_livestream(
                 1,

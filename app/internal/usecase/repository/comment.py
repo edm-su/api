@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import func, select
+from sqlalchemy import func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.comment import Comment, NewCommentDto
-from app.pkg.postgres import comments
+from app.pkg.postgres import Comment as PGComment
 
 
 class AbstractCommentRepository(ABC):
@@ -32,7 +32,7 @@ class AbstractCommentRepository(ABC):
     async def get_video_comments(
         self: Self,
         video_id: int,
-    ) -> list[Comment | None]:
+    ) -> list[Comment]:
         pass
 
 
@@ -41,30 +41,24 @@ class PostgresCommentRepository(AbstractCommentRepository):
         self: Self,
         session: AsyncSession,
     ) -> None:
-        self.session = session
+        self._session = session
 
     async def create(
         self: Self,
         comment: NewCommentDto,
     ) -> Comment:
         query = (
-            comments.insert()
+            insert(PGComment)
             .values(
-                **comment.dict(exclude={"user", "video"}),
+                text=comment.text,
                 user_id=comment.user.id,
                 video_id=comment.video.id,
             )
-            .returning(comments.c.id, comments.c.published_at)
+            .returning(PGComment)
         )
 
-        result = (await self.session.execute(query)).mappings().one()
-        return Comment(
-            id=result["id"],
-            video_id=comment.video.id,
-            user_id=comment.user.id,
-            text=comment.text,
-            published_at=result["published_at"],
-        )
+        result = (await self._session.scalars(query)).one()
+        return Comment.from_orm(result)
 
     async def get_all(
         self: Self,
@@ -72,29 +66,29 @@ class PostgresCommentRepository(AbstractCommentRepository):
         limit: int = 20,
     ) -> list[Comment]:
         query = (
-            comments.select()
+            select(PGComment)
             .offset(offset)
             .limit(limit)
-            .order_by(comments.c.id)
+            .order_by(PGComment.id)
         )
 
-        result = (await self.session.execute(query)).mappings().all()
-        return [Comment(**row) for row in result]
+        result = (await self._session.scalars(query)).all()
+        return [Comment.from_orm(comment) for comment in result]
 
     async def count(self: Self) -> int:
-        query = select(func.count()).select_from(comments)
+        query = select(func.count()).select_from(PGComment)
 
-        return (await self.session.execute(query)).scalar_one()
+        return (await self._session.scalars(query)).one()
 
     async def get_video_comments(
         self: Self,
         video_id: int,
-    ) -> list[Comment | None]:
+    ) -> list[Comment]:
         query = (
-            comments.select()
-            .where(comments.c.video_id == video_id)
-            .order_by(comments.c.id)
+            select(PGComment)
+            .where(PGComment.video_id == video_id)
+            .order_by(PGComment.id)
         )
 
-        result = (await self.session.execute(query)).mappings().all()
-        return [Comment(**row) for row in result]
+        result = (await self._session.scalars(query)).all()
+        return [Comment.from_orm(comment) for comment in result]

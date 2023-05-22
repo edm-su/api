@@ -21,3 +21,6 @@ class NewPostDTO(BasePost):
 class Post(BasePost):
     id: int
     user_id: int
+
+    class Config:
+        orm_mode = True

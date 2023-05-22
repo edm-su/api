@@ -100,7 +100,6 @@ class TestActivateUser:
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.user.ActivateUserUseCase.execute",
-            return_value=True,
         )
         response = await client.post(
             "/users/activate",

@@ -212,7 +212,7 @@ class TestUpdateLiveStreamUseCase:
         livestream: LiveStream,
         repository: AsyncMock,
     ) -> None:
-        repository.update.return_value = False
+        repository.update.side_effect = LiveStreamNotFoundError
 
         with pytest.raises(LiveStreamError):
             await usecase.execute(livestream)
@@ -250,7 +250,7 @@ class TestDeleteLiveStreamUseCase:
         usecase: DeleteLiveStreamUseCase,
         repository: AsyncMock,
     ) -> None:
-        repository.delete.return_value = None
+        repository.delete.side_effect = LiveStreamNotFoundError
 
         with pytest.raises(LiveStreamError):
             await usecase.execute(0)

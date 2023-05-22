@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import and_, false, select
+from sqlalchemy import delete, insert, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.user import User
 from app.internal.entity.video import Video
-from app.pkg.postgres import liked_videos, videos
+from app.internal.usecase.exceptions.user_videos import UserVideoNotLikedError
+from app.pkg.postgres import LikedVideos as PGLikedVideo
+from app.pkg.postgres import User as PGUser
+from app.pkg.postgres import Video as PGVideo
 
 
 class AbstractUserVideosRepository(ABC):
@@ -57,24 +61,31 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         user: User,
         video: Video,
     ) -> None:
-        query = liked_videos.insert().values(
+        query = insert(PGLikedVideo).values(
             user_id=user.id,
             video_id=video.id,
         )
+
         await self._session.execute(query)
-        await self._session.commit()
 
     async def unlike_video(
         self: Self,
         user: User,
         video: Video,
     ) -> None:
-        query = liked_videos.delete().where(
-            (liked_videos.c.user_id == user.id)
-            & (liked_videos.c.video_id == video.id),
+        query = (
+            delete(PGLikedVideo)
+            .where(
+                (PGLikedVideo.c.user_id == user.id)
+                & (PGLikedVideo.c.video_id == video.id),
+            )
+            .returning(PGLikedVideo)
         )
-        await self._session.execute(query)
-        await self._session.commit()
+
+        try:
+            (await self._session.scalars(query)).one()
+        except NoResultFound as e:
+            raise UserVideoNotLikedError from e
 
     async def get_user_videos(
         self: Self,
@@ -84,36 +95,25 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         offset: int = 0,
     ) -> list[Video]:
         query = (
-            select(videos)
-            .select_from(
-                liked_videos.join(
-                    videos,
-                    and_(
-                        videos.c.id == liked_videos.c.video_id,
-                        videos.c.deleted == false(),
-                    ),
-                ),
-            )
-            .where(liked_videos.c.user_id == user.id)
+            select(PGUser, PGVideo)
+            .join(PGUser.liked_videos)
+            .where(PGUser.id == user.id)
             .limit(limit)
             .offset(offset)
-            .order_by(liked_videos.c.created_at.desc())
+            .order_by(PGVideo.date.desc())
         )
-        result = (await self._session.execute(query)).mappings().all()
-        return [Video(**video) for video in result]
+
+        result = (await self._session.execute(query)).all()
+        return [Video.from_orm(video[1]) for video in result]
 
     async def is_liked(
         self: Self,
         user: User,
         video: Video,
     ) -> bool:
-        query = (
-            liked_videos.select()
-            .where(
-                (liked_videos.c.user_id == user.id)
-                & (liked_videos.c.video_id == video.id)
-                & (videos.c.deleted == false()),
-            )
-            .join(videos)
+        query = select(PGLikedVideo).where(
+            (PGLikedVideo.c.user_id == user.id)
+            & (PGLikedVideo.c.video_id == video.id),
         )
+
         return bool(await self._session.scalar(query))

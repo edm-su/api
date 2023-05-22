@@ -163,7 +163,7 @@ class TestActivateUserUseCase:
         activate_user: ActivateUserDto,
         repository: AsyncMock,
     ) -> None:
-        repository.activate.return_value = False
+        repository.activate.side_effect = UserNotFoundError
 
         with pytest.raises(WrongActivationCodeError):
             await usecase.execute(activate_user)
@@ -273,7 +273,7 @@ class TestResetPasswordUseCase:
         usecase: ResetPasswordUseCase,
         repository: AsyncMock,
     ) -> None:
-        repository.get_by_email.return_value = None
+        repository.get_by_email.side_effect = UserNotFoundError
 
         with pytest.raises(UserNotFoundError):
             await usecase.execute("test")
@@ -285,7 +285,7 @@ class TestResetPasswordUseCase:
         usecase: ResetPasswordUseCase,
         repository: AsyncMock,
     ) -> None:
-        repository.set_reset_password_code.return_value = False
+        repository.set_reset_password_code.side_effect = UserNotFoundError
 
         with pytest.raises(UserError):
             await usecase.execute("test")
@@ -335,7 +335,7 @@ class TestChangePasswordUseCase:
         repository: AsyncMock,
         data: ChangePasswordDto,
     ) -> None:
-        repository.change_password.return_value = False
+        repository.change_password.side_effect = UserNotFoundError
 
         with pytest.raises(WrongPasswordError):
             await usecase.execute(data)
@@ -408,7 +408,9 @@ class TestChangePasswordByResetCodeUseCase:
         user: User,
     ) -> None:
         repository.get_by_id.return_value = user
-        repository.change_password_by_reset_code.return_value = False
+        repository.change_password_by_reset_code.side_effect = (
+            UserNotFoundError
+        )
 
         with pytest.raises(WrongResetCodeError):
             await usecase.execute(data)

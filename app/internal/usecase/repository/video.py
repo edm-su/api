@@ -3,14 +3,16 @@ from abc import ABC, abstractmethod
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.task import wait_for_task
-from sqlalchemy import func, select
+from sqlalchemy import ColumnExpressionArgument, func, insert, select, update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import false
 from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto, Video
+from app.internal.usecase.exceptions.video import VideoNotFoundError
 from app.pkg.meilisearch import normalize_ms_index_name
-from app.pkg.postgres import videos
+from app.pkg.postgres import Video as PGVideo
 
 
 class AbstractVideoRepository(ABC):
@@ -26,21 +28,21 @@ class AbstractVideoRepository(ABC):
     async def get_by_slug(
         self: Self,
         slug: str,
-    ) -> Video | None:
+    ) -> Video:
         pass
 
     @abstractmethod
     async def get_by_id(
         self: Self,
         id_: int,
-    ) -> Video | None:
+    ) -> Video:
         pass
 
     @abstractmethod
     async def get_by_yt_id(
         self: Self,
         yt_id: str,
-    ) -> Video | None:
+    ) -> Video:
         pass
 
     @abstractmethod
@@ -90,7 +92,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         self: Self,
         session: AsyncSession,
     ) -> None:
-        self.session = session
+        self._session = session
 
     async def get_all(
         self: Self,
@@ -98,92 +100,113 @@ class PostgresVideoRepository(AbstractVideoRepository):
         limit: int = 20,
     ) -> list[Video]:
         query = (
-            select(videos)
-            .where(videos.c.deleted == false())
+            select(PGVideo)
+            .where(PGVideo.deleted == false())
             .offset(offset)
             .limit(limit)
-            .order_by(videos.c.id)
+            .order_by(PGVideo.id)
         )
 
-        result = (await self.session.execute(query)).mappings().all()
-        return [Video(**row) for row in result]
+        result = (await self._session.scalars(query)).all()
+        return [Video.from_orm(video) for video in result]
+
+    async def _get_by(
+        self: Self,
+        whereclause: ColumnExpressionArgument[bool],
+    ) -> Video:
+        query = (
+            select(PGVideo)
+            .where(whereclause)
+            .where(PGVideo.deleted == false())
+        )
+
+        try:
+            result = (await self._session.scalars(query)).one()
+            return Video.from_orm(result)
+        except NoResultFound as e:
+            raise VideoNotFoundError from e
 
     async def get_by_slug(
         self: Self,
         slug: str,
-    ) -> Video | None:
-        query = (
-            select(videos)
-            .where(videos.c.slug == slug)
-            .where(videos.c.deleted == false())
-        )
-
-        result = (await self.session.execute(query)).mappings().one_or_none()
-        return Video(**result) if result else None
+    ) -> Video:
+        return await self._get_by(PGVideo.slug == slug)
 
     async def get_by_yt_id(
         self: Self,
         yt_id: str,
-    ) -> Video | None:
-        query = (
-            select(videos)
-            .where(videos.c.yt_id == yt_id)
-            .where(videos.c.deleted == false())
-        )
-
-        result = (await self.session.execute(query)).mappings().one_or_none()
-        return Video(**result) if result else None
+    ) -> Video:
+        return await self._get_by(PGVideo.yt_id == yt_id)
 
     async def get_by_id(
         self: Self,
         id_: int,
-    ) -> Video | None:
-        query = (
-            select(videos)
-            .where(videos.c.id == id_)
-            .where(videos.c.deleted == false())
-        )
-
-        result = (await self.session.execute(query)).mappings().one_or_none()
-        return Video(**result) if result else None
+    ) -> Video:
+        return await self._get_by(PGVideo.id == id_)
 
     async def create(
         self: Self,
         video: NewVideoDto,
     ) -> Video:
-        query = videos.insert().values(**video.dict()).returning(videos.c.id)
+        query = (
+            insert(PGVideo)
+            .values(
+                title=video.title,
+                slug=video.slug,
+                date=video.date,
+                yt_id=video.yt_id,
+                yt_thumbnail=video.yt_thumbnail,
+                duration=video.duration,
+            )
+            .returning(PGVideo)
+        )
 
-        result = (await self.session.execute(query)).scalar_one()
-        return Video(id=result, **video.dict())
+        result = (await self._session.scalars(query)).one()
+        return Video.from_orm(result)
 
     async def update(
         self: Self,
         video: Video,
     ) -> Video:
         query = (
-            videos.update()
-            .where(videos.c.id == video.id)
-            .where(videos.c.deleted == false())
-            .values(**video.dict())
+            update(PGVideo)
+            .where(PGVideo.id == video.id)
+            .where(PGVideo.deleted == false())
+            .values(**video.dict(exclude_unset=True))
+            .returning(PGVideo)
         )
 
-        await self.session.execute(query)
-        return video
+        try:
+            result = (await self._session.scalars(query)).one()
+            return Video.from_orm(result)
+        except NoResultFound as e:
+            raise VideoNotFoundError from e
 
     async def delete(
         self: Self,
         id_: int,
     ) -> None:
-        query = videos.update().where(videos.c.id == id_).values(deleted=True)
-
-        await self.session.execute(query)
-
-    async def count(self: Self) -> int:
-        query = select(func.count(videos.c.id)).where(
-            videos.c.deleted == false(),
+        query = (
+            update(PGVideo)
+            .where(PGVideo.id == id_)
+            .where(PGVideo.deleted == false())
+            .values(deleted=True)
+            .returning(PGVideo)
         )
 
-        return (await self.session.execute(query)).scalar_one()
+        try:
+            (await self._session.scalars(query)).one()
+        except NoResultFound as e:
+            raise VideoNotFoundError from e
+
+    async def count(self: Self) -> int:
+        query = (
+            select(func.count())
+            .select_from(PGVideo)
+            .where(PGVideo.deleted == false())
+        )
+
+        return (await self._session.scalars(query)).one()
 
 
 class MeilisearchVideoRepository(AbstractFullTextVideoRepository):

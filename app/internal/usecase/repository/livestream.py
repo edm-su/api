@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 from datetime import date, timedelta
 
-from sqlalchemy import between
+from sqlalchemy import between, delete, insert, select, update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
-from app.pkg.postgres import livestreams
+from app.internal.usecase.exceptions.livestream import LiveStreamNotFoundError
+from app.pkg.postgres import LiveStream as PGLiveStream
 
 
 class AbstractLiveStreamRepository(ABC):
@@ -14,7 +16,7 @@ class AbstractLiveStreamRepository(ABC):
     async def get_by_id(
         self: Self,
         live_stream_id: int,
-    ) -> LiveStream | None:
+    ) -> LiveStream:
         pass
 
     @abstractmethod
@@ -23,7 +25,7 @@ class AbstractLiveStreamRepository(ABC):
         slug: str,
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
-    ) -> LiveStream | None:
+    ) -> LiveStream:
         pass
 
     @abstractmethod
@@ -31,7 +33,7 @@ class AbstractLiveStreamRepository(ABC):
         self: Self,
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
-    ) -> list[LiveStream | None]:
+    ) -> list[LiveStream]:
         pass
 
     @abstractmethod
@@ -45,14 +47,14 @@ class AbstractLiveStreamRepository(ABC):
     async def update(
         self: Self,
         live_stream: LiveStream,
-    ) -> bool:
+    ) -> None:
         pass
 
     @abstractmethod
     async def delete(
         self: Self,
         live_stream_id: int,
-    ) -> bool:
+    ) -> None:
         pass
 
 
@@ -61,85 +63,100 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         self: Self,
         session: AsyncSession,
     ) -> None:
-        self.session = session
+        self._session = session
 
     async def get_by_id(
         self: Self,
         live_stream_id: int,
-    ) -> LiveStream | None:
-        query = livestreams.select().where(livestreams.c.id == live_stream_id)
+    ) -> LiveStream:
+        query = select(PGLiveStream).where(PGLiveStream.id == live_stream_id)
 
-        result = (await self.session.execute(query)).mappings().first()
-        return LiveStream(**result) if result else None
+        try:
+            result = (await self._session.scalars(query)).one()
+            return LiveStream.from_orm(result)
+        except NoResultFound as e:
+            raise LiveStreamNotFoundError from e
 
     async def get_by_slug(
         self: Self,
         slug: str,
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
-    ) -> LiveStream | None:
+    ) -> LiveStream:
         query = (
-            livestreams.select()
-            .where(livestreams.c.slug == slug)
+            select(PGLiveStream)
+            .where(PGLiveStream.slug == slug)
             .where(
-                between(livestreams.c.start_time, start, end),
+                between(PGLiveStream.start_time, start, end),
             )
         )
 
-        result = (await self.session.execute(query)).mappings().first()
-        return LiveStream(**result) if result else None
+        try:
+            result = (await self._session.scalars(query)).one()
+            return LiveStream.from_orm(result)
+        except NoResultFound as e:
+            raise LiveStreamNotFoundError from e
 
     async def get_all(
         self: Self,
         start: date = date.today() - timedelta(days=2),
         end: date = date.today() + timedelta(days=31),
-    ) -> list[LiveStream | None]:
-        query = livestreams.select().where(
-            between(livestreams.c.start_time, start, end),
+    ) -> list[LiveStream]:
+        query = select(PGLiveStream).where(
+            between(PGLiveStream.start_time, start, end),
         )
 
-        result = (await self.session.execute(query)).mappings().all()
-        return [LiveStream(**row) for row in result]
+        result = (await self._session.scalars(query)).all()
+        return [LiveStream.from_orm(livestream) for livestream in result]
 
     async def create(
         self: Self,
         live_stream: CreateLiveStreamDTO,
     ) -> LiveStream:
         query = (
-            livestreams.insert()
-            .values(**live_stream.dict())
-            .returning(livestreams.c.id)
+            insert(PGLiveStream)
+            .values(
+                title=live_stream.title,
+                slug=live_stream.slug,
+                start_time=live_stream.start_time,
+                end_time=live_stream.end_time,
+                image=live_stream.image,
+                genres=live_stream.genres,
+                url=live_stream.url,
+            )
+            .returning(PGLiveStream)
         )
+        result = (await self._session.scalars(query)).one()
 
-        result = (await self.session.execute(query)).scalar_one()
-        return LiveStream(
-            id=result,
-            **live_stream.dict(),
-        )
+        return LiveStream.from_orm(result)
 
     async def update(
         self: Self,
         live_stream: LiveStream,
-    ) -> bool:
+    ) -> None:
         query = (
-            livestreams.update()
-            .values(**live_stream.dict())
-            .where(livestreams.c.id == live_stream.id)
-            .returning(livestreams.c.id)
+            update(PGLiveStream)
+            .where(PGLiveStream.id == live_stream.id)
+            .values(live_stream.dict(exclude_unset=True))
+            .returning(PGLiveStream)
         )
 
-        result = (await self.session.execute(query)).scalar_one_or_none()
-        return bool(result)
+        try:
+            (await self._session.scalars(query)).one()
+        except NoResultFound as e:
+            raise LiveStreamNotFoundError from e
 
     async def delete(
         self: Self,
         live_stream_id: int,
-    ) -> bool:
+    ) -> None:
         query = (
-            livestreams.delete()
-            .where(livestreams.c.id == live_stream_id)
-            .returning(livestreams.c.id)
+            delete(PGLiveStream)
+            .where(PGLiveStream.id == live_stream_id)
+            .returning(PGLiveStream)
         )
 
-        result = (await self.session.execute(query)).scalar_one_or_none()
-        return bool(result)
+        try:
+            (await self._session.scalars(query)).one()
+        except NoResultFound as e:
+            raise LiveStreamNotFoundError from e

@@ -21,20 +21,21 @@ from app.internal.usecase.repository.video import PostgresVideoRepository
 from app.internal.usecase.user import get_password_hash
 from app.pkg.meilisearch import config_ms
 from app.pkg.meilisearch import ms_client as meilisearch_client
-from app.pkg.postgres import async_engine, async_session, metadata
+from app.pkg.postgres import Base, async_engine, async_session
 
 
 @pytest.fixture(autouse=True, scope="session")
 async def _setup_db() -> None:
     async with async_engine.begin() as conn:
-        await conn.run_sync(metadata.drop_all)
-        await conn.run_sync(metadata.create_all)
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @pytest.fixture(scope="session")
 async def pg_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
-        yield session
+        async with session.begin():
+            yield session
 
 
 @pytest.fixture(scope="session")
@@ -121,7 +122,7 @@ def activate_user_data(pg_nonactive_user: User) -> ActivateUserDto:
         raise ValueError(message)
     return ActivateUserDto(
         id=pg_nonactive_user.id,
-        activation_code=pg_nonactive_user.activation_code,
+        activation_code=pg_nonactive_user.activation_code.get_secret_value(),
     )
 
 

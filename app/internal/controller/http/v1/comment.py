@@ -63,7 +63,7 @@ async def read_comments(
     ],
     video: FindVideo,
     # paginator: PaginatorDeps, TODO Add pagination
-) -> list[Comment | None]:
+) -> list[Comment]:
     return await usecase.execute(video=video)
 
 
