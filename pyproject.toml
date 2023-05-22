@@ -93,6 +93,7 @@ select = [
   "PLW",    # Warninig
   "TRY",    # tryceratops
   "RUF",    # Ruff-specific rules
+  "ASYNC",  # flake8-async
 ]
 ignore = ["A003", "RUF001", "RUF002", "RUF003", "TRY301"]
 
