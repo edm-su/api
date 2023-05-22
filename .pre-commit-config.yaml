@@ -38,6 +38,7 @@ repos:
         args: ["--no-update"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
   # Ruff version.
-    rev: 'v0.0.262'
+    rev: 'v0.0.269'
     hooks:
       - id: ruff
+        args: [--fix]
