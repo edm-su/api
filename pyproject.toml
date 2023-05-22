@@ -35,7 +35,7 @@ optional = true
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
 mypy = "^1.1.1"
-ruff = "^0.0.262"
+ruff = "^0.0.269"
 black = "^23.3.0"
 
 [build-system]
@@ -93,6 +93,7 @@ select = [
   "PLW",    # Warninig
   "TRY",    # tryceratops
   "RUF",    # Ruff-specific rules
+  "ASYNC",  # flake8-async
 ]
 ignore = ["A003", "RUF001", "RUF002", "RUF003", "TRY301"]
 
