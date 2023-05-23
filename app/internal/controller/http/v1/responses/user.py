@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, IPvAnyAddress, SecretStr
+from pydantic import BaseModel, EmailStr, Field, IPvAnyAddress
 
 
 class SignUpResponse(BaseModel):
@@ -51,7 +51,7 @@ class MeResponse(BaseModel):
 
 
 class SignInResponse(BaseModel):
-    access_token: SecretStr = Field(
+    access_token: str = Field(
         ...,
         example="access_token",
         title="Access token",
@@ -60,7 +60,7 @@ class SignInResponse(BaseModel):
         default="Bearer",
         title="Token type",
     )
-    refresh_token: SecretStr | None = Field(
+    refresh_token: str | None = Field(
         default=None,
         example="refresh_token",
         title="Refresh token",

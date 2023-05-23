@@ -251,9 +251,9 @@ async def sign_in(
     response.headers["Cache-Control"] = "no-store"
     if request_data.remember_me:
         return SignInResponse(
-            access_token=SecretStr(token.access_token()),
-            refresh_token=SecretStr(token.refresh_token()),
+            access_token=token.access_token(),
+            refresh_token=token.refresh_token(),
         )
     return SignInResponse(
-        access_token=SecretStr(token.access_token()),
+        access_token=token.access_token(),
     )
