@@ -319,6 +319,7 @@ class TestSignIn:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
         assert response_data["refresh_token"] is None
+        assert response_data["access_token"] != "**********"
 
     async def test_remember_me(
         self: Self,
@@ -341,6 +342,7 @@ class TestSignIn:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
         assert response_data["refresh_token"]
+        assert response_data["access_token"] != "**********"
 
     async def test_wrong_password(
         self: Self,
