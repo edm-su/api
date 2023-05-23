@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.1.0](https://github.com/edm-su/api/compare/v2.0.0...v2.1.0) (2023-05-23)
+
+
+### Features
+
+* added SqlAlchemy 2.0 AsyncTransaction ([#255](https://github.com/edm-su/api/issues/255)) ([e225e07](https://github.com/edm-su/api/commit/e225e07a1b02f28316ad70be3f015776f1fc75b1))
+* migration to SqlAlchemy 2.0 ORM ([#257](https://github.com/edm-su/api/issues/257)) ([7fd352f](https://github.com/edm-su/api/commit/7fd352f946b140a93319ac7ad90cf39e219efd1d))
+
+
+### Bug Fixes
+
+* **deps:** bump alembic from 1.10.2 to 1.11.1 ([#241](https://github.com/edm-su/api/issues/241)) ([512d604](https://github.com/edm-su/api/commit/512d604ad8a26a822f52bb5faf6d76f979d0058b))
+* **deps:** bump fastapi from 0.94.1 to 0.95.2 ([#240](https://github.com/edm-su/api/issues/240)) ([118a2c3](https://github.com/edm-su/api/commit/118a2c3be6feb5df644241b533e5a1f238d97deb))
+* **deps:** bump greenlet from 1.1.3.post0 to 2.0.2 ([#261](https://github.com/edm-su/api/issues/261)) ([fa287cd](https://github.com/edm-su/api/commit/fa287cde20a4e5bfd5e889f7a9718a276f7be1d8))
+* **deps:** bump meilisearch-python-async from 1.1.0 to 1.2.2 ([#246](https://github.com/edm-su/api/issues/246)) ([01d08b3](https://github.com/edm-su/api/commit/01d08b3f17295e739963dfaa7df273dbee60eaf3))
+* **deps:** bump mypy from 1.1.1 to 1.3.0 ([#268](https://github.com/edm-su/api/issues/268)) ([04b6552](https://github.com/edm-su/api/commit/04b65528f3340d9bfd0638c87d785675cba87010))
+* **deps:** bump pyjwt from 2.6.0 to 2.7.0 ([#262](https://github.com/edm-su/api/issues/262)) ([30ca609](https://github.com/edm-su/api/commit/30ca6090d8296bc8dcf9a3a8b5ad8bc624b6155b))
+* **deps:** bump sqlalchemy from 2.0.14 to 2.0.15 ([#260](https://github.com/edm-su/api/issues/260)) ([6436e61](https://github.com/edm-su/api/commit/6436e61f3d7d8b842299f6aff6ef16869b00855b))
+* **deps:** bump sqlalchemy from 2.0.9 to 2.0.14 ([#249](https://github.com/edm-su/api/issues/249)) ([4ddb07a](https://github.com/edm-su/api/commit/4ddb07a12eaabbeaf6249f1a8d3d2983ff7da66d))
+* **deps:** bump typing-extensions from 4.5.0 to 4.6.0 ([#265](https://github.com/edm-su/api/issues/265)) ([e751971](https://github.com/edm-su/api/commit/e751971659791e31dfb72c1a7af275bbe877806e))
+* **deps:** remove gunicorn ([#253](https://github.com/edm-su/api/issues/253)) ([93ca0c7](https://github.com/edm-su/api/commit/93ca0c7654a5fcab79b14be14b6d72b15ee8cedb))
+* The sign-in response no longer returns asterisks ([#269](https://github.com/edm-su/api/issues/269)) ([8508259](https://github.com/edm-su/api/commit/8508259019387faa279ce77139701de37eac2716)), closes [#264](https://github.com/edm-su/api/issues/264)
+
 ## [2.0.0](https://github.com/edm-su/api/compare/v1.5.1...v2.0.0) (2023-05-18)
 
 
