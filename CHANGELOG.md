@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/edm-su/api/compare/v2.1.0...v2.1.1) (2023-05-26)
+
+
+### Bug Fixes
+
+* always returned "user already exists" ([#276](https://github.com/edm-su/api/issues/276)) ([eb970f2](https://github.com/edm-su/api/commit/eb970f24a09f98cc5b5e6224d87f54b48ba3f110))
+* **deps:** bump ruff from 0.0.269 to 0.0.270 ([#273](https://github.com/edm-su/api/issues/273)) ([4288613](https://github.com/edm-su/api/commit/428861357463583520e74b4badaa75ab36e74948))
+
 ## [2.1.0](https://github.com/edm-su/api/compare/v2.0.0...v2.1.0) (2023-05-23)
 
 
