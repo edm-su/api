@@ -52,13 +52,19 @@ class CreateUserUseCase(AbstractUserUseCase):
         self: Self,
         new_user: NewUserDto,
     ) -> User:
-        if await self.repository.get_by_email(new_user.email):
+        try:
+            await self.repository.get_by_email(new_user.email)
+        except UserNotFoundError:
+            pass
+        else:
             raise UserAlreadyExistsError(key="email")
-        if await self.repository.get_by_username(new_user.username):
-            raise UserAlreadyExistsError(
-                key="username",
-                value=new_user.username,
-            )
+
+        try:
+            await self.repository.get_by_username(new_user.username)
+        except UserNotFoundError:
+            pass
+        else:
+            raise UserAlreadyExistsError(key="username")
 
         new_user.hashed_password = SecretStr(
             get_password_hash(new_user.password.get_secret_value()),

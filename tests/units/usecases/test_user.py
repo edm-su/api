@@ -75,14 +75,14 @@ def new_user(faker: Faker) -> NewUserDto:
 
 
 class TestCreateUserUseCase:
-    @pytest.fixture(autouse=True)
+    @pytest.fixture()
     def _mock(
         self: Self,
         user: User,
         repository: AsyncMock,
     ) -> None:
-        repository.get_by_email.return_value = None
-        repository.get_by_username.return_value = None
+        repository.get_by_email.side_effect = UserNotFoundError
+        repository.get_by_username.side_effect = UserNotFoundError
         repository.create.return_value = user
 
     @pytest.fixture()
@@ -92,6 +92,7 @@ class TestCreateUserUseCase:
     ) -> CreateUserUseCase:
         return CreateUserUseCase(repository)
 
+    @pytest.mark.usefixtures("_mock")
     async def test_create_user(
         self: Self,
         usecase: AsyncMock,
