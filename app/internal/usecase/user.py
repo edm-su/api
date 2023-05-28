@@ -1,12 +1,12 @@
-import hashlib
 import secrets
 import string
 from datetime import datetime, timedelta
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from pydantic import SecretStr
 from typing_extensions import Self
 
-from app.internal.entity.settings import settings
 from app.internal.entity.user import (
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
@@ -23,7 +23,6 @@ from app.internal.usecase.exceptions.user import (
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
-    WrongPasswordOrEmailError,
     WrongResetCodeError,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
@@ -43,8 +42,16 @@ def generate_secret_code(n: int = 10) -> str:
 
 
 def get_password_hash(password: str) -> str:
-    encoded_password = f"{password}{settings.secret_key}".encode()
-    return hashlib.sha256(encoded_password).hexdigest()
+    ph = PasswordHasher()
+    return ph.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> None:
+    ph = PasswordHasher()
+    try:
+        ph.verify(hashed_password, password)
+    except VerifyMismatchError as e:
+        raise WrongPasswordError from e
 
 
 class CreateUserUseCase(AbstractUserUseCase):
@@ -131,8 +138,12 @@ class ChangePasswordUseCase(AbstractUserUseCase):
         self: Self,
         data: ChangePasswordDto,
     ) -> None:
-        data.hashed_old_password = SecretStr(
-            get_password_hash(data.old_password.get_secret_value()),
+        user = await self.repository.get_by_id(data.id)
+        if not user.hashed_password:
+            raise WrongPasswordError
+        verify_password(
+            data.old_password.get_secret_value(),
+            user.hashed_password.get_secret_value(),
         )
 
         data.hashed_new_password = SecretStr(
@@ -150,10 +161,6 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> None:
-        user = await self.repository.get_by_id(data.id)
-        if not user:
-            raise UserNotFoundError
-
         data.hashed_new_password = SecretStr(
             get_password_hash(data.new_password.get_secret_value()),
         )
@@ -173,15 +180,19 @@ class SignInUseCase(AbstractUserUseCase):
             get_password_hash(data.password.get_secret_value()),
         )
 
-        user = await self.repository.sign_in(data)
+        user = await self.repository.get_by_email(data.email)
 
-        if not user:
-            raise WrongPasswordOrEmailError
+        if not user.hashed_password:
+            raise WrongPasswordError
 
         if user.is_banned:
             raise UserIsBannedError
 
         if not user.is_active:
             raise UserIsNotActivatedError
+        verify_password(
+            data.password.get_secret_value(),
+            user.hashed_password.get_secret_value(),
+        )
 
         return user

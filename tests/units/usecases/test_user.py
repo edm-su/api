@@ -23,7 +23,6 @@ from app.internal.usecase.exceptions.user import (
     UserNotFoundError,
     WrongActivationCodeError,
     WrongPasswordError,
-    WrongPasswordOrEmailError,
     WrongResetCodeError,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
@@ -36,6 +35,8 @@ from app.internal.usecase.user import (
     GetUserByUsernameUseCase,
     ResetPasswordUseCase,
     SignInUseCase,
+    get_password_hash,
+    verify_password,
 )
 
 
@@ -51,6 +52,7 @@ def user(faker: Faker) -> User:
         username=faker.user_name(),
         email=faker.email(),
         created=faker.past_datetime(tzinfo=timezone.utc),
+        password=faker.password(),
     )
 
 
@@ -300,13 +302,6 @@ class TestChangePasswordUseCase:
     ) -> ChangePasswordUseCase:
         return ChangePasswordUseCase(repository)
 
-    @pytest.fixture(autouse=True)
-    def _mock(
-        self: Self,
-        repository: AsyncMock,
-    ) -> None:
-        repository.change_password.return_value = True
-
     @pytest.fixture()
     def data(
         self: Self,
@@ -323,11 +318,19 @@ class TestChangePasswordUseCase:
         usecase: ChangePasswordUseCase,
         repository: AsyncMock,
         data: ChangePasswordDto,
+        user: User,
+        mocker: MockerFixture,
     ) -> None:
-        repository.change_password.return_value = True
+        mocker.patch(
+            "app.internal.usecase.user.verify_password",
+            return_value=None,
+        )
+        repository.get_by_id.return_value = user
+        repository.change_password.return_value = None
 
         await usecase.execute(data)
 
+        repository.get_by_id.assert_awaited_once_with(user.id)
         repository.change_password.assert_awaited_once_with(data)
 
     async def test_wrong_password(
@@ -335,13 +338,35 @@ class TestChangePasswordUseCase:
         usecase: ChangePasswordUseCase,
         repository: AsyncMock,
         data: ChangePasswordDto,
+        mocker: MockerFixture,
     ) -> None:
+        mocker.patch(
+            "app.internal.usecase.user.verify_password",
+            side_effect=WrongPasswordError,
+        )
+        with pytest.raises(WrongPasswordError):
+            await usecase.execute(data)
+
+        repository.change_password.assert_not_awaited()
+
+    async def test_change_error(
+        self: Self,
+        usecase: ChangePasswordUseCase,
+        repository: AsyncMock,
+        data: ChangePasswordDto,
+        mocker: MockerFixture,
+    ) -> None:
+        mocker.patch(
+            "app.internal.usecase.user.verify_password",
+            return_value=None,
+        )
         repository.change_password.side_effect = UserNotFoundError
 
         with pytest.raises(WrongPasswordError):
             await usecase.execute(data)
 
         repository.change_password.assert_awaited_once_with(data)
+        repository.get_by_id.assert_awaited_once_with(data.id)
 
 
 class TestChangePasswordByResetCodeUseCase:
@@ -381,8 +406,6 @@ class TestChangePasswordByResetCodeUseCase:
 
         await usecase.execute(data)
 
-        repository.get_by_id.assert_awaited_once_with(data.id)
-
         repository.change_password_by_reset_code.assert_awaited_once_with(
             data,
         )
@@ -393,22 +416,6 @@ class TestChangePasswordByResetCodeUseCase:
         repository: AsyncMock,
         data: ChangePasswordByResetCodeDto,
     ) -> None:
-        repository.get_by_id.return_value = None
-
-        with pytest.raises(UserNotFoundError):
-            await usecase.execute(data)
-
-        repository.get_by_id.assert_awaited_once_with(data.id)
-        repository.change_password_by_reset_code.assert_not_awaited()
-
-    async def test_wrong_code(
-        self: Self,
-        usecase: ChangePasswordByResetCodeUseCase,
-        repository: AsyncMock,
-        data: ChangePasswordByResetCodeDto,
-        user: User,
-    ) -> None:
-        repository.get_by_id.return_value = user
         repository.change_password_by_reset_code.side_effect = (
             UserNotFoundError
         )
@@ -416,7 +423,21 @@ class TestChangePasswordByResetCodeUseCase:
         with pytest.raises(WrongResetCodeError):
             await usecase.execute(data)
 
-        repository.get_by_id.assert_awaited_once_with(data.id)
+        repository.change_password_by_reset_code.assert_awaited_once_with(data)
+
+    async def test_wrong_code(
+        self: Self,
+        usecase: ChangePasswordByResetCodeUseCase,
+        repository: AsyncMock,
+        data: ChangePasswordByResetCodeDto,
+    ) -> None:
+        repository.change_password_by_reset_code.side_effect = (
+            UserNotFoundError
+        )
+
+        with pytest.raises(WrongResetCodeError):
+            await usecase.execute(data)
+
         repository.change_password_by_reset_code.assert_awaited_once_with(
             data,
         )
@@ -437,7 +458,14 @@ class TestSignInUseCase:
         user: User,
     ) -> None:
         user.is_active = True
-        repository.sign_in.return_value = user
+        repository.get_by_email.return_value = user
+
+    @pytest.fixture()
+    def _mock_verify_password(self: Self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "app.internal.usecase.user.verify_password",
+            return_value=None,
+        )
 
     @pytest.fixture()
     def data(
@@ -449,7 +477,7 @@ class TestSignInUseCase:
             password=SecretStr("password"),
         )
 
-    @pytest.mark.usefixtures("_mock")
+    @pytest.mark.usefixtures("_mock", "_mock_verify_password")
     async def test_sign_in(
         self: Self,
         usecase: SignInUseCase,
@@ -458,20 +486,25 @@ class TestSignInUseCase:
     ) -> None:
         result = await usecase.execute(data)
 
-        repository.sign_in.assert_awaited_once_with(data)
+        repository.get_by_email.assert_awaited_once_with(data.email)
         assert result
 
+    @pytest.mark.usefixtures("_mock")
     async def test_wrong_password(
         self: Self,
         usecase: SignInUseCase,
         repository: AsyncMock,
         data: SignInDto,
+        mocker: MockerFixture,
     ) -> None:
-        repository.sign_in.return_value = None
+        mocker.patch(
+            "app.internal.usecase.user.verify_password",
+            side_effect=WrongPasswordError,
+        )
 
-        with pytest.raises(WrongPasswordOrEmailError):
+        with pytest.raises(WrongPasswordError):
             await usecase.execute(data)
-        repository.sign_in.assert_awaited_once_with(data)
+        repository.get_by_email.assert_awaited_once_with(data.email)
 
     async def test_user_is_banned(
         self: Self,
@@ -481,11 +514,11 @@ class TestSignInUseCase:
         user: User,
     ) -> None:
         user.is_banned = True
-        repository.sign_in.return_value = user
+        repository.get_by_email.return_value = user
 
         with pytest.raises(UserIsBannedError):
             await usecase.execute(data)
-        repository.sign_in.assert_awaited_once_with(data)
+        repository.get_by_email.assert_awaited_once_with(data.email)
 
     async def test_user_is_not_active(
         self: Self,
@@ -495,8 +528,21 @@ class TestSignInUseCase:
         user: User,
     ) -> None:
         user.is_active = False
-        repository.sign_in.return_value = user
+        repository.get_by_email.return_value = user
 
         with pytest.raises(UserIsNotActivatedError):
             await usecase.execute(data)
-        repository.sign_in.assert_awaited_once_with(data)
+        repository.get_by_email.assert_awaited_once_with(data.email)
+
+
+class TestVeryfyPassword:
+    def test_verify_password(self: Self) -> None:
+        password = "password"
+        hashed_password = get_password_hash(password)
+        verify_password("password", hashed_password)
+
+    def test_wrong_password(self: Self) -> None:
+        password = "password"
+        hashed_password = get_password_hash(password)
+        with pytest.raises(WrongPasswordError):
+            verify_password("wrong_password", hashed_password)

@@ -152,7 +152,6 @@ def change_password_data(
         id=pg_change_password_user.id,
         old_password=new_user_data.password,
         new_password=SecretStr(new_password),
-        hashed_old_password=pg_change_password_user.hashed_password,
         hashed_new_password=SecretStr(get_password_hash(new_password)),
     )
 

@@ -12,7 +12,6 @@ from app.internal.entity.user import (
     ChangePasswordDto,
     NewUserDto,
     ResetPasswordDto,
-    SignInDto,
     User,
 )
 from app.internal.usecase.exceptions.user import (
@@ -77,13 +76,6 @@ class AbstractUserRepository(ABC):
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> None:
-        pass
-
-    @abstractmethod
-    async def sign_in(
-        self: Self,
-        data: SignInDto,
-    ) -> User:
         pass
 
 
@@ -201,16 +193,9 @@ class PostgresUserRepository(AbstractUserRepository):
             error_text = "hashed_new_password is None"
             raise ValueError(error_text)
 
-        if data.hashed_old_password is None:
-            error_text = "hashed_old_password is None"
-            raise ValueError(error_text)
-
         query = (
             update(PGUser)
             .where(PGUser.id == data.id)
-            .where(
-                PGUser.password == data.hashed_old_password.get_secret_value(),
-            )
             .values(
                 password=data.hashed_new_password.get_secret_value(),
                 recovery_code=None,
@@ -248,24 +233,5 @@ class PostgresUserRepository(AbstractUserRepository):
 
         try:
             (await self._session.scalars(query)).one()
-        except NoResultFound as e:
-            raise UserNotFoundError from e
-
-    async def sign_in(
-        self: Self,
-        data: SignInDto,
-    ) -> User:
-        if not data.hashed_password:
-            raise HashedPasswordRequiredError
-
-        query = (
-            select(PGUser)
-            .where(PGUser.email == data.email)
-            .where(PGUser.password == data.hashed_password.get_secret_value())
-        )
-
-        try:
-            result = (await self._session.scalars(query)).one()
-            return User.from_orm(result)
         except NoResultFound as e:
             raise UserNotFoundError from e
