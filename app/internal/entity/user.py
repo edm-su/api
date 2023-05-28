@@ -75,7 +75,6 @@ class ResetPasswordDto(BaseModel):
 class ChangePasswordDto(BaseModel):
     id: int
     old_password: SecretStr
-    hashed_old_password: SecretStr | None = Field(default=None)
     new_password: SecretStr
     hashed_new_password: SecretStr | None = Field(default=None)
 

@@ -19,6 +19,7 @@ meilisearch-python-async = "1.2.2"
 typing-extensions = "^4.6.0"
 greenlet = "^2.0.2"
 asyncpg = "^0.27.0"
+argon2-cffi = "^21.3.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
