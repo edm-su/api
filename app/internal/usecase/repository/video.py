@@ -104,7 +104,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
             .where(PGVideo.deleted == false())
             .offset(offset)
             .limit(limit)
-            .order_by(PGVideo.id)
+            .order_by(PGVideo.id.desc())
         )
 
         result = (await self._session.scalars(query)).all()
