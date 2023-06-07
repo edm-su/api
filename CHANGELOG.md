@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.2](https://github.com/edm-su/api/compare/v2.1.1...v2.1.2) (2023-06-07)
+
+
+### Bug Fixes
+
+* changed password hashing algorithm ([#278](https://github.com/edm-su/api/issues/278)) ([f0cd9ac](https://github.com/edm-su/api/commit/f0cd9ac6ded078749042569982300c2584da2b16)), closes [#277](https://github.com/edm-su/api/issues/277)
+* **deps:** bump fastapi from 0.95.2 to 0.96.0 ([#281](https://github.com/edm-su/api/issues/281)) ([fa4ca4d](https://github.com/edm-su/api/commit/fa4ca4d7389d52979a986e7279e2a594366b870e))
+* **deps:** bump ruff from 0.0.270 to 0.0.271 ([#284](https://github.com/edm-su/api/issues/284)) ([7af9a9f](https://github.com/edm-su/api/commit/7af9a9f44a98876eeb455d42cedb6a0868ae6a49))
+* **deps:** bump typing-extensions from 4.6.0 to 4.6.3 ([#280](https://github.com/edm-su/api/issues/280)) ([dc89797](https://github.com/edm-su/api/commit/dc8979729256190514f19eb572eeee7bd78c8bda))
+* get videos order ([#282](https://github.com/edm-su/api/issues/282)) ([a0b9626](https://github.com/edm-su/api/commit/a0b96264ac05f578f6d96de3558dd518024c4402))
+
 ## [2.1.1](https://github.com/edm-su/api/compare/v2.1.0...v2.1.1) (2023-05-26)
 
 
