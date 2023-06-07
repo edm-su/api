@@ -95,6 +95,7 @@ select = [
   "TRY",    # tryceratops
   "RUF",    # Ruff-specific rules
   "ASYNC",  # flake8-async
+  "FA",     # flake8-future-annotations
 ]
 ignore = ["A003", "RUF001", "RUF002", "RUF003", "TRY301"]
 
