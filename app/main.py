@@ -11,6 +11,7 @@ from app.internal.controller.http.router import api_router
 from app.internal.entity.settings import settings
 from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.pkg.meilisearch import config_ms, ms_client
+from app.pkg.nats import nats_client
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
 app = FastAPI(
@@ -53,11 +54,13 @@ logging.config.dictConfig(LOGGING_CONFIG)
 @app.on_event("startup")
 async def startup() -> None:
     await config_ms(ms_client)
+    await nats_client.connect([settings.nats_url])
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     await ms_client.aclose()
+    await nats_client.close()
 
 
 origins = ["https://edm.su", "http://localhost:3000"]

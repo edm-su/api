@@ -1,3 +1,4 @@
+import json
 import secrets
 import string
 from datetime import datetime, timedelta
@@ -26,14 +27,17 @@ from app.internal.usecase.exceptions.user import (
     WrongResetCodeError,
 )
 from app.internal.usecase.repository.user import AbstractUserRepository
+from app.pkg.nats import NatsClient
 
 
 class AbstractUserUseCase:
     def __init__(
         self: Self,
         repository: AbstractUserRepository,
+        broker: NatsClient,
     ) -> None:
         self.repository = repository
+        self.broker = broker
 
 
 def generate_secret_code(n: int = 10) -> str:
@@ -78,7 +82,22 @@ class CreateUserUseCase(AbstractUserUseCase):
         )
         new_user.activation_code = SecretStr(generate_secret_code())
 
-        return await self.repository.create(new_user)
+        user = await self.repository.create(new_user)
+
+        broker_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_admin": user.is_admin,
+            "activation_code": new_user.activation_code.get_secret_value(),
+        }
+        await self.broker.publish(
+            "USERS.created",
+            json.dumps(broker_data).encode(),
+        )
+
+        return user
 
 
 class ActivateUserUseCase(AbstractUserUseCase):
@@ -115,12 +134,10 @@ class GetUserByIdUseCase(AbstractUserUseCase):
 
 
 class ResetPasswordUseCase(AbstractUserUseCase):
-    # TODO: после выноса отправки почты в отдельное приложение,
-    # сделать возврат bool
     async def execute(
         self: Self,
         email: str,
-    ) -> ResetPasswordDto:
+    ) -> None:
         user = await self.repository.get_by_email(email)
 
         data = ResetPasswordDto(
@@ -130,7 +147,16 @@ class ResetPasswordUseCase(AbstractUserUseCase):
         )
 
         await self.repository.set_reset_password_code(data)
-        return data
+
+        broker_data = {
+            "id": user.id,
+            "code": data.code.get_secret_value(),
+            "email": user.email,
+        }
+        await self.broker.publish(
+            "USERS.reset_password",
+            json.dumps(broker_data).encode(),
+        )
 
 
 class ChangePasswordUseCase(AbstractUserUseCase):
