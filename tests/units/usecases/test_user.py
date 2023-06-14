@@ -38,11 +38,17 @@ from app.internal.usecase.user import (
     get_password_hash,
     verify_password,
 )
+from app.pkg.nats import NatsClient
 
 
 @pytest.fixture()
 def repository(mocker: MockerFixture) -> AbstractUserRepository:
     return AsyncMock(repr=AbstractUserRepository)
+
+
+@pytest.fixture()
+def broker(mocker: MockerFixture) -> AsyncMock:
+    return AsyncMock(repr=NatsClient)
 
 
 @pytest.fixture()
@@ -91,8 +97,9 @@ class TestCreateUserUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> CreateUserUseCase:
-        return CreateUserUseCase(repository)
+        return CreateUserUseCase(repository, broker)
 
     @pytest.mark.usefixtures("_mock")
     async def test_create_user(
@@ -101,12 +108,14 @@ class TestCreateUserUseCase:
         new_user: NewUserDto,
         user: User,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> None:
         assert await usecase.execute(new_user) == user
 
         repository.get_by_email.assert_awaited_once_with(new_user.email)
         repository.get_by_username.assert_awaited_once_with(new_user.username)
         repository.create.assert_awaited_once()
+        broker.publish.assert_awaited_once()
 
     @pytest.mark.parametrize("get_by", ["email", "username"])
     async def test_create_already_exists_user(
@@ -116,6 +125,7 @@ class TestCreateUserUseCase:
         user: User,
         repository: AsyncMock,
         get_by: str,
+        broker: AsyncMock,
     ) -> None:
         if get_by == "email":
             repository_method = repository.get_by_email
@@ -127,6 +137,7 @@ class TestCreateUserUseCase:
             await usecase.execute(new_user)
 
         repository.create.assert_not_awaited()
+        broker.publish.assert_not_awaited()
 
 
 class TestActivateUserUseCase:
@@ -134,8 +145,9 @@ class TestActivateUserUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> ActivateUserUseCase:
-        return ActivateUserUseCase(repository)
+        return ActivateUserUseCase(repository, broker)
 
     @pytest.fixture()
     def activate_user(
@@ -179,8 +191,9 @@ class TestGetUserByUsernameUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> GetUserByUsernameUseCase:
-        return GetUserByUsernameUseCase(repository)
+        return GetUserByUsernameUseCase(repository, broker)
 
     async def test_get_user(
         self: Self,
@@ -212,8 +225,9 @@ class TestGetUserByIdUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> GetUserByIdUseCase:
-        return GetUserByIdUseCase(repository)
+        return GetUserByIdUseCase(repository, broker)
 
     async def test_get_user(
         self: Self,
@@ -246,8 +260,9 @@ class TestResetPasswordUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> ResetPasswordUseCase:
-        return ResetPasswordUseCase(repository)
+        return ResetPasswordUseCase(repository, broker)
 
     @pytest.fixture(autouse=True)
     def _mock(
@@ -261,20 +276,21 @@ class TestResetPasswordUseCase:
         usecase: ResetPasswordUseCase,
         repository: AsyncMock,
         user: User,
+        broker: AsyncMock,
     ) -> None:
         repository.set_reset_password_code.return_value = True
         repository.get_by_email.return_value = user
 
-        result = await usecase.execute(user.email)
-        assert result
-        assert result.id == user.id
+        await usecase.execute(user.email)
 
         repository.set_reset_password_code.assert_awaited_once()
+        broker.publish.assert_awaited_once()
 
     async def test_user_not_found(
         self: Self,
         usecase: ResetPasswordUseCase,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> None:
         repository.get_by_email.side_effect = UserNotFoundError
 
@@ -282,6 +298,7 @@ class TestResetPasswordUseCase:
             await usecase.execute("test")
 
         repository.set_reset_password_code.assert_not_awaited()
+        broker.publish.assert_not_awaited()
 
     async def test_set_code_error(
         self: Self,
@@ -299,8 +316,9 @@ class TestChangePasswordUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> ChangePasswordUseCase:
-        return ChangePasswordUseCase(repository)
+        return ChangePasswordUseCase(repository, broker)
 
     @pytest.fixture()
     def data(
@@ -374,8 +392,9 @@ class TestChangePasswordByResetCodeUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> ChangePasswordByResetCodeUseCase:
-        return ChangePasswordByResetCodeUseCase(repository)
+        return ChangePasswordByResetCodeUseCase(repository, broker)
 
     @pytest.fixture(autouse=True)
     def _mock(
@@ -448,8 +467,9 @@ class TestSignInUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        broker: AsyncMock,
     ) -> SignInUseCase:
-        return SignInUseCase(repository)
+        return SignInUseCase(repository, broker)
 
     @pytest.fixture()
     def _mock(

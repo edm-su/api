@@ -13,6 +13,7 @@ from app.internal.usecase.user import (
     ResetPasswordUseCase,
     SignInUseCase,
 )
+from app.pkg.nats import nats_client
 from app.pkg.postgres import get_session
 
 
@@ -36,46 +37,46 @@ def create_create_user_usecase(
     *,
     repository: PgRepository,
 ) -> CreateUserUseCase:
-    return CreateUserUseCase(repository)
+    return CreateUserUseCase(repository, nats_client)
 
 
 def create_activate_user_usecase(
     *,
     repository: PgRepository,
 ) -> ActivateUserUseCase:
-    return ActivateUserUseCase(repository)
+    return ActivateUserUseCase(repository, nats_client)
 
 
 def create_get_user_by_username_usecase(
     *,
     repository: PgRepository,
 ) -> GetUserByUsernameUseCase:
-    return GetUserByUsernameUseCase(repository)
+    return GetUserByUsernameUseCase(repository, nats_client)
 
 
 def create_reset_password_usecase(
     *,
     repository: PgRepository,
 ) -> ResetPasswordUseCase:
-    return ResetPasswordUseCase(repository)
+    return ResetPasswordUseCase(repository, nats_client)
 
 
 def create_change_password_usecase(
     *,
     repository: PgRepository,
 ) -> ChangePasswordUseCase:
-    return ChangePasswordUseCase(repository)
+    return ChangePasswordUseCase(repository, nats_client)
 
 
 def create_change_password_by_reset_code_usecase(
     *,
     repository: PgRepository,
 ) -> ChangePasswordByResetCodeUseCase:
-    return ChangePasswordByResetCodeUseCase(repository)
+    return ChangePasswordByResetCodeUseCase(repository, nats_client)
 
 
 def create_sign_in_usecase(
     *,
     repository: PgRepository,
 ) -> SignInUseCase:
-    return SignInUseCase(repository)
+    return SignInUseCase(repository, nats_client)

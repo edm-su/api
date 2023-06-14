@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 import pytest
 from faker import Faker
 from fastapi import status
@@ -14,7 +12,7 @@ from app.internal.controller.http.v1.requests.user import (
     SignInRequest,
     SignUpRequest,
 )
-from app.internal.entity.user import ResetPasswordDto, User
+from app.internal.entity.user import User
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
     UserError,
@@ -169,14 +167,7 @@ class TestResetPassword:
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.user.ResetPasswordUseCase.execute",
-            return_value=ResetPasswordDto(
-                id=user.id,
-                code="AAAAAAAAAA",
-                expires=datetime.now() + timedelta(hours=24),
-            ),
-        )
-        mocked_send_email = mocker.patch(
-            "fastapi.BackgroundTasks.add_task",
+            return_value=None,
         )
         response = await client.post(
             "/users/password/reset",
@@ -184,7 +175,6 @@ class TestResetPassword:
         )
 
         mocked.assert_awaited_once()
-        mocked_send_email.assert_called_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
     async def test_user_not_found(

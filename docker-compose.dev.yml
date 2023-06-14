@@ -10,11 +10,14 @@ services:
     ports:
       - "5432:5432"
 
-  mailhog:
-    image: mailhog/mailhog
+  nats:
+    image: nats:2.9-alpine
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "4222:4222"
+      - "8222:8222"
+    command: ["--http_port", "8222", "-js", "-sd", "/data/jetstream"]
+    volumes:
+      - nats:/data/jetstream:rw
 
   minio:
     image: minio/minio
@@ -39,3 +42,4 @@ volumes:
   postgres:
   minio:
   meili:
+  nats:

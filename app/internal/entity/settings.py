@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     secret_key: str
     static_url: str = "https://static.dev.edm.su"
     database_url: PostgresDsn = "postgresql://postgres:postgres@db/postgres"
-    frontend_url: str = "https://edm.su"
     testing: bool = False
 
     meilisearch_api_url: str = "http://localhost:7700"
@@ -28,10 +27,7 @@ class Settings(BaseSettings):
     s3_access_key_id: str
     s3_region: str = "us-east-1"
 
-    smtp_server: str
-    smtp_port: int
-    smtp_user: str
-    smtp_password: str
+    nats_url: str
 
 
 settings = Settings.parse_obj({})

@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     Depends,
     HTTPException,
     Response,
@@ -12,10 +11,6 @@ from pydantic import (
 )
 from starlette import status
 
-from app.internal.controller.http.tasks import (
-    send_activate_email,
-    send_recovery_email,
-)
 from app.internal.controller.http.v1.dependencies.auth import (
     CurrentUser,
 )
@@ -71,7 +66,6 @@ router = APIRouter(tags=["Users"])
 )
 async def sign_up(
     request_data: SignUpRequest,
-    background_tasks: BackgroundTasks,
     usecase: Annotated[
         CreateUserUseCase,
         Depends(create_create_user_usecase),
@@ -89,13 +83,6 @@ async def sign_up(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         ) from e
-    if not user.is_active and user.activation_code is not None:
-        # TODO: Переделать на отправку через очередь
-        background_tasks.add_task(
-            send_activate_email,
-            user.email,
-            user.activation_code.get_secret_value(),
-        )
     return SignUpResponse(
         id=user.id,
         username=user.username,
@@ -154,14 +141,13 @@ async def me(user: CurrentUser) -> MeResponse:
 )
 async def password_reset(
     request_data: PasswordResetRequest,
-    background_tasks: BackgroundTasks,
     usecase: Annotated[
         ResetPasswordUseCase,
         Depends(create_reset_password_usecase),
     ],
 ) -> None:
     try:
-        code = await usecase.execute(request_data.email)
+        await usecase.execute(request_data.email)
     except UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -172,12 +158,6 @@ async def password_reset(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e),
         ) from e
-    # TODO: Переделать на отправку через очередь
-    background_tasks.add_task(
-        send_recovery_email,
-        request_data.email,
-        code.code.get_secret_value(),
-    )
 
 
 @router.put(
