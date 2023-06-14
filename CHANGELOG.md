@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.2.0](https://github.com/edm-su/api/compare/v2.1.2...v2.2.0) (2023-06-14)
+
+
+### Features
+
+* remove sending email ([#291](https://github.com/edm-su/api/issues/291)) ([a050f38](https://github.com/edm-su/api/commit/a050f385f5b13376eaa450e5bac9671284ff32ed))
+
+
+### Bug Fixes
+
+* **deps:** bump fastapi from 0.96.0 to 0.97.0 ([#289](https://github.com/edm-su/api/issues/289)) ([01550f6](https://github.com/edm-su/api/commit/01550f67580f2bf698e2dd11b0eddd3e6c9d05ed))
+* **deps:** bump ruff from 0.0.271 to 0.0.272 ([#286](https://github.com/edm-su/api/issues/286)) ([d318b0d](https://github.com/edm-su/api/commit/d318b0dc053ce90d2aafa39a96704838a72860c8))
+* **deps:** bump sqlalchemy from 2.0.15 to 2.0.16 ([#288](https://github.com/edm-su/api/issues/288)) ([a2fba6e](https://github.com/edm-su/api/commit/a2fba6e70ea301e4134a83e625355ac2cd075576))
+
 ## [2.1.2](https://github.com/edm-su/api/compare/v2.1.1...v2.1.2) (2023-06-07)
 
 
