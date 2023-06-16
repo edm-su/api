@@ -26,7 +26,6 @@ alembic upgrade head
 | Переменная                | Обязателен |                                Описание                                |           Значение по умолчанию            |
 |---------------------------|:----------:|:----------------------------------------------------------------------:|:------------------------------------------:|
 | DATABASE_URL              |     x      |                           Адрес базы данных                            | postgresql+asyncpg://postgres:postgres@db/postgres |
-| DEBUG                     |            |                              Режим отладки                              |                   False                    |
 | DISABLE_OPENAPI           |            |                           Режим отключения OpenAPI                        |                   False                    |
 | LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  ERROR                   |
 | MEILISEARCH_API_KEY       |            |                          Ключ api meilisearch                          |                                            |
@@ -41,3 +40,5 @@ alembic upgrade head
 | SECRET_KEY               |     x      |                           Ключ шифрования                              |                                            |
 | STATIC_URL                |     x      |                             Адрес статики                              |         https://static.dev.edm.su          |
 | TESTING                   |            |                              Режим тестов                              |                   False                    |
+| HOST                     |            |                             Адрес хоста                                |                   127.0.0.1                   |
+| PORT                     |            |                             Порт хоста                                |                   8000                      |
