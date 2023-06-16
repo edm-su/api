@@ -66,3 +66,12 @@ class SignInResponse(BaseModel):
         title="Refresh token",
         description="refresh token valid for 1 month",
     )
+
+
+class RefreshTokenResponse(SignInResponse):
+    refresh_token: str = Field(
+        ...,
+        example="refresh_token",
+        title="Refresh token",
+        description="refresh token valid for 1 month",
+    )

@@ -1,7 +1,7 @@
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 from starlette import status
@@ -42,6 +42,16 @@ async def get_current_user(
     if db_user is None:
         raise AuthError
     return db_user
+
+
+async def get_user_from_refresh_token(
+    refresh_token: Annotated[str, Query],
+    usecase: Annotated[
+        GetUserByUsernameUseCase,
+        Depends(create_get_user_by_username_usecase),
+    ],
+) -> User:
+    return await get_current_user(refresh_token, usecase)
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]

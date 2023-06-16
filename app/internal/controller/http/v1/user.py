@@ -1,18 +1,12 @@
 from typing import Annotated
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Response,
-)
-from pydantic import (
-    SecretStr,
-)
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from pydantic import SecretStr
 from starlette import status
 
 from app.internal.controller.http.v1.dependencies.auth import (
     CurrentUser,
+    get_user_from_refresh_token,
 )
 from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
@@ -31,6 +25,7 @@ from app.internal.controller.http.v1.requests.user import (
 )
 from app.internal.controller.http.v1.responses.user import (
     MeResponse,
+    RefreshTokenResponse,
     SignInResponse,
     SignUpResponse,
 )
@@ -41,6 +36,7 @@ from app.internal.entity.user import (
     NewUserDto,
     SignInDto,
     TokenData,
+    User,
 )
 from app.internal.usecase.exceptions.user import (
     NeedOldPasswordOrResetCodeError,
@@ -236,4 +232,38 @@ async def sign_in(
         )
     return SignInResponse(
         access_token=token.access_token(),
+    )
+
+
+@router.post(
+    "/token",
+    summary="Refresh token",
+)
+async def refresh_token(
+    response: Response,
+    _: Annotated[
+        str,
+        Query(
+            ...,
+            title="grant_type",
+            regex=r"^refresh_token$",
+            alias="grant_type",
+        ),
+    ],
+    user: Annotated[
+        User,
+        Depends(get_user_from_refresh_token),
+    ],
+) -> RefreshTokenResponse:
+    token = TokenData(
+        email=user.email,
+        username=user.username,
+        id=user.id,
+        is_admin=user.is_admin,
+    )
+
+    response.headers["Cache-Control"] = "no-store"
+    return RefreshTokenResponse(
+        access_token=token.access_token(),
+        refresh_token=token.refresh_token(),
     )
