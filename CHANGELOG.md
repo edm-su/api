@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/edm-su/api/compare/v2.2.3...v2.3.0) (2023-06-16)
+
+
+### Features
+
+* added host and port config ([#301](https://github.com/edm-su/api/issues/301)) ([b6219e6](https://github.com/edm-su/api/commit/b6219e641b96ff60b30037c0a32ccc29492f3d4b))
+
+
+### Documentation
+
+* update environment variables description ([#299](https://github.com/edm-su/api/issues/299)) ([5829338](https://github.com/edm-su/api/commit/58293382a88956346d85de1ea112eed21d01af1d))
+
 ## [2.2.3](https://github.com/edm-su/api/compare/v2.2.2...v2.2.3) (2023-06-16)
 
 
