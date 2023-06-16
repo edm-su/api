@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/edm-su/api/compare/v2.3.1...v2.4.0) (2023-06-16)
+
+
+### Features
+
+* added update tokens ([#304](https://github.com/edm-su/api/issues/304)) ([db6ea5c](https://github.com/edm-su/api/commit/db6ea5cf36758b3853465e26a050a4fe237bf052))
+
 ## [2.3.1](https://github.com/edm-su/api/compare/v2.3.0...v2.3.1) (2023-06-16)
 
 
