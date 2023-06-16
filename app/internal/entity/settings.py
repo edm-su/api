@@ -9,7 +9,7 @@ else:
 
 
 class Settings(BaseSettings):
-    log_level: str = "WARNING"
+    log_level: str = "ERROR"
     disable_openapi: bool = False
     email_from: str = "noreply@edm.su"
     secret_key: str
