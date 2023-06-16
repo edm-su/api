@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/edm-su/api/compare/v2.3.0...v2.3.1) (2023-06-16)
+
+
+### Bug Fixes
+
+* uvicorn run ([#302](https://github.com/edm-su/api/issues/302)) ([0021614](https://github.com/edm-su/api/commit/0021614fee4c3d1339f65ba375582e86d18ec943))
+
 ## [2.3.0](https://github.com/edm-su/api/compare/v2.2.3...v2.3.0) (2023-06-16)
 
 
