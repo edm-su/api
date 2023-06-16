@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.2](https://github.com/edm-su/api/compare/v2.2.1...v2.2.2) (2023-06-16)
+
+
+### Bug Fixes
+
+* entrypoint ([#295](https://github.com/edm-su/api/issues/295)) ([7865086](https://github.com/edm-su/api/commit/78650867a6c23d7c803ad032d07b02a8e60534fc))
+
 ## [2.2.1](https://github.com/edm-su/api/compare/v2.2.0...v2.2.1) (2023-06-16)
 
 
