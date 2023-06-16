@@ -113,4 +113,6 @@ if __name__ == "__main__":
         log_config=log_config,
         log_level=settings.log_level.lower(),
         reload=True,
+        host=settings.host,
+        port=settings.port,
     )
