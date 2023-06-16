@@ -26,9 +26,7 @@ alembic upgrade head
 | Name                | Is required |                                Description                                |           Default value            |
 |---------------------------|:----------:|:----------------------------------------------------------------------:|:------------------------------------------:|
 | DATABASE_URL              |     x      |                           Postgres database address                            | postgresql://postgres:postgres@db/postgres |
-| DEBUG                     |            |                              Debug mode                              |                   False                    |
-| EMAIL_FROM                |     x      |              EMAIL from which will be sent emails                           |               |               noreply@edm.su               |
-| LOG_LEVEL                 |            | Log level (can be DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  WARNING                   |
+| LOG_LEVEL                 |            | Log level (can be DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  ERROR                   |
 | MEILISEARCH_API_KEY       |            |                          Meilisearch api key                          |                                            |
 | MEILISEARCH_API_URL       |     x      |                         Meilisearch API URI                          |           http://localhost:7700            |
 | MEILISEARCH_INDEX_POSTFIX |            |                Meilisearch index postfix                         |                         |                                            |
@@ -41,3 +39,4 @@ alembic upgrade head
 | SECRET_KEY                |     x      |                         Secret key                          |                                            |
 | STATIC_URL                |     x      |                             Static URL                              |         https://static.dev.edm.su          |
 | TESTING                   |            |                              Test mode                              |                   False                    |
+| DISABLE_OPENAPI           |            |                              Disable OpenAPI                            |                   False                    |

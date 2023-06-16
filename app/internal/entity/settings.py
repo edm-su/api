@@ -11,7 +11,6 @@ else:
 class Settings(BaseSettings):
     log_level: str = "ERROR"
     disable_openapi: bool = False
-    email_from: str = "noreply@edm.su"
     secret_key: str
     static_url: str = "https://static.dev.edm.su"
     database_url: PostgresDsn = "postgresql://postgres:postgres@db/postgres"

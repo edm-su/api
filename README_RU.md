@@ -25,10 +25,10 @@ alembic upgrade head
 
 | Переменная                | Обязателен |                                Описание                                |           Значение по умолчанию            |
 |---------------------------|:----------:|:----------------------------------------------------------------------:|:------------------------------------------:|
-| DATABASE_URL              |     x      |                           Адрес базы данных                            | postgresql://postgres:postgres@db/postgres |
+| DATABASE_URL              |     x      |                           Адрес базы данных                            | postgresql+asyncpg://postgres:postgres@db/postgres |
 | DEBUG                     |            |                              Режим отладки                              |                   False                    |
-| EMAIL_FROM                |     x      |              EMAIL от которого будут отправляться письма               |               noreply@edm.su               |
-| LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICA:) |                  WARNING                   |
+| DISABLE_OPENAPI           |            |                           Режим отключения OpenAPI                        |                   False                    |
+| LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  ERROR                   |
 | MEILISEARCH_API_KEY       |            |                          Ключ api meilisearch                          |                                            |
 | MEILISEARCH_API_URL       |     x      |                         Адрес api meilisearch                          |           http://localhost:7700            |
 | MEILISEARCH_INDEX_POSTFIX |            |                Дополнение к адресу индексов meilisearch                |                                            |
@@ -38,5 +38,6 @@ alembic upgrade head
 | S3_BUCKET                 |     x      |                         Название S3 хранилища                          |                                            |
 | S3_ENDPOINT               |     x      |                           Конечная точка S3                            |                                            |
 | S3_REGION                 |     x      |                               Регион S3                                |                 us-east-1                  |
+| SECRET_KEY               |     x      |                           Ключ шифрования                              |                                            |
 | STATIC_URL                |     x      |                             Адрес статики                              |         https://static.dev.edm.su          |
 | TESTING                   |            |                              Режим тестов                              |                   False                    |
