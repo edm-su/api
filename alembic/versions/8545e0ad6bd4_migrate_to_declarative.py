@@ -18,10 +18,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "liked_videos",
-        sa.Column("id", sa.Integer(), nullable=False),
-    )
     op.alter_column(
         "liked_videos",
         "user_id",
@@ -41,11 +37,6 @@ def upgrade() -> None:
         nullable=False,
     )
     op.drop_index("ix_livestreams_title", table_name="livestreams")
-    op.create_unique_constraint(
-        "unique_livestream",
-        "livestreams",
-        ["start_time", "slug"],
-    )
     op.alter_column(
         "posts",
         "user_id",
@@ -95,7 +86,6 @@ def downgrade() -> None:
         existing_type=sa.INTEGER(),
         nullable=True,
     )
-    op.drop_constraint("unique_livestream", "livestreams", type_="unique")
     op.create_index(
         "ix_livestreams_title",
         "livestreams",
@@ -120,4 +110,3 @@ def downgrade() -> None:
         existing_type=sa.INTEGER(),
         nullable=True,
     )
-    op.drop_column("liked_videos", "id")

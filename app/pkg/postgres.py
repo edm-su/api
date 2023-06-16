@@ -2,7 +2,13 @@ import datetime
 from collections.abc import AsyncGenerator
 from typing import Any
 
-from sqlalchemy import Column, DateTime, ForeignKey, Table, UniqueConstraint
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncSession,
@@ -46,6 +52,7 @@ LikedVideos = liked_videos = Table(
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("video_id", ForeignKey("videos.id"), primary_key=True),
     Column("created_at", DateTime, server_default=func.now()),
+    UniqueConstraint("user_id", "video_id", name="unique_liked_video"),
 )
 
 
