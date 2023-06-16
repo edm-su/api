@@ -5,6 +5,9 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
+from app.internal.controller.http.v1.dependencies.auth import (
+    get_user_from_refresh_token,
+)
 from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
     ChangePasswordRequest,
@@ -22,6 +25,7 @@ from app.internal.usecase.exceptions.user import (
     WrongActivationCodeError,
     WrongPasswordOrEmailError,
 )
+from app.main import app
 
 
 class TestSignUp:
@@ -387,3 +391,42 @@ class TestSignIn:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+class TestRefreshToken:
+    @pytest.fixture()
+    def _mock_current_user(
+        self: Self,
+        user: User,
+    ) -> None:
+        app.dependency_overrides[get_user_from_refresh_token] = lambda: user
+
+    @pytest.mark.usefixtures("_mock_current_user")
+    async def test_refresh_token(
+        self: Self,
+        client: AsyncClient,
+    ) -> None:
+        response = await client.post(
+            "/users/token",
+            params={
+                "refresh_token": "**********",
+                "grant_type": "refresh_token",
+            },
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.usefixtures("_mock_current_user")
+    async def test_broken_grant_type(
+        self: Self,
+        client: AsyncClient,
+    ) -> None:
+        response = await client.post(
+            "/users/token",
+            params={
+                "refresh_token": "**********",
+                "grant_type": "refresh_token1",
+            },
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
