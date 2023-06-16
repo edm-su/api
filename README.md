@@ -26,11 +26,14 @@ alembic upgrade head
 | Name                | Is required |                                Description                                |           Default value            |
 |---------------------------|:----------:|:----------------------------------------------------------------------:|:------------------------------------------:|
 | DATABASE_URL              |     x      |                           Postgres database address                            | postgresql://postgres:postgres@db/postgres |
+| DISABLE_OPENAPI           |            |                              Disable OpenAPI                            |                   False                    |
+| HOST                     |            |                             Host address                              |                   127.0.0.1                   |
 | LOG_LEVEL                 |            | Log level (can be DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  ERROR                   |
 | MEILISEARCH_API_KEY       |            |                          Meilisearch api key                          |                                            |
 | MEILISEARCH_API_URL       |     x      |                         Meilisearch API URI                          |           http://localhost:7700            |
 | MEILISEARCH_INDEX_POSTFIX |            |                Meilisearch index postfix                         |                         |                                            |
 | NATS_URL                  |     x      |                           NATS server address                        |                              |
+| PORT                     |            |                             Port address                              |                   8000                      |
 | S3_ACCESS_KEY             |     x      |                           S3 access key                            |                                            |
 | S3_ACCESS_KEY_ID          |     x      |                         S3 access key ID                         |                                            |
 | S3_BUCKET                 |     x      |                         S3 bucket name                          |                                            |
@@ -39,4 +42,3 @@ alembic upgrade head
 | SECRET_KEY                |     x      |                         Secret key                          |                                            |
 | STATIC_URL                |     x      |                             Static URL                              |         https://static.dev.edm.su          |
 | TESTING                   |            |                              Test mode                              |                   False                    |
-| DISABLE_OPENAPI           |            |                              Disable OpenAPI                            |                   False                    |

@@ -12,6 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
     VENV_PATH="/opt/pysetup/.venv"
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 ENV PYTHONPATH=/app
+ENV HOST=0.0.0.0
 RUN apt-get update && apt-get --no-install-recommends -y install libpq-dev
 
 

@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     database_url: PostgresDsn = "postgresql://postgres:postgres@db/postgres"
     testing: bool = False
 
+    host: str = "127.0.0.1"
+    port: int = 8000
+
     meilisearch_api_url: str = "http://localhost:7700"
     meilisearch_api_key: str = ""
     meilisearch_index_postfix: str = ""
