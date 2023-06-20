@@ -72,7 +72,7 @@ def get_jwt_token(
     expired_at: datetime | None = None,
 ) -> str:
     if expired_at:
-        delta = expired_at - datetime.utcnow()
+        delta = expired_at.replace(tzinfo=None) - datetime.utcnow()
         return jwt_token_data.get_jwt_token(delta)
     return jwt_token_data.get_jwt_token()
 

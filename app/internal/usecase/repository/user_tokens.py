@@ -56,12 +56,16 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         token: UserTokenDTO,
         user: User,
     ) -> UserToken:
+        expired_at = (
+            token.expired_at.replace(tzinfo=None) if token.expired_at else None
+        )
+
         query = (
             insert(PGUserToken)
             .values(
                 name=token.name,
                 user_id=user.id,
-                expired_at=token.expired_at,
+                expired_at=expired_at,
             )
             .returning(PGUserToken)
         )
