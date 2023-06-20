@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1](https://github.com/edm-su/api/compare/v2.4.0...v2.4.1) (2023-06-20)
+
+
+### Bug Fixes
+
+* timezone error ([#306](https://github.com/edm-su/api/issues/306)) ([0b541dc](https://github.com/edm-su/api/commit/0b541dc888ae833d0727a49c65e933b53a428c78))
+
 ## [2.4.0](https://github.com/edm-su/api/compare/v2.3.1...v2.4.0) (2023-06-16)
 
 
