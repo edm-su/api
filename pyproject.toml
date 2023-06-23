@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "edm_su_api"
-version = "2.4.1"
+version = "2.4.2"
 description = "edm.su backend"
 authors = ["Egor <eagluhih@gmail.com>"]
 license = "MIT"
