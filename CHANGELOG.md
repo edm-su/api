@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.2](https://github.com/edm-su/api/compare/v2.4.1...v2.4.2) (2023-06-23)
+
+
+### Bug Fixes
+
+* conflict on create video ([#311](https://github.com/edm-su/api/issues/311)) ([c70702b](https://github.com/edm-su/api/commit/c70702badb4e596599f86f0619930109658c8eef))
+
 ## [2.4.1](https://github.com/edm-su/api/compare/v2.4.0...v2.4.1) (2023-06-20)
 
 
