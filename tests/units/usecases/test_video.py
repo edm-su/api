@@ -182,8 +182,8 @@ class TestCreateVideoUseCase:
         self: Self,
         repository: AsyncMock,
     ) -> None:
-        repository.get_by_slug.return_value = None
-        repository.get_by_yt_id.return_value = None
+        repository.get_by_slug.side_effect = VideoNotFoundError
+        repository.get_by_yt_id.side_effect = VideoNotFoundError
 
     @pytest.fixture()
     def usecase(
