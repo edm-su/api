@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.4.3](https://github.com/edm-su/api/compare/v2.4.2...v2.4.3) (2023-06-27)
+
+
+### Bug Fixes
+
+* **deps:** bump fastapi from 0.97.0 to 0.98.0 ([#314](https://github.com/edm-su/api/issues/314)) ([e3044a4](https://github.com/edm-su/api/commit/e3044a426c5744734c6540b05e47a720fd8ea4cf))
+* **deps:** bump mypy from 1.3.0 to 1.4.1 ([#315](https://github.com/edm-su/api/issues/315)) ([d409b78](https://github.com/edm-su/api/commit/d409b786c75026e13e7dd54f12dc6ea5bc430bd5))
+* **deps:** bump ruff from 0.0.272 to 0.0.275 ([#313](https://github.com/edm-su/api/issues/313)) ([ddc9138](https://github.com/edm-su/api/commit/ddc9138217c560f998093976a55562e3ba2027c0))
+* not found post error ([#320](https://github.com/edm-su/api/issues/320)) ([8134af3](https://github.com/edm-su/api/commit/8134af3d20d3cdedc4400fc3c2e3eec55d929a2a))
+
 ## [2.4.2](https://github.com/edm-su/api/compare/v2.4.1...v2.4.2) (2023-06-23)
 
 
