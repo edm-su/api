@@ -92,7 +92,7 @@ class TestCreatePostUseCase:
         post: Post,
         new_post: NewPostDTO,
     ) -> None:
-        repository.get_by_slug.return_value = None
+        repository.get_by_slug.side_effect = PostNotFoundError
 
         assert await usecase.execute(new_post) == post
 

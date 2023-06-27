@@ -21,9 +21,11 @@ class CreatePostUseCase(BasePostUseCase):
         self: Self,
         new_post: NewPostDTO,
     ) -> Post:
-        if await self.repository.get_by_slug(new_post.slug):
+        try:
+            await self.repository.get_by_slug(new_post.slug)
             raise PostSlugNotUniqueError(slug=new_post.slug)
-        return await self.repository.create(new_post)
+        except PostNotFoundError:
+            return await self.repository.create(new_post)
 
 
 class GetPostBySlugUseCase(BasePostUseCase):
