@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.4](https://github.com/edm-su/api/compare/v2.4.3...v2.4.4) (2023-07-05)
+
+
+### Bug Fixes
+
+* published_at format ([#325](https://github.com/edm-su/api/issues/325)) ([524df3f](https://github.com/edm-su/api/commit/524df3f62111abd8ca66fd15ce09515616015b9c))
+
 ## [2.4.3](https://github.com/edm-su/api/compare/v2.4.2...v2.4.3) (2023-06-27)
 
 
