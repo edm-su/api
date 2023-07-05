@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field, validator
 
@@ -26,7 +26,7 @@ class CreatePostRequest(BaseModel):
     )
     published_at: datetime | None = Field(
         default=None,
-        example=datetime.now(),
+        example=datetime.utcnow(),
         title="Post published at",
     )
     thumbnail: str | None = Field(
@@ -35,14 +35,14 @@ class CreatePostRequest(BaseModel):
         title="Post thumbnail",
     )
 
-    @validator("published_at")
+    @validator("published_at", always=True)
     def time_after_now(
         cls,  # noqa: ANN101, N805
         v: datetime | None,
     ) -> datetime:
         if v is None:
             return datetime.utcnow()
-        if v < datetime.utcnow():
+        if v < datetime.now(tz=timezone.utc):
             error = "Must be larger than the current"
             raise ValueError(error)
-        return v
+        return v.replace(tzinfo=None)

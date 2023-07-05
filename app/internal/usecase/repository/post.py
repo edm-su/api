@@ -81,7 +81,7 @@ class PostgresPostRepository(AbstractPostRepository):
         query = (
             select(PGPost)
             .where(PGPost.slug == slug)
-            .where(PGPost.published_at <= datetime.now())
+            .where(PGPost.published_at <= datetime.utcnow())
         )
 
         try:
@@ -97,7 +97,7 @@ class PostgresPostRepository(AbstractPostRepository):
     ) -> list[Post]:
         query = (
             select(PGPost)
-            .where(PGPost.published_at <= datetime.now())
+            .where(PGPost.published_at <= datetime.utcnow())
             .order_by(PGPost.published_at.desc())
             .offset(skip)
             .limit(limit)
