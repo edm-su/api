@@ -1,3 +1,5 @@
+from datetime import timezone
+
 import pytest
 from faker import Faker
 from fastapi import status
@@ -37,7 +39,7 @@ def new_post_data(
             ],
             "version": "2.24.3",
         },
-        published_at=faker.future_datetime(),
+        published_at=faker.future_datetime(tzinfo=timezone.utc),
     )
 
 
@@ -66,9 +68,17 @@ class TestNewPost:
             "app.internal.usecase.post.CreatePostUseCase.execute",
             return_value=post,
         )
+        data = new_post_data.dict()
+        data["published_at"] = (
+            data["published_at"]
+            .replace(
+                tzinfo=timezone.utc,
+            )
+            .isoformat()
+        )
         response = await client.post(
             "/posts",
-            content=new_post_data.json(),
+            json=data,
         )
         response_data = response.json()
 
@@ -89,7 +99,7 @@ class TestNewPost:
         )
         response = await client.post(
             "/posts",
-            content=new_post_data.json(),
+            content=new_post_data.json(exclude={"published_at"}),
         )
 
         mocked.assert_awaited_once()
@@ -209,4 +219,5 @@ class TestDeletePost:
         response = await client.delete(f"/posts/{post.slug}")
 
         mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
