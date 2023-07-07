@@ -1216,13 +1216,13 @@ files = [
 
 [[package]]
 name = "meilisearch-python-async"
-version = "1.2.2"
+version = "1.4.4"
 description = "A Python async client for the Meilisearch API"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = ">=3.8,<4.0"
 files = [
-    {file = "meilisearch_python_async-1.2.2-py3-none-any.whl", hash = "sha256:9b26de7c142245e72fe0b64bad8975cdd9726a07ac2dcc393bf7729a85422d12"},
-    {file = "meilisearch_python_async-1.2.2.tar.gz", hash = "sha256:e825a0c82f0d4cb2b57234719c272c7e48d2da36bbc10bfe697ef1ec2948be35"},
+    {file = "meilisearch_python_async-1.4.4-py3-none-any.whl", hash = "sha256:51ef29a8c0595d20fc30ec1e5cdc6bb533a62d29c155e70aa875eadec028c567"},
+    {file = "meilisearch_python_async-1.4.4.tar.gz", hash = "sha256:b9f07de1fb1cac929ed62362ff001d90a339ea32a42ec77362a507e90906084a"},
 ]
 
 [package.dependencies]
@@ -2521,4 +2521,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "747005bc749cdf2358f2043963cc09fa577645e8a179324ad310be7253c7c3e8"
+content-hash = "077485394e2ba6477ab826bfb9e29082fa3ea25ca55d0d3a6cf6e328eca8fddb"
