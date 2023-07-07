@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 alembic = "^1.11"
-fastapi = { version = "0.98.0", extras = ["all"] }
+fastapi = { version = "0.99.1", extras = ["all"] }
 Pillow = "^9.4.0"
 SQLAlchemy = { extras = ["asyncio"], version = "^2.0" }
 PyJWT = "^2.7.0"
