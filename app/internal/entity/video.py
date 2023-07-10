@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 from slugify import slugify
 
 
@@ -13,8 +13,7 @@ class Video(BaseModel):
     duration: int
     slug: str = Field(...)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NewVideoDto(BaseModel):

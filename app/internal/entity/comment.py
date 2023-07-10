@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.internal.entity.video import Video
 from app.internal.usecase.user import User
 
 
 class CommentBase(BaseModel):
-    text: str = Field(max_text_length=120)
+    text: str = Field(max_length=120)
 
 
 class NewCommentDto(CommentBase):
@@ -21,5 +21,4 @@ class Comment(CommentBase):
     published_at: datetime
     video_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

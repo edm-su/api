@@ -33,7 +33,7 @@ class ActivateUserRequest(BaseModel):
         ...,
         example="AAAAAAAAAA",
         title="Activation code",
-        regex=r"^[A-Z\d]{10}$",
+        pattern=r"^[A-Z\d]{10}$",
     )
 
 
@@ -75,7 +75,7 @@ class ChangePasswordRequest(BaseModel):
         None,
         example="reset_code",
         title="Reset code",
-        regex=r"^[A-Z\d]{10}$",
+        pattern=r"^[A-Z\d]{10}$",
     )
 
     @validator("old_password")

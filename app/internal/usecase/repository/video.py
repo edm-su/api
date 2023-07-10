@@ -162,7 +162,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return Video.from_orm(result)
+        return Video.model_validate(result)
 
     async def update(
         self: Self,

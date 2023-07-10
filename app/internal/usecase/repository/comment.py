@@ -58,7 +58,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return Comment.from_orm(result)
+        return Comment.model_validate(result)
 
     async def get_all(
         self: Self,

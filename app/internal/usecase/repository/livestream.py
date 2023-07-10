@@ -107,7 +107,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [LiveStream.from_orm(livestream) for livestream in result]
+        return [LiveStream.model_validate(livestream) for livestream in result]
 
     async def create(
         self: Self,
@@ -122,22 +122,26 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
                 end_time=live_stream.end_time,
                 image=live_stream.image,
                 genres=live_stream.genres,
-                url=live_stream.url,
+                url=str(live_stream.url),
             )
             .returning(PGLiveStream)
         )
         result = (await self._session.scalars(query)).one()
 
-        return LiveStream.from_orm(result)
+        return LiveStream.model_validate(result)
 
     async def update(
         self: Self,
         live_stream: LiveStream,
     ) -> None:
+        values = live_stream.model_dump(exclude_unset=True)
+        if "url" in values:
+            values["url"] = str(live_stream.url)
+
         query = (
             update(PGLiveStream)
             .where(PGLiveStream.id == live_stream.id)
-            .values(live_stream.dict(exclude_unset=True))
+            .values(values)
             .returning(PGLiveStream)
         )
 

@@ -474,14 +474,14 @@ crt = ["awscrt (==0.16.9)"]
 
 [[package]]
 name = "camel-converter"
-version = "1.0.7"
+version = "3.0.2"
 description = "Converts a string from snake case to camel case or camel case to snake case"
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = ">=3.8,<4.0"
 files = [
-    {file = "camel_converter-1.0.7-py3-none-any.whl", hash = "sha256:625b8b0da1e6262b991eb92c7f193198ba0f664a64d7ac4884ea604febdd0bd3"},
-    {file = "camel_converter-1.0.7.tar.gz", hash = "sha256:f3ff89d114af3ac278c553a41ebc346850e437b9cb4b140308c5419d1f1ed482"},
+    {file = "camel_converter-3.0.2-py3-none-any.whl", hash = "sha256:88e5d91be5b2dff9c0748ba515774c3421088922d9e77c39f8742eb41cb7db88"},
+    {file = "camel_converter-3.0.2.tar.gz", hash = "sha256:3b3d076e824ae979b271b4d497c90514c2b218811f76b0c368fb69da2556fe07"},
 ]
 
 [package.extras]

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class BaseLiveStream(BaseModel):
@@ -21,5 +21,4 @@ class CreateLiveStreamDTO(BaseLiveStream):
 class LiveStream(BaseLiveStream):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

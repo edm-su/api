@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 import pytest
 from faker import Faker
 from meilisearch_python_async import Client as MeilisearchClient
-from pydantic import EmailStr, SecretStr
+from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.internal.entity.user import (
@@ -70,7 +70,7 @@ async def pg_user(
 ) -> User:
     password = faker.password()
     user = NewUserDto(
-        email=EmailStr(faker.email()),
+        email=faker.email(),
         username=faker.user_name(),
         password=password,
         hashed_password=SecretStr(get_password_hash(password)),
@@ -87,7 +87,7 @@ async def pg_nonactive_user(
 ) -> User:
     password = faker.password()
     user = NewUserDto(
-        email=EmailStr("nonactive@example.com"),
+        email="nonactive@example.com",
         username="nonactive",
         password=password,
         hashed_password=SecretStr(get_password_hash(password)),
@@ -104,7 +104,7 @@ async def pg_change_password_user(
 ) -> User:
     password = faker.password()
     user = NewUserDto(
-        email=EmailStr("changepasswod@example.com"),
+        email="changepasswod@example.com",
         username="changepasswod",
         password=password,
         hashed_password=SecretStr(get_password_hash(password)),

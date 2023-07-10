@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import jwt
 from pydantic import (
     BaseModel,
+    ConfigDict,
     EmailStr,
     Field,
     IPvAnyAddress,
@@ -48,14 +49,13 @@ class User(BaseModel):
     last_login: datetime | None = Field(default=None)
     last_login_ip: IPvAnyAddress | None = Field(default=None)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NewUserDto(BaseModel):
     username: str = Field(..., min_length=3)
-    email: EmailStr = Field(...)
-    password: SecretStr = Field(...)
+    email: EmailStr
+    password: SecretStr
     hashed_password: SecretStr | None = Field(default=None)
     activation_code: SecretStr | None = Field(default=None)
     is_active: bool = Field(default=False)
@@ -122,5 +122,4 @@ class UserToken(UserTokenDTO):
     id: int
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

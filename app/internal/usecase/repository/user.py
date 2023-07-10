@@ -146,7 +146,7 @@ class PostgresUserRepository(AbstractUserRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return User.from_orm(result)
+        return User.model_validate(result)
 
     async def activate(
         self: Self,

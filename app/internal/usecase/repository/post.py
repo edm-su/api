@@ -72,7 +72,7 @@ class PostgresPostRepository(AbstractPostRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return Post.from_orm(result)
+        return Post.model_validate(result)
 
     async def get_by_slug(
         self: Self,
@@ -86,7 +86,7 @@ class PostgresPostRepository(AbstractPostRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return Post.from_orm(result)
+            return Post.model_validate(result)
         except NoResultFound as e:
             raise PostNotFoundError from e
 

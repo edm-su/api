@@ -22,7 +22,7 @@ class CreatePostRequest(BaseModel):
         ...,
         example="post-slug",
         title="Post slug",
-        regex=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
+        pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
     )
     published_at: datetime | None = Field(
         default=None,
