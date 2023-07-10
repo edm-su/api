@@ -1,19 +1,24 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import (
+    BaseModel,
+    Field,
+    FieldValidationInfo,
+    field_validator,
+)
 from slugify import slugify
 
+from app.internal.entity.common import AttributeModel
 
-class Video(BaseModel):
+
+class Video(AttributeModel):
     id: int
     title: str
     date: date
     yt_id: str
     yt_thumbnail: str
     duration: int
-    slug: str = Field(...)
-
-    model_config = ConfigDict(from_attributes=True)
+    slug: str
 
 
 class NewVideoDto(BaseModel):
@@ -24,15 +29,13 @@ class NewVideoDto(BaseModel):
     duration: int
     slug: str | None = Field(None)
 
-    @validator(
-        "slug",
-        always=True,
-    )
+    @field_validator("slug", mode="before")
+    @classmethod
     def generate_slug(
-        cls,  # noqa: N805, ANN101
+        cls: type["NewVideoDto"],
         v: str,
-        values: dict,
+        info: FieldValidationInfo,
     ) -> str:
         if not v:
-            return slugify(values["title"])
+            return slugify(info.data["title"])
         return v

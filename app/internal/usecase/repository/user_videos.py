@@ -104,7 +104,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         )
 
         result = (await self._session.execute(query)).all()
-        return [Video.from_orm(video[1]) for video in result]
+        return [Video.model_validate(video[1]) for video in result]
 
     async def is_liked(
         self: Self,

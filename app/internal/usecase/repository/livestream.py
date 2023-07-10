@@ -73,7 +73,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return LiveStream.from_orm(result)
+            return LiveStream.model_validate(result)
         except NoResultFound as e:
             raise LiveStreamNotFoundError from e
 
@@ -93,7 +93,7 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return LiveStream.from_orm(result)
+            return LiveStream.model_validate(result)
         except NoResultFound as e:
             raise LiveStreamNotFoundError from e
 

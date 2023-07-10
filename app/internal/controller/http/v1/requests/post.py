@@ -1,47 +1,44 @@
 from datetime import datetime, timezone
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, field_validator
+
+from app.internal.entity.common import BaseModel
 
 
 class CreatePostRequest(BaseModel):
     title: str = Field(
         ...,
-        example="Post title",
-        title="Post title",
+        examples=["Post title"],
         min_length=1,
         max_length=100,
     )
     annotation: str | None = Field(
         default=None,
-        example="Post annotation",
+        examples=["Annotation"],
         min_length=1,
         max_length=500,
     )
     text: dict[str, int | list[dict[str, str | dict]] | str]
     slug: str = Field(
         ...,
-        example="post-slug",
-        title="Post slug",
+        examples=["post-slug"],
         pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
     )
-    published_at: datetime | None = Field(
-        default=None,
-        example=datetime.utcnow(),
-        title="Post published at",
+    published_at: datetime = Field(
+        examples=[datetime.utcnow()],
+        default_factory=lambda: datetime.utcnow(),
     )
     thumbnail: str | None = Field(
         default=None,
-        example="https://example.com/image.png",
-        title="Post thumbnail",
+        examples=["https://example.com/image.png"],
     )
 
-    @validator("published_at", always=True)
+    @field_validator("published_at", mode="after")
+    @classmethod
     def time_after_now(
-        cls,  # noqa: ANN101, N805
-        v: datetime | None,
+        cls: type["CreatePostRequest"],
+        v: datetime,
     ) -> datetime:
-        if v is None:
-            return datetime.utcnow()
         if v < datetime.now(tz=timezone.utc):
             error = "Must be larger than the current"
             raise ValueError(error)

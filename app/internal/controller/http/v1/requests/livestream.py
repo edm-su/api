@@ -1,8 +1,14 @@
 from datetime import datetime
-from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl, validator
+from pydantic import (
+    Field,
+    FieldValidationInfo,
+    HttpUrl,
+    field_validator,
+)
 from slugify import slugify
+
+from app.internal.entity.common import BaseModel
 
 
 class CreateLiveStreamRequest(BaseModel):
@@ -10,58 +16,54 @@ class CreateLiveStreamRequest(BaseModel):
         ...,
         min_length=1,
         max_length=256,
-        title="Title",
-        example="Live stream title",
+        examples=["Live stream title"],
     )
     cancelled: bool = Field(default=False, title="Cancelled")
     start_time: datetime = Field(
         ...,
-        title="Start time",
-        example=datetime.now(),
+        examples=[datetime.now()],
     )
     end_time: datetime = Field(
         ...,
-        title="End time",
-        example=datetime.now(),
+        examples=[datetime.now()],
     )
     image: str = Field(
         ...,
-        title="Image",
-        example="https://example.com/image.png",
+        examples=["https://example.com/image.png"],
     )
     genres: list[str | None] = Field(
         [],
-        title="Genres",
-        example=["genre1", "genre2"],
+        examples=["genre1", "genre2"],
     )
     url: HttpUrl = Field(
         ...,
-        title="URL",
-        example="https://example.com",
+        examples=["https://example.com"],
     )
-    slug: str = Field(  # type: ignore[assignment]
+    slug: str | None = Field(
         None,
-        title="Slug",
-        example="live-stream-slug",
+        examples=["live-stream-slug"],
+        pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
     )
 
-    @validator("end_time")
+    @field_validator("end_time")
+    @classmethod
     def end_time_after_start_time(
-        cls,  # noqa: N805, ANN101
+        cls: type["CreateLiveStreamRequest"],
         v: datetime,
-        values: dict[str, Any],
+        info: FieldValidationInfo,
     ) -> datetime:
-        if v and v < values["start_time"]:
+        if v < info.data["start_time"]:
             error_text = "Must be after the start date"
             raise ValueError(error_text)
         return v
 
-    @validator("slug", always=True)
+    @field_validator("slug", mode="before")
+    @classmethod
     def set_slug(
-        cls,  # noqa: ANN101, N805
+        cls: type["CreateLiveStreamRequest"],
         v: str,
-        values: dict,
+        info: FieldValidationInfo,
     ) -> str:
         if not v:
-            return slugify(values["title"])
+            return slugify(info.data["title"])
         return v

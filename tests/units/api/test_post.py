@@ -49,7 +49,7 @@ def post(
     user: User,
 ) -> Post:
     return Post(
-        **new_post_data.dict(),
+        **new_post_data.model_dump(),
         id=1,
         user_id=user.id,
     )
@@ -68,7 +68,7 @@ class TestNewPost:
             "app.internal.usecase.post.CreatePostUseCase.execute",
             return_value=post,
         )
-        data = new_post_data.dict()
+        data = new_post_data.model_dump()
         data["published_at"] = (
             data["published_at"]
             .replace(
@@ -99,7 +99,7 @@ class TestNewPost:
         )
         response = await client.post(
             "/posts",
-            content=new_post_data.json(exclude={"published_at"}),
+            content=new_post_data.model_dump_json(exclude={"published_at"}),
         )
 
         mocked.assert_awaited_once()
@@ -113,7 +113,7 @@ class TestNewPost:
     ) -> None:
         response = await client.post(
             "/posts",
-            content=new_post_data.json(),
+            content=new_post_data.model_dump_json(),
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN

@@ -33,7 +33,7 @@ async def get_current_user(
             settings.secret_key,
             algorithms=["HS256"],
         )
-        token_data = TokenData.parse_obj(payload)
+        token_data = TokenData.model_validate(payload)
     except jwt.PyJWTError as e:
         raise AuthError from e
     except ValidationError as e:

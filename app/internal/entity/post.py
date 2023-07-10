@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from app.internal.entity.common import AttributeModel, BaseModel
 from app.internal.entity.user import User
 
 
@@ -18,8 +19,6 @@ class NewPostDTO(BasePost):
     user: User
 
 
-class Post(BasePost):
+class Post(BasePost, AttributeModel):
     id: int
     user_id: int
-
-    model_config = ConfigDict(from_attributes=True)

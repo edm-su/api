@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from app.internal.entity.common import AttributeModel, BaseModel
 from app.internal.entity.video import Video
 from app.internal.usecase.user import User
 
@@ -15,10 +16,8 @@ class NewCommentDto(CommentBase):
     video: Video
 
 
-class Comment(CommentBase):
+class Comment(AttributeModel, CommentBase):
     id: int
     user_id: int
     published_at: datetime
     video_id: int
-
-    model_config = ConfigDict(from_attributes=True)

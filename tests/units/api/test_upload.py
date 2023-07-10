@@ -19,7 +19,7 @@ from app.internal.usecase.exceptions.upload import (
 def image_urls(
     faker: Faker,
 ) -> ImageURLs:
-    return ImageURLs.parse_obj(
+    return ImageURLs.model_validate(
         {
             "jpeg": faker.url(),
         },

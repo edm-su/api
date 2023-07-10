@@ -96,7 +96,7 @@ class PostgresUserRepository(AbstractUserRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return User.from_orm(result)
+            return User.model_validate(result)
         except NoResultFound as e:
             raise UserNotFoundError from e
 

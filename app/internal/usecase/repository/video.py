@@ -108,7 +108,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [Video.from_orm(video) for video in result]
+        return [Video.model_validate(video) for video in result]
 
     async def _get_by(
         self: Self,
@@ -122,7 +122,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return Video.from_orm(result)
+            return Video.model_validate(result)
         except NoResultFound as e:
             raise VideoNotFoundError from e
 
@@ -172,13 +172,13 @@ class PostgresVideoRepository(AbstractVideoRepository):
             update(PGVideo)
             .where(PGVideo.id == video.id)
             .where(PGVideo.deleted == false())
-            .values(**video.dict(exclude_unset=True))
+            .values(**video.model_dump(exclude_unset=True))
             .returning(PGVideo)
         )
 
         try:
             result = (await self._session.scalars(query)).one()
-            return Video.from_orm(result)
+            return Video.model_validate(result)
         except NoResultFound as e:
             raise VideoNotFoundError from e
 

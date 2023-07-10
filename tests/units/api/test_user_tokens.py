@@ -46,7 +46,7 @@ class TestCreateAPIToken:
         )
         response = await client.post(
             "/users/tokens",
-            json=request_data.dict(),
+            json=request_data.model_dump(),
         )
 
         mocked.assert_awaited_once()
@@ -61,7 +61,7 @@ class TestCreateAPIToken:
     ) -> None:
         response = await client.post(
             "/users/tokens",
-            json=request_data.dict(),
+            json=request_data.model_dump(),
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN

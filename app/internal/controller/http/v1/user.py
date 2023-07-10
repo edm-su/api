@@ -246,7 +246,7 @@ async def refresh_token(
         Query(
             ...,
             title="grant_type",
-            regex=r"^refresh_token$",
+            pattern=r"^refresh_token$",
             alias="grant_type",
         ),
     ],

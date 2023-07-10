@@ -88,7 +88,7 @@ class UploadImageUseCase:
                 f"/{sha256}.{converter.extension}"
             )
             result[converter.extension] = path
-        return ImageURLs.parse_obj(result)
+        return ImageURLs.model_validate(result)
 
     def _get_sha256_hash(self: Self) -> str:
         sha256 = hashlib.sha256()

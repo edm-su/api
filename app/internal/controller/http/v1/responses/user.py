@@ -4,66 +4,30 @@ from pydantic import BaseModel, EmailStr, Field, IPvAnyAddress
 
 
 class SignUpResponse(BaseModel):
-    id: int = Field(..., example=1, title="User ID")
-    username: str = Field(..., example="user", title="Username")
-    email: str = Field(..., example="example@example.com", title="Email")
-    is_active: bool = Field(
-        default=False,
-        example=False,
-        title="Whether the user is activated",
-    )
+    id: int = Field(..., examples=[1])
+    username: str = Field(..., examples=["user"])
+    email: str = Field(..., examples=["example@example.com"])
+    is_active: bool = Field(default=False, examples=[False])
 
 
 class MeResponse(BaseModel):
-    id: int = Field(..., example=1, title="User ID")
-    username: str = Field(..., example="user", title="Username")
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    is_active: bool = Field(
-        default=False,
-        example=False,
-        title="Whether the user is activated",
-    )
-    is_admin: bool = Field(
-        default=False,
-        example=False,
-        title="Whether the user is an administrator",
-    )
-    is_banned: bool = Field(
-        default=False,
-        example=False,
-        title="Whether the user is banned",
-    )
-    created_at: datetime = Field(
-        ...,
-        example="2021-01-01T00:00:00+00:00",
-        title="Creation time",
-    )
-    last_login: datetime | None = Field(
-        ...,
-        example="2021-01-01T00:00:00+00:00",
-        title="Last login time",
-    )
-    last_login_ip: IPvAnyAddress | None = Field(
-        ...,
-        example="127.0.0.1",
-        title="Last login IP",
-    )
+    id: int = Field(..., examples=[1])
+    username: str = Field(..., examples=["user"])
+    email: EmailStr = Field(..., examples=["example@example.com"])
+    is_active: bool = Field(default=False, examples=[False])
+    is_admin: bool = Field(default=False, examples=[False])
+    is_banned: bool = Field(default=False, examples=[False])
+    created_at: datetime = Field(..., examples=[datetime.now()])
+    last_login: datetime | None = Field(..., examples=[datetime.now()])
+    last_login_ip: IPvAnyAddress | None = Field(..., examples=["127.0.0.1"])
 
 
 class SignInResponse(BaseModel):
-    access_token: str = Field(
-        ...,
-        example="access_token",
-        title="Access token",
-    )
-    token_type: str = Field(
-        default="Bearer",
-        title="Token type",
-    )
+    access_token: str = Field(..., examples=["access_token"])
+    token_type: str = Field(default="Bearer")
     refresh_token: str | None = Field(
         default=None,
-        example="refresh_token",
-        title="Refresh token",
+        examples=["refresh_token"],
         description="refresh token valid for 1 month",
     )
 
@@ -71,7 +35,6 @@ class SignInResponse(BaseModel):
 class RefreshTokenResponse(SignInResponse):
     refresh_token: str = Field(
         ...,
-        example="refresh_token",
-        title="Refresh token",
+        examples=["refresh_token"],
         description="refresh token valid for 1 month",
     )

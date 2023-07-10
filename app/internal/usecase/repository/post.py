@@ -104,7 +104,7 @@ class PostgresPostRepository(AbstractPostRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [Post.from_orm(post) for post in result]
+        return [Post.model_validate(post) for post in result]
 
     async def count(self: Self) -> int:
         query = (
