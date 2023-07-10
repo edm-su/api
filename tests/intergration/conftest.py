@@ -33,9 +33,8 @@ async def _setup_db() -> None:
 
 @pytest.fixture(scope="session")
 async def pg_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
-        async with session.begin():
-            yield session
+    async with async_session() as session, session.begin():
+        yield session
 
 
 @pytest.fixture(scope="session")

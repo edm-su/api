@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import AsyncGenerator
-from typing import Any
+from typing import Any, ClassVar
 
 from sqlalchemy import (
     Column,
@@ -22,7 +22,7 @@ from sqlalchemy.types import ARRAY, JSON, String
 from app.internal.entity.settings import settings
 
 async_engine = create_async_engine(
-    settings.database_url,
+    str(settings.database_url),
     pool_pre_ping=True,
 )
 
@@ -34,13 +34,12 @@ async_session = async_sessionmaker(
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
-        async with session.begin():
-            yield session
+    async with async_session() as session, session.begin():
+        yield session
 
 
 class Base(AsyncAttrs, DeclarativeBase):
-    type_annotation_map = {
+    type_annotation_map: ClassVar[dict[type, type | ARRAY]] = {
         dict[str, Any]: JSON,
         list[str]: ARRAY(String),
     }
