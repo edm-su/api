@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.4.5](https://github.com/edm-su/api/compare/v2.4.4...v2.4.5) (2023-07-10)
+
+
+### Bug Fixes
+
+* **deps:** bump fastapi from 0.98.0 to 0.99.1 ([#331](https://github.com/edm-su/api/issues/331)) ([97152b8](https://github.com/edm-su/api/commit/97152b89382cace04612758e718aaba7163a7456))
+* **deps:** bump fastapi from 0.99.1 to 0.100.0 ([#333](https://github.com/edm-su/api/issues/333)) ([6e54d47](https://github.com/edm-su/api/commit/6e54d47ffa3459440bf425dffb326d9a720d90c4))
+* **deps:** bump meilisearch-python-async from 1.2.2 to 1.4.4 ([#323](https://github.com/edm-su/api/issues/323)) ([9ecf350](https://github.com/edm-su/api/commit/9ecf3506c216111baf2a184058fe005b9b40da3a))
+* **deps:** bump pillow from 9.5.0 to 10.0.0 ([#330](https://github.com/edm-su/api/issues/330)) ([0b32c6f](https://github.com/edm-su/api/commit/0b32c6f51e511aa57087a2d8d67705d86a8760f1))
+* **deps:** bump pytest from 7.2.2 to 7.4.0 ([#319](https://github.com/edm-su/api/issues/319)) ([56f0b34](https://github.com/edm-su/api/commit/56f0b3444ddc531fa6007611c56bc52d9eb73c9e))
+* **deps:** bump pytest-mock from 3.10.0 to 3.11.1 ([#292](https://github.com/edm-su/api/issues/292)) ([208dff4](https://github.com/edm-su/api/commit/208dff4a41d358412cc39ea84e46d97d9f093297))
+* **deps:** bump ruff from 0.0.275 to 0.0.277 ([#332](https://github.com/edm-su/api/issues/332)) ([2b9049f](https://github.com/edm-su/api/commit/2b9049f5d416433bfcdb7ea960d68e96cf4f3985))
+* **deps:** bump sqlalchemy from 2.0.16 to 2.0.18 ([#327](https://github.com/edm-su/api/issues/327)) ([d0b0416](https://github.com/edm-su/api/commit/d0b04169cd679c2b507a3296c856d342f8e27a53))
+* **deps:** bump typing-extensions from 4.6.3 to 4.7.1 ([#322](https://github.com/edm-su/api/issues/322)) ([042f5bb](https://github.com/edm-su/api/commit/042f5bb28b1d5bf514d846549a56e0a3162a4d74))
+
 ## [2.4.4](https://github.com/edm-su/api/compare/v2.4.3...v2.4.4) (2023-07-05)
 
 
