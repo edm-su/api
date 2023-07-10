@@ -71,7 +71,7 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return UserToken.from_orm(result)
+        return UserToken.model_validate(result)
 
     async def get_user_tokens(
         self: Self,
@@ -83,7 +83,7 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [UserToken.from_orm(token) for token in result]
+        return [UserToken.model_validate(token) for token in result]
 
     async def get_by_id(
         self: Self,
@@ -98,7 +98,7 @@ class PostgresUserTokensRepository(AbstractUserTokensRepository):
 
         try:
             result = (await self._session.scalars(query)).one()
-            return UserToken.from_orm(result)
+            return UserToken.model_validate(result)
         except NoResultFound as e:
             raise UserTokenNotFoundError from e
 

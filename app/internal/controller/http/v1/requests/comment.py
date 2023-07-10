@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from app.internal.entity.common import BaseModel
 
 
 class NewCommentRequest(BaseModel):
@@ -6,6 +8,5 @@ class NewCommentRequest(BaseModel):
         ...,
         min_length=1,
         max_length=120,
-        title="Text",
-        example="Comment text",
+        examples=["Comment text"],
     )

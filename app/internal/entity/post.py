@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from app.internal.entity.common import AttributeModel, BaseModel
 from app.internal.entity.user import User
 
 
@@ -18,9 +19,6 @@ class NewPostDTO(BasePost):
     user: User
 
 
-class Post(BasePost):
+class Post(BasePost, AttributeModel):
     id: int
     user_id: int
-
-    class Config:
-        orm_mode = True

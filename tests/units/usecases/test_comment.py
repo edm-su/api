@@ -33,7 +33,7 @@ def video(faker: Faker) -> Video:
         duration=faker.pyint(),
         yt_id=faker.pystr(),
         yt_thumbnail=f"https://i.ytimg.com/vi/{faker.pystr()}/default.jpg",
-        date=faker.date_time_between(
+        date=faker.date_between(
             start_date="-1y",
         ),
     )

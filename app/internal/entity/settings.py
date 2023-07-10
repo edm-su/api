@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 if TYPE_CHECKING:
     PostgresDsn = str
@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     secret_key: str
     static_url: str = "https://static.dev.edm.su"
     database_url: PostgresDsn = "postgresql://postgres:postgres@db/postgres"
-    testing: bool = False
 
     host: str = "127.0.0.1"
     port: int = 8000
@@ -32,4 +31,4 @@ class Settings(BaseSettings):
     nats_url: str
 
 
-settings = Settings.parse_obj({})
+settings = Settings.model_validate({})

@@ -127,8 +127,8 @@ class TestGetVideoBySlugUseCase:
         video: Video,
         repository: AsyncMock,
     ) -> None:
-        video = await usecase.execute("slug")
-        assert video is video
+        db_video = await usecase.execute("slug")
+        assert db_video is video
 
         repository.get_by_slug.assert_awaited_once_with("slug")
 
@@ -159,7 +159,7 @@ class TestCreateVideoUseCase:
         self: Self,
         video: Video,
     ) -> NewVideoDto:
-        return NewVideoDto(**video.dict())
+        return NewVideoDto(**video.model_dump())
 
     @pytest.fixture()
     def _mock_by_slug(

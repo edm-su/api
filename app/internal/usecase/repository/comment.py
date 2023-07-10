@@ -58,7 +58,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
         )
 
         result = (await self._session.scalars(query)).one()
-        return Comment.from_orm(result)
+        return Comment.model_validate(result)
 
     async def get_all(
         self: Self,
@@ -73,7 +73,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [Comment.from_orm(comment) for comment in result]
+        return [Comment.model_validate(comment) for comment in result]
 
     async def count(self: Self) -> int:
         query = select(func.count()).select_from(PGComment)
@@ -91,4 +91,4 @@ class PostgresCommentRepository(AbstractCommentRepository):
         )
 
         result = (await self._session.scalars(query)).all()
-        return [Comment.from_orm(comment) for comment in result]
+        return [Comment.model_validate(comment) for comment in result]

@@ -88,7 +88,7 @@ class UploadImageUseCase:
                 f"/{sha256}.{converter.extension}"
             )
             result[converter.extension] = path
-        return ImageURLs.parse_obj(result)
+        return ImageURLs.model_validate(result)
 
     def _get_sha256_hash(self: Self) -> str:
         sha256 = hashlib.sha256()
@@ -129,7 +129,7 @@ class UploadImageURLUseCase(UploadImageUseCase):
         """
 
         async with httpx.AsyncClient() as client:
-            h = await client.head(self.image_url.url)
+            h = await client.head(str(self.image_url.url))
             header = h.headers
         if not header.get("Content-Type").startswith("image/"):
             raise FileIsNotImageError
@@ -141,7 +141,7 @@ class UploadImageURLUseCase(UploadImageUseCase):
             )
 
         async with httpx.AsyncClient() as client:
-            r = await client.get(self.image_url.url)
+            r = await client.get(str(self.image_url.url))
             image = BytesIO(r.content)
 
         self.file = image

@@ -1,15 +1,10 @@
 from datetime import datetime, timedelta
 
 import jwt
-from pydantic import (
-    BaseModel,
-    EmailStr,
-    Field,
-    IPvAnyAddress,
-    SecretStr,
-)
+from pydantic import EmailStr, Field, IPvAnyAddress, SecretStr
 from typing_extensions import Self
 
+from app.internal.entity.common import AttributeModel, BaseModel
 from app.internal.entity.settings import settings
 
 
@@ -35,7 +30,7 @@ class MyUser(AdvancedUser, Admin):
     id: int
 
 
-class User(BaseModel):
+class User(AttributeModel):
     id: int = Field(..., gt=0)
     username: str = Field(..., min_length=3)
     email: EmailStr = Field(...)
@@ -48,14 +43,11 @@ class User(BaseModel):
     last_login: datetime | None = Field(default=None)
     last_login_ip: IPvAnyAddress | None = Field(default=None)
 
-    class Config:
-        orm_mode = True
-
 
 class NewUserDto(BaseModel):
     username: str = Field(..., min_length=3)
-    email: EmailStr = Field(...)
-    password: SecretStr = Field(...)
+    email: EmailStr
+    password: SecretStr
     hashed_password: SecretStr | None = Field(default=None)
     activation_code: SecretStr | None = Field(default=None)
     is_active: bool = Field(default=False)
@@ -102,7 +94,7 @@ class TokenData(BaseModel):
         self: Self,
         expires_delta: timedelta = timedelta(days=31),
     ) -> str:
-        to_encode = self.dict()
+        to_encode = self.model_dump()
         to_encode.update({"exp": datetime.utcnow() + expires_delta})
         return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
 
@@ -118,9 +110,6 @@ class UserTokenDTO(BaseModel):
     expired_at: datetime | None = Field(default=None)
 
 
-class UserToken(UserTokenDTO):
+class UserToken(AttributeModel, UserTokenDTO):
     id: int
     created_at: datetime
-
-    class Config:
-        orm_mode = True

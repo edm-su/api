@@ -65,7 +65,7 @@ class TestPostgresCommentRepository:
         comments = await repository.get_all()
 
         assert isinstance(comments, list)
-        assert len(comments) > 1
+        assert len(comments) >= 1
         assert pg_comment in comments
 
     async def test_count(

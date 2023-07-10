@@ -42,7 +42,7 @@ def new_stream_data(
 def livestream(
     new_stream_data: CreateLiveStreamDTO,
 ) -> LiveStream:
-    return LiveStream(**new_stream_data.dict(), id=1)
+    return LiveStream(**new_stream_data.model_dump(), id=1)
 
 
 @pytest.fixture()
@@ -65,7 +65,7 @@ class TestNewLiveStream:
         )
         response = await client.post(
             "/livestreams",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
         response_data = response.json()
 
@@ -88,7 +88,7 @@ class TestNewLiveStream:
         )
         response = await client.post(
             "/livestreams",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
         response_data = response.json()
 
@@ -104,7 +104,7 @@ class TestNewLiveStream:
     ) -> None:
         response = await client.post(
             "/livestreams",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -200,7 +200,7 @@ class TestUpdateLiveStream:
         )
         response = await client.put(
             f"/livestreams/{livestream.id}",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -215,7 +215,7 @@ class TestUpdateLiveStream:
     ) -> None:
         response = await client.put(
             f"/livestreams/{livestream.id}",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -234,7 +234,7 @@ class TestUpdateLiveStream:
         )
         response = await client.put(
             f"/livestreams/{livestream.id}",
-            content=new_stream_data.json(),
+            content=new_stream_data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()

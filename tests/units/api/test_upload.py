@@ -19,7 +19,7 @@ from app.internal.usecase.exceptions.upload import (
 def image_urls(
     faker: Faker,
 ) -> ImageURLs:
-    return ImageURLs.parse_obj(
+    return ImageURLs.model_validate(
         {
             "jpeg": faker.url(),
         },
@@ -46,7 +46,7 @@ class TestUpload:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == image_urls
+        assert ImageURLs.model_validate(response.json()) == image_urls
 
     @pytest.mark.usefixtures("_mock_current_admin")
     async def test_upload_error(
@@ -130,7 +130,7 @@ class TestUploadImageURL:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == image_urls
+        assert ImageURLs.model_validate(response.json()) == image_urls
 
     @pytest.mark.usefixtures("_mock_current_admin")
     async def test_upload_error(

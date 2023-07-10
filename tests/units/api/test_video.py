@@ -110,7 +110,7 @@ class TestCreateVideo:
         )
         response = await client.post(
             "/videos",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -124,7 +124,7 @@ class TestCreateVideo:
     ) -> None:
         response = await client.post(
             "/videos",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -142,7 +142,7 @@ class TestCreateVideo:
         )
         response = await client.post(
             "/videos",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()

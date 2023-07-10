@@ -53,7 +53,7 @@ class TestSignUp:
         )
         response = await client.post(
             "/users",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -71,7 +71,7 @@ class TestSignUp:
         )
         response = await client.post(
             "/users",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -105,7 +105,7 @@ class TestActivateUser:
         )
         response = await client.post(
             "/users/activate",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -123,7 +123,7 @@ class TestActivateUser:
         )
         response = await client.post(
             "/users/activate",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -175,7 +175,7 @@ class TestResetPassword:
         )
         response = await client.post(
             "/users/password/reset",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -193,7 +193,7 @@ class TestResetPassword:
         )
         response = await client.post(
             "/users/password/reset",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -211,7 +211,7 @@ class TestResetPassword:
         )
         response = await client.post(
             "/users/password/reset",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -242,7 +242,7 @@ class TestChangePassword:
         )
         response = await client.put(
             "/users/password",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -262,7 +262,7 @@ class TestChangePassword:
         )
         response = await client.put(
             "/users/password",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -276,7 +276,7 @@ class TestChangePassword:
         del data.old_password
         response = await client.put(
             "/users/password",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -306,7 +306,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
         response_data = response.json()
 
@@ -329,7 +329,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
         response_data = response.json()
 
@@ -350,7 +350,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -368,7 +368,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()
@@ -386,7 +386,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.json(),
+            content=data.model_dump_json(),
         )
 
         mocked.assert_awaited_once()

@@ -4,9 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-)
+from app.internal.controller.http.v1.dependencies.auth import CurrentAdmin
 from app.internal.controller.http.v1.dependencies.livestream import (
     FindLivestream,
     create_create_live_stream_usecase,
@@ -136,7 +134,7 @@ async def update_stream(
     ],
     stream: FindLivestream,
 ) -> LiveStream:
-    stream = LiveStream(**updated_stream.dict(), id=stream.id)
+    stream = LiveStream(**updated_stream.model_dump(), id=stream.id)
     try:
         return await usecase.execute(stream)
     except LiveStreamError as e:

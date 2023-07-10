@@ -1,21 +1,24 @@
 import re
-from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr, validator
+from pydantic import (
+    EmailStr,
+    Field,
+    FieldValidationInfo,
+    SecretStr,
+    field_validator,
+)
+
+from app.internal.entity.common import BaseModel
 
 
 class SignUpRequest(BaseModel):
-    username: str = Field(..., example="user", title="Username")
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    password: SecretStr = Field(
-        ...,
-        example="password",
-        title="Password",
-        min_length=8,
-    )
+    username: str = Field(..., examples=["user"])
+    email: EmailStr = Field(..., examples=["example@example.com"])
+    password: SecretStr = Field(..., examples=["password"], min_length=8)
 
-    @validator("username")
-    def username_regexp(cls, v: str) -> str:  # noqa: ANN101, N805
+    @field_validator("username")
+    @classmethod
+    def username_regexp(cls: type["SignUpRequest"], v: str) -> str:
         v = v.strip()
         if re.match(r"^[a-zA-Z0-9]+_?[a-zA-Z0-9]+$", v) is None:
             text_error = (
@@ -28,73 +31,66 @@ class SignUpRequest(BaseModel):
 
 
 class ActivateUserRequest(BaseModel):
-    id: int = Field(..., example=1, title="User ID")
+    id: int = Field(..., examples=[1])
     activation_code: str = Field(
         ...,
-        example="AAAAAAAAAA",
-        title="Activation code",
-        regex=r"^[A-Z\d]{10}$",
+        examples=["AAAAAAAAAA"],
+        pattern=r"^[A-Z\d]{10}$",
     )
 
 
 class SignInRequest(BaseModel):
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
-    password: SecretStr = Field(
-        ...,
-        example="password",
-        title="Password",
-        min_length=8,
-    )
+    email: EmailStr = Field(..., examples=["example@example.com"])
+    password: SecretStr = Field(..., examples=["password"], min_length=8)
     remember_me: bool = Field(
         default=False,
-        example=False,
-        title="Remember me",
+        examples=[False],
         description="Issue a refresh token valid for 1 month",
     )
 
 
 class PasswordResetRequest(BaseModel):
-    email: EmailStr = Field(..., example="example@example.com", title="Email")
+    email: EmailStr = Field(..., examples=["example@example.com"])
 
 
 class ChangePasswordRequest(BaseModel):
-    user_id: int = Field(..., example=1, title="User ID")
+    user_id: int = Field(..., examples=[1], title="User ID")
     old_password: SecretStr | None = Field(
         None,
-        example="old_password",
-        title="Old password",
+        examples=["old_password"],
         min_length=8,
     )
     new_password: SecretStr = Field(
         ...,
-        example="new_password",
+        examples=["new_password"],
         title="New password",
         min_length=8,
     )
     reset_code: str | None = Field(
         None,
-        example="reset_code",
-        title="Reset code",
-        regex=r"^[A-Z\d]{10}$",
+        examples=["reset_code"],
+        pattern=r"^[A-Z\d]{10}$",
     )
 
-    @validator("old_password")
+    @field_validator("old_password")
+    @classmethod
     def old_password_must_be_present(
-        cls,  # noqa: N805, ANN101
+        cls: type["ChangePasswordRequest"],
         v: SecretStr,
-        values: dict[str, Any],
+        info: FieldValidationInfo,
     ) -> SecretStr:
-        if not v and not values.get("reset_code"):
+        if not v and not info.data.get("reset_code"):
             text_error = "must be present"
             raise ValueError(text_error)
         return v
 
-    @validator("reset_code")
+    @field_validator("reset_code")
+    @classmethod
     def reset_code_or_old_password_must_be_present(
-        cls,  # noqa: ANN101, N805
+        cls: type["ChangePasswordRequest"],
         v: SecretStr,
-        values: dict[str, Any],
+        info: FieldValidationInfo,
     ) -> SecretStr | None:
-        if values.get("old_password") and v:
+        if info.data.get("old_password") and v:
             return None
         return v
