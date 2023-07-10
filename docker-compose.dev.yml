@@ -32,7 +32,7 @@ services:
       - "9001:9001"
 
   meili:
-    image: getmeili/meilisearch:v1.1.0
+    image: getmeili/meilisearch:v1.2.0
     ports:
       - "7700:7700"
     volumes:
