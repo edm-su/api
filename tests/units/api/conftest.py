@@ -3,12 +3,13 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 from faker import Faker
 from httpx import AsyncClient
+from pydantic import SecretStr
 
 from app.internal.controller.http.v1.dependencies.auth import (
     get_current_admin,
     get_current_user,
 )
-from app.internal.entity.user import TokenData, User
+from app.internal.entity.user import TokenData, User, get_password_hash
 from app.internal.entity.video import Video
 from app.main import app
 
@@ -48,6 +49,7 @@ def user(faker: Faker) -> User:
         email=faker.email(),
         created=faker.date_time(),
         is_active=True,
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

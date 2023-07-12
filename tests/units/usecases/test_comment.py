@@ -2,11 +2,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
+from pydantic import SecretStr
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.entity.comment import Comment, NewCommentDto
-from app.internal.entity.user import User
+from app.internal.entity.user import User, get_password_hash
 from app.internal.entity.video import Video
 from app.internal.usecase.comment import (
     CreateCommentUseCase,
@@ -14,9 +15,7 @@ from app.internal.usecase.comment import (
     GetCountCommentsUseCase,
     GetVideoCommentsUseCase,
 )
-from app.internal.usecase.repository.comment import (
-    AbstractCommentRepository,
-)
+from app.internal.usecase.repository.comment import AbstractCommentRepository
 
 
 @pytest.fixture()
@@ -65,6 +64,7 @@ def user(faker: Faker) -> User:
         created=faker.date_time_between(
             start_date="-1y",
         ),
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

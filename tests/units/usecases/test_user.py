@@ -14,6 +14,7 @@ from app.internal.entity.user import (
     NewUserDto,
     SignInDto,
     User,
+    get_password_hash,
 )
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
@@ -35,7 +36,6 @@ from app.internal.usecase.user import (
     GetUserByUsernameUseCase,
     ResetPasswordUseCase,
     SignInUseCase,
-    get_password_hash,
     verify_password,
 )
 from app.pkg.nats import NatsClient
@@ -70,6 +70,7 @@ def my_user(faker: Faker) -> User:
         is_admin=False,
         email=faker.email(),
         created=faker.past_datetime(tzinfo=timezone.utc),
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 
@@ -326,7 +327,7 @@ class TestChangePasswordUseCase:
         user: User,
     ) -> ChangePasswordDto:
         return ChangePasswordDto(
-            id=user.id,
+            user_id=user.id,
             old_password=SecretStr("old_password"),
             new_password=SecretStr("new_password"),
         )
@@ -384,7 +385,7 @@ class TestChangePasswordUseCase:
             await usecase.execute(data)
 
         repository.change_password.assert_awaited_once_with(data)
-        repository.get_by_id.assert_awaited_once_with(data.id)
+        repository.get_by_id.assert_awaited_once_with(data.user_id)
 
 
 class TestChangePasswordByResetCodeUseCase:
@@ -409,8 +410,8 @@ class TestChangePasswordByResetCodeUseCase:
         user: User,
     ) -> ChangePasswordByResetCodeDto:
         return ChangePasswordByResetCodeDto(
-            id=user.id,
-            code=SecretStr("code"),
+            user_id=user.id,
+            code=SecretStr("AAAAAAAAAA"),
             new_password=SecretStr("new_password"),
         )
 

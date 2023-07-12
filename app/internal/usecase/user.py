@@ -45,11 +45,6 @@ def generate_secret_code(n: int = 10) -> str:
     return "".join(secrets.choice(alphabet) for i in range(n))
 
 
-def get_password_hash(password: str) -> str:
-    ph = PasswordHasher()
-    return ph.hash(password)
-
-
 def verify_password(password: str, hashed_password: str) -> None:
     ph = PasswordHasher()
     try:
@@ -77,9 +72,6 @@ class CreateUserUseCase(AbstractUserUseCase):
         else:
             raise UserAlreadyExistsError(key="username")
 
-        new_user.hashed_password = SecretStr(
-            get_password_hash(new_user.password.get_secret_value()),
-        )
         new_user.activation_code = SecretStr(generate_secret_code())
 
         user = await self.repository.create(new_user)
@@ -164,16 +156,11 @@ class ChangePasswordUseCase(AbstractUserUseCase):
         self: Self,
         data: ChangePasswordDto,
     ) -> None:
-        user = await self.repository.get_by_id(data.id)
-        if not user.hashed_password:
-            raise WrongPasswordError
+        user = await self.repository.get_by_id(data.user_id)
+
         verify_password(
             data.old_password.get_secret_value(),
             user.hashed_password.get_secret_value(),
-        )
-
-        data.hashed_new_password = SecretStr(
-            get_password_hash(data.new_password.get_secret_value()),
         )
 
         try:
@@ -187,10 +174,6 @@ class ChangePasswordByResetCodeUseCase(AbstractUserUseCase):
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> None:
-        data.hashed_new_password = SecretStr(
-            get_password_hash(data.new_password.get_secret_value()),
-        )
-
         try:
             await self.repository.change_password_by_reset_code(data)
         except UserNotFoundError as e:
@@ -202,10 +185,6 @@ class SignInUseCase(AbstractUserUseCase):
         self: Self,
         data: SignInDto,
     ) -> User:
-        data.hashed_password = SecretStr(
-            get_password_hash(data.password.get_secret_value()),
-        )
-
         user = await self.repository.get_by_email(data.email)
 
         if not user.hashed_password:

@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from pydantic import SecretStr
 from starlette import status
 
 from app.internal.controller.http.v1.dependencies.auth import (
@@ -19,6 +18,7 @@ from app.internal.controller.http.v1.dependencies.user import (
 from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
     ChangePasswordRequest,
+    CompleteResetPasswordRequest,
     PasswordResetRequest,
     SignInRequest,
     SignUpRequest,
@@ -39,7 +39,6 @@ from app.internal.entity.user import (
     User,
 )
 from app.internal.usecase.exceptions.user import (
-    NeedOldPasswordOrResetCodeError,
     UserError,
     UserNotFoundError,
 )
@@ -157,40 +156,52 @@ async def password_reset(
 
 
 @router.put(
+    "/password/reset",
+    summary=" Complete password reset",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def complete_password_reset(
+    request_data: CompleteResetPasswordRequest,
+    usecase: Annotated[
+        ChangePasswordByResetCodeUseCase,
+        Depends(create_change_password_by_reset_code_usecase),
+    ],
+) -> None:
+    try:
+        await usecase.execute(
+            ChangePasswordByResetCodeDto(
+                user_id=request_data.user_id,
+                new_password=request_data.new_password,
+                code=request_data.code,
+            ),
+        )
+    except UserError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+
+
+@router.put(
     "/password",
     summary="Change password",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def change_password(
     request_data: ChangePasswordRequest,
-    change_password_usecase: Annotated[
+    usecase: Annotated[
         ChangePasswordUseCase,
         Depends(create_change_password_usecase),
     ],
-    change_by_code_usecase: Annotated[
-        ChangePasswordByResetCodeUseCase,
-        Depends(create_change_password_by_reset_code_usecase),
-    ],
 ) -> None:
     try:
-        if request_data.reset_code:
-            await change_by_code_usecase.execute(
-                ChangePasswordByResetCodeDto(
-                    id=request_data.user_id,
-                    code=SecretStr(request_data.reset_code),
-                    new_password=request_data.new_password,
-                ),
-            )
-        elif request_data.old_password:
-            await change_password_usecase.execute(
-                ChangePasswordDto(
-                    id=request_data.user_id,
-                    old_password=request_data.old_password,
-                    new_password=request_data.new_password,
-                ),
-            )
-        else:
-            raise NeedOldPasswordOrResetCodeError
+        await usecase.execute(
+            ChangePasswordDto(
+                user_id=request_data.user_id,
+                old_password=request_data.old_password,
+                new_password=request_data.new_password,
+            ),
+        )
     except UserError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

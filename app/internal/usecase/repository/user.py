@@ -15,7 +15,6 @@ from app.internal.entity.user import (
     User,
 )
 from app.internal.usecase.exceptions.user import (
-    HashedPasswordRequiredError,
     UserNotFoundError,
 )
 from app.pkg.postgres import User as PGUser
@@ -122,9 +121,6 @@ class PostgresUserRepository(AbstractUserRepository):
         self: Self,
         new_user: NewUserDto,
     ) -> User:
-        if not new_user.hashed_password:
-            raise HashedPasswordRequiredError
-
         query = (
             insert(PGUser)
             .values(
@@ -189,15 +185,11 @@ class PostgresUserRepository(AbstractUserRepository):
         self: Self,
         data: ChangePasswordDto,
     ) -> None:
-        if data.hashed_new_password is None:
-            error_text = "hashed_new_password is None"
-            raise ValueError(error_text)
-
         query = (
             update(PGUser)
-            .where(PGUser.id == data.id)
+            .where(PGUser.id == data.user_id)
             .values(
-                password=data.hashed_new_password.get_secret_value(),
+                password=data.hashed_password.get_secret_value(),
                 recovery_code=None,
                 recovery_code_lifetime_end=None,
             )
@@ -213,18 +205,15 @@ class PostgresUserRepository(AbstractUserRepository):
         self: Self,
         data: ChangePasswordByResetCodeDto,
     ) -> None:
-        if not data.hashed_new_password:
-            raise HashedPasswordRequiredError
-
         query = (
             update(PGUser)
             .where(
-                (PGUser.id == data.id)
+                (PGUser.id == data.user_id)
                 & (PGUser.recovery_code == data.code.get_secret_value())
                 & (PGUser.recovery_code_lifetime_end > datetime.now()),
             )
             .values(
-                password=data.hashed_new_password.get_secret_value(),
+                password=data.hashed_password.get_secret_value(),
                 recovery_code=None,
                 recovery_code_lifetime_end=None,
             )

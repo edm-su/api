@@ -3,10 +3,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
+from pydantic import SecretStr
 from typing_extensions import Self
 
 from app.internal.entity.post import NewPostDTO, Post
-from app.internal.entity.user import User
+from app.internal.entity.user import User, get_password_hash
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
@@ -66,6 +67,7 @@ def user(faker: Faker) -> User:
         username=faker.user_name(),
         email=faker.email(),
         created=faker.past_datetime(tzinfo=timezone.utc),
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

@@ -61,13 +61,3 @@ class UserIsNotActivatedError(UserError):
 class WrongResetCodeError(UserError):
     def __init__(self: Self) -> None:
         super().__init__("Wrong reset code")
-
-
-class NeedOldPasswordOrResetCodeError(UserError):
-    def __init__(self: Self) -> None:
-        super().__init__("Need old password or reset code")
-
-
-class HashedPasswordRequiredError(UserError):
-    def __init__(self: Self) -> None:
-        super().__init__("Hashed password required")

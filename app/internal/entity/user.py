@@ -1,7 +1,9 @@
+from abc import ABC
 from datetime import datetime, timedelta
 
 import jwt
-from pydantic import EmailStr, Field, IPvAnyAddress, SecretStr
+from argon2 import PasswordHasher
+from pydantic import EmailStr, Field, IPvAnyAddress, SecretStr, computed_field
 from typing_extensions import Self
 
 from app.internal.entity.common import AttributeModel, BaseModel
@@ -34,7 +36,7 @@ class User(AttributeModel):
     id: int = Field(..., gt=0)
     username: str = Field(..., min_length=3)
     email: EmailStr = Field(...)
-    hashed_password: SecretStr | None = Field(default=None, alias="password")
+    hashed_password: SecretStr = Field(..., alias="password")
     activation_code: SecretStr | None = Field(default=None)
     is_active: bool = Field(default=False)
     is_admin: bool = Field(default=False)
@@ -48,9 +50,13 @@ class NewUserDto(BaseModel):
     username: str = Field(..., min_length=3)
     email: EmailStr
     password: SecretStr
-    hashed_password: SecretStr | None = Field(default=None)
     activation_code: SecretStr | None = Field(default=None)
     is_active: bool = Field(default=False)
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def hashed_password(self: Self) -> SecretStr:
+        return SecretStr(get_password_hash(self.password.get_secret_value()))
 
 
 class ActivateUserDto(BaseModel):
@@ -64,18 +70,37 @@ class ResetPasswordDto(BaseModel):
     expires: datetime
 
 
-class ChangePasswordDto(BaseModel):
-    id: int
-    old_password: SecretStr
-    new_password: SecretStr
-    hashed_new_password: SecretStr | None = Field(default=None)
+class ChangePassword(BaseModel, ABC):
+    user_id: int = Field(..., examples=[1])
+    new_password: SecretStr = Field(
+        ...,
+        examples=["new_password"],
+        min_length=8,
+    )
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def hashed_password(self: Self) -> SecretStr:
+        return SecretStr(
+            get_password_hash(self.new_password.get_secret_value()),
+        )
 
 
-class ChangePasswordByResetCodeDto(BaseModel):
-    id: int
-    code: SecretStr
-    new_password: SecretStr
-    hashed_new_password: SecretStr | None = Field(default=None)
+class ChangePasswordDto(ChangePassword):
+    old_password: SecretStr = Field(
+        ...,
+        examples=["old_password"],
+        min_length=8,
+    )
+
+
+class ChangePasswordByResetCodeDto(ChangePassword):
+    code: SecretStr = Field(
+        ...,
+        examples=["AAAAAAAAAA"],
+        min_length=10,
+        max_length=10,
+    )
 
 
 class Token(BaseModel):
@@ -113,3 +138,8 @@ class UserTokenDTO(BaseModel):
 class UserToken(AttributeModel, UserTokenDTO):
     id: int
     created_at: datetime
+
+
+def get_password_hash(password: str) -> str:
+    ph = PasswordHasher()
+    return ph.hash(password)
