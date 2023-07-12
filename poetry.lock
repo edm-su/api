@@ -779,13 +779,13 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "faker"
-version = "15.3.4"
+version = "19.0.0"
 description = "Faker is a Python package that generates fake data for you."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "Faker-15.3.4-py3-none-any.whl", hash = "sha256:c2a2ff9dd8dfd991109b517ab98d5cb465e857acb45f6b643a0e284a9eb2cc76"},
-    {file = "Faker-15.3.4.tar.gz", hash = "sha256:2d5443724f640ce07658ca8ca8bbd40d26b58914e63eec6549727869aa67e2cc"},
+    {file = "Faker-19.0.0-py3-none-any.whl", hash = "sha256:d37406dff33ae63ae019bd7bf95e33251e703cddbcb2857e0611002062f774e8"},
+    {file = "Faker-19.0.0.tar.gz", hash = "sha256:14bfe8e861efdfcdf2a3e66ff61a780d911410a474a667295bae4f8c4586456b"},
 ]
 
 [package.dependencies]
@@ -2645,4 +2645,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b33fa6073cf0b9b7892903d20071975c75207ea663ffe07a48e0fd6733d17704"
+content-hash = "ba4263cb3b1d4fab38c5676ccc2e6cd24473125e97d962a8c99df0f10a7064d0"
