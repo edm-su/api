@@ -3,12 +3,15 @@ import re
 from pydantic import (
     EmailStr,
     Field,
-    FieldValidationInfo,
     SecretStr,
     field_validator,
 )
 
 from app.internal.entity.common import BaseModel
+from app.internal.entity.user import (
+    ChangePasswordByResetCodeDto,
+    ChangePasswordDto,
+)
 
 
 class SignUpRequest(BaseModel):
@@ -53,44 +56,9 @@ class PasswordResetRequest(BaseModel):
     email: EmailStr = Field(..., examples=["example@example.com"])
 
 
-class ChangePasswordRequest(BaseModel):
-    user_id: int = Field(..., examples=[1], title="User ID")
-    old_password: SecretStr | None = Field(
-        None,
-        examples=["old_password"],
-        min_length=8,
-    )
-    new_password: SecretStr = Field(
-        ...,
-        examples=["new_password"],
-        title="New password",
-        min_length=8,
-    )
-    reset_code: str | None = Field(
-        None,
-        examples=["reset_code"],
-        pattern=r"^[A-Z\d]{10}$",
-    )
+class CompleteResetPasswordRequest(ChangePasswordByResetCodeDto):
+    pass
 
-    @field_validator("old_password")
-    @classmethod
-    def old_password_must_be_present(
-        cls: type["ChangePasswordRequest"],
-        v: SecretStr,
-        info: FieldValidationInfo,
-    ) -> SecretStr:
-        if not v and not info.data.get("reset_code"):
-            text_error = "must be present"
-            raise ValueError(text_error)
-        return v
 
-    @field_validator("reset_code")
-    @classmethod
-    def reset_code_or_old_password_must_be_present(
-        cls: type["ChangePasswordRequest"],
-        v: SecretStr,
-        info: FieldValidationInfo,
-    ) -> SecretStr | None:
-        if info.data.get("old_password") and v:
-            return None
-        return v
+class ChangePasswordRequest(ChangePasswordDto):
+    pass

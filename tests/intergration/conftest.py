@@ -18,7 +18,6 @@ from app.internal.entity.user import (
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.repository.user import PostgresUserRepository
 from app.internal.usecase.repository.video import PostgresVideoRepository
-from app.internal.usecase.user import get_password_hash
 from app.pkg.meilisearch import config_ms
 from app.pkg.meilisearch import ms_client as meilisearch_client
 from app.pkg.postgres import Base, async_engine, async_session
@@ -57,7 +56,6 @@ def new_user_data(faker: Faker) -> NewUserDto:
         email=faker.email(),
         username=faker.user_name(),
         password=password,
-        hashed_password=SecretStr(get_password_hash(password)),
         is_active=True,
         activation_code=SecretStr("test123"),
     )
@@ -73,7 +71,6 @@ async def pg_user(
         email=faker.email(),
         username=faker.user_name(),
         password=password,
-        hashed_password=SecretStr(get_password_hash(password)),
         is_active=True,
         activation_code=SecretStr("test123"),
     )
@@ -90,7 +87,6 @@ async def pg_nonactive_user(
         email="nonactive@example.com",
         username="nonactive",
         password=password,
-        hashed_password=SecretStr(get_password_hash(password)),
         is_active=False,
         activation_code=SecretStr("test123"),
     )
@@ -107,7 +103,6 @@ async def pg_change_password_user(
         email="changepasswod@example.com",
         username="changepasswod",
         password=password,
-        hashed_password=SecretStr(get_password_hash(password)),
         is_active=True,
         activation_code=SecretStr("test123"),
     )
@@ -148,10 +143,9 @@ def change_password_data(
 ) -> ChangePasswordDto:
     new_password = faker.password()
     return ChangePasswordDto(
-        id=pg_change_password_user.id,
+        user_id=pg_change_password_user.id,
         old_password=new_user_data.password,
         new_password=SecretStr(new_password),
-        hashed_new_password=SecretStr(get_password_hash(new_password)),
     )
 
 
@@ -163,10 +157,9 @@ def change_password_with_code_data(
 ) -> ChangePasswordByResetCodeDto:
     password = faker.password()
     return ChangePasswordByResetCodeDto(
-        id=pg_change_password_user.id,
+        user_id=pg_change_password_user.id,
         code=reset_password_data.code,
         new_password=SecretStr(password),
-        hashed_new_password=SecretStr(get_password_hash(password)),
     )
 
 

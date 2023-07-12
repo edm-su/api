@@ -3,10 +3,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
+from pydantic import SecretStr
 from pytest_mock import MockFixture
 from typing_extensions import Self
 
-from app.internal.entity.user import User, UserToken, UserTokenDTO
+from app.internal.entity.user import (
+    User,
+    UserToken,
+    UserTokenDTO,
+    get_password_hash,
+)
 from app.internal.usecase.exceptions.user_tokens import UserTokenNotFoundError
 from app.internal.usecase.repository.user_tokens import (
     AbstractUserTokensRepository,
@@ -46,6 +52,7 @@ def user(faker: Faker) -> User:
             start_date="-30d",
             end_date="now",
         ),
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

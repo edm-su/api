@@ -10,11 +10,9 @@ from app.internal.entity.user import (
     ResetPasswordDto,
     User,
 )
-from app.internal.usecase.exceptions.user import (
-    HashedPasswordRequiredError,
-    UserNotFoundError,
-)
+from app.internal.usecase.exceptions.user import UserNotFoundError
 from app.internal.usecase.repository.user import PostgresUserRepository
+from app.internal.usecase.user import verify_password
 
 
 class TestPostgresUserRepository:
@@ -79,9 +77,12 @@ class TestPostgresUserRepository:
         )
 
         user = await postgres_user_repository.get_by_id(
-            change_password_data.id,
+            change_password_data.user_id,
         )
-        assert user.hashed_password == change_password_data.hashed_new_password
+        verify_password(
+            change_password_data.new_password.get_secret_value(),
+            user.hashed_password.get_secret_value(),
+        )
 
     async def test_set_reset_password_code(
         self: Self,
@@ -106,11 +107,11 @@ class TestPostgresUserRepository:
         )
 
         user = await postgres_user_repository.get_by_id(
-            change_password_with_code_data.id,
+            change_password_with_code_data.user_id,
         )
-        assert (
-            user.hashed_password
-            == change_password_with_code_data.hashed_new_password
+        verify_password(
+            change_password_with_code_data.new_password.get_secret_value(),
+            user.hashed_password.get_secret_value(),
         )
 
 
@@ -156,7 +157,7 @@ class TestPostgresUserRepositoryBoundary:
         postgres_user_repository: PostgresUserRepository,
         change_password_with_code_data: ChangePasswordByResetCodeDto,
     ) -> None:
-        change_password_with_code_data.code = SecretStr("wrongcode")
+        change_password_with_code_data.code = SecretStr("WRONGCODEA")
 
         with pytest.raises(UserNotFoundError):
             await postgres_user_repository.change_password_by_reset_code(
@@ -168,43 +169,11 @@ class TestPostgresUserRepositoryBoundary:
         postgres_user_repository: PostgresUserRepository,
         change_password_data: ChangePasswordDto,
     ) -> None:
-        change_password_data.id = change_password_data.id + 1_000
+        change_password_data.user_id = change_password_data.user_id + 1_000
 
         with pytest.raises(UserNotFoundError):
             await postgres_user_repository.change_password(
                 change_password_data,
-            )
-
-    async def test_create_without_hashed_password(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        new_user_data: NewUserDto,
-    ) -> None:
-        new_user_data.hashed_password = None
-
-        with pytest.raises(HashedPasswordRequiredError):
-            await postgres_user_repository.create(new_user_data)
-
-    async def test_change_password_without_hashed_new_password(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        change_password_data: ChangePasswordDto,
-    ) -> None:
-        change_password_data.hashed_new_password = None
-        with pytest.raises(ValueError):  # noqa: PT011
-            await postgres_user_repository.change_password(
-                change_password_data,
-            )
-
-    async def test_change_password_by_reset_code_without_hashed_new_password(
-        self: Self,
-        postgres_user_repository: PostgresUserRepository,
-        change_password_with_code_data: ChangePasswordByResetCodeDto,
-    ) -> None:
-        change_password_with_code_data.hashed_new_password = None
-        with pytest.raises(HashedPasswordRequiredError):
-            await postgres_user_repository.change_password_by_reset_code(
-                change_password_with_code_data,
             )
 
     async def test_set_reset_password_code_for_invalid_user(

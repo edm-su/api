@@ -2,10 +2,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
+from pydantic import SecretStr
 from pytest_mock import MockFixture
 from typing_extensions import Self
 
-from app.internal.entity.user import User
+from app.internal.entity.user import User, get_password_hash
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.user_videos import (
     UserVideoAlreadyLikedError,
@@ -52,6 +53,7 @@ def user(faker: Faker) -> User:
             start_date="-30d",
             end_date="now",
         ),
+        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

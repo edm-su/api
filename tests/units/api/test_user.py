@@ -11,6 +11,7 @@ from app.internal.controller.http.v1.dependencies.auth import (
 from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
     ChangePasswordRequest,
+    CompleteResetPasswordRequest,
     PasswordResetRequest,
     SignInRequest,
     SignUpRequest,
@@ -23,6 +24,7 @@ from app.internal.usecase.exceptions.user import (
     UserIsNotActivatedError,
     UserNotFoundError,
     WrongActivationCodeError,
+    WrongPasswordError,
     WrongPasswordOrEmailError,
 )
 from app.main import app
@@ -218,6 +220,56 @@ class TestResetPassword:
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
+class TestCompleteResetPassword:
+    @pytest.fixture()
+    def data(
+        self: Self,
+        user: User,
+    ) -> CompleteResetPasswordRequest:
+        return CompleteResetPasswordRequest(
+            user_id=user.id,
+            code="AAAAAAAAAA",
+            new_password="new_password",
+        )
+
+    async def test_complete_reset_password(
+        self: Self,
+        client: AsyncClient,
+        data: CompleteResetPasswordRequest,
+        mocker: MockerFixture,
+        user: User,
+    ) -> None:
+        mocked = mocker.patch(
+            "app.internal.usecase.user.ChangePasswordByResetCodeUseCase.execute",
+            return_value=None,
+        )
+        response = await client.put(
+            "/users/password/reset",
+            content=data.model_dump_json(),
+        )
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        mocked.assert_awaited_once()
+
+    async def test_bad_user_id(
+        self: Self,
+        client: AsyncClient,
+        data: CompleteResetPasswordRequest,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "app.internal.usecase.user.ChangePasswordByResetCodeUseCase.execute",
+            side_effect=UserNotFoundError,
+        )
+        response = await client.put(
+            "/users/password/reset",
+            content=data.model_dump_json(),
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        mocked.assert_awaited_once()
+
+
 class TestChangePassword:
     @pytest.fixture()
     def data(
@@ -248,38 +300,41 @@ class TestChangePassword:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    async def test_change_by_reset_code(
+    async def test_bad_user_id(
         self: Self,
         client: AsyncClient,
         data: ChangePasswordRequest,
         mocker: MockerFixture,
     ) -> None:
-        del data.old_password
-        data.reset_code = "AAAAAAAAAA"
         mocked = mocker.patch(
-            "app.internal.usecase.user.ChangePasswordByResetCodeUseCase.execute",
-            return_value=True,
+            "app.internal.usecase.user.ChangePasswordUseCase.execute",
+            side_effect=UserNotFoundError,
         )
-        response = await client.put(
-            "/users/password",
-            content=data.model_dump_json(),
-        )
-
-        mocked.assert_awaited_once()
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    async def test_without_old_password_or_reset_code(
-        self: Self,
-        client: AsyncClient,
-        data: ChangePasswordRequest,
-    ) -> None:
-        del data.old_password
         response = await client.put(
             "/users/password",
             content=data.model_dump_json(),
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+        mocked.assert_awaited_once()
+
+    async def test_wrong_old_password(
+        self: Self,
+        client: AsyncClient,
+        data: ChangePasswordRequest,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "app.internal.usecase.user.ChangePasswordUseCase.execute",
+            side_effect=WrongPasswordError,
+        )
+        response = await client.put(
+            "/users/password",
+            content=data.model_dump_json(),
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        mocked.assert_awaited_once()
 
 
 class TestSignIn:
