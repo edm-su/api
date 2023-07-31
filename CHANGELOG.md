@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.5.0](https://github.com/edm-su/api/compare/v2.4.5...v2.5.0) (2023-07-31)
+
+
+### Features
+
+* divide complete password recovery and change password ([#338](https://github.com/edm-su/api/issues/338)) ([d0dc565](https://github.com/edm-su/api/commit/d0dc56535c97f4c8b6333fd7a6b92b54c5e41ee7))
+
+
+### Bug Fixes
+
+* **deps:** bump black from 23.3.0 to 23.7.0 ([#334](https://github.com/edm-su/api/issues/334)) ([3365c8b](https://github.com/edm-su/api/commit/3365c8ba6b9b155ad7f9bf7f52e228c35c7ded6a))
+* **deps:** bump certifi from 2022.12.7 to 2023.7.22 ([#351](https://github.com/edm-su/api/issues/351)) ([b7dea76](https://github.com/edm-su/api/commit/b7dea7672d1332013668fe9c50cd741d95d40d33))
+* **deps:** bump fastapi from 0.100.0 to 0.100.1 ([#352](https://github.com/edm-su/api/issues/352)) ([237193a](https://github.com/edm-su/api/commit/237193a281e5f107b0d8cc2f89c50912e0cfd81e))
+* **deps:** bump pydantic from 2.0.2 to 2.1.1 ([#353](https://github.com/edm-su/api/issues/353)) ([397e0a5](https://github.com/edm-su/api/commit/397e0a5a6c01980e31f6670a256447eb7a1a7bce))
+* **deps:** bump pytest-asyncio from 0.21.0 to 0.21.1 ([#339](https://github.com/edm-su/api/issues/339)) ([5a1484e](https://github.com/edm-su/api/commit/5a1484e12576afd982418b106decf05a45d32729))
+* **deps:** bump ruff from 0.0.277 to 0.0.278 ([#340](https://github.com/edm-su/api/issues/340)) ([25a2efb](https://github.com/edm-su/api/commit/25a2efbc1ab3d4047ac60df7fd60b6968a240ba3))
+* **deps:** bump ruff from 0.0.278 to 0.0.280 ([#350](https://github.com/edm-su/api/issues/350)) ([1b36684](https://github.com/edm-su/api/commit/1b366843354cf6db1c143c5dc460b43af5450bfb))
+
 ## [2.4.5](https://github.com/edm-su/api/compare/v2.4.4...v2.4.5) (2023-07-10)
 
 
