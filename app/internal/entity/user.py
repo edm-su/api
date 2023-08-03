@@ -117,10 +117,11 @@ class TokenData(BaseModel):
 
     def get_jwt_token(
         self: Self,
-        expires_delta: timedelta = timedelta(days=31),
+        expires_delta: timedelta | None = None,
     ) -> str:
         to_encode = self.model_dump()
-        to_encode.update({"exp": datetime.utcnow() + expires_delta})
+        if expires_delta:
+            to_encode.update({"exp": datetime.utcnow() + expires_delta})
         return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
 
     def access_token(self: Self) -> str:

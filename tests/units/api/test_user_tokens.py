@@ -1,3 +1,4 @@
+import jwt
 import pytest
 from faker import Faker
 from fastapi import status
@@ -8,6 +9,7 @@ from typing_extensions import Self
 from app.internal.controller.http.v1.requests.user_tokens import (
     CreateAPITokenRequest,
 )
+from app.internal.entity.settings import settings
 from app.internal.entity.user import UserToken
 from app.internal.usecase.exceptions.user_tokens import UserTokenNotFoundError
 
@@ -48,6 +50,38 @@ class TestCreateAPIToken:
             "/users/tokens",
             json=request_data.model_dump(),
         )
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_201_CREATED
+
+    @pytest.mark.usefixtures("_mock_current_admin")
+    async def test_create_token_without_expired_at(
+        self: Self,
+        client: AsyncClient,
+        request_data: CreateAPITokenRequest,
+        user_token: UserToken,
+        mocker: MockerFixture,
+    ) -> None:
+        request_data.expired_at = None
+        user_token.expired_at = None
+
+        mocked = mocker.patch(
+            "app.internal.usecase.user_tokens.CreateUserTokenUseCase.execute",
+            return_value=user_token,
+        )
+        response = await client.post(
+            "/users/tokens",
+            json=request_data.model_dump(),
+        )
+        data = response.json()
+
+        payload = jwt.decode(
+            data["token"],
+            settings.secret_key,
+            algorithms=["HS256"],
+        )
+
+        assert "exp" not in payload or payload["exp"] is None
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_201_CREATED
