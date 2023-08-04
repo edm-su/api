@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.6.0](https://github.com/edm-su/api/compare/v2.5.0...v2.6.0) (2023-08-04)
+
+
+### Features
+
+* added authorization at password change ([#362](https://github.com/edm-su/api/issues/362)) ([0e43c8d](https://github.com/edm-su/api/commit/0e43c8d1203e2e27efe6986f66b6c4b367408cf8))
+
+
+### Bug Fixes
+
+* default api token expiration time ([#361](https://github.com/edm-su/api/issues/361)) ([06005c8](https://github.com/edm-su/api/commit/06005c8620665b36c6bb12c9e0f9180d5abdaba7))
+* **deps:** bump faker from 15.3.4 to 19.2.0 ([#349](https://github.com/edm-su/api/issues/349)) ([6ef46f3](https://github.com/edm-su/api/commit/6ef46f3f31fee76ac819a96ff32ed4c01df488a4))
+* **deps:** bump meilisearch-python-async from 1.4.4 to 1.5.0 ([#355](https://github.com/edm-su/api/issues/355)) ([a42b62c](https://github.com/edm-su/api/commit/a42b62c0cd2b0f60f51f5168ebc22a5b924ea8f1))
+* **deps:** bump pytest-httpx from 0.22.0 to 0.23.0 ([#356](https://github.com/edm-su/api/issues/356)) ([e77a4ce](https://github.com/edm-su/api/commit/e77a4ce2afbbf80935b5f30f5658bc5bb61a3386))
+* **deps:** bump pytest-httpx from 0.23.0 to 0.23.1 ([#360](https://github.com/edm-su/api/issues/360)) ([e2b7b55](https://github.com/edm-su/api/commit/e2b7b55fa1c6970c7e6638b59ef57e7cf66ba625))
+* **deps:** bump ruff from 0.0.280 to 0.0.282 ([#357](https://github.com/edm-su/api/issues/357)) ([21424a9](https://github.com/edm-su/api/commit/21424a9ccbdb629f4fc60165009e9a84e2cb761f))
+* **deps:** bump types-python-slugify from 8.0.0.2 to 8.0.0.3 ([#348](https://github.com/edm-su/api/issues/348)) ([1d84344](https://github.com/edm-su/api/commit/1d843443f03d32a9a343ed3afbdf4bae2f70b8f3))
+
 ## [2.5.0](https://github.com/edm-su/api/compare/v2.4.5...v2.5.0) (2023-07-31)
 
 
