@@ -9,8 +9,9 @@ from pydantic import (
 
 from app.internal.entity.common import BaseModel
 from app.internal.entity.user import (
+    ChangePassword,
     ChangePasswordByResetCodeDto,
-    ChangePasswordDto,
+    OldPassword,
 )
 
 
@@ -60,5 +61,5 @@ class CompleteResetPasswordRequest(ChangePasswordByResetCodeDto):
     pass
 
 
-class ChangePasswordRequest(ChangePasswordDto):
+class ChangePasswordRequest(ChangePassword, OldPassword):
     pass

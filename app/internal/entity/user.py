@@ -71,7 +71,6 @@ class ResetPasswordDto(BaseModel):
 
 
 class ChangePassword(BaseModel, ABC):
-    user_id: int = Field(..., examples=[1])
     new_password: SecretStr = Field(
         ...,
         examples=["new_password"],
@@ -86,7 +85,11 @@ class ChangePassword(BaseModel, ABC):
         )
 
 
-class ChangePasswordDto(ChangePassword):
+class ChangePasswordBaseDto(ChangePassword, ABC):
+    user_id: int = Field(..., examples=[1])
+
+
+class OldPassword(BaseModel, ABC):
     old_password: SecretStr = Field(
         ...,
         examples=["old_password"],
@@ -94,7 +97,11 @@ class ChangePasswordDto(ChangePassword):
     )
 
 
-class ChangePasswordByResetCodeDto(ChangePassword):
+class ChangePasswordDto(ChangePasswordBaseDto, OldPassword):
+    pass
+
+
+class ChangePasswordByResetCodeDto(ChangePasswordBaseDto):
     code: SecretStr = Field(
         ...,
         examples=["AAAAAAAAAA"],
