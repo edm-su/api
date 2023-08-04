@@ -132,11 +132,7 @@ class PostgresUserRepository(AbstractUserRepository):
                     if new_user.activation_code
                     else None
                 ),
-                password=(
-                    new_user.hashed_password.get_secret_value()
-                    if new_user.hashed_password
-                    else None
-                ),
+                password=new_user.hashed_password.get_secret_value(),
             )
             .returning(PGUser)
         )
