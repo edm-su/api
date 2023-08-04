@@ -193,11 +193,12 @@ async def change_password(
         ChangePasswordUseCase,
         Depends(create_change_password_usecase),
     ],
+    user: CurrentUser,
 ) -> None:
     try:
         await usecase.execute(
             ChangePasswordDto(
-                user_id=request_data.user_id,
+                user_id=user.id,
                 old_password=request_data.old_password,
                 new_password=request_data.new_password,
             ),

@@ -277,11 +277,11 @@ class TestChangePassword:
         user: User,
     ) -> ChangePasswordRequest:
         return ChangePasswordRequest(
-            user_id=user.id,
             old_password="password",
             new_password="new_password",
         )
 
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_change_password(
         self: Self,
         client: AsyncClient,
@@ -300,6 +300,19 @@ class TestChangePassword:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
+    async def test_change_password_without_auth(
+        self: Self,
+        client: AsyncClient,
+        data: ChangePasswordRequest,
+    ) -> None:
+        response = await client.put(
+            "/users/password",
+            content=data.model_dump_json(),
+        )
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_bad_user_id(
         self: Self,
         client: AsyncClient,
@@ -318,6 +331,7 @@ class TestChangePassword:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         mocked.assert_awaited_once()
 
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_wrong_old_password(
         self: Self,
         client: AsyncClient,
