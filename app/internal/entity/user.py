@@ -21,7 +21,6 @@ class AdvancedUser(UserBase):
 class SignInDto(BaseModel):
     email: EmailStr
     password: SecretStr
-    hashed_password: SecretStr | None = Field(default=None)
 
 
 class Admin(BaseModel):

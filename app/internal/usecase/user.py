@@ -187,9 +187,6 @@ class SignInUseCase(AbstractUserUseCase):
     ) -> User:
         user = await self.repository.get_by_email(data.email)
 
-        if not user.hashed_password:
-            raise WrongPasswordError
-
         if user.is_banned:
             raise UserIsBannedError
 

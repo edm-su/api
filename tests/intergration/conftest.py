@@ -170,7 +170,6 @@ def sign_in_data(
 ) -> SignInDto:
     return SignInDto(
         email=pg_user.email,
-        hashed_password=pg_user.hashed_password,
         password=new_user_data.password,
     )
 
