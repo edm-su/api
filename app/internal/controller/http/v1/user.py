@@ -15,7 +15,7 @@ from starlette import status
 from app.internal.controller.http.v1.dependencies.auth import (
     CurrentUser,
     get_current_user,
-    get_refresh_token_data_and_user,
+    get_refresh_token_data,
 )
 from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
@@ -235,19 +235,19 @@ async def sign_in(
 ) -> SignInResponse:
     forbidden_scopes = ("user:activate", "user:refresh")
 
-    user = await usecase.execute(
-        SignInDto(
-            email=request_data.username,
-            password=SecretStr(request_data.password),
-        ),
-    )
-
     for scope in forbidden_scopes:
         if scope in request_data.scopes:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"You cannot request {scope} scope",
             )
+
+    user = await usecase.execute(
+        SignInDto(
+            email=request_data.username,
+            password=SecretStr(request_data.password),
+        ),
+    )
 
     token = TokenData(
         email=user.email,
@@ -284,7 +284,7 @@ async def refresh_token(
     ],
     token_data: Annotated[
         TokenData,
-        Depends(get_refresh_token_data_and_user),
+        Depends(get_refresh_token_data),
     ],
 ) -> RefreshTokenResponse:
     if "user:refresh" in token_data.scope:

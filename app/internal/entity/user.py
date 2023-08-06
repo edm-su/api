@@ -123,7 +123,7 @@ class TokenData(BaseModel):
     scope: list[str] = Field(default=[])
 
     def get_jwt_token(self: Self) -> str:
-        to_encode = self.model_dump()
+        to_encode = self.model_dump(exclude_none=True)
         return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
 
 

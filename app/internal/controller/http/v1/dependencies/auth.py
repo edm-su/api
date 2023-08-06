@@ -73,7 +73,7 @@ async def _authorize_user(
     return token_data, db_user
 
 
-async def get_refresh_token_data_and_user(
+async def get_refresh_token_data(
     refresh_token: Annotated[str, Query],
     usecase: Annotated[
         GetUserByUsernameUseCase,

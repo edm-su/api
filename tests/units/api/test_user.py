@@ -6,17 +6,16 @@ from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.controller.http.v1.dependencies.auth import (
-    get_refresh_token_data_and_user,
+    get_refresh_token_data,
 )
 from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
     ChangePasswordRequest,
     CompleteResetPasswordRequest,
     PasswordResetRequest,
-    SignInRequest,
     SignUpRequest,
 )
-from app.internal.entity.user import User
+from app.internal.entity.user import TokenData, User
 from app.internal.usecase.exceptions.user import (
     UserAlreadyExistsError,
     UserError,
@@ -352,20 +351,22 @@ class TestChangePassword:
 
 
 class TestSignIn:
+    SignInRequest = dict[str, str]
+
     @pytest.fixture()
     def data(
         self: Self,
         user: User,
     ) -> SignInRequest:
-        return SignInRequest(
-            email=user.email,
-            password="password",
-        )
+        return {
+            "username": user.email,
+            "password": "password",
+        }
 
     async def test_sign_in(
         self: Self,
         client: AsyncClient,
-        data: SignInRequest,
+        data: dict[str, str],
         mocker: MockerFixture,
         user: User,
     ) -> None:
@@ -375,36 +376,13 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.model_dump_json(),
+            data=data,
         )
         response_data = response.json()
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
-        assert response_data["refresh_token"] is None
-        assert response_data["access_token"] != "**********"
-
-    async def test_remember_me(
-        self: Self,
-        client: AsyncClient,
-        data: SignInRequest,
-        mocker: MockerFixture,
-        user: User,
-    ) -> None:
-        data.remember_me = True
-        mocked = mocker.patch(
-            "app.internal.usecase.user.SignInUseCase.execute",
-            return_value=user,
-        )
-        response = await client.post(
-            "/users/sign-in",
-            content=data.model_dump_json(),
-        )
-        response_data = response.json()
-
-        mocked.assert_awaited_once()
-        assert response.status_code == status.HTTP_200_OK
-        assert response_data["refresh_token"]
+        assert response_data["refresh_token"] != "**********"
         assert response_data["access_token"] != "**********"
 
     async def test_wrong_password(
@@ -419,11 +397,26 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.model_dump_json(),
+            data=data,
         )
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    @pytest.mark.parametrize("scope", ["user:activate", "user:refresh"])
+    async def test_wrong_scope(
+        self: Self,
+        scope: str,
+        client: AsyncClient,
+        data: SignInRequest,
+    ) -> None:
+        data.update({"scope": scope})
+        response = await client.post(
+            "/users/sign-in",
+            data=data,
+        )
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     async def test_user_is_banned(
         self: Self,
@@ -437,7 +430,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.model_dump_json(),
+            data=data,
         )
 
         mocked.assert_awaited_once()
@@ -455,7 +448,7 @@ class TestSignIn:
         )
         response = await client.post(
             "/users/sign-in",
-            content=data.model_dump_json(),
+            data=data,
         )
 
         mocked.assert_awaited_once()
@@ -468,9 +461,13 @@ class TestRefreshToken:
         self: Self,
         user: User,
     ) -> None:
-        app.dependency_overrides[
-            get_refresh_token_data_and_user
-        ] = lambda: user
+        app.dependency_overrides[get_refresh_token_data] = lambda: TokenData(
+            sub=user.id,
+            email=user.email,
+            username=user.username,
+            is_admin=user.is_admin,
+            scope=["user:refresh"],
+        )
 
     @pytest.mark.usefixtures("_mock_current_user")
     async def test_refresh_token(
@@ -500,4 +497,5 @@ class TestRefreshToken:
             },
         )
 
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
