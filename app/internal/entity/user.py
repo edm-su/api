@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
 import jwt
@@ -115,26 +115,55 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    id: int
+    sub: int
     email: EmailStr
     username: str
     is_admin: bool = Field(default=False)
     token_id: int | None = Field(default=None)
+    scope: list[str] = Field(default=[])
 
-    def get_jwt_token(
-        self: Self,
-        expires_delta: timedelta | None = None,
-    ) -> str:
+    def get_jwt_token(self: Self) -> str:
         to_encode = self.model_dump()
-        if expires_delta:
-            to_encode.update({"exp": datetime.utcnow() + expires_delta})
         return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
 
-    def access_token(self: Self) -> str:
-        return self.get_jwt_token(expires_delta=timedelta(minutes=30))
 
-    def refresh_token(self: Self) -> str:
-        return self.get_jwt_token(expires_delta=timedelta(days=30))
+class AccessTokenData(TokenData):
+    exp: datetime = Field(
+        default_factory=lambda: datetime.utcnow() + timedelta(minutes=30),
+    )
+
+
+class RefreshTokenData(TokenData):
+    exp: datetime = Field(
+        default_factory=lambda: datetime.utcnow() + timedelta(days=30),
+    )
+
+
+class ApiTokenData(TokenData):
+    exp: datetime | None = Field(default=None)
+
+
+class TokenDataCreator(ABC):
+    @abstractmethod
+    def factory(self: Self, token_data: TokenData) -> TokenData:
+        pass
+
+
+class AccessTokenDataCreator(TokenDataCreator):
+    def factory(self: Self, token_data: TokenData) -> AccessTokenData:
+        return AccessTokenData(**token_data.model_dump())
+
+
+class RefreshTokenDataCreator(TokenDataCreator):
+    def factory(self: Self, token_data: TokenData) -> RefreshTokenData:
+        refresh_token = RefreshTokenData(**token_data.model_dump())
+        refresh_token.scope.append("user:refresh")
+        return refresh_token
+
+
+class ApiTokenDataCreator(TokenDataCreator):
+    def factory(self: Self, token_data: TokenData) -> ApiTokenData:
+        return ApiTokenData(**token_data.model_dump())
 
 
 class UserTokenDTO(BaseModel):

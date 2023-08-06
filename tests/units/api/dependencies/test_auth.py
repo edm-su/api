@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import HTTPException
+from fastapi.security import SecurityScopes
 from typing_extensions import Self
 
 from app.internal.controller.http.v1.dependencies.auth import (
@@ -23,7 +24,7 @@ class TestAuthUser:
         user: User,
     ) -> TokenData:
         return TokenData(
-            id=user.id,
+            sub=user.id,
             username=user.username,
             email=user.email,
         )
@@ -44,10 +45,10 @@ class TestAuthUser:
         user: User,
     ) -> None:
         token = token_data.get_jwt_token()
-        user = await get_current_user(token, usecase)
+        user = await get_current_user(token, usecase, SecurityScopes())
 
         usecase.execute.assert_awaited_once()
-        assert user.id == token_data.id
+        assert user.id == token_data.sub
 
     async def test_get_current_user_bad_token(
         self: Self,
@@ -55,11 +56,11 @@ class TestAuthUser:
         token_data: TokenData,
     ) -> None:
         with pytest.raises(AuthError):
-            await get_current_user("", usecase)
+            await get_current_user("", usecase, SecurityScopes())
 
         token = token_data.get_jwt_token()
         with pytest.raises(AuthError):
-            await get_current_user(token + "a", usecase)
+            await get_current_user(token + "a", usecase, SecurityScopes())
 
     async def test_get_current_user_not_found(
         self: Self,
@@ -69,7 +70,7 @@ class TestAuthUser:
         token = token_data.get_jwt_token()
         usecase.execute.return_value = None
         with pytest.raises(AuthError):
-            await get_current_user(token, usecase)
+            await get_current_user(token, usecase, SecurityScopes())
 
 
 class TestAuthAdmin:

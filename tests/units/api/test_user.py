@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.controller.http.v1.dependencies.auth import (
-    get_user_from_refresh_token,
+    get_refresh_token_data_and_user,
 )
 from app.internal.controller.http.v1.requests.user import (
     ActivateUserRequest,
@@ -468,7 +468,9 @@ class TestRefreshToken:
         self: Self,
         user: User,
     ) -> None:
-        app.dependency_overrides[get_user_from_refresh_token] = lambda: user
+        app.dependency_overrides[
+            get_refresh_token_data_and_user
+        ] = lambda: user
 
     @pytest.mark.usefixtures("_mock_current_user")
     async def test_refresh_token(
