@@ -1,11 +1,8 @@
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-)
+from app.internal.controller.http.v1.dependencies.auth import CurrentAdmin
 from app.internal.controller.http.v1.dependencies.user_tokens import (
     create_create_user_token_usecase,
     create_get_user_tokens_usecase,
@@ -17,10 +14,13 @@ from app.internal.controller.http.v1.requests.user_tokens import (
 from app.internal.controller.http.v1.responses.user_tokens import (
     CreateAPITokenResponse,
 )
-from app.internal.entity.user import TokenData, UserToken, UserTokenDTO
-from app.internal.usecase.exceptions.user_tokens import (
-    UserTokenNotFoundError,
+from app.internal.entity.user import (
+    ApiTokenDataCreator,
+    TokenData,
+    UserToken,
+    UserTokenDTO,
 )
+from app.internal.usecase.exceptions.user_tokens import UserTokenNotFoundError
 from app.internal.usecase.user_tokens import (
     CreateUserTokenUseCase,
     GetAllUserTokensUseCase,
@@ -49,32 +49,24 @@ async def create_api_token(
     )
     token = await usecase.execute(data, admin)
     jwt_token_data = TokenData(
-        id=admin.id,
+        sub=admin.id,
         email=admin.email,
         username=admin.username,
         is_admin=admin.is_admin,
         token_id=token.id,
     )
 
-    jwt_token = get_jwt_token(jwt_token_data, request_data.expired_at)
+    api_token = ApiTokenDataCreator().factory(jwt_token_data)
+    if request_data.expired_at:
+        api_token.exp = request_data.expired_at
 
     return CreateAPITokenResponse(
         id=token.id,
         name=token.name,
         expired_at=token.expired_at,
         created_at=token.created_at,
-        token=jwt_token,
+        token=api_token.get_jwt_token(),
     )
-
-
-def get_jwt_token(
-    jwt_token_data: TokenData,
-    expired_at: datetime | None = None,
-) -> str:
-    if expired_at:
-        delta = expired_at.replace(tzinfo=None) - datetime.utcnow()
-        return jwt_token_data.get_jwt_token(delta)
-    return jwt_token_data.get_jwt_token()
 
 
 @router.get(

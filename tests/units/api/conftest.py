@@ -9,7 +9,12 @@ from app.internal.controller.http.v1.dependencies.auth import (
     get_current_admin,
     get_current_user,
 )
-from app.internal.entity.user import TokenData, User, get_password_hash
+from app.internal.entity.user import (
+    AccessTokenDataCreator,
+    TokenData,
+    User,
+    get_password_hash,
+)
 from app.internal.entity.video import Video
 from app.main import app
 
@@ -56,12 +61,13 @@ def user(faker: Faker) -> User:
 @pytest.fixture()
 def user_auth_headers(user: User) -> dict[str, str]:
     token = TokenData(
-        id=user.id,
+        sub=user.id,
         email=user.email,
         username=user.username,
         is_admin=user.is_admin,
     )
-    return {"Authorization": f"Bearer {token.access_token()}"}
+    access_token = AccessTokenDataCreator().factory(token)
+    return {"Authorization": f"Bearer {access_token.get_jwt_token()}"}
 
 
 @pytest.fixture(scope="session")

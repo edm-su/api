@@ -8,6 +8,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app import __version__
 from app.internal.controller.http.router import api_router
+from app.internal.controller.http.v1.dependencies.exceptions.auth import (
+    TokenScopeError,
+)
 from app.internal.entity.settings import settings
 from app.internal.usecase.exceptions.user import AuthError, UserError
 from app.pkg.meilisearch import config_ms, ms_client
@@ -77,6 +80,18 @@ async def auth_exception_handler(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"error": "invalid_token", "error_description": str(exc)},
         headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+@app.exception_handler(TokenScopeError)
+async def token_exception_handler(
+    _: Request,
+    exc: TokenScopeError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_403_FORBIDDEN,
+        content={"error": "invalid_token", "error_description": str(exc)},
+        headers={"WWW-Authenticate": f"Bearer scope={exc.scope}"},
     )
 
 

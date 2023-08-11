@@ -1,11 +1,21 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Response,
+    Security,
+)
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import SecretStr
 from starlette import status
 
 from app.internal.controller.http.v1.dependencies.auth import (
     CurrentUser,
-    get_user_from_refresh_token,
+    get_current_user,
+    get_refresh_token_data,
 )
 from app.internal.controller.http.v1.dependencies.user import (
     create_activate_user_usecase,
@@ -20,7 +30,6 @@ from app.internal.controller.http.v1.requests.user import (
     ChangePasswordRequest,
     CompleteResetPasswordRequest,
     PasswordResetRequest,
-    SignInRequest,
     SignUpRequest,
 )
 from app.internal.controller.http.v1.responses.user import (
@@ -30,18 +39,17 @@ from app.internal.controller.http.v1.responses.user import (
     SignUpResponse,
 )
 from app.internal.entity.user import (
+    AccessTokenDataCreator,
     ActivateUserDto,
     ChangePasswordByResetCodeDto,
     ChangePasswordDto,
     NewUserDto,
+    RefreshTokenDataCreator,
     SignInDto,
     TokenData,
     User,
 )
-from app.internal.usecase.exceptions.user import (
-    UserError,
-    UserNotFoundError,
-)
+from app.internal.usecase.exceptions.user import UserError, UserNotFoundError
 from app.internal.usecase.user import (
     ActivateUserUseCase,
     ChangePasswordByResetCodeUseCase,
@@ -193,7 +201,10 @@ async def change_password(
         ChangePasswordUseCase,
         Depends(create_change_password_usecase),
     ],
-    user: CurrentUser,
+    user: Annotated[
+        User,
+        Security(get_current_user, scopes=["user:change_password"]),
+    ],
 ) -> None:
     try:
         await usecase.execute(
@@ -216,34 +227,43 @@ async def change_password(
 )
 async def sign_in(
     response: Response,
-    request_data: SignInRequest,
+    request_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     usecase: Annotated[
         SignInUseCase,
         Depends(create_sign_in_usecase),
     ],
 ) -> SignInResponse:
+    forbidden_scopes = ("user:activate", "user:refresh")
+
+    for scope in forbidden_scopes:
+        if scope in request_data.scopes:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You cannot request {scope} scope",
+            )
+
     user = await usecase.execute(
         SignInDto(
-            email=request_data.email,
-            password=request_data.password,
+            email=request_data.username,
+            password=SecretStr(request_data.password),
         ),
     )
 
     token = TokenData(
         email=user.email,
         username=user.username,
-        id=user.id,
+        sub=user.id,
         is_admin=user.is_admin,
+        scope=request_data.scopes,
     )
 
+    access_token = AccessTokenDataCreator().factory(token)
+    refresh_token = RefreshTokenDataCreator().factory(token)
+
     response.headers["Cache-Control"] = "no-store"
-    if request_data.remember_me:
-        return SignInResponse(
-            access_token=token.access_token(),
-            refresh_token=token.refresh_token(),
-        )
     return SignInResponse(
-        access_token=token.access_token(),
+        access_token=access_token.get_jwt_token(),
+        refresh_token=refresh_token.get_jwt_token(),
     )
 
 
@@ -262,20 +282,26 @@ async def refresh_token(
             alias="grant_type",
         ),
     ],
-    user: Annotated[
-        User,
-        Depends(get_user_from_refresh_token),
+    token_data: Annotated[
+        TokenData,
+        Depends(get_refresh_token_data),
     ],
 ) -> RefreshTokenResponse:
-    token = TokenData(
-        email=user.email,
-        username=user.username,
-        id=user.id,
-        is_admin=user.is_admin,
-    )
+    if "user:refresh" in token_data.scope:
+        token_data.scope.remove("user:refresh")
+
+    access_token = AccessTokenDataCreator().factory(token_data)
+    refresh_token = RefreshTokenDataCreator().factory(token_data)
 
     response.headers["Cache-Control"] = "no-store"
     return RefreshTokenResponse(
-        access_token=token.access_token(),
-        refresh_token=token.refresh_token(),
+        access_token=access_token.get_jwt_token(),
+        refresh_token=refresh_token.get_jwt_token(),
+    )
+    refresh_token = RefreshTokenDataCreator().factory(token_data)
+
+    response.headers["Cache-Control"] = "no-store"
+    return RefreshTokenResponse(
+        access_token=access_token.get_jwt_token(),
+        refresh_token=refresh_token.get_jwt_token(),
     )

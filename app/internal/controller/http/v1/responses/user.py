@@ -25,8 +25,8 @@ class MeResponse(BaseModel):
 class SignInResponse(BaseModel):
     access_token: str = Field(..., examples=["access_token"])
     token_type: str = Field(default="Bearer")
-    refresh_token: str | None = Field(
-        default=None,
+    refresh_token: str = Field(
+        ...,
         examples=["refresh_token"],
         description="refresh token valid for 1 month",
     )

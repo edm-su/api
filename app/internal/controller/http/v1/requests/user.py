@@ -43,16 +43,6 @@ class ActivateUserRequest(BaseModel):
     )
 
 
-class SignInRequest(BaseModel):
-    email: EmailStr = Field(..., examples=["example@example.com"])
-    password: SecretStr = Field(..., examples=["password"], min_length=8)
-    remember_me: bool = Field(
-        default=False,
-        examples=[False],
-        description="Issue a refresh token valid for 1 month",
-    )
-
-
 class PasswordResetRequest(BaseModel):
     email: EmailStr = Field(..., examples=["example@example.com"])
 
