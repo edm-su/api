@@ -36,7 +36,7 @@ optional = true
 
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
-mypy = "^1.4.1"
+mypy = "^1.5.1"
 ruff = "^0.0.284"
 black = "^23.7.0"
 
