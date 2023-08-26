@@ -20,7 +20,7 @@ jobs:
           cache: 'poetry'
       - name: Install dependencies
         run: |
-          poetry install --only lint
+          poetry install --with lint
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
       - name: Run reviewdog

@@ -6,7 +6,7 @@ runner:
       - "%f:%l:%c: %m"
   mypy:
     cmd: poetry run mypy .
-    level: warning
+    level: error
     format: mypy
   black:
     cmd: poetry run black --check .
