@@ -3,17 +3,12 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 from faker import Faker
 from httpx import AsyncClient
-from pydantic import SecretStr
 
 from app.internal.controller.http.v1.dependencies.auth import (
-    get_current_admin,
     get_current_user,
 )
 from app.internal.entity.user import (
-    AccessTokenDataCreator,
-    TokenData,
     User,
-    get_password_hash,
 )
 from app.internal.entity.video import Video
 from app.main import app
@@ -32,14 +27,6 @@ def _mock_current_user(
     app.dependency_overrides[get_current_user] = lambda: user
 
 
-@pytest.fixture()
-def _mock_current_admin(
-    user: User,
-) -> None:
-    user.is_admin = True
-    app.dependency_overrides[get_current_admin] = lambda: user
-
-
 @pytest.fixture(autouse=True)
 def _mock_clean_dependencies() -> Generator:
     yield
@@ -47,27 +34,10 @@ def _mock_clean_dependencies() -> Generator:
 
 
 @pytest.fixture()
-def user(faker: Faker) -> User:
-    return User(
-        id=faker.random_int(min=1, max=1000),
-        username=faker.user_name(),
-        email=faker.email(),
-        created=faker.date_time(),
-        is_active=True,
-        password=SecretStr(get_password_hash(faker.password())),
-    )
-
-
-@pytest.fixture()
 def user_auth_headers(user: User) -> dict[str, str]:
-    token = TokenData(
-        sub=user.id,
-        email=user.email,
-        username=user.username,
-        is_admin=user.is_admin,
-    )
-    access_token = AccessTokenDataCreator().factory(token)
-    return {"Authorization": f"Bearer {access_token.get_jwt_token()}"}
+    return {
+        "X-User": str(user.id),
+    }
 
 
 @pytest.fixture(scope="session")

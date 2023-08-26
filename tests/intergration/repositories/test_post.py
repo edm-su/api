@@ -21,7 +21,7 @@ def repository(
 @pytest.fixture()
 def new_post_data(
     faker: Faker,
-    pg_user: User,
+    user: User,
 ) -> NewPostDTO:
     return NewPostDTO(
         title=faker.sentence(),
@@ -31,24 +31,17 @@ def new_post_data(
             start_date="now",
             end_date="+1d",
         ),
-        user=pg_user,
+        user=user,
     )
 
 
 @pytest.fixture()
 async def pg_post(
-    faker: Faker,
-    pg_user: User,
+    new_post_data: NewPostDTO,
     repository: PostgresPostRepository,
 ) -> Post:
-    post = NewPostDTO(
-        title=faker.sentence(),
-        text={"test": "test"},
-        slug=faker.slug(),
-        user=pg_user,
-        published_at=datetime.utcnow(),
-    )
-    return await repository.create(post)
+    new_post_data.published_at = datetime.utcnow()
+    return await repository.create(new_post_data)
 
 
 class TestPostgresPostRepository:
@@ -62,16 +55,17 @@ class TestPostgresPostRepository:
         assert isinstance(post, Post)
         assert post == pg_post
 
+    @pytest.mark.usefixtures("pg_post")
     async def test_get_all(
         self: Self,
         repository: PostgresPostRepository,
-        pg_post: Post,
     ) -> None:
         posts = await repository.get_all()
 
         assert isinstance(posts, list)
         assert all(isinstance(post, (Post | type(None))) for post in posts)
 
+    @pytest.mark.usefixtures("pg_post")
     async def test_count(
         self: Self,
         repository: PostgresPostRepository,

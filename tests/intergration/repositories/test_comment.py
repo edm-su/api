@@ -19,13 +19,13 @@ def repository(
 @pytest.fixture()
 async def pg_comment(
     faker: Faker,
-    pg_user: User,
+    user: User,
     repository: PostgresCommentRepository,
     pg_video: Video,
 ) -> Comment:
     comment = NewCommentDto(
         text=faker.sentence(),
-        user=pg_user,
+        user=user,
         video=pg_video,
     )
     return await repository.create(comment)
@@ -34,12 +34,12 @@ async def pg_comment(
 @pytest.fixture()
 async def new_comment_data(
     faker: Faker,
-    pg_user: User,
+    user: User,
     pg_video: Video,
 ) -> NewCommentDto:
     return NewCommentDto(
         text=faker.sentence(),
-        user=pg_user,
+        user=user,
         video=pg_video,
     )
 

@@ -1,11 +1,5 @@
-from typing import TYPE_CHECKING
-
+from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
-
-if TYPE_CHECKING:
-    PostgresDsn = str
-else:
-    from pydantic import PostgresDsn
 
 
 class Settings(BaseSettings):
@@ -13,7 +7,7 @@ class Settings(BaseSettings):
     disable_openapi: bool = False
     secret_key: str
     static_url: str = "https://static.dev.edm.su"
-    database_url: PostgresDsn = "postgresql://postgres:postgres@db/postgres"
+    database_url: PostgresDsn
 
     host: str = "127.0.0.1"
     port: int = 8000

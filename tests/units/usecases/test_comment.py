@@ -2,12 +2,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
-from pydantic import SecretStr
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from app.internal.entity.comment import Comment, NewCommentDto
-from app.internal.entity.user import User, get_password_hash
+from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.comment import (
     CreateCommentUseCase,
@@ -55,19 +54,6 @@ def comment(
     )
 
 
-@pytest.fixture()
-def user(faker: Faker) -> User:
-    return User(
-        id=1,
-        username=faker.pystr(),
-        email=faker.email(),
-        created=faker.date_time_between(
-            start_date="-1y",
-        ),
-        password=SecretStr(get_password_hash(faker.password())),
-    )
-
-
 class TestCreateCommentUseCase:
     @pytest.fixture(autouse=True)
     def _mock(
@@ -100,7 +86,7 @@ class TestCreateCommentUseCase:
             ),
         )
         assert new_comment.id == comment.id
-        assert new_comment.user_id == user.id
+        assert str(new_comment.user_id) == user.id
         assert new_comment.video_id == video.id
         assert new_comment.text == comment.text
 
@@ -190,4 +176,4 @@ class TestGetVideoCommentsUseCase:
         assert len(comments) == 1
         assert comments[0] == comment
 
-        repository.get_video_comments.assert_awaited_once_with(user.id)
+        repository.get_video_comments.assert_awaited_once_with(video.id)

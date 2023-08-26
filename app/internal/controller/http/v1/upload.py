@@ -3,9 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from starlette import status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-)
 from app.internal.entity.upload import ImageURL, ImageURLs
 from app.internal.usecase.exceptions.upload import (
     FileIsTooLargeError,
@@ -26,7 +23,6 @@ router = APIRouter(tags=["Upload"])
     response_model=ImageURLs,
 )
 async def upload_image(
-    _: CurrentAdmin,
     image: Annotated[
         UploadFile,
         File,
@@ -63,7 +59,6 @@ async def upload_image(
 )
 async def upload_image_url(
     image_url: ImageURL,
-    _: CurrentAdmin,
 ) -> ImageURLs:
     use_case = UploadImageURLUseCase(S3UploadRepository(), image_url)
     try:

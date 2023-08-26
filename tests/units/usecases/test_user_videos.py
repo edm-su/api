@@ -2,11 +2,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
-from pydantic import SecretStr
 from pytest_mock import MockFixture
 from typing_extensions import Self
 
-from app.internal.entity.user import User, get_password_hash
+from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.user_videos import (
     UserVideoAlreadyLikedError,
@@ -40,20 +39,6 @@ def video(faker: Faker) -> Video:
         yt_id=faker.pystr(),
         yt_thumbnail=faker.image_url(),
         duration=faker.pyint(),
-    )
-
-
-@pytest.fixture()
-def user(faker: Faker) -> User:
-    return User(
-        id=faker.pyint(min_value=1),
-        username=faker.pystr(),
-        email=faker.email(),
-        created=faker.date_time_between(
-            start_date="-30d",
-            end_date="now",
-        ),
-        password=SecretStr(get_password_hash(faker.password())),
     )
 
 

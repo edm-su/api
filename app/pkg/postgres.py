@@ -50,11 +50,19 @@ class LikedVideos(Base):
         ),
     )
 
-    id: Mapped[UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True,
+        server_default=func.uuid_generate_v4(),
+    )
     user_id: Mapped[UUID] = mapped_column()
     video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),
+    )
+
+    video: Mapped["Video"] = relationship(
+        "Video",
+        back_populates="liked_by",
     )
 
 
