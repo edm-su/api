@@ -30,7 +30,6 @@ RUN pip install setuptools
 
 
 FROM builder-base as development
-ENV DEBUG=True
 RUN poetry install
 COPY . /app
 WORKDIR /app
@@ -42,8 +41,6 @@ ENTRYPOINT ./entrypoint.dev.sh
 
 
 FROM development as test
-ENV DEBUG=True
-ENV TEST=True
 RUN chmod +x entrypoint.test.sh
 ENTRYPOINT ./entrypoint.test.sh
 

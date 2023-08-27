@@ -20,13 +20,8 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/edm_su_test
       FRONTEND_URL: http://localhost:3000
-      SECRET_KEY: test
-      DEBUG: True
-      TESTING: True
 
       MEILISEARCH_INDEX_POSTFIX: test
-
-      NATS_URL: nats://localhost:4222
 
       S3_BUCKET: edm-su-test
       S3_ENDPOINT: http://localhost:9000
@@ -67,13 +62,6 @@ jobs:
           --health-cmd "curl http://localhost:7700/health"
         ports:
           - 7700:7700
-      nats:
-        image: nats:2.9-alpine
-        options: >-
-          --name=nats
-        ports:
-          - 4222:4222
-          - 8222:8222
 
     steps:
       - uses: actions/checkout@v3
@@ -101,11 +89,6 @@ jobs:
           poetry run alembic upgrade head
         env:
           PYTHONPATH: .
-      - name: Start jetstream
-        run: |
-          chmod a+x ${{ github.workspace }}/.github/workflows/entrypoint.sh
-          docker cp ${{ github.workspace }}/.github/workflows/entrypoint.sh nats:/usr/local/bin/docker-entrypoint.sh
-          docker restart nats
       - name: Run tests
         run: |
           poetry env use "${{ matrix.python-version }}"

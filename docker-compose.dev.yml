@@ -10,15 +10,6 @@ services:
     ports:
       - "5432:5432"
 
-  nats:
-    image: nats:2.9-alpine
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-    command: ["--http_port", "8222", "-js", "-sd", "/data/jetstream"]
-    volumes:
-      - nats:/data/jetstream:rw
-
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
@@ -42,4 +33,3 @@ volumes:
   postgres:
   minio:
   meili:
-  nats:
