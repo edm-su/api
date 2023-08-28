@@ -37,7 +37,7 @@ optional = true
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
 mypy = "^1.5.1"
-ruff = "^0.0.285"
+ruff = "^0.0.286"
 black = "^23.7.0"
 
 [build-system]
