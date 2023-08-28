@@ -6,6 +6,10 @@ from app.internal.usecase.exceptions.video import (
     VideoSlugNotUniqueError,
     VideoYtIdNotUniqueError,
 )
+from app.internal.usecase.repository.permission import (
+    AbstractPermissionRepository,
+    Object,
+)
 from app.internal.usecase.repository.video import (
     AbstractFullTextVideoRepository,
     AbstractVideoRepository,
@@ -16,8 +20,10 @@ class BaseVideoUseCase:
     def __init__(
         self: Self,
         repository: AbstractVideoRepository,
+        permissions_repo: AbstractPermissionRepository | None = None,
     ) -> None:
         self.repository = repository
+        self.permissions_repo = permissions_repo
 
 
 class AbstractFullTextVideoUseCase(BaseVideoUseCase):
@@ -25,9 +31,10 @@ class AbstractFullTextVideoUseCase(BaseVideoUseCase):
         self: Self,
         repository: AbstractVideoRepository,
         full_text_repo: AbstractFullTextVideoRepository,
+        permissions_repo: AbstractPermissionRepository | None = None,
     ) -> None:
         self.full_text_repo = full_text_repo
-        super().__init__(repository)
+        super().__init__(repository, permissions_repo)
 
 
 class GetAllVideosUseCase(BaseVideoUseCase):
@@ -77,7 +84,27 @@ class CreateVideoUseCase(AbstractFullTextVideoUseCase):
 
         video = await self.repository.create(new_video)
         await self.full_text_repo.create(video)
+
+        await self._set_permissions(video)
+
         return video
+
+    async def _set_permissions(self: Self, video: Video) -> None:
+        if self.permissions_repo is None:
+            return
+
+        resource = Object("video", str(video.id))
+        await self.permissions_repo.write(
+            resource,
+            "writer",
+            Object("role", "admin"),
+            "member",
+        )
+        await self.permissions_repo.write(
+            resource,
+            "reader",
+            Object("user", "*"),
+        )
 
 
 class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
@@ -87,3 +114,11 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
             raise VideoNotFoundError
         await self.repository.delete(id_)
         await self.full_text_repo.delete(id_)
+        await self._set_permissions(video)
+
+    async def _set_permissions(self: Self, video: Video) -> None:
+        if self.permissions_repo is None:
+            return
+
+        resource = Object("video", str(video.id))
+        await self.permissions_repo.delete(resource, "reader")

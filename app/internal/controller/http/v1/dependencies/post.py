@@ -3,6 +3,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.internal.controller.http.v1.dependencies.permissions import (
+    SpiceDBPermissionsRepo,
+)
 from app.internal.entity.post import Post
 from app.internal.usecase.exceptions.post import PostNotFoundError
 from app.internal.usecase.post import (
@@ -35,8 +38,9 @@ PgRepository = Annotated[
 def create_create_post_usecase(
     *,
     repository: PgRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
 ) -> CreatePostUseCase:
-    return CreatePostUseCase(repository)
+    return CreatePostUseCase(repository, spicedb_repository)
 
 
 def create_get_all_posts_usecase(
@@ -63,8 +67,9 @@ def create_get_post_by_slug_usecase(
 def create_delete_post_usecase(
     *,
     repository: PgRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
 ) -> DeletePostUseCase:
-    return DeletePostUseCase(repository)
+    return DeletePostUseCase(repository, spicedb_repository)
 
 
 async def find_post(

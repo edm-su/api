@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     meilisearch_api_key: str = ""
     meilisearch_index_postfix: str = ""
 
+    spicedb_url: str
+    spicedb_api_key: str
+
     s3_bucket: str
     s3_endpoint: str
     s3_access_key: str

@@ -5,6 +5,10 @@ from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
 )
+from app.internal.usecase.repository.permission import (
+    AbstractPermissionRepository,
+    Object,
+)
 from app.internal.usecase.repository.post import AbstractPostRepository
 
 
@@ -12,8 +16,10 @@ class BasePostUseCase:
     def __init__(
         self: Self,
         repository: AbstractPostRepository,
+        permissions_repo: AbstractPermissionRepository | None = None,
     ) -> None:
         self.repository = repository
+        self.permissions_repo = permissions_repo
 
 
 class CreatePostUseCase(BasePostUseCase):
@@ -25,7 +31,26 @@ class CreatePostUseCase(BasePostUseCase):
             await self.repository.get_by_slug(new_post.slug)
             raise PostSlugNotUniqueError(slug=new_post.slug)
         except PostNotFoundError:
-            return await self.repository.create(new_post)
+            post = await self.repository.create(new_post)
+            await self._set_permissions(post)
+            return post
+
+    async def _set_permissions(self: Self, post: Post) -> None:
+        if self.permissions_repo is not None:
+            resource = Object("post", str(post.id))
+
+            await self.permissions_repo.write(
+                resource,
+                "writer",
+                Object("role", "admin"),
+                "member",
+            )
+
+            await self.permissions_repo.write(
+                resource,
+                "reader",
+                Object("user", "*"),
+            )
 
 
 class GetPostBySlugUseCase(BasePostUseCase):
@@ -63,3 +88,10 @@ class DeletePostUseCase(BasePostUseCase):
     ) -> None:
         post = await self.repository.get_by_slug(slug)
         await self.repository.delete(post)
+        await self._set_permissions(post)
+
+    async def _set_permissions(self: Self, post: Post) -> None:
+        if self.permissions_repo is not None:
+            resource = Object("post", str(post.id))
+
+            await self.permissions_repo.delete(resource, "reader")

@@ -4,6 +4,9 @@ from fastapi import Depends, HTTPException, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
+from app.internal.controller.http.v1.dependencies.permissions import (
+    SpiceDBPermissionsRepo,
+)
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.video import VideoNotFoundError
 from app.internal.usecase.repository.video import (
@@ -72,16 +75,18 @@ def create_delete_video_usecase(
     *,
     repository: PgRepository,
     ms_repository: MeilisearchRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
 ) -> DeleteVideoUseCase:
-    return DeleteVideoUseCase(repository, ms_repository)
+    return DeleteVideoUseCase(repository, ms_repository, spicedb_repository)
 
 
 def create_create_video_usecase(
     *,
     repository: PgRepository,
     ms_repository: MeilisearchRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
 ) -> CreateVideoUseCase:
-    return CreateVideoUseCase(repository, ms_repository)
+    return CreateVideoUseCase(repository, ms_repository, spicedb_repository)
 
 
 async def find_video(

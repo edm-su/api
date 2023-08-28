@@ -197,4 +197,3 @@ class TestDeletePost:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
