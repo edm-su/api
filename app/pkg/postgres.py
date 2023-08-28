@@ -1,14 +1,9 @@
 import datetime
 from collections.abc import AsyncGenerator
 from typing import Any, ClassVar
+from uuid import UUID
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Table,
-    UniqueConstraint,
-)
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncSession,
@@ -45,41 +40,29 @@ class Base(AsyncAttrs, DeclarativeBase):
     }
 
 
-LikedVideos = liked_videos = Table(
-    "liked_videos",
-    Base.metadata,
-    Column("user_id", ForeignKey("users.id"), primary_key=True),
-    Column("video_id", ForeignKey("videos.id"), primary_key=True),
-    Column("created_at", DateTime, server_default=func.now()),
-    UniqueConstraint("user_id", "video_id", name="unique_liked_video"),
-)
+class LikedVideos(Base):
+    __tablename__ = "liked_videos"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "video_id",
+            name="unique_liked_video",
+        ),
+    )
 
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
-    email: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str] = mapped_column()
-    is_active: Mapped[bool | None] = mapped_column(server_default="f")
-    activation_code: Mapped[str | None] = mapped_column()
-    recovery_code: Mapped[str | None] = mapped_column()
-    recovery_code_lifetime_end: Mapped[
-        datetime.datetime | None
-    ] = mapped_column()
-    is_admin: Mapped[bool | None] = mapped_column(server_default="f")
-    is_banned: Mapped[bool | None] = mapped_column(server_default="f")
-    created: Mapped[datetime.datetime] = mapped_column(
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True,
+        server_default=func.uuid_generate_v4(),
+    )
+    user_id: Mapped[UUID] = mapped_column()
+    video_id: Mapped[int] = mapped_column(ForeignKey("videos.id"))
+    created_at: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),
     )
 
-    comments: Mapped[list["Comment"]] = relationship(back_populates="user")
-    posts: Mapped[list["Post"]] = relationship(back_populates="user")
-    tokens: Mapped[list["UserToken"]] = relationship(back_populates="user")
-    liked_videos: Mapped[list["Video"]] = relationship(
-        secondary=liked_videos,
-        back_populates="users",
+    video: Mapped["Video"] = relationship(
+        "Video",
+        back_populates="liked_by",
     )
 
 
@@ -95,17 +78,7 @@ class Post(Base):
         server_default=func.now(),
     )
     thumbnail: Mapped[str | None] = mapped_column()
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            "users.id",
-            ondelete="CASCADE",
-        ),
-    )
-
-    user: Mapped["User"] = relationship(
-        back_populates="posts",
-        cascade="all, delete",
-    )
+    user_id: Mapped[UUID] = mapped_column()
 
 
 class Video(Base):
@@ -120,10 +93,7 @@ class Video(Base):
     duration: Mapped[int] = mapped_column(server_default="0")
     deleted: Mapped[bool | None] = mapped_column(server_default="f")
 
-    users: Mapped[list["User"]] = relationship(
-        secondary=liked_videos,
-        back_populates="liked_videos",
-    )
+    liked_by: Mapped[list["LikedVideos"]] = relationship()
     comments: Mapped[list["Comment"]] = relationship(
         back_populates="video",
     )
@@ -138,17 +108,11 @@ class Comment(Base):
         server_default=func.now(),
     )
     deleted: Mapped[bool | None] = mapped_column(server_default="f")
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-    )
+    user_id: Mapped[UUID] = mapped_column()
     video_id: Mapped[int] = mapped_column(
         ForeignKey("videos.id", ondelete="CASCADE"),
     )
 
-    user: Mapped["User"] = relationship(
-        back_populates="comments",
-        cascade="all, delete",
-    )
     video: Mapped["Video"] = relationship(
         back_populates="comments",
         cascade="all, delete",
@@ -174,23 +138,3 @@ class LiveStream(Base):
     image: Mapped[str | None] = mapped_column()
     url: Mapped[str | None] = mapped_column()
     genres: Mapped[list[str] | None] = mapped_column()
-
-
-class UserToken(Base):
-    __tablename__ = "users_tokens"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str | None] = mapped_column()
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=func.now(),
-    )
-    expired_at: Mapped[datetime.datetime | None] = mapped_column()
-    revoked_at: Mapped[datetime.datetime | None] = mapped_column()
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
-    )
-
-    user: Mapped["User"] = relationship(
-        back_populates="tokens",
-        cascade="all, delete",
-    )

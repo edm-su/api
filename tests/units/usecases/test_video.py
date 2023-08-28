@@ -190,8 +190,13 @@ class TestCreateVideoUseCase:
         self: Self,
         repository: AsyncMock,
         full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
     ) -> CreateVideoUseCase:
-        return CreateVideoUseCase(repository, full_text_repository)
+        return CreateVideoUseCase(
+            repository,
+            full_text_repository,
+            permissions_repo,
+        )
 
     @pytest.mark.usefixtures("_mock_not_found")
     async def test_create_video(
@@ -248,10 +253,12 @@ class TestDeleteVideoUseCase:
         self: Self,
         repository: AsyncMock,
         full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
     ) -> DeleteVideoUseCase:
         return DeleteVideoUseCase(
             repository,
             full_text_repository,
+            permissions_repo,
         )
 
     async def test_delete_video(

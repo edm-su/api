@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import UUID4, Field
 
 from app.internal.entity.common import AttributeModel, BaseModel
+from app.internal.entity.user import User
 from app.internal.entity.video import Video
-from app.internal.usecase.user import User
 
 
 class CommentBase(BaseModel):
@@ -18,6 +18,6 @@ class NewCommentDto(CommentBase):
 
 class Comment(AttributeModel, CommentBase):
     id: int
-    user_id: int
+    user_id: UUID4
     published_at: datetime
     video_id: int

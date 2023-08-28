@@ -2,10 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-    CurrentUser,
-)
+from app.internal.controller.http.v1.dependencies.auth import CurrentUser
 from app.internal.controller.http.v1.dependencies.comment import (
     create_create_comment_usecase,
     create_get_all_comments_usecase,
@@ -15,9 +12,7 @@ from app.internal.controller.http.v1.dependencies.comment import (
 from app.internal.controller.http.v1.dependencies.paginator import (
     PaginatorDeps,
 )
-from app.internal.controller.http.v1.dependencies.video import (
-    FindVideo,
-)
+from app.internal.controller.http.v1.dependencies.video import FindVideo
 from app.internal.controller.http.v1.requests.comment import NewCommentRequest
 from app.internal.entity.comment import Comment, NewCommentDto
 from app.internal.usecase.comment import (
@@ -77,7 +72,6 @@ async def comments_list(
         GetAllCommentsUseCase,
         Depends(create_get_all_comments_usecase),
     ],
-    _: CurrentAdmin,
     pagination: PaginatorDeps,
     count_usecase: Annotated[
         GetCountCommentsUseCase,

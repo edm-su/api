@@ -27,7 +27,7 @@ def image_urls(
 
 
 class TestUpload:
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_image(
         self: Self,
         client: AsyncClient,
@@ -48,7 +48,7 @@ class TestUpload:
         assert response.status_code == status.HTTP_200_OK
         assert ImageURLs.model_validate(response.json()) == image_urls
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_error(
         self: Self,
         client: AsyncClient,
@@ -67,7 +67,7 @@ class TestUpload:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_not_image(
         self: Self,
         client: AsyncClient,
@@ -95,23 +95,9 @@ class TestUpload:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.usefixtures("_mock_current_user")
-    async def test_without_permission(
-        self: Self,
-        client: AsyncClient,
-        mocker: MockerFixture,
-    ) -> None:
-        path = Path("tests/files/test.jpeg")
-        response = await client.post(
-            "/upload/images",
-            files={"image": path.open("rb")},
-        )
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
 
 class TestUploadImageURL:
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_image_by_url(
         self: Self,
         client: AsyncClient,
@@ -132,7 +118,7 @@ class TestUploadImageURL:
         assert response.status_code == status.HTTP_200_OK
         assert ImageURLs.model_validate(response.json()) == image_urls
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_error(
         self: Self,
         client: AsyncClient,
@@ -162,16 +148,3 @@ class TestUploadImageURL:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    @pytest.mark.usefixtures("_mock_current_user")
-    async def test_without_permission(
-        self: Self,
-        client: AsyncClient,
-        faker: Faker,
-    ) -> None:
-        response = await client.post(
-            "/upload/image_url",
-            json={"url": faker.url()},
-        )
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN

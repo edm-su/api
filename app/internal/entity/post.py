@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import UUID4, Field
 
 from app.internal.entity.common import AttributeModel, BaseModel
 from app.internal.entity.user import User
@@ -21,4 +21,4 @@ class NewPostDTO(BasePost):
 
 class Post(BasePost, AttributeModel):
     id: int
-    user_id: int
+    user_id: UUID4

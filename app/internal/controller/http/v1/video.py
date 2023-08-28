@@ -3,9 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 from starlette import status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-)
 from app.internal.controller.http.v1.dependencies.paginator import (
     PaginatorDeps,
 )
@@ -70,7 +67,6 @@ async def read_video(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_video(
-    _: CurrentAdmin,
     usecase: Annotated[
         DeleteVideoUseCase,
         Depends(create_delete_video_usecase),
@@ -87,7 +83,6 @@ async def delete_video(
 )
 async def add_video(
     new_video: NewVideoDto,
-    _: CurrentAdmin,
     usecase: Annotated[
         CreateVideoUseCase,
         Depends(create_create_video_usecase),

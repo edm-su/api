@@ -6,7 +6,6 @@
 * PostgreSQL >= 9.6
 * Poetry
 * Meilisearch >= 1.0.0
-* [Nats](https://docs.nats.io/) >= 2.9
 
 ## Установка
 
@@ -23,22 +22,21 @@ alembic upgrade head
 
 ## Переменные окружения
 
-| Переменная                | Обязателен |                                Описание                                |           Значение по умолчанию            |
-|---------------------------|:----------:|:----------------------------------------------------------------------:|:------------------------------------------:|
+| Переменная                | Обязателен |                                Описание                                |               Значение по умолчанию                |
+| ------------------------- | :--------: | :--------------------------------------------------------------------: | :------------------------------------------------: |
 | DATABASE_URL              |     x      |                           Адрес базы данных                            | postgresql+asyncpg://postgres:postgres@db/postgres |
-| DISABLE_OPENAPI           |            |                           Режим отключения OpenAPI                        |                   False                    |
-| LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICAL) |                  ERROR                   |
-| MEILISEARCH_API_KEY       |            |                          Ключ api meilisearch                          |                                            |
-| MEILISEARCH_API_URL       |     x      |                         Адрес api meilisearch                          |           http://localhost:7700            |
-| MEILISEARCH_INDEX_POSTFIX |            |                Дополнение к адресу индексов meilisearch                |                                            |
-| NATS_URL                  |     x      |                           Адрес nats сервера                            |                              |
-| S3_ACCESS_KEY             |     x      |                           Ключ доступа к S3                            |                                            |
-| S3_ACCESS_KEY_ID          |     x      |                         Идентификатор ключа S3                         |                                            |
-| S3_BUCKET                 |     x      |                         Название S3 хранилища                          |                                            |
-| S3_ENDPOINT               |     x      |                           Конечная точка S3                            |                                            |
-| S3_REGION                 |     x      |                               Регион S3                                |                 us-east-1                  |
-| SECRET_KEY               |     x      |                           Ключ шифрования                              |                                            |
-| STATIC_URL                |     x      |                             Адрес статики                              |         https://static.dev.edm.su          |
-| TESTING                   |            |                              Режим тестов                              |                   False                    |
-| HOST                     |            |                             Адрес хоста                                |                   127.0.0.1                   |
-| PORT                     |            |                             Порт хоста                                |                   8000                      |
+| DISABLE_OPENAPI           |            |                        Режим отключения OpenAPI                        |                       False                        |
+| HOST                      |            |                              Адрес хоста                               |                     127.0.0.1                      |
+| LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICAL) |                       ERROR                        |
+| MEILISEARCH_API_KEY       |            |                          Ключ api meilisearch                          |                                                    |
+| MEILISEARCH_API_URL       |     x      |                         Адрес api meilisearch                          |               http://localhost:7700                |
+| MEILISEARCH_INDEX_POSTFIX |            |                Дополнение к адресу индексов meilisearch                |                                                    |
+| PORT                      |            |                               Порт хоста                               |                        8000                        |
+| S3_ACCESS_KEY             |     x      |                           Ключ доступа к S3                            |                                                    |
+| S3_ACCESS_KEY_ID          |     x      |                         Идентификатор ключа S3                         |                                                    |
+| S3_BUCKET                 |     x      |                         Название S3 хранилища                          |                                                    |
+| S3_ENDPOINT               |     x      |                           Конечная точка S3                            |                                                    |
+| S3_REGION                 |     x      |                               Регион S3                                |                     us-east-1                      |
+| SPICEDB_API_KEY           |     x      |                            Spicedb api key                             |                                                    |
+| SPICEDB_URL               |     x      |                            Spicedb API URI                             |                                                    |
+| STATIC_URL                |     x      |                             Адрес статики                              |             https://static.dev.edm.su              |

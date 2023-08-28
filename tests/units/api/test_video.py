@@ -55,7 +55,7 @@ class TestGetVideo:
 
 
 class TestDeleteVideo:
-    @pytest.mark.usefixtures("_mock_current_admin", "_mock_find_video")
+    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
     async def test_delete_video(
         self: Self,
         client: AsyncClient,
@@ -69,16 +69,6 @@ class TestDeleteVideo:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
-    async def test_not_authorized(
-        self: Self,
-        client: AsyncClient,
-        video: Video,
-    ) -> None:
-        response = await client.delete(f"/videos/{video.slug}")
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 class TestCreateVideo:
@@ -96,7 +86,7 @@ class TestCreateVideo:
             slug=video.slug,
         )
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_create_video(
         self: Self,
         client: AsyncClient,
@@ -117,19 +107,6 @@ class TestCreateVideo:
         assert response.status_code == status.HTTP_201_CREATED
 
     @pytest.mark.usefixtures("_mock_current_user")
-    async def test_not_authorized(
-        self: Self,
-        client: AsyncClient,
-        data: NewVideoDto,
-    ) -> None:
-        response = await client.post(
-            "/videos",
-            content=data.model_dump_json(),
-        )
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    @pytest.mark.usefixtures("_mock_current_admin")
     async def test_already_exists(
         self: Self,
         client: AsyncClient,

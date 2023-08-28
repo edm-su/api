@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
 
-from app.internal.controller.http.v1.dependencies.auth import CurrentAdmin
 from app.internal.controller.http.v1.dependencies.livestream import (
     FindLivestream,
     create_create_live_stream_usecase,
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/livestreams", tags=["LiveStreams"])
 )
 async def new_stream(
     stream: CreateLiveStreamRequest,
-    _: CurrentAdmin,
     usecase: Annotated[
         CreateLiveStreamUseCase,
         Depends(create_create_live_stream_usecase),
@@ -105,7 +103,6 @@ async def get_stream(
     summary="Delete live stream",
 )
 async def delete_stream(
-    _: CurrentAdmin,
     usecase: Annotated[
         DeleteLiveStreamUseCase,
         Depends(create_delete_live_stream_usecase),
@@ -126,7 +123,6 @@ async def delete_stream(
     summary="Update live stream",
 )
 async def update_stream(
-    _: CurrentAdmin,
     updated_stream: BaseLiveStream,
     usecase: Annotated[
         UpdateLiveStreamUseCase,

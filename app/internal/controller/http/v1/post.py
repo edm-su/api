@@ -2,9 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from app.internal.controller.http.v1.dependencies.auth import (
-    CurrentAdmin,
-)
+from app.internal.controller.http.v1.dependencies.auth import CurrentUser
 from app.internal.controller.http.v1.dependencies.paginator import (
     PaginatorDeps,
 )
@@ -39,7 +37,7 @@ router = APIRouter(tags=["Posts"])
 )
 async def new_post(
     post: CreatePostRequest,
-    admin: CurrentAdmin,
+    user: CurrentUser,
     usecase: Annotated[
         CreatePostUseCase,
         Depends(create_create_post_usecase),
@@ -52,7 +50,7 @@ async def new_post(
         slug=post.slug,
         published_at=post.published_at,  # type: ignore[assigned]
         thumbnail=post.thumbnail,
-        user=admin,
+        user=user,
     )
     try:
         return await usecase.execute(new_post)
@@ -101,7 +99,6 @@ async def get_post(post: FindPost) -> Post:
 )
 async def delete_post(
     slug: str,
-    _: CurrentAdmin,
     usecase: Annotated[
         DeletePostUseCase,
         Depends(create_delete_post_usecase),

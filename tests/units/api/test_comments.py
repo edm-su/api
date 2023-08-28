@@ -55,20 +55,6 @@ class TestNewComment:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_201_CREATED
 
-    @pytest.mark.usefixtures("_mock_find_video")
-    async def test_new_comment_by_guest(
-        self: Self,
-        client: AsyncClient,
-        video: Video,
-        comment: Comment,
-    ) -> None:
-        response = await client.post(
-            f"/videos/{video.slug}/comments",
-            json={"text": comment.text},
-        )
-
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
     @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
     async def test_new_comment_with_invalid_data(
         self: Self,
@@ -144,7 +130,7 @@ class TestReadComments:
 
 
 class TestGetAllComments:
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_get_all_comments(
         self: Self,
         client: AsyncClient,
@@ -166,11 +152,3 @@ class TestGetAllComments:
         assert response_data[0]["id"] == comment.id
         assert response.headers["X-Total_Count"] == "1"
         mocked.assert_awaited_once()
-
-    @pytest.mark.usefixtures("_mock_current_user")
-    async def test_get_all_comments_by_not_admin(
-        self: Self,
-        client: AsyncClient,
-    ) -> None:
-        response = await client.get("/comments")
-        assert response.status_code == status.HTTP_403_FORBIDDEN

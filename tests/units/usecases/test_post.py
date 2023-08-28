@@ -3,11 +3,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
-from pydantic import SecretStr
+from pytest_mock import MockFixture
 from typing_extensions import Self
 
 from app.internal.entity.post import NewPostDTO, Post
-from app.internal.entity.user import User, get_password_hash
+from app.internal.entity.user import User
 from app.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
@@ -18,6 +18,9 @@ from app.internal.usecase.post import (
     GetAllPostsUseCase,
     GetPostBySlugUseCase,
     GetPostCountUseCase,
+)
+from app.internal.usecase.repository.permission import (
+    AbstractPermissionRepository,
 )
 from app.internal.usecase.repository.post import AbstractPostRepository
 
@@ -60,17 +63,6 @@ def new_post(
     )
 
 
-@pytest.fixture()
-def user(faker: Faker) -> User:
-    return User(
-        id=faker.random_int(),
-        username=faker.user_name(),
-        email=faker.email(),
-        created=faker.past_datetime(tzinfo=timezone.utc),
-        password=SecretStr(get_password_hash(faker.password())),
-    )
-
-
 class TestCreatePostUseCase:
     @pytest.fixture(autouse=True)
     def _mock(
@@ -81,11 +73,19 @@ class TestCreatePostUseCase:
         repository.create.return_value = post
 
     @pytest.fixture()
+    def _mock_permissions(self: Self, mocker: MockFixture) -> None:
+        mocker.patch(
+            "app.internal.usecase.video.CreateVideoUseCase._set_permissions",
+            return_value=None,
+        )
+
+    @pytest.fixture()
     def usecase(
         self: Self,
         repository: AbstractPostRepository,
+        permissions_repo: AbstractPermissionRepository,
     ) -> CreatePostUseCase:
-        return CreatePostUseCase(repository)
+        return CreatePostUseCase(repository, permissions_repo)
 
     async def test_create_post(
         self: Self,
@@ -209,8 +209,9 @@ class TestDeletePostUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
+        permissions_repo: AsyncMock,
     ) -> DeletePostUseCase:
-        return DeletePostUseCase(repository)
+        return DeletePostUseCase(repository, permissions_repo)
 
     @pytest.fixture(autouse=True)
     def _mock(

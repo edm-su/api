@@ -9,7 +9,6 @@ from app.internal.entity.user import User
 from app.internal.entity.video import Video
 from app.internal.usecase.exceptions.user_videos import UserVideoNotLikedError
 from app.pkg.postgres import LikedVideos as PGLikedVideo
-from app.pkg.postgres import User as PGUser
 from app.pkg.postgres import Video as PGVideo
 
 
@@ -76,8 +75,8 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         query = (
             delete(PGLikedVideo)
             .where(
-                (PGLikedVideo.c.user_id == user.id)
-                & (PGLikedVideo.c.video_id == video.id),
+                (PGLikedVideo.user_id == user.id)
+                & (PGLikedVideo.video_id == video.id),
             )
             .returning(PGLikedVideo)
         )
@@ -95,9 +94,9 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         offset: int = 0,
     ) -> list[Video]:
         query = (
-            select(PGUser, PGVideo)
-            .join(PGUser.liked_videos)
-            .where(PGUser.id == user.id)
+            select(PGLikedVideo, PGVideo)
+            .join(PGLikedVideo.video)
+            .where(PGLikedVideo.user_id == user.id)
             .limit(limit)
             .offset(offset)
             .order_by(PGVideo.date.desc())
@@ -112,8 +111,8 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         video: Video,
     ) -> bool:
         query = select(PGLikedVideo).where(
-            (PGLikedVideo.c.user_id == user.id)
-            & (PGLikedVideo.c.video_id == video.id),
+            (PGLikedVideo.user_id == user.id)
+            & (PGLikedVideo.video_id == video.id),
         )
 
         return bool(await self._session.scalar(query))

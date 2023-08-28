@@ -56,7 +56,7 @@ def post(
 
 
 class TestNewPost:
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_new_post(
         self: Self,
         client: AsyncClient,
@@ -86,7 +86,7 @@ class TestNewPost:
         assert response.status_code == status.HTTP_201_CREATED
         assert response_data["id"] == post.id
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_already_exists_post(
         self: Self,
         client: AsyncClient,
@@ -104,19 +104,6 @@ class TestNewPost:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_409_CONFLICT
-
-    @pytest.mark.usefixtures("_mock_current_user")
-    async def test_unauthorized(
-        self: Self,
-        client: AsyncClient,
-        new_post_data: CreatePostRequest,
-    ) -> None:
-        response = await client.post(
-            "/posts",
-            content=new_post_data.model_dump_json(),
-        )
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 class TestGetAllPosts:
@@ -161,7 +148,7 @@ class TestGetPost:
 
 
 class TestDeletePost:
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_delete_post(
         self: Self,
         client: AsyncClient,
@@ -178,16 +165,6 @@ class TestDeletePost:
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
     @pytest.mark.usefixtures("_mock_current_user")
-    async def test_unauthorized(
-        self: Self,
-        client: AsyncClient,
-        post: Post,
-    ) -> None:
-        response = await client.delete(f"/posts/{post.slug}")
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    @pytest.mark.usefixtures("_mock_current_admin")
     async def test_not_found(
         self: Self,
         client: AsyncClient,
@@ -204,7 +181,7 @@ class TestDeletePost:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    @pytest.mark.usefixtures("_mock_current_admin")
+    @pytest.mark.usefixtures("_mock_current_user")
     async def test_another_error(
         self: Self,
         client: AsyncClient,
@@ -219,5 +196,4 @@ class TestDeletePost:
         response = await client.delete(f"/posts/{post.slug}")
 
         mocked.assert_awaited_once()
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
