@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.0.0](https://github.com/edm-su/api/compare/v2.6.0...v3.0.0) (2023-08-28)
+
+
+### Features
+
+* scopes mechanism added ([#365](https://github.com/edm-su/api/issues/365)) ([2d1bbe1](https://github.com/edm-su/api/commit/2d1bbe1b352dbc35ceb3535e29b91e8861d15de7))
+* transfer authorization to the controller layer ([#384](https://github.com/edm-su/api/issues/384)) ([659e5f6](https://github.com/edm-su/api/commit/659e5f63a7ea52944b351f5bf226fb87e7f1dea1))
+
+
+### Bug Fixes
+
+* **deps:** bump aioboto3 from 11.2.0 to 11.3.0 ([#380](https://github.com/edm-su/api/issues/380)) ([7bf2ee3](https://github.com/edm-su/api/commit/7bf2ee3ef64d31f8e3a8338e6a8e51a3e19202eb))
+* **deps:** bump alembic from 1.11.1 to 1.11.2 ([#366](https://github.com/edm-su/api/issues/366)) ([0526211](https://github.com/edm-su/api/commit/052621175fba685d3f13d9a38e1b24279cfe0736))
+* **deps:** bump faker from 19.2.0 to 19.3.0 ([#368](https://github.com/edm-su/api/issues/368)) ([6f53be8](https://github.com/edm-su/api/commit/6f53be865232b715101355d4f5c6e444ba39241a))
+* **deps:** bump fastapi from 0.100.1 to 0.101.0 ([#367](https://github.com/edm-su/api/issues/367)) ([c414192](https://github.com/edm-su/api/commit/c414192ece2478b96b11fdda4a7a263014574599))
+* **deps:** bump fastapi from 0.101.0 to 0.101.1 ([#376](https://github.com/edm-su/api/issues/376)) ([67f46c1](https://github.com/edm-su/api/commit/67f46c1b4bca910e659a29974a3e80a0de455c27))
+* **deps:** bump meilisearch-python-async from 1.5.0 to 1.6.1 ([#372](https://github.com/edm-su/api/issues/372)) ([3dbdf4f](https://github.com/edm-su/api/commit/3dbdf4fee76f71470144c7c0ca136d585a048aed))
+* **deps:** bump meilisearch-python-async from 1.6.1 to 1.6.2 ([#375](https://github.com/edm-su/api/issues/375)) ([2b4258e](https://github.com/edm-su/api/commit/2b4258e54cc4fa7f23573f3d66fc5233b2333f52))
+* **deps:** bump mypy from 1.4.1 to 1.5.1 ([#379](https://github.com/edm-su/api/issues/379)) ([e9f6939](https://github.com/edm-su/api/commit/e9f69391f85657aaa7435cbbc4a0f77f8a3da41e))
+* **deps:** bump ruff from 0.0.282 to 0.0.284 ([#371](https://github.com/edm-su/api/issues/371)) ([56d9251](https://github.com/edm-su/api/commit/56d92510f7cf6513e3e81ab75f8b3a0260a5da9f))
+* **deps:** bump ruff from 0.0.284 to 0.0.285 ([#381](https://github.com/edm-su/api/issues/381)) ([c6af3de](https://github.com/edm-su/api/commit/c6af3de5eefaf2324bf53c959644afa952ccb5c7))
+* **deps:** bump sqlalchemy from 2.0.18 to 2.0.20 ([#377](https://github.com/edm-su/api/issues/377)) ([7e14b65](https://github.com/edm-su/api/commit/7e14b65e0917a00e68a43710bdd73ed45826ab74))
+
+
+### Miscellaneous Chores
+
+* release 3.0.0 ([f5caff9](https://github.com/edm-su/api/commit/f5caff9605bbe019edd6fa7ce55b20d3ae89e457))
+
 ## [2.6.0](https://github.com/edm-su/api/compare/v2.5.0...v2.6.0) (2023-08-04)
 
 
