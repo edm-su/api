@@ -38,5 +38,7 @@ alembic upgrade head
 | S3_ENDPOINT               |     x      |                           Конечная точка S3                            |                                                    |
 | S3_REGION                 |     x      |                               Регион S3                                |                     us-east-1                      |
 | SPICEDB_API_KEY           |     x      |                            Spicedb api key                             |                                                    |
+| SPICEDB_INSECURE          |            |              Режим безопасности для подключения к Spicedb              |                       False                        |
+| SPICEDB_TLS_CERT          |            |                         Путь к сертификату TLS                         |                                                    |
 | SPICEDB_URL               |     x      |                            Spicedb API URI                             |                                                    |
 | STATIC_URL                |     x      |                             Адрес статики                              |             https://static.dev.edm.su              |

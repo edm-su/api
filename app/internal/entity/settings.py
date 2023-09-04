@@ -17,6 +17,8 @@ class Settings(BaseSettings):
 
     spicedb_url: str
     spicedb_api_key: str
+    spicedb_insecure: bool = False
+    spicedb_tls_cert: str | None = None
 
     s3_bucket: str
     s3_endpoint: str
