@@ -31,6 +31,7 @@ jobs:
 
       SPICEDB_URL: "localhost:50051"
       SPICEDB_API_KEY: "edm-su"
+      SPICEDB_INSECURE: "true"
     services:
       postgres:
         image: postgres:14-alpine3.17
