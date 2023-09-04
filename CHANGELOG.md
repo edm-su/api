@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.1.0](https://github.com/edm-su/api/compare/v3.0.0...v3.1.0) (2023-09-04)
+
+
+### Features
+
+* add encryption support for spicedb connection ([#394](https://github.com/edm-su/api/issues/394)) ([d2d2197](https://github.com/edm-su/api/commit/d2d2197786957769bb52b3ca2db52d7d6af7df6f))
+
+
+### Bug Fixes
+
+* **deps:** bump ruff from 0.0.285 to 0.0.287 ([#392](https://github.com/edm-su/api/issues/392)) ([a850e22](https://github.com/edm-su/api/commit/a850e229be98a1dfcd478484e9c4d8f53431a51b))
+
 ## [3.0.0](https://github.com/edm-su/api/compare/v2.6.0...v3.0.0) (2023-08-28)
 
 
