@@ -1,7 +1,7 @@
 set dotenv-load := true
 
 serve:
-	poetry run python app/main.py
+	poetry run app
 
 lint: ruff-lint mypy black-lint
 
