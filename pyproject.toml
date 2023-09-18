@@ -4,6 +4,7 @@ version = "3.1.0"
 description = "edm.su backend"
 authors = ["Egor <eagluhih@gmail.com>"]
 license = "MIT"
+packages = [{ include = "app" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
