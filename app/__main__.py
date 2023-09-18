@@ -71,19 +71,18 @@ app.add_middleware(
     expose_headers=["x-total-count"],
 )
 
-if __name__ == "__main__":
-    log_config = uvicorn.config.LOGGING_CONFIG
-    log_config["formatters"]["access"][
-        "fmt"
-    ] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    log_config["formatters"]["default"][
-        "fmt"
-    ] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    uvicorn.run(
-        "app.main:app",
-        log_config=log_config,
-        log_level=settings.log_level.lower(),
-        reload=True,
-        host=settings.host,
-        port=settings.port,
-    )
+
+log_config = uvicorn.config.LOGGING_CONFIG
+log_config["formatters"]["access"][
+    "fmt"
+] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+log_config["formatters"]["default"][
+    "fmt"
+] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+uvicorn.run(
+    "app.__main__:app",
+    log_config=log_config,
+    log_level=settings.log_level.lower(),
+    host=settings.host,
+    port=settings.port,
+)
