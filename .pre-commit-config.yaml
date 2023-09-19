@@ -10,8 +10,8 @@ repos:
           - "types-python-slugify==8.0.0.3"
           - "pydantic==2.1.1"
           - "types-aiofiles==23.2.0.0"
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.9.1
     hooks:
       - id: black
         language_version: python3.10
@@ -32,7 +32,7 @@ repos:
           - test
           - chore
   - repo: https://github.com/python-poetry/poetry
-    rev: "1.4.1"
+    rev: "1.6.1"
     hooks:
       - id: poetry-check
       - id: poetry-lock
