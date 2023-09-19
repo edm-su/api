@@ -1,24 +1,27 @@
-FROM python:3.11.3-slim as python-base
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-ENV PYSETUP_PATH=/pysetup
-ENV HOST=0.0.0.0
-RUN apt-get update && apt-get --no-install-recommends -y install libpq-dev
+FROM cgr.dev/chainguard/python:latest-dev as builder
+
+ARG POETRY_VERSION="1.6.1"
+WORKDIR /app
+COPY pyproject.toml poetry.lock README.md .
+COPY app ./app
+
+RUN python -m venv $HOME/tools && \
+    . "${HOME}/tools/bin/activate" && \
+    pip install "poetry==${POETRY_VERSION}"
+
+RUN python -m venv "${HOME}/venv" && \
+    . "${HOME}/venv/bin/activate" && \
+    ~/tools/bin/poetry install --only main
 
 
-FROM python-base as builder-base
+FROM cgr.dev/chainguard/python:latest
 
-RUN pip install poetry && poetry config virtualenvs.in-project true
-
-WORKDIR $PYSETUP_PATH
-COPY . ./
-
-RUN poetry install --only main
-
-
-FROM python-base as production
-COPY --from=builder-base $PYSETUP_PATH /app
 WORKDIR /app
 
+COPY --from=builder /home/nonroot/venv/lib/python3.11/site-packages /home/nonroot/.local/lib/python3.11/site-packages
+COPY --from=builder /app/app /app/app
+COPY alembic.ini .
+COPY alembic ./alembic/
+
 EXPOSE 8000
-ENTRYPOINT ["./.venv/bin/python", "-m", "app"]
+ENTRYPOINT ["python", "-m", "app"]
