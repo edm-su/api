@@ -1066,13 +1066,13 @@ files = [
 
 [[package]]
 name = "httpcore"
-version = "0.16.3"
+version = "0.18.0"
 description = "A minimal low-level HTTP client."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "httpcore-0.16.3-py3-none-any.whl", hash = "sha256:da1fb708784a938aa084bde4feb8317056c55037247c787bd7e19eb2c2949dc0"},
-    {file = "httpcore-0.16.3.tar.gz", hash = "sha256:c5d6f04e2fc530f39e0c077e6a30caa53f1451096120f1f38b954afd0b17c0cb"},
+    {file = "httpcore-0.18.0-py3-none-any.whl", hash = "sha256:adc5398ee0a476567bf87467063ee63584a8bce86078bf748e48754f60202ced"},
+    {file = "httpcore-0.18.0.tar.gz", hash = "sha256:13b5e5cd1dca1a6636a6aaea212b19f4f85cd88c366a2b82304181b769aab3c9"},
 ]
 
 [package.dependencies]
@@ -1140,18 +1140,18 @@ test = ["Cython (>=0.29.24,<0.30.0)"]
 
 [[package]]
 name = "httpx"
-version = "0.24.1"
+version = "0.25.0"
 description = "The next generation HTTP client."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "httpx-0.24.1-py3-none-any.whl", hash = "sha256:06781eb9ac53cde990577af654bd990a4949de37a28bdb4a230d434f3a30b9bd"},
-    {file = "httpx-0.24.1.tar.gz", hash = "sha256:5853a43053df830c20f8110c5e69fe44d035d850b2dfe795e196f00fdb774bdd"},
+    {file = "httpx-0.25.0-py3-none-any.whl", hash = "sha256:181ea7f8ba3a82578be86ef4171554dd45fec26a02556a744db029a0a27b7100"},
+    {file = "httpx-0.25.0.tar.gz", hash = "sha256:47ecda285389cb32bb2691cc6e069e3ab0205956f681c5b2ad2325719751d875"},
 ]
 
 [package.dependencies]
 certifi = "*"
-httpcore = ">=0.15.0,<0.18.0"
+httpcore = ">=0.18.0,<0.19.0"
 idna = "*"
 sniffio = "*"
 
@@ -1976,18 +1976,18 @@ python-dotenv = ">=0.9.1"
 
 [[package]]
 name = "pytest-httpx"
-version = "0.23.1"
+version = "0.26.0"
 description = "Send responses to httpx."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "pytest_httpx-0.23.1-py3-none-any.whl", hash = "sha256:ba38a9e6c685d3cf6197551a79bf7e41f8bbc57a6d1de65b537f77e87f56ecd3"},
-    {file = "pytest_httpx-0.23.1.tar.gz", hash = "sha256:cfed19eb8b13cbdf464bbb1c4ef88717d88d42334aa9ce516e56e46975c77f74"},
+    {file = "pytest_httpx-0.26.0-py3-none-any.whl", hash = "sha256:ca372b94c569c0aca2f06240f6f78cc223dfbc3ab97b5700d4e14c9a73eab17a"},
+    {file = "pytest_httpx-0.26.0.tar.gz", hash = "sha256:b489c5a7bb847551943eaee601bc35053b35dc4f5961c944305120f14a1d770a"},
 ]
 
 [package.dependencies]
-httpx = "==0.24.*"
-pytest = ">=6.0,<8.0"
+httpx = "==0.25.*"
+pytest = "==7.*"
 
 [package.extras]
 testing = ["pytest-asyncio (==0.21.*)", "pytest-cov (==4.*)"]
@@ -2846,4 +2846,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3dc134efbd695ac158cef576a929226f972e3b769b4afe0feb28f087ad7d1542"
+content-hash = "75d6da54225d036ab1423f929778a10664203a2b0df8e11cdb888baf21f78997"
