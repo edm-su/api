@@ -16,7 +16,7 @@ python-slugify = { extras = ["unidecode"], version = "^8.0" }
 aiohttp = "^3.8.1"
 aioboto3 = "^11.3.0"
 meilisearch-python-async = "1.6.2"
-typing-extensions = "^4.7.1"
+typing-extensions = "^4.8.0"
 greenlet = "^2.0.2"
 asyncpg = "^0.27.0"
 authzed = "^0.11.0"
