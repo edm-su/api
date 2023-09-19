@@ -20,7 +20,5 @@ FROM python-base as production
 COPY --from=builder-base $PYSETUP_PATH /app
 WORKDIR /app
 
-RUN chmod +x entrypoint.sh
-
 EXPOSE 8000
 ENTRYPOINT ["./.venv/bin/python", "-m", "app"]

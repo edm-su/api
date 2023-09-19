@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
+from app.internal.controller.http import app
 from app.internal.controller.http.v1.dependencies.post import find_post
 from app.internal.controller.http.v1.requests.post import CreatePostRequest
 from app.internal.entity.post import Post
@@ -16,7 +17,6 @@ from app.internal.usecase.exceptions.post import (
     PostSlugNotUniqueError,
     PostWasNotDeletedError,
 )
-from app.main import app
 
 
 @pytest.fixture()

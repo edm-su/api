@@ -7,6 +7,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
+from app.internal.controller.http import app
 from app.internal.controller.http.v1.dependencies.livestream import (
     find_livestream,
 )
@@ -15,7 +16,6 @@ from app.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
 )
-from app.main import app
 
 
 @pytest.fixture()
