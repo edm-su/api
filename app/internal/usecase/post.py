@@ -37,7 +37,7 @@ class CreatePostUseCase(BasePostUseCase):
 
     async def _set_permissions(self: Self, post: Post) -> None:
         if self.permissions_repo is not None:
-            resource = Object("post", str(post.id))
+            resource = Object("post", post.slug)
 
             await self.permissions_repo.write(
                 resource,
@@ -92,6 +92,6 @@ class DeletePostUseCase(BasePostUseCase):
 
     async def _set_permissions(self: Self, post: Post) -> None:
         if self.permissions_repo is not None:
-            resource = Object("post", str(post.id))
+            resource = Object("post", post.slug)
 
             await self.permissions_repo.delete(resource, "reader")
