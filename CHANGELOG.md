@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/edm-su/api/compare/v3.2.0...v3.2.1) (2023-10-02)
+
+
+### Bug Fixes
+
+* **ci:** change entrypoint to cmd ([#423](https://github.com/edm-su/api/issues/423)) ([f46cc78](https://github.com/edm-su/api/commit/f46cc78cbb3aaf6b204b7c15fc5716d0e3a10a02))
+
 ## [3.2.0](https://github.com/edm-su/api/compare/v3.1.0...v3.2.0) (2023-10-02)
 
 
