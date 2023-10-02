@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.2.0](https://github.com/edm-su/api/compare/v3.1.0...v3.2.0) (2023-10-02)
+
+
+### Features
+
+* changed spicedb resources id to slug ([#422](https://github.com/edm-su/api/issues/422)) ([f95a549](https://github.com/edm-su/api/commit/f95a549fc6f32c60668bff8bb35fa5e7a3099242))
+
+
+### Bug Fixes
+
+* **deps:** bump black from 23.7.0 to 23.9.1 ([#411](https://github.com/edm-su/api/issues/411)) ([4a0716a](https://github.com/edm-su/api/commit/4a0716af28c46dbbede7582a4c8b245945e93833))
+* **deps:** bump fastapi from 0.101.1 to 0.103.2 ([#421](https://github.com/edm-su/api/issues/421)) ([f231c33](https://github.com/edm-su/api/commit/f231c334c2145f8a382794fab964cc43c0f74561))
+* **deps:** bump pytest-httpx from 0.23.1 to 0.26.0 ([#417](https://github.com/edm-su/api/issues/417)) ([74bca42](https://github.com/edm-su/api/commit/74bca429111051b79fd15eab7bf1efeceb93878e))
+* **deps:** bump ruff from 0.0.287 to 0.0.290 ([#412](https://github.com/edm-su/api/issues/412)) ([47e3e3a](https://github.com/edm-su/api/commit/47e3e3adbac690ea8e31e9c8a3a18f2334f4d836))
+* **deps:** bump sqlalchemy from 2.0.20 to 2.0.21 ([#415](https://github.com/edm-su/api/issues/415)) ([bfdc706](https://github.com/edm-su/api/commit/bfdc70698e07ad432f6c7a24f97b66aac00b3f69))
+* **deps:** bump typing-extensions from 4.7.1 to 4.8.0 ([#416](https://github.com/edm-su/api/issues/416)) ([0254559](https://github.com/edm-su/api/commit/02545596f8624d7ef740d946d2be0611a16ccc2c))
+
 ## [3.1.0](https://github.com/edm-su/api/compare/v3.0.0...v3.1.0) (2023-09-04)
 
 
