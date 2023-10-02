@@ -93,7 +93,7 @@ class CreateVideoUseCase(AbstractFullTextVideoUseCase):
         if self.permissions_repo is None:
             return
 
-        resource = Object("video", str(video.id))
+        resource = Object("video", video.slug)
         await self.permissions_repo.write(
             resource,
             "writer",
@@ -120,5 +120,5 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
         if self.permissions_repo is None:
             return
 
-        resource = Object("video", str(video.id))
+        resource = Object("video", video.slug)
         await self.permissions_repo.delete(resource, "reader")
