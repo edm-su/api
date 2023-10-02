@@ -24,4 +24,4 @@ COPY alembic.ini .
 COPY alembic ./alembic/
 
 EXPOSE 8000
-CMD ["-m", "app"]
+ENTRYPOINT ["python", "-m", "app"]
