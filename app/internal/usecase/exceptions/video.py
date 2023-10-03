@@ -5,14 +5,6 @@ class VideoError(Exception):
     pass
 
 
-class VideoSlugNotUniqueError(VideoError):
-    def __init__(
-        self: Self,
-        slug: str,
-    ) -> None:
-        super().__init__(f"Video with slug {slug} already exists")
-
-
 class VideoYtIdNotUniqueError(VideoError):
     def __init__(
         self: Self,

@@ -3,7 +3,6 @@ from typing_extensions import Self
 from app.internal.entity.video import NewVideoDto, Video
 from app.internal.usecase.exceptions.video import (
     VideoNotFoundError,
-    VideoSlugNotUniqueError,
     VideoYtIdNotUniqueError,
 )
 from app.internal.usecase.repository.permission import (
@@ -65,22 +64,17 @@ class GetVideoBySlugUseCase(BaseVideoUseCase):
 class CreateVideoUseCase(AbstractFullTextVideoUseCase):
     async def execute(self: Self, new_video: NewVideoDto) -> Video:
         try:
-            existing_video = await self.repository.get_by_slug(new_video.slug)  # type: ignore[arg-type]
+            await self.repository.get_by_yt_id(new_video.yt_id)
+            raise VideoYtIdNotUniqueError(new_video.yt_id)
         except VideoNotFoundError:
-            existing_video = None
-
-        if existing_video:
-            raise VideoSlugNotUniqueError(new_video.slug)  # type: ignore[arg-type]
+            pass
 
         try:
-            existing_video = await self.repository.get_by_yt_id(
-                new_video.yt_id,
-            )
+            if new_video.slug:
+                await self.repository.get_by_slug(new_video.slug)
+            new_video.expand_slug()
         except VideoNotFoundError:
-            existing_video = None
-
-        if existing_video:
-            raise VideoYtIdNotUniqueError(new_video.yt_id)
+            pass
 
         video = await self.repository.create(new_video)
         await self.full_text_repo.create(video)
