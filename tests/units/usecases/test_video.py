@@ -3,12 +3,12 @@ from unittest.mock import AsyncMock
 import pytest
 from faker import Faker
 from pytest_mock import MockFixture
+from pytest_mock.plugin import MockType
 from typing_extensions import Self
 
 from app.internal.entity.video import NewVideoDto
 from app.internal.usecase.exceptions.video import (
     VideoNotFoundError,
-    VideoSlugNotUniqueError,
     VideoYtIdNotUniqueError,
 )
 from app.internal.usecase.repository.video import (
@@ -186,6 +186,10 @@ class TestCreateVideoUseCase:
         repository.get_by_yt_id.side_effect = VideoNotFoundError
 
     @pytest.fixture()
+    def expand_slug_patch(self: Self, mocker: MockFixture) -> MockType:
+        return mocker.patch.object(NewVideoDto, "expand_slug", return_value="")
+
+    @pytest.fixture()
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -206,6 +210,7 @@ class TestCreateVideoUseCase:
         video: Video,
         repository: AsyncMock,
         full_text_repository: AsyncMock,
+        expand_slug_patch: MockType,
     ) -> None:
         created_video = await usecase.execute(new_video)
         assert created_video is video
@@ -214,16 +219,21 @@ class TestCreateVideoUseCase:
         full_text_repository.create.assert_awaited_once_with(created_video)
         repository.get_by_slug.assert_awaited_once_with(video.slug)
         repository.get_by_yt_id.assert_awaited_once_with(video.yt_id)
+        expand_slug_patch.assert_not_called()
 
-    @pytest.mark.usefixtures("_mock_by_slug")
-    async def test_create_video_with_invalid_slug(
+    async def test_create_video_with_already_existing_slug(
         self: Self,
         usecase: CreateVideoUseCase,
         new_video: NewVideoDto,
+        repository: AsyncMock,
+        expand_slug_patch: MockType,
     ) -> None:
         """Raise exception if slug is not unique."""
-        with pytest.raises(VideoSlugNotUniqueError):
-            await usecase.execute(new_video)
+        repository.get_by_yt_id.side_effect = VideoNotFoundError
+
+        await usecase.execute(new_video)
+
+        expand_slug_patch.assert_called_once()
 
     @pytest.mark.usefixtures("_mock_by_yt_id")
     async def test_create_video_with_invalid_yt_id(

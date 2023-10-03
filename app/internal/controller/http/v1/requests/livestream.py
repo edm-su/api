@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pydantic import (
     Field,
-    FieldValidationInfo,
     HttpUrl,
+    ValidationInfo,
     field_validator,
 )
 from slugify import slugify
@@ -50,7 +50,7 @@ class CreateLiveStreamRequest(BaseModel):
     def end_time_after_start_time(
         cls: type["CreateLiveStreamRequest"],
         v: datetime,
-        info: FieldValidationInfo,
+        info: ValidationInfo,
     ) -> datetime:
         if v < info.data["start_time"]:
             error_text = "Must be after the start date"
@@ -62,7 +62,7 @@ class CreateLiveStreamRequest(BaseModel):
     def set_slug(
         cls: type["CreateLiveStreamRequest"],
         v: str,
-        info: FieldValidationInfo,
+        info: ValidationInfo,
     ) -> str:
         if not v:
             return slugify(info.data["title"])
