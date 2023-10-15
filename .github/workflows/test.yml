@@ -82,7 +82,7 @@ jobs:
           version: "v1.24.0"
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4.6.1
+      - uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
