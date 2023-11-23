@@ -9,7 +9,7 @@ packages = [{ include = "app" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 alembic = "^1.12"
-fastapi = { version = "0.103.2", extras = ["all"] }
+fastapi = { version = "0.104.1", extras = ["all"] }
 Pillow = "^10.0.0"
 SQLAlchemy = { extras = ["asyncio"], version = "^2.0" }
 python-slugify = { extras = ["unidecode"], version = "^8.0" }
