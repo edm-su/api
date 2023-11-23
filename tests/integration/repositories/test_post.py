@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 from faker import Faker
@@ -30,6 +30,7 @@ def new_post_data(
         published_at=faker.date_time_between(
             start_date="now",
             end_date="+1d",
+            tzinfo=timezone.utc,
         ),
         user=user,
     )
@@ -40,7 +41,7 @@ async def pg_post(
     new_post_data: NewPostDTO,
     repository: PostgresPostRepository,
 ) -> Post:
-    new_post_data.published_at = datetime.utcnow()
+    new_post_data.published_at = datetime.now(tz=timezone.utc)
     return await repository.create(new_post_data)
 
 

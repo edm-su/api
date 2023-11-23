@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import delete, func, insert, select
 from sqlalchemy.exc import NoResultFound
@@ -81,7 +81,7 @@ class PostgresPostRepository(AbstractPostRepository):
         query = (
             select(PGPost)
             .where(PGPost.slug == slug)
-            .where(PGPost.published_at <= datetime.utcnow())
+            .where(PGPost.published_at <= datetime.now(tz=timezone.utc))
         )
 
         try:
@@ -97,7 +97,7 @@ class PostgresPostRepository(AbstractPostRepository):
     ) -> list[Post]:
         query = (
             select(PGPost)
-            .where(PGPost.published_at <= datetime.utcnow())
+            .where(PGPost.published_at <= datetime.now(tz=timezone.utc))
             .order_by(PGPost.published_at.desc())
             .offset(skip)
             .limit(limit)
@@ -110,7 +110,7 @@ class PostgresPostRepository(AbstractPostRepository):
         query = (
             select(func.count())
             .select_from(PGPost)
-            .where(PGPost.published_at <= datetime.now())
+            .where(PGPost.published_at <= datetime.now(tz=timezone.utc))
         )
 
         return (await self._session.scalars(query)).one()

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import between, delete, insert, select, update
 from sqlalchemy.exc import NoResultFound
@@ -23,16 +23,16 @@ class AbstractLiveStreamRepository(ABC):
     async def get_by_slug(
         self: Self,
         slug: str,
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
+        start: date | None = None,
+        end: date | None = None,
     ) -> LiveStream:
         pass
 
     @abstractmethod
     async def get_all(
         self: Self,
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
+        start: date | None = None,
+        end: date | None = None,
     ) -> list[LiveStream]:
         pass
 
@@ -80,9 +80,15 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
     async def get_by_slug(
         self: Self,
         slug: str,
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
+        start: date | None = None,
+        end: date | None = None,
     ) -> LiveStream:
+        if start is None:
+            start = datetime.now(tz=timezone.utc).date() - timedelta(days=2)
+
+        if end is None:
+            end = datetime.now(tz=timezone.utc).date() + timedelta(days=31)
+
         query = (
             select(PGLiveStream)
             .where(PGLiveStream.slug == slug)
@@ -99,9 +105,15 @@ class PostgresLiveStreamRepository(AbstractLiveStreamRepository):
 
     async def get_all(
         self: Self,
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
+        start: date | None = None,
+        end: date | None = None,
     ) -> list[LiveStream]:
+        if start is None:
+            start = datetime.now(tz=timezone.utc).date() - timedelta(days=2)
+
+        if end is None:
+            end = datetime.now(tz=timezone.utc).date() + timedelta(days=31)
+
         query = select(PGLiveStream).where(
             between(PGLiveStream.start_time, start, end),
         )

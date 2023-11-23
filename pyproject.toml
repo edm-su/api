@@ -72,7 +72,7 @@ select = [
   "A",      # flake8-builtins
   "COM",    # flake8-commas
   "C4",     # flake8-comprehensions
-  "DTZ001", # flake8-datetimez
+  "DTZ",    # flake8-datetimez
   "T10",    # flake8-debugger
   "EM",     # flake8-errmsg
   "ISC",    # flake8-implicit-str-concat

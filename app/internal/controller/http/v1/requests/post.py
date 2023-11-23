@@ -25,8 +25,8 @@ class CreatePostRequest(BaseModel):
         pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
     )
     published_at: datetime = Field(
-        examples=[datetime.utcnow()],
-        default_factory=lambda: datetime.utcnow(),
+        examples=[datetime.now(tz=timezone.utc)],
+        default_factory=lambda: datetime.now(tz=timezone.utc),
     )
     thumbnail: str | None = Field(
         default=None,
