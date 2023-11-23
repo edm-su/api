@@ -8,7 +8,7 @@ packages = [{ include = "app" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-alembic = "^1.11"
+alembic = "^1.12"
 fastapi = { version = "0.103.2", extras = ["all"] }
 Pillow = "^10.0.0"
 SQLAlchemy = { extras = ["asyncio"], version = "^2.0" }
