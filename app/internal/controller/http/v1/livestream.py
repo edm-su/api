@@ -76,13 +76,11 @@ async def get_streams(
     start: Annotated[
         date,
         Query,
-    ] = date.today()
-    - timedelta(days=2),
+    ] = date.today() - timedelta(days=2),
     end: Annotated[
         date,
         Query,
-    ] = date.today()
-    + timedelta(days=31),
+    ] = date.today() + timedelta(days=31),
 ) -> list[LiveStream]:
     return await usecase.execute(start, end)
 

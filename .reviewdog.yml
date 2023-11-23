@@ -4,11 +4,11 @@ runner:
     level: error
     errorformat:
       - "%f:%l:%c: %m"
+  ruff-format:
+    cmd: poetry run ruff format --check .
+    level: error
+    format: diff
   mypy:
     cmd: poetry run mypy .
     level: error
     format: mypy
-  black:
-    cmd: poetry run black --check .
-    level: error
-    format: black

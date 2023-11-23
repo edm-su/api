@@ -3,24 +3,18 @@ set dotenv-load := true
 serve:
 	poetry run app
 
-lint: ruff-lint mypy black-lint
+lint: ruff-lint mypy
 
 ruff-lint:
-	poetry run ruff check .
+	poetry run ruff check --fix .
 
 mypy:
 	poetry run mypy .
 
-black-lint:
-	poetry run black . --check
-
-format: ruff-format black-format
+format: ruff-format
 
 ruff-format:
-	poetry run ruff check --fix .
-
-black-format:
-	poetry run black .
+	poetry run ruff format .
 
 unit-tests:
 	poetry run pytest tests/units/
