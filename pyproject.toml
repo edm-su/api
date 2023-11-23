@@ -37,7 +37,7 @@ optional = true
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
 mypy = "^1.5.1"
-ruff = "^0.0.292"
+ruff = "^0.1.6"
 black = "^23.9.1"
 types-aiofiles = "^23.2.0.0"
 
