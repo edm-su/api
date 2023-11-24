@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-from sqlalchemy.types import ARRAY, JSON, String
+from sqlalchemy.types import ARRAY, JSON, TIMESTAMP, String
 
 from app.internal.entity.settings import settings
 
@@ -34,9 +34,10 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 class Base(AsyncAttrs, DeclarativeBase):
-    type_annotation_map: ClassVar[dict[type, type | ARRAY]] = {
+    type_annotation_map: ClassVar[dict[type, type | ARRAY | TIMESTAMP]] = {
         dict[str, Any]: JSON,
         list[str]: ARRAY(String),
+        datetime.datetime: TIMESTAMP(timezone=True),
     }
 
 

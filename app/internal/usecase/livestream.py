@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from typing_extensions import Self
 
@@ -23,9 +23,15 @@ class AbstractLiveStreamUseCase:
 class GetAllLiveStreamsUseCase(AbstractLiveStreamUseCase):
     async def execute(
         self: Self,
-        start: date = date.today() - timedelta(days=2),
-        end: date = date.today() + timedelta(days=31),
+        start: date | None = None,
+        end: date | None = None,
     ) -> list[LiveStream]:
+        if start is None:
+            start = datetime.now(tz=timezone.utc).date() - timedelta(days=2)
+
+        if end is None:
+            end = datetime.now(tz=timezone.utc).date() + timedelta(days=31)
+
         return await self.repository.get_all(
             start=start,
             end=end,

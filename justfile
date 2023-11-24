@@ -28,7 +28,7 @@ install:
 	poetry install --with lint
 
 migrate:
-	poetry run alembic upgrade HEAD
+	poetry run alembic upgrade head
 
-generate-migration:
-	poetry run alembic revision --autogenerate
+generate-migration MESSAGE:
+	poetry run alembic revision --autogenerate -m "{{MESSAGE}}"

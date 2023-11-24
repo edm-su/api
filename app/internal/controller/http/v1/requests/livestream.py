@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import (
     Field,
@@ -21,11 +21,11 @@ class CreateLiveStreamRequest(BaseModel):
     cancelled: bool = Field(default=False, title="Cancelled")
     start_time: datetime = Field(
         ...,
-        examples=[datetime.now()],
+        examples=[datetime.now(tz=timezone.utc)],
     )
     end_time: datetime = Field(
         ...,
-        examples=[datetime.now()],
+        examples=[datetime.now(tz=timezone.utc)],
     )
     image: str = Field(
         ...,

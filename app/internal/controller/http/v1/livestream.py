@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -75,12 +75,20 @@ async def get_streams(
     ],
     start: Annotated[
         date,
-        Query,
-    ] = date.today() - timedelta(days=2),
+        Query(
+            default_factory=lambda: (
+                datetime.now(tz=timezone.utc).date() - timedelta(days=2)
+            ),
+        ),
+    ],
     end: Annotated[
         date,
-        Query,
-    ] = date.today() + timedelta(days=31),
+        Query(
+            default_factory=lambda: (
+                datetime.now(tz=timezone.utc).date() - timedelta(days=2)
+            ),
+        ),
+    ],
 ) -> list[LiveStream]:
     return await usecase.execute(start, end)
 
