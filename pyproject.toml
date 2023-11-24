@@ -86,6 +86,7 @@ select = [
   "RSE",    # flake8-raise
   "RET",    # flake8-return
   "SLF",    # flake8-self
+  "SLOT",   # flake8-slots
   "SIM",    # flake8-simplify
   "TID",    # flake8-tidy-imports
   "TCH",    # flake8-type-checking
