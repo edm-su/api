@@ -99,6 +99,7 @@ select = [
   "PL",     # Pylint
   "TRY",    # tryceratops
   "FLY",    # flynt
+  "PERF",   # perflint
   "RUF",    # Ruff-specific rules
   "ASYNC",  # flake8-async
   "FA",     # flake8-future-annotations
