@@ -78,7 +78,7 @@ async def get_streams(
         Query(
             default_factory=lambda: (
                 datetime.now(tz=timezone.utc).date() - timedelta(days=2)
-            )
+            ),
         ),
     ],
     end: Annotated[
@@ -86,7 +86,7 @@ async def get_streams(
         Query(
             default_factory=lambda: (
                 datetime.now(tz=timezone.utc).date() - timedelta(days=2)
-            )
+            ),
         ),
     ],
 ) -> list[LiveStream]:

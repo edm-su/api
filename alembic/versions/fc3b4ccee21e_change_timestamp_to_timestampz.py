@@ -43,7 +43,9 @@ def upgrade():
         existing_server_default=sa.text("now()"),
     )
     op.create_unique_constraint(
-        "unique_livestream", "livestreams", ["start_time", "slug"]
+        "unique_livestream",
+        "livestreams",
+        ["start_time", "slug"],
     )
     op.alter_column(
         "posts",
