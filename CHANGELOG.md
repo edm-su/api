@@ -1,5 +1,32 @@
 # Changelog
 
+## [3.3.0](https://github.com/edm-su/api/compare/v3.2.1...v3.3.0) (2023-11-24)
+
+
+### Features
+
+* add python 3.12 support ([#431](https://github.com/edm-su/api/issues/431)) ([7f70403](https://github.com/edm-su/api/commit/7f704039be7c973d375a7742892fbdbedb156f86))
+* change videos uniqueness logics ([#432](https://github.com/edm-su/api/issues/432)) ([61d54a5](https://github.com/edm-su/api/commit/61d54a5eb869d5922e8fbdc6f8183d3e414ed6de))
+
+
+### Bug Fixes
+
+* **deps:** bump aioboto3 from 11.3.1 to 12.0.0 ([#460](https://github.com/edm-su/api/issues/460)) ([1d33280](https://github.com/edm-su/api/commit/1d3328008cd6e992d055de9cfb92f35ef03039c7))
+* **deps:** bump alembic from 1.12.0 to 1.12.1 ([#449](https://github.com/edm-su/api/issues/449)) ([dfdfc31](https://github.com/edm-su/api/commit/dfdfc317d8d74393a9a5a5c963a2a147b509d58e))
+* **deps:** bump asyncpg from 0.28.0 to 0.29.0 ([#458](https://github.com/edm-su/api/issues/458)) ([a405a9e](https://github.com/edm-su/api/commit/a405a9e726781551e0cd3af375846339051f9869))
+* **deps:** bump greenlet from 2.0.2 to 3.0.0 ([#429](https://github.com/edm-su/api/issues/429)) ([18bfca9](https://github.com/edm-su/api/commit/18bfca907555e2816761a949ee7338ee961de6c2))
+* **deps:** bump meilisearch-python-async from 1.6.2 to 1.8.0 ([#420](https://github.com/edm-su/api/issues/420)) ([a328d79](https://github.com/edm-su/api/commit/a328d796c0254ee4885b052d016e7b77cb603c51))
+* **deps:** bump pytest-httpx from 0.26.0 to 0.27.0 ([#459](https://github.com/edm-su/api/issues/459)) ([3c97d41](https://github.com/edm-su/api/commit/3c97d413b005d3180cdfb5e0f06a35520fe8ae4d))
+* **deps:** bump ruff from 0.0.290 to 0.0.292 ([#430](https://github.com/edm-su/api/issues/430)) ([2d7ded1](https://github.com/edm-su/api/commit/2d7ded1f7bb5e92047dd49a61cfa9044434da6dd))
+* **deps:** bump ruff from 0.0.292 to 0.1.6 ([#454](https://github.com/edm-su/api/issues/454)) ([41ed402](https://github.com/edm-su/api/commit/41ed4021b0c101dccc75be77f080751ac9fe2994))
+* **deps:** bump sqlalchemy from 2.0.22 to 2.0.23 ([#457](https://github.com/edm-su/api/issues/457)) ([421581f](https://github.com/edm-su/api/commit/421581f92dca77a98e721c85325bfb5342ce0eb0))
+* **deps:** bump urllib3 from 1.26.17 to 1.26.18 ([#443](https://github.com/edm-su/api/issues/443)) ([857e78a](https://github.com/edm-su/api/commit/857e78ac5d58ba04293ddf71b52ce9d6122f1853))
+
+
+### Reverts
+
+* "fix(ci): change entrypoint to cmd ([#423](https://github.com/edm-su/api/issues/423))" ([#425](https://github.com/edm-su/api/issues/425)) ([a35d561](https://github.com/edm-su/api/commit/a35d561e240d70ec076cedb5368583245b91a56c))
+
 ## [3.2.1](https://github.com/edm-su/api/compare/v3.2.0...v3.2.1) (2023-10-02)
 
 
