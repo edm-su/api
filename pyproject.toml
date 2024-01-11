@@ -10,7 +10,7 @@ packages = [{ include = "app" }]
 python = "^3.10"
 alembic = "^1.13"
 fastapi = { version = "0.103.2", extras = ["all"] }
-Pillow = "^10.0.0"
+Pillow = "^10.2.0"
 SQLAlchemy = { extras = ["asyncio"], version = "^2.0" }
 python-slugify = { extras = ["unidecode"], version = "^8.0" }
 aiohttp = "^3.9.1"
