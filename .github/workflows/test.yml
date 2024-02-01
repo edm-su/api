@@ -102,4 +102,4 @@ jobs:
           poetry env use "${{ matrix.python-version }}"
           poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
       - name: Upload coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
