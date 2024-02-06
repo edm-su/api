@@ -1,6 +1,5 @@
 import io
-from collections.abc import Generator
-from pathlib import Path
+from typing import IO
 from unittest.mock import AsyncMock
 
 import pytest
@@ -38,10 +37,9 @@ class TestUploadImageUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
-    ) -> Generator[UploadImageUseCase, None, None]:
-        path = Path("tests/files/test.jpeg")
-        with path.open("rb") as f:
-            yield UploadImageUseCase(repository, f)
+        image: IO[bytes],
+    ) -> UploadImageUseCase:
+        return UploadImageUseCase(repository, image)
 
     async def test_upload_image(
         self: Self,
@@ -88,19 +86,20 @@ class TestUploadImageURLUseCase:
         httpx_mock: HTTPXMock,
         usecase: AsyncMock,
         repository: AsyncMock,
+        image: IO[bytes],
     ) -> None:
         httpx_mock.add_response(
             method="HEAD",
             url="http://test.local/test.jpeg",
             headers={"Content-Type": "image/jpeg", "Content-Length": "123"},
         )
-        path = Path("tests/files/test.jpeg")
-        with path.open("rb") as f:
-            httpx_mock.add_response(
-                method="GET",
-                url="http://test.local/test.jpeg",
-                content=f.read(),
-            )
+        image.seek(0)
+        content = image.read()
+        httpx_mock.add_response(
+            method="GET",
+            url="http://test.local/test.jpeg",
+            content=content,
+        )
 
         await usecase.execute()
 
