@@ -2,17 +2,17 @@
 
 [[package]]
 name = "aioboto3"
-version = "12.2.0"
+version = "12.3.0"
 description = "Async boto3 wrapper"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "aioboto3-12.2.0-py3-none-any.whl", hash = "sha256:4ac647c55fb4e3bf98775ab6aa0004239168dca79fb7f03c5e39ff395f3afbd5"},
-    {file = "aioboto3-12.2.0.tar.gz", hash = "sha256:9ace7be5bcb32927a8f37c341f7efa416e9498991785afdd53e14d4a2a16b534"},
+    {file = "aioboto3-12.3.0-py3-none-any.whl", hash = "sha256:268b98046f8e1e303b4bbc553b60643b26c0031b4290ef163caf80c3be5ecf85"},
+    {file = "aioboto3-12.3.0.tar.gz", hash = "sha256:81a9a392da8bbf48d03f16de0dd6dd284e48d002406be41f26763e6c52fcf48c"},
 ]
 
 [package.dependencies]
-aiobotocore = {version = "2.9.0", extras = ["boto3"]}
+aiobotocore = {version = "2.11.2", extras = ["boto3"]}
 
 [package.extras]
 chalice = ["chalice (>=1.24.0)"]
@@ -20,25 +20,25 @@ s3cse = ["cryptography (>=2.3.1)"]
 
 [[package]]
 name = "aiobotocore"
-version = "2.9.0"
+version = "2.11.2"
 description = "Async client for aws services using botocore and aiohttp"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "aiobotocore-2.9.0-py3-none-any.whl", hash = "sha256:acf5e49644e6e434b9ecc26284ae7e05d557effbdcdd8185e2eb08925f011853"},
-    {file = "aiobotocore-2.9.0.tar.gz", hash = "sha256:4dc1e20da4561ae662219ca95b20f923328c3106764a741bec00e98eb6680f7e"},
+    {file = "aiobotocore-2.11.2-py3-none-any.whl", hash = "sha256:487fede588040bfa3a43df945275c28c1c73ca75bf705295adb9fbadd2e89be7"},
+    {file = "aiobotocore-2.11.2.tar.gz", hash = "sha256:6dd7352248e3523019c5a54a395d2b1c31080697fc80a9ad2672de4eec8c7abd"},
 ]
 
 [package.dependencies]
 aiohttp = ">=3.7.4.post0,<4.0.0"
 aioitertools = ">=0.5.1,<1.0.0"
-boto3 = {version = ">=1.33.2,<1.33.14", optional = true, markers = "extra == \"boto3\""}
-botocore = ">=1.33.2,<1.33.14"
+boto3 = {version = ">=1.33.2,<1.34.35", optional = true, markers = "extra == \"boto3\""}
+botocore = ">=1.33.2,<1.34.35"
 wrapt = ">=1.10.10,<2.0.0"
 
 [package.extras]
-awscli = ["awscli (>=1.31.2,<1.31.14)"]
-boto3 = ["boto3 (>=1.33.2,<1.33.14)"]
+awscli = ["awscli (>=1.31.2,<1.32.35)"]
+boto3 = ["boto3 (>=1.33.2,<1.34.35)"]
 
 [[package]]
 name = "aiofiles"
@@ -3016,4 +3016,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f9c178514a5ceedbd38918d8090192238829c443d3c11849152d2883412f77fd"
+content-hash = "b132ed169bb9a8d0f3f604d141d97da2739ffa3c9c7f71e47c86fa6e13db896a"
