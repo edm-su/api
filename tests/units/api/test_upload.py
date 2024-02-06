@@ -1,5 +1,5 @@
 import io
-from pathlib import Path
+from typing import IO
 
 import pytest
 from faker import Faker
@@ -26,22 +26,30 @@ def image_urls(
     )
 
 
+UploadImage = tuple[str, IO[bytes], str]
+
+
+@pytest.fixture()
+def image(image: IO[bytes]) -> UploadImage:
+    return "test.jpeg", image, "image/jpeg"
+
+
 class TestUpload:
     @pytest.mark.usefixtures("_mock_current_user")
     async def test_upload_image(
         self: Self,
         client: AsyncClient,
         mocker: MockerFixture,
+        image: UploadImage,
         image_urls: ImageURLs,
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.upload.UploadImageUseCase.execute",
             return_value=image_urls,
         )
-        path = Path("tests/files/test.jpeg")
         response = await client.post(
             "/upload/images",
-            files={"image": path.open("rb")},
+            files={"image": image},
         )
 
         mocked.assert_awaited_once()
@@ -53,15 +61,15 @@ class TestUpload:
         self: Self,
         client: AsyncClient,
         mocker: MockerFixture,
+        image: UploadImage,
     ) -> None:
         mocked = mocker.patch(
             "app.internal.usecase.upload.UploadImageUseCase.execute",
             side_effect=FileIsTooLargeError(2, 1),
         )
-        path = Path("tests/files/test.jpeg")
         response = await client.post(
             "/upload/images",
-            files={"image": path.open("rb")},
+            files={"image": image},
         )
 
         mocked.assert_awaited_once()
@@ -72,6 +80,7 @@ class TestUpload:
         self: Self,
         client: AsyncClient,
         mocker: MockerFixture,
+        image: UploadImage,
     ) -> None:
         buffer_size = 5 * 1024 * 1024 + 1
         buffer = io.BytesIO(b"\x00" * buffer_size)
@@ -86,10 +95,9 @@ class TestUpload:
             "app.internal.usecase.upload.UploadImageUseCase.execute",
             side_effect=FileIsNotImageError,
         )
-        path = Path("tests/files/test.jpeg")
         response = await client.post(
             "/upload/images",
-            files={"image": path.open("rb")},
+            files={"image": image},
         )
 
         mocked.assert_awaited_once()
