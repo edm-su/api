@@ -1,11 +1,18 @@
 import aiofiles
+import grpc
 from authzed.api.v1 import Client
-from grpcutil import (
-    bearer_token_credentials,
-    insecure_bearer_token_credentials,
-)
+from grpc import ChannelCredentials
+from grpc.experimental import insecure_channel_credentials
+from grpcutil import bearer_token_credentials
 
 from app.internal.entity.settings import settings
+
+
+def insecure_bearer_token_credentials(token: str) -> ChannelCredentials:
+    return grpc.composite_channel_credentials(
+        insecure_channel_credentials(),
+        grpc.access_token_call_credentials(token),
+    )
 
 
 async def get_spicedb_client() -> Client:
