@@ -1,5 +1,50 @@
 # Changelog
 
+## [3.3.1](https://github.com/edm-su/api/compare/v3.3.0...v3.3.1) (2024-06-13)
+
+
+### Bug Fixes
+
+* **deps:** bump aioboto3 from 12.0.0 to 12.2.0 ([#497](https://github.com/edm-su/api/issues/497)) ([549d720](https://github.com/edm-su/api/commit/549d7201f0b562325d384f2857e67b876524c7d2))
+* **deps:** bump aioboto3 from 12.2.0 to 13.0.1 ([#564](https://github.com/edm-su/api/issues/564)) ([cefe9d9](https://github.com/edm-su/api/commit/cefe9d9988279ecfbbd34ff8d4ae0710f196a4a2))
+* **deps:** bump aiohttp from 3.9.0b0 to 3.9.1 ([#464](https://github.com/edm-su/api/issues/464)) ([5b05fcc](https://github.com/edm-su/api/commit/5b05fcc1d901a384b749009af0ec58f67ac7202e))
+* **deps:** bump aiohttp from 3.9.1 to 3.9.3 ([#504](https://github.com/edm-su/api/issues/504)) ([6406202](https://github.com/edm-su/api/commit/6406202b9c3ec38de8fef7e6f455898604142f85))
+* **deps:** bump aiohttp from 3.9.3 to 3.9.5 ([#549](https://github.com/edm-su/api/issues/549)) ([d462de1](https://github.com/edm-su/api/commit/d462de16770ab47f189ffa251aa6d386db6be658))
+* **deps:** bump alembic from 1.12.1 to 1.13.0 ([#470](https://github.com/edm-su/api/issues/470)) ([b81b892](https://github.com/edm-su/api/commit/b81b8926a5d42fff65ba1c6131ed4acd1ca5adf0))
+* **deps:** bump alembic from 1.13.0 to 1.13.1 ([#481](https://github.com/edm-su/api/issues/481)) ([71d50e3](https://github.com/edm-su/api/commit/71d50e39ee6485378c61977734fb95918446790d))
+* **deps:** bump authzed from 0.11.0 to 0.14.0 ([#533](https://github.com/edm-su/api/issues/533)) ([144eff5](https://github.com/edm-su/api/commit/144eff52a21cd39246ce402759ac4db35f5e24f4))
+* **deps:** bump dnspython from 2.4.2 to 2.6.1 ([#548](https://github.com/edm-su/api/issues/548)) ([7db6e5b](https://github.com/edm-su/api/commit/7db6e5b5a92dab0f47e0d10e7a483265d0f19e08))
+* **deps:** bump fastapi from 0.103.2 to 0.109.0 ([#495](https://github.com/edm-su/api/issues/495)) ([e091402](https://github.com/edm-su/api/commit/e09140205a60162776d6ad7630933153821a7665))
+* **deps:** bump fastapi from 0.109.0 to 0.109.2 ([#509](https://github.com/edm-su/api/issues/509)) ([b381a51](https://github.com/edm-su/api/commit/b381a514013875cc358e08cc679131e1c118115b))
+* **deps:** bump fastapi from 0.109.2 to 0.110.0 ([#523](https://github.com/edm-su/api/issues/523)) ([d89be67](https://github.com/edm-su/api/commit/d89be67e755af2710987a35a17d5c6161ad81cf3))
+* **deps:** bump idna from 3.4 to 3.7 ([#546](https://github.com/edm-su/api/issues/546)) ([f46711e](https://github.com/edm-su/api/commit/f46711e0fcf1786895a6846badf9ada1d45d9420))
+* **deps:** bump mypy from 1.6.0 to 1.7.1 ([#463](https://github.com/edm-su/api/issues/463)) ([f35d440](https://github.com/edm-su/api/commit/f35d4403084c56cf9e8a30f7c303a97be69ad486))
+* **deps:** bump mypy from 1.7.1 to 1.9.0 ([#529](https://github.com/edm-su/api/issues/529)) ([e4c3cf1](https://github.com/edm-su/api/commit/e4c3cf18c9093c35ce831c50928895e617301aad))
+* **deps:** bump orjson from 3.9.9 to 3.9.15 ([#525](https://github.com/edm-su/api/issues/525)) ([7860c19](https://github.com/edm-su/api/commit/7860c197384982564147a24924f960d2112a2e67))
+* **deps:** bump pillow from 10.0.1 to 10.2.0 ([#490](https://github.com/edm-su/api/issues/490)) ([0aff31d](https://github.com/edm-su/api/commit/0aff31dfcdb262a4c001245aaa093e113102100f))
+* **deps:** bump pillow from 10.2.0 to 10.3.0 ([#543](https://github.com/edm-su/api/issues/543)) ([05f617f](https://github.com/edm-su/api/commit/05f617f8db41e3fb62afbac4371b7b7f1134527d))
+* **deps:** bump pre-commit from 3.5.0 to 3.6.2 ([#519](https://github.com/edm-su/api/issues/519)) ([ada0c1a](https://github.com/edm-su/api/commit/ada0c1a6e7e945ef601bad063f14f1031398021f))
+* **deps:** bump pre-commit from 3.6.2 to 3.7.1 ([#557](https://github.com/edm-su/api/issues/557)) ([7184558](https://github.com/edm-su/api/commit/71845581d4a31cf96b61b64ff21836d5fde1445e))
+* **deps:** bump pytest from 7.4.2 to 7.4.4 ([#545](https://github.com/edm-su/api/issues/545)) ([d37c522](https://github.com/edm-su/api/commit/d37c5228e150bc18fc6255476ba4b92c89029fbf))
+* **deps:** bump pytest-cov from 4.1.0 to 5.0.0 ([#540](https://github.com/edm-su/api/issues/540)) ([ccc68c3](https://github.com/edm-su/api/commit/ccc68c3e5576733794d92b3ed81e23690ec784f2))
+* **deps:** bump pytest-httpx from 0.27.0 to 0.30.0 ([#522](https://github.com/edm-su/api/issues/522)) ([468ca67](https://github.com/edm-su/api/commit/468ca676d7613aaeef4af61e854f2bf2cf65da9d))
+* **deps:** bump pytest-mock from 3.11.1 to 3.12.0 ([#465](https://github.com/edm-su/api/issues/465)) ([276bc7b](https://github.com/edm-su/api/commit/276bc7ba80b45ca641b61ec000c0a97ebdecfb6f))
+* **deps:** bump pytest-mock from 3.12.0 to 3.14.0 ([#535](https://github.com/edm-su/api/issues/535)) ([cfa4038](https://github.com/edm-su/api/commit/cfa403880971f2e8be57e9b89a1eaddd7e165fe0))
+* **deps:** bump requests from 2.31.0 to 2.32.2 ([#565](https://github.com/edm-su/api/issues/565)) ([25f4b25](https://github.com/edm-su/api/commit/25f4b25d1e603dd7da6db3552437cf2bbfdf78fb))
+* **deps:** bump ruff from 0.1.13 to 0.1.14 ([#498](https://github.com/edm-su/api/issues/498)) ([22b0871](https://github.com/edm-su/api/commit/22b0871b9f8ae65dd90483659f7be60b0a8da92f))
+* **deps:** bump ruff from 0.1.14 to 0.2.1 ([#510](https://github.com/edm-su/api/issues/510)) ([77499c5](https://github.com/edm-su/api/commit/77499c576354ac34a8039b24aba110ae298c3b4d))
+* **deps:** bump ruff from 0.1.6 to 0.1.7 ([#472](https://github.com/edm-su/api/issues/472)) ([83a442e](https://github.com/edm-su/api/commit/83a442ecc7cbb63fde286e8255f048d9e5a558f8))
+* **deps:** bump ruff from 0.1.7 to 0.1.13 ([#496](https://github.com/edm-su/api/issues/496)) ([e415500](https://github.com/edm-su/api/commit/e41550071e296299f9fe4407267d9ea2fb62a4d8))
+* **deps:** bump ruff from 0.2.1 to 0.2.2 ([#521](https://github.com/edm-su/api/issues/521)) ([40e8cb3](https://github.com/edm-su/api/commit/40e8cb323dfe0b1ee0d7f704b99716069939113c))
+* **deps:** bump ruff from 0.2.2 to 0.3.3 ([#532](https://github.com/edm-su/api/issues/532)) ([b9ea398](https://github.com/edm-su/api/commit/b9ea398e9006c82bff2cfae2bcf61dea677c9b50))
+* **deps:** bump ruff from 0.3.3 to 0.3.7 ([#547](https://github.com/edm-su/api/issues/547)) ([28f6303](https://github.com/edm-su/api/commit/28f6303982b1aad4b219166055b3488aed93bf38))
+* **deps:** bump ruff from 0.3.7 to 0.4.8 ([#563](https://github.com/edm-su/api/issues/563)) ([a1f40e6](https://github.com/edm-su/api/commit/a1f40e6a0964bb2a8360d0b21ddbaecf8e2a681d))
+* **deps:** bump sqlalchemy from 2.0.23 to 2.0.25 ([#489](https://github.com/edm-su/api/issues/489)) ([6f82595](https://github.com/edm-su/api/commit/6f825959235490dd3f21df57ccb96770bb7b93ed))
+* **deps:** bump sqlalchemy from 2.0.25 to 2.0.28 ([#527](https://github.com/edm-su/api/issues/527)) ([6372c81](https://github.com/edm-su/api/commit/6372c818b17f15b41bb1f540b11b9888779946ff))
+* **deps:** bump types-aiofiles from 23.2.0.0 to 23.2.0.20240106 ([#491](https://github.com/edm-su/api/issues/491)) ([94272f1](https://github.com/edm-su/api/commit/94272f1e23bc85d06519118c82f034d91224bdda))
+* **deps:** bump types-aiofiles from 23.2.0.20240106 to 23.2.0.20240403 ([#542](https://github.com/edm-su/api/issues/542)) ([8250b1f](https://github.com/edm-su/api/commit/8250b1fb5c41afe90f08cdff05bd7cb895e6e892))
+* **deps:** bump typing-extensions from 4.8.0 to 4.10.0 ([#524](https://github.com/edm-su/api/issues/524)) ([49b68bd](https://github.com/edm-su/api/commit/49b68bddffd90af5f9f2712ade29e4a283aaeae0))
+
 ## [3.3.0](https://github.com/edm-su/api/compare/v3.2.1...v3.3.0) (2023-11-24)
 
 
