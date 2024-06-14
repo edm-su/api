@@ -1,6 +1,6 @@
 FROM cgr.dev/chainguard/python:latest-dev as builder
 
-ARG POETRY_VERSION="1.6.1"
+ARG POETRY_VERSION="1.8.3"
 
 WORKDIR /app
 COPY pyproject.toml poetry.lock README.md .
