@@ -36,7 +36,7 @@ optional = true
 
 [tool.poetry.group.lint.dependencies]
 types-python-slugify = "^8.0.0"
-mypy = "^1.9.0"
+mypy = "^1.10.0"
 ruff = "^0.4.8"
 types-aiofiles = "^23.2.0.20240403"
 pre-commit = "^3.7.1"
