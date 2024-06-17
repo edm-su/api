@@ -19,7 +19,7 @@ meilisearch-python-async = "1.8.0"
 typing-extensions = "^4.12.2"
 greenlet = "^3.0.0"
 asyncpg = "^0.29.0"
-authzed = "^0.14.0"
+authzed = "^0.15.0"
 aiofiles = "^23.2.1"
 
 [tool.poetry.group.test.dependencies]
