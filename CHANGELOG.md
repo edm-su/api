@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.2](https://github.com/edm-su/api/compare/v3.3.1...v3.3.2) (2024-06-19)
+
+
+### Bug Fixes
+
+* **deps:** bump pytest from 7.4.4 to 8.2.2 ([#569](https://github.com/edm-su/api/issues/569)) ([e006a82](https://github.com/edm-su/api/commit/e006a822d87f9e16886bb1dbeebec2b5ea7b8bd1))
+* **deps:** bump typing-extensions from 4.10.0 to 4.12.2 ([#567](https://github.com/edm-su/api/issues/567)) ([7a1fd25](https://github.com/edm-su/api/commit/7a1fd25de551b26b131e008d89caea5dd39a7c93))
+
 ## [3.3.1](https://github.com/edm-su/api/compare/v3.3.0...v3.3.1) (2024-06-13)
 
 
