@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.4.0](https://github.com/edm-su/api/compare/v3.3.1...v3.4.0) (2024-07-15)
+
+
+### Features
+
+* postgres settings are placed in a separate class ([#594](https://github.com/edm-su/api/issues/594)) ([f16678c](https://github.com/edm-su/api/commit/f16678c0dfa9d03e59935ca5816a9adf3bbe56dc))
+
+
+### Bug Fixes
+
+* **deps:** bump alembic from 1.13.1 to 1.13.2 ([#587](https://github.com/edm-su/api/issues/587)) ([5a5534b](https://github.com/edm-su/api/commit/5a5534b600a591ca79e446bba13c048ade6315d7))
+* **deps:** bump certifi from 2023.7.22 to 2024.7.4 ([#590](https://github.com/edm-su/api/issues/590)) ([3e92c3f](https://github.com/edm-su/api/commit/3e92c3f3c022b353108832c4c84f615246a02695))
+* **deps:** bump pytest from 7.4.4 to 8.2.2 ([#569](https://github.com/edm-su/api/issues/569)) ([e006a82](https://github.com/edm-su/api/commit/e006a822d87f9e16886bb1dbeebec2b5ea7b8bd1))
+* **deps:** bump ruff from 0.4.8 to 0.5.2 ([#593](https://github.com/edm-su/api/issues/593)) ([b20057d](https://github.com/edm-su/api/commit/b20057da970b0f3a10ee492293edc64946252898))
+* **deps:** bump typing-extensions from 4.10.0 to 4.12.2 ([#567](https://github.com/edm-su/api/issues/567)) ([7a1fd25](https://github.com/edm-su/api/commit/7a1fd25de551b26b131e008d89caea5dd39a7c93))
+
 ## [3.3.1](https://github.com/edm-su/api/compare/v3.3.0...v3.3.1) (2024-06-13)
 
 
