@@ -2,11 +2,14 @@ from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
 
 
-class Settings(BaseSettings):
+class DBSettings(BaseSettings):
+    database_url: PostgresDsn
+
+
+class Settings(DBSettings):
     log_level: str = "ERROR"
     disable_openapi: bool = False
     static_url: str = "https://static.dev.edm.su"
-    database_url: PostgresDsn
 
     host: str = "127.0.0.1"
     port: int = 8000
@@ -28,3 +31,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings.model_validate({})
+db_settings = Settings.model_validate({})
