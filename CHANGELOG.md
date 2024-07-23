@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.4.1](https://github.com/edm-su/api/compare/v3.4.0...v3.4.1) (2024-07-23)
+
+
+### Bug Fixes
+
+* **deps:** bump aioboto3 from 13.0.1 to 13.1.1 ([#596](https://github.com/edm-su/api/issues/596)) ([11b4d04](https://github.com/edm-su/api/commit/11b4d041ef40730061094463aad00d32776834a9))
+* **deps:** bump mypy from 1.9.0 to 1.11.0 ([#600](https://github.com/edm-su/api/issues/600)) ([86cca6b](https://github.com/edm-su/api/commit/86cca6b3af288001b8be0543f8040c4ee1bf78ee))
+* **deps:** bump ruff from 0.5.2 to 0.5.4 ([#601](https://github.com/edm-su/api/issues/601)) ([9f53b51](https://github.com/edm-su/api/commit/9f53b51b90159a49c4fc9a8f11dc4d07da1d5846))
+* **deps:** bump setuptools from 69.0.2 to 70.0.0 ([#595](https://github.com/edm-su/api/issues/595)) ([997d421](https://github.com/edm-su/api/commit/997d4219c886b6b6082eccb8f57b17a4834bca9d))
+
 ## [3.4.0](https://github.com/edm-su/api/compare/v3.3.1...v3.4.0) (2024-07-15)
 
 
