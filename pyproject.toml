@@ -13,7 +13,7 @@ fastapi = { version = "0.110.0", extras = ["all"] }
 Pillow = "^10.3.0"
 SQLAlchemy = { extras = ["asyncio"], version = "^2.0" }
 python-slugify = { extras = ["unidecode"], version = "^8.0" }
-aiohttp = "^3.9.5"
+aiohttp = "^3.10.1"
 aioboto3 = "^13.1.1"
 meilisearch-python-async = "1.8.0"
 typing-extensions = "^4.12.2"
