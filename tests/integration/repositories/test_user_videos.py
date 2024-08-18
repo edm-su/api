@@ -11,15 +11,15 @@ from app.internal.usecase.repository.user_videos import (
 
 
 class TestPostgresUserVideosRepository:
-    @pytest.fixture()
+    @pytest.fixture
     def repository(
         self: Self,
         pg_session: AsyncSession,
     ) -> PostgresUserVideosRepository:
         return PostgresUserVideosRepository(pg_session)
 
-    @pytest.fixture()
-    async def _like_video(
+    @pytest.fixture
+    async def like_video(
         self: Self,
         user: User,
         pg_video: Video,
@@ -38,7 +38,7 @@ class TestPostgresUserVideosRepository:
         response = await repository.is_liked(user, pg_video)
         assert response is True
 
-    @pytest.mark.usefixtures("_like_video")
+    @pytest.mark.usefixtures("like_video")
     async def test_unlike_video(
         self: Self,
         repository: PostgresUserVideosRepository,
@@ -53,7 +53,7 @@ class TestPostgresUserVideosRepository:
         with pytest.raises(UserVideoNotLikedError):
             await repository.unlike_video(user, pg_video)
 
-    @pytest.mark.usefixtures("_like_video")
+    @pytest.mark.usefixtures("like_video")
     async def test_get_user_videos(
         self: Self,
         repository: PostgresUserVideosRepository,
@@ -65,7 +65,7 @@ class TestPostgresUserVideosRepository:
         assert len(response) > 0
         assert pg_video in response
 
-    @pytest.mark.usefixtures("_like_video")
+    @pytest.mark.usefixtures("like_video")
     async def test_is_liked(
         self: Self,
         repository: PostgresUserVideosRepository,

@@ -12,8 +12,8 @@ from app.internal.usecase.exceptions.video import (
 )
 
 
-@pytest.fixture()
-def _mock_find_video(
+@pytest.fixture
+def mock_find_video(
     video: Video,
 ) -> None:
     app.dependency_overrides[find_video] = lambda: video
@@ -43,7 +43,7 @@ class TestGetVideos:
 
 
 class TestGetVideo:
-    @pytest.mark.usefixtures("_mock_find_video")
+    @pytest.mark.usefixtures("mock_find_video")
     async def test_get_video(
         self: Self,
         client: AsyncClient,
@@ -55,7 +55,7 @@ class TestGetVideo:
 
 
 class TestDeleteVideo:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_delete_video(
         self: Self,
         client: AsyncClient,
@@ -72,7 +72,7 @@ class TestDeleteVideo:
 
 
 class TestCreateVideo:
-    @pytest.fixture()
+    @pytest.fixture
     def data(
         self: Self,
         video: Video,
@@ -86,7 +86,7 @@ class TestCreateVideo:
             slug=video.slug,
         )
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_create_video(
         self: Self,
         client: AsyncClient,
@@ -106,7 +106,7 @@ class TestCreateVideo:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_201_CREATED
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_already_exists(
         self: Self,
         client: AsyncClient,

@@ -13,7 +13,7 @@ from app.internal.usecase.repository.video import (
 
 
 class TestPostgresVideoRepository:
-    @pytest.fixture()
+    @pytest.fixture
     def new_video_data(
         self: Self,
         faker: Faker,
@@ -123,7 +123,7 @@ class TestMeilisearchVideoRepository:
     ) -> MeilisearchVideoRepository:
         return MeilisearchVideoRepository(ms_client)
 
-    @pytest.fixture()
+    @pytest.fixture
     async def ms_video(
         self: Self,
         repository: MeilisearchVideoRepository,

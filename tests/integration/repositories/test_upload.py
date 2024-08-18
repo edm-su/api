@@ -6,7 +6,7 @@ from typing_extensions import Self
 from app.internal.usecase.repository.upload import S3UploadRepository
 
 
-@pytest.fixture()
+@pytest.fixture
 def s3_upload_repository() -> S3UploadRepository:
     return S3UploadRepository()
 

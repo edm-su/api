@@ -27,7 +27,7 @@ def user(faker: Faker) -> User:
     return User(id=faker.uuid4())
 
 
-@pytest.fixture()
+@pytest.fixture
 def image() -> IO[bytes]:
     buf = BytesIO()
     Image.new("RGB", (60, 60), "red").save(buf, "JPEG")

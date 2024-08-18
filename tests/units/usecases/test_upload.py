@@ -19,21 +19,21 @@ from app.internal.usecase.upload import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository() -> AbstractUploadRepository:
     return AsyncMock(repr=AbstractUploadRepository)
 
 
 class TestUploadImageUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         settings.static_url = "https://test.local"
         repository.upload.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -64,14 +64,14 @@ class TestUploadImageUseCase:
 
 class TestUploadImageURLUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         settings.static_url = "https://test.local"
         repository.upload.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,

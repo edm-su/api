@@ -20,20 +20,20 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
         yield client
 
 
-@pytest.fixture()
-def _mock_current_user(
+@pytest.fixture
+def mock_current_user(
     user: User,
 ) -> None:
     app.dependency_overrides[get_current_user] = lambda: user
 
 
 @pytest.fixture(autouse=True)
-def _mock_clean_dependencies() -> Generator:
+def mock_clean_dependencies() -> Generator:
     yield
     app.dependency_overrides.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_auth_headers(user: User) -> dict[str, str]:
     return {
         "X-User": str(user.id),

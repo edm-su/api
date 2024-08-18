@@ -18,7 +18,7 @@ from app.internal.usecase.exceptions.livestream import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_stream_data(
     faker: Faker,
 ) -> CreateLiveStreamDTO:
@@ -38,20 +38,20 @@ def new_stream_data(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def livestream(
     new_stream_data: CreateLiveStreamDTO,
 ) -> LiveStream:
     return LiveStream(**new_stream_data.model_dump(), id=1)
 
 
-@pytest.fixture()
-def _mock_find_livestream(livestream: LiveStream) -> None:
+@pytest.fixture
+def mock_find_livestream(livestream: LiveStream) -> None:
     app.dependency_overrides[find_livestream] = lambda: livestream
 
 
 class TestNewLiveStream:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_new_live_stream(
         self: Self,
         client: AsyncClient,
@@ -73,7 +73,7 @@ class TestNewLiveStream:
         assert response.status_code == status.HTTP_201_CREATED
         assert response_data["id"] == livestream.id
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_already_exists_live_stream(
         self: Self,
         client: AsyncClient,
@@ -117,7 +117,7 @@ class TestGetLiveStreams:
 
 
 class TestGetLiveStream:
-    @pytest.mark.usefixtures("_mock_find_livestream")
+    @pytest.mark.usefixtures("mock_find_livestream")
     async def test_get_live_stream(
         self: Self,
         client: AsyncClient,
@@ -131,7 +131,7 @@ class TestGetLiveStream:
 
 
 class TestDeleteLiveStream:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_livestream")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_livestream")
     async def test_delete_live_stream(
         self: Self,
         client: AsyncClient,
@@ -146,7 +146,7 @@ class TestDeleteLiveStream:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_livestream")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_livestream")
     async def test_live_stream_was_not_deleted(
         self: Self,
         client: AsyncClient,
@@ -164,7 +164,7 @@ class TestDeleteLiveStream:
 
 
 class TestUpdateLiveStream:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_livestream")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_livestream")
     async def test_update_live_stream(
         self: Self,
         client: AsyncClient,
@@ -184,7 +184,7 @@ class TestUpdateLiveStream:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_livestream")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_livestream")
     async def test_live_stream_was_not_updated(
         self: Self,
         client: AsyncClient,

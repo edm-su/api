@@ -12,12 +12,12 @@ from app.internal.entity.user import User
 from app.internal.entity.video import Video
 
 
-@pytest.fixture()
-def _mock_find_video(video: Video) -> None:
+@pytest.fixture
+def mock_find_video(video: Video) -> None:
     app.dependency_overrides[find_video] = lambda: video
 
 
-@pytest.fixture()
+@pytest.fixture
 def comment(
     faker: Faker,
     user: User,
@@ -33,7 +33,7 @@ def comment(
 
 
 class TestNewComment:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_new_comment(
         self: Self,
         client: AsyncClient,
@@ -55,7 +55,7 @@ class TestNewComment:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_201_CREATED
 
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_new_comment_with_invalid_data(
         self: Self,
         client: AsyncClient,
@@ -69,7 +69,7 @@ class TestNewComment:
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_new_comment_without_video(
         self: Self,
         client: AsyncClient,
@@ -91,7 +91,7 @@ class TestNewComment:
 
 
 class TestReadComments:
-    @pytest.mark.usefixtures("_mock_find_video")
+    @pytest.mark.usefixtures("mock_find_video")
     async def test_read_comments(
         self: Self,
         client: AsyncClient,
@@ -130,7 +130,7 @@ class TestReadComments:
 
 
 class TestGetAllComments:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_get_all_comments(
         self: Self,
         client: AsyncClient,

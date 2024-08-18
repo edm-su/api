@@ -17,12 +17,12 @@ from app.internal.usecase.comment import (
 from app.internal.usecase.repository.comment import AbstractCommentRepository
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(mocker: MockerFixture) -> AbstractCommentRepository:
     return AsyncMock(AbstractCommentRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def video(faker: Faker) -> Video:
     return Video(
         id=1,
@@ -37,7 +37,7 @@ def video(faker: Faker) -> Video:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def comment(
     faker: Faker,
     user: User,
@@ -56,14 +56,14 @@ def comment(
 
 class TestCreateCommentUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         comment: Comment,
     ) -> None:
         repository.create.return_value = comment
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -95,14 +95,14 @@ class TestCreateCommentUseCase:
 
 class TestGetAllCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         comment: Comment,
     ) -> None:
         repository.get_all.return_value = [comment]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -124,13 +124,13 @@ class TestGetAllCommentsUseCase:
 
 class TestCountCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.count.return_value = 1
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -150,14 +150,14 @@ class TestCountCommentsUseCase:
 
 class TestGetVideoCommentsUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         comment: Comment,
     ) -> None:
         repository.get_video_comments.return_value = [comment]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,

@@ -7,6 +7,6 @@ from app.internal.usecase.repository.permission import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def permissions_repo() -> AbstractPermissionRepository:
     return AsyncMock(repr=AbstractPermissionRepository)

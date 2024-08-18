@@ -15,7 +15,7 @@ async def spicedb_client() -> Client:
 
 
 @pytest.fixture(autouse=True, scope="session")
-async def _write_spicedb_schema(spicedb_client: Client) -> None:
+async def write_spicedb_schema(spicedb_client: Client) -> None:
     schema = """definition user {}
 
     definition resource {
@@ -28,22 +28,22 @@ async def _write_spicedb_schema(spicedb_client: Client) -> None:
 
 
 class TestSpiceDBPermissionsRepository:
-    @pytest.fixture()
+    @pytest.fixture
     def repo(
         self: Self,
         spicedb_client: Client,
     ) -> SpiceDBPermissionRepository:
         return SpiceDBPermissionRepository(client=spicedb_client)
 
-    @pytest.fixture()
+    @pytest.fixture
     def resource(self: Self) -> Object:
         return Object(object_type="resource", object_id="test")
 
-    @pytest.fixture()
+    @pytest.fixture
     def relation(self: Self) -> str:
         return "tester"
 
-    @pytest.fixture()
+    @pytest.fixture
     def subject(self: Self) -> Object:
         return Object(object_type="user", object_id="test")
 

@@ -11,14 +11,14 @@ from app.internal.usecase.repository.livestream import (
 
 
 class TestPostgresLiveStreamRepository:
-    @pytest.fixture()
+    @pytest.fixture
     def repository(
         self: Self,
         pg_session: AsyncSession,
     ) -> PostgresLiveStreamRepository:
         return PostgresLiveStreamRepository(pg_session)
 
-    @pytest.fixture()
+    @pytest.fixture
     def livestream_data(
         self: Self,
         faker: Faker,
@@ -39,7 +39,7 @@ class TestPostgresLiveStreamRepository:
             url=faker.url(),
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     async def livestream(
         self: Self,
         repository: PostgresLiveStreamRepository,
