@@ -7,7 +7,7 @@ import pytest
 from faker import Faker
 from PIL import Image
 
-from app.internal.entity.user import User
+from edm_su_api.internal.entity.user import User
 
 
 @pytest.fixture(scope="session")

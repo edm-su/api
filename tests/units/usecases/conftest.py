@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.internal.usecase.repository.permission import (
+from edm_su_api.internal.usecase.repository.permission import (
     AbstractPermissionRepository,
 )
 

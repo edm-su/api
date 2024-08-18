@@ -4,10 +4,12 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.video import find_video
-from app.internal.entity.video import NewVideoDto, Video
-from app.internal.usecase.exceptions.video import (
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.video import (
+    find_video,
+)
+from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.usecase.exceptions.video import (
     VideoYtIdNotUniqueError,
 )
 
@@ -27,11 +29,11 @@ class TestGetVideos:
         video: Video,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.video.GetAllVideosUseCase.execute",
+            "edm_su_api.internal.usecase.video.GetAllVideosUseCase.execute",
             return_value=[video],
         )
         mocked_count = mocker.patch(
-            "app.internal.usecase.video.GetCountVideosUseCase.execute",
+            "edm_su_api.internal.usecase.video.GetCountVideosUseCase.execute",
             return_value=1,
         )
         response = await client.get("/videos")
@@ -63,7 +65,7 @@ class TestDeleteVideo:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.video.DeleteVideoUseCase.execute",
+            "edm_su_api.internal.usecase.video.DeleteVideoUseCase.execute",
         )
         response = await client.delete(f"/videos/{video.slug}")
 
@@ -95,7 +97,7 @@ class TestCreateVideo:
         data: NewVideoDto,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.video.CreateVideoUseCase.execute",
+            "edm_su_api.internal.usecase.video.CreateVideoUseCase.execute",
             return_value=video,
         )
         response = await client.post(
@@ -114,7 +116,7 @@ class TestCreateVideo:
         data: NewVideoDto,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.video.CreateVideoUseCase.execute",
+            "edm_su_api.internal.usecase.video.CreateVideoUseCase.execute",
             side_effect=VideoYtIdNotUniqueError(data.yt_id),
         )
         response = await client.post(

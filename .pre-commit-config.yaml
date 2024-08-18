@@ -26,12 +26,12 @@ repos:
           - perf
           - test
           - chore
-  - repo: https://github.com/python-poetry/poetry
-    rev: "1.8.3"
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.2.37
     hooks:
-      - id: poetry-check
-      - id: poetry-lock
-        args: ["--no-update"]
+      - id: pip-compile
+        args: [pyproject.toml, -o, requirements.txt]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
     rev: "v0.6.1"

@@ -10,3 +10,4 @@ _trial_temp
 .coverage
 coverage.xml
 .ropeproject
+dist

@@ -2,11 +2,11 @@ import pytest
 from authzed.api.v1 import Client, WriteSchemaRequest
 from typing_extensions import Self
 
-from app.internal.usecase.repository.permission import (
+from edm_su_api.internal.usecase.repository.permission import (
     Object,
     SpiceDBPermissionRepository,
 )
-from app.pkg.authzed import get_spicedb_client
+from edm_su_api.pkg.authzed import get_spicedb_client
 
 
 @pytest.fixture(scope="session")

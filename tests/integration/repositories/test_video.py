@@ -4,9 +4,9 @@ from meilisearch_python_async import Client
 from meilisearch_python_async.errors import MeilisearchApiError
 from typing_extensions import Self
 
-from app.internal.entity.video import NewVideoDto, Video
-from app.internal.usecase.exceptions.video import VideoNotFoundError
-from app.internal.usecase.repository.video import (
+from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
+from edm_su_api.internal.usecase.repository.video import (
     MeilisearchVideoRepository,
     PostgresVideoRepository,
 )

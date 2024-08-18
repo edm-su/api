@@ -4,9 +4,11 @@ import pytest
 from fastapi import HTTPException
 from typing_extensions import Self
 
-from app.internal.controller.http.v1.dependencies.video import find_video
-from app.internal.usecase.exceptions.video import VideoNotFoundError
-from app.internal.usecase.video import GetVideoBySlugUseCase
+from edm_su_api.internal.controller.http.v1.dependencies.video import (
+    find_video,
+)
+from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
+from edm_su_api.internal.usecase.video import GetVideoBySlugUseCase
 
 
 class TestFindVideo:

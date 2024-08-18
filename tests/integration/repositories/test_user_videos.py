@@ -2,10 +2,12 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.user import User
-from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.user_videos import UserVideoNotLikedError
-from app.internal.usecase.repository.user_videos import (
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.entity.video import Video
+from edm_su_api.internal.usecase.exceptions.user_videos import (
+    UserVideoNotLikedError,
+)
+from edm_su_api.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
 )
 

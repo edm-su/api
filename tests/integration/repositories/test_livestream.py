@@ -3,9 +3,14 @@ from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
-from app.internal.usecase.exceptions.livestream import LiveStreamNotFoundError
-from app.internal.usecase.repository.livestream import (
+from edm_su_api.internal.entity.livestreams import (
+    CreateLiveStreamDTO,
+    LiveStream,
+)
+from edm_su_api.internal.usecase.exceptions.livestream import (
+    LiveStreamNotFoundError,
+)
+from edm_su_api.internal.usecase.repository.livestream import (
     PostgresLiveStreamRepository,
 )
 

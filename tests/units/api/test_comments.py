@@ -5,11 +5,13 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.video import find_video
-from app.internal.entity.comment import Comment
-from app.internal.entity.user import User
-from app.internal.entity.video import Video
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.video import (
+    find_video,
+)
+from edm_su_api.internal.entity.comment import Comment
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.entity.video import Video
 
 
 @pytest.fixture
@@ -43,7 +45,7 @@ class TestNewComment:
         comment: Comment,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.comment.CreateCommentUseCase.execute",
+            "edm_su_api.internal.usecase.comment.CreateCommentUseCase.execute",
             return_value=comment,
         )
         response = await client.post(
@@ -100,7 +102,7 @@ class TestReadComments:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.comment.GetVideoCommentsUseCase.execute",
+            "edm_su_api.internal.usecase.comment.GetVideoCommentsUseCase.execute",
             return_value=[comment],
         )
         response = await client.get(
@@ -138,11 +140,11 @@ class TestGetAllComments:
         comment: Comment,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.comment.GetAllCommentsUseCase.execute",
+            "edm_su_api.internal.usecase.comment.GetAllCommentsUseCase.execute",
             return_value=[comment],
         )
         mocker.patch(
-            "app.internal.usecase.comment.GetCountCommentsUseCase.execute",
+            "edm_su_api.internal.usecase.comment.GetCountCommentsUseCase.execute",
             return_value=1,
         )
         response = await client.get("/comments")

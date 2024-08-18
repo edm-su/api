@@ -4,10 +4,12 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.video import find_video
-from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.user_videos import (
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.video import (
+    find_video,
+)
+from edm_su_api.internal.entity.video import Video
+from edm_su_api.internal.usecase.exceptions.user_videos import (
     UserVideoAlreadyLikedError,
     UserVideoNotLikedError,
 )
@@ -27,7 +29,7 @@ class TestLikeVideo:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.user_videos.LikeVideoUseCase.execute",
+            "edm_su_api.internal.usecase.user_videos.LikeVideoUseCase.execute",
             return_value=None,
         )
         response = await client.post(f"/videos/{video.slug}/like")
@@ -43,7 +45,7 @@ class TestLikeVideo:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.user_videos.LikeVideoUseCase.execute",
+            "edm_su_api.internal.usecase.user_videos.LikeVideoUseCase.execute",
             side_effect=UserVideoAlreadyLikedError,
         )
         response = await client.post(f"/videos/{video.slug}/like")
@@ -61,7 +63,7 @@ class TestUnlikeVideo:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.user_videos.UnlikeVideoUseCase.execute",
+            "edm_su_api.internal.usecase.user_videos.UnlikeVideoUseCase.execute",
             return_value=None,
         )
         response = await client.delete(f"/videos/{video.slug}/like")
@@ -77,7 +79,7 @@ class TestUnlikeVideo:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.user_videos.UnlikeVideoUseCase.execute",
+            "edm_su_api.internal.usecase.user_videos.UnlikeVideoUseCase.execute",
             side_effect=UserVideoNotLikedError,
         )
         response = await client.delete(f"/videos/{video.slug}/like")
@@ -95,7 +97,7 @@ class TestGetUserVideos:
         user_auth_headers: dict[str, str],
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.user_videos.GetUserVideosUseCase.execute",
+            "edm_su_api.internal.usecase.user_videos.GetUserVideosUseCase.execute",
             return_value=[video],
         )
         response = await client.get(

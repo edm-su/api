@@ -4,11 +4,13 @@ import pytest
 from fastapi import HTTPException
 from typing_extensions import Self
 
-from app.internal.controller.http.v1.dependencies.livestream import (
+from edm_su_api.internal.controller.http.v1.dependencies.livestream import (
     find_livestream,
 )
-from app.internal.usecase.exceptions.livestream import LiveStreamNotFoundError
-from app.internal.usecase.livestream import GetLiveStreamUseCase
+from edm_su_api.internal.usecase.exceptions.livestream import (
+    LiveStreamNotFoundError,
+)
+from edm_su_api.internal.usecase.livestream import GetLiveStreamUseCase
 
 
 class TestFindLiveStream:

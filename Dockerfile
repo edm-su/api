@@ -1,30 +1,34 @@
-FROM cgr.dev/chainguard/python:latest-dev as builder
+FROM python:3.12-slim-bullseye as python
 
-ARG POETRY_VERSION="1.8.3"
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+FROM python as dependencies
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV VIRTUAL_ENV=/opt/venv
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+COPY ./requirements.txt .
+
+RUN --mount=type=cache,target=/root/.cache/pip --mount=type=cache,target=/root/.cache/uv \
+  python -m pip config --user set global.progress_bar off && \
+  uv venv /opt/venv && \
+  uv pip install --requirement requirements.txt
+
+FROM python
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock README.md .
-COPY app ./app
 
-RUN python -m venv $HOME/tools && \
-    . "${HOME}/tools/bin/activate" && \
-    pip install "poetry==${POETRY_VERSION}"
+COPY --from=dependencies /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH=$PYTHONPATH:/app/src
 
-RUN python -m venv "${HOME}/venv" && \
-    . "${HOME}/venv/bin/activate" && \
-    ~/tools/bin/poetry install --only main
-
-
-FROM cgr.dev/chainguard/python:latest
-
-ARG PYTHON_VERSION="3.12"
-
-WORKDIR /app
-
-COPY --from=builder "/home/nonroot/venv/lib/python${PYTHON_VERSION}/site-packages" "/home/nonroot/.local/lib/python${PYTHON_VERSION}/site-packages"
-COPY --from=builder /app/app /app/app
 COPY alembic.ini .
-COPY alembic ./alembic/
+COPY alembic ./alembic
+COPY src ./src
 
 EXPOSE 8000
-ENTRYPOINT ["python", "-m", "app"]
+ENTRYPOINT ["python", "-m"]
+CMD ["edm_su_api"]

@@ -6,23 +6,23 @@ from faker import Faker
 from pytest_mock import MockFixture
 from typing_extensions import Self
 
-from app.internal.entity.post import NewPostDTO, Post
-from app.internal.entity.user import User
-from app.internal.usecase.exceptions.post import (
+from edm_su_api.internal.entity.post import NewPostDTO, Post
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
 )
-from app.internal.usecase.post import (
+from edm_su_api.internal.usecase.post import (
     CreatePostUseCase,
     DeletePostUseCase,
     GetAllPostsUseCase,
     GetPostBySlugUseCase,
     GetPostCountUseCase,
 )
-from app.internal.usecase.repository.permission import (
+from edm_su_api.internal.usecase.repository.permission import (
     AbstractPermissionRepository,
 )
-from app.internal.usecase.repository.post import AbstractPostRepository
+from edm_su_api.internal.usecase.repository.post import AbstractPostRepository
 
 
 @pytest.fixture
@@ -75,7 +75,7 @@ class TestCreatePostUseCase:
     @pytest.fixture
     def mock_permissions(self: Self, mocker: MockFixture) -> None:
         mocker.patch(
-            "app.internal.usecase.video.CreateVideoUseCase._set_permissions",
+            "edm_su_api.internal.usecase.video.CreateVideoUseCase._set_permissions",
             return_value=None,
         )
 

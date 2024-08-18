@@ -4,9 +4,9 @@ import pytest
 from fastapi import HTTPException
 from typing_extensions import Self
 
-from app.internal.controller.http.v1.dependencies.post import find_post
-from app.internal.usecase.exceptions.post import PostNotFoundError
-from app.internal.usecase.post import GetPostBySlugUseCase
+from edm_su_api.internal.controller.http.v1.dependencies.post import find_post
+from edm_su_api.internal.usecase.exceptions.post import PostNotFoundError
+from edm_su_api.internal.usecase.post import GetPostBySlugUseCase
 
 
 class TestFindPost:

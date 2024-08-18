@@ -6,14 +6,16 @@ import pytest
 from pytest_httpx import HTTPXMock
 from typing_extensions import Self
 
-from app.internal.entity.settings import settings
-from app.internal.entity.upload import ImageURL
-from app.internal.usecase.exceptions.upload import (
+from edm_su_api.internal.entity.settings import settings
+from edm_su_api.internal.entity.upload import ImageURL
+from edm_su_api.internal.usecase.exceptions.upload import (
     FileIsNotImageError,
     FileIsTooLargeError,
 )
-from app.internal.usecase.repository.upload import AbstractUploadRepository
-from app.internal.usecase.upload import (
+from edm_su_api.internal.usecase.repository.upload import (
+    AbstractUploadRepository,
+)
+from edm_su_api.internal.usecase.upload import (
     UploadImageURLUseCase,
     UploadImageUseCase,
 )

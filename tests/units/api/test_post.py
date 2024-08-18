@@ -7,12 +7,14 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.post import find_post
-from app.internal.controller.http.v1.requests.post import CreatePostRequest
-from app.internal.entity.post import Post
-from app.internal.entity.user import User
-from app.internal.usecase.exceptions.post import (
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.post import find_post
+from edm_su_api.internal.controller.http.v1.requests.post import (
+    CreatePostRequest,
+)
+from edm_su_api.internal.entity.post import Post
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
     PostWasNotDeletedError,
@@ -65,7 +67,7 @@ class TestNewPost:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.post.CreatePostUseCase.execute",
+            "edm_su_api.internal.usecase.post.CreatePostUseCase.execute",
             return_value=post,
         )
         data = new_post_data.model_dump()
@@ -94,7 +96,7 @@ class TestNewPost:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.post.CreatePostUseCase.execute",
+            "edm_su_api.internal.usecase.post.CreatePostUseCase.execute",
             side_effect=PostSlugNotUniqueError(new_post_data.slug),
         )
         response = await client.post(
@@ -114,11 +116,11 @@ class TestGetAllPosts:
         post: Post,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.post.GetAllPostsUseCase.execute",
+            "edm_su_api.internal.usecase.post.GetAllPostsUseCase.execute",
             return_value=[post],
         )
         mocked_count = mocker.patch(
-            "app.internal.usecase.post.GetPostCountUseCase.execute",
+            "edm_su_api.internal.usecase.post.GetPostCountUseCase.execute",
             return_value=1,
         )
         response = await client.get("/posts")
@@ -157,7 +159,7 @@ class TestDeletePost:
     ) -> None:
         app.dependency_overrides[find_post] = lambda: post
         mocked = mocker.patch(
-            "app.internal.usecase.post.DeletePostUseCase.execute",
+            "edm_su_api.internal.usecase.post.DeletePostUseCase.execute",
         )
         response = await client.delete(f"/posts/{post.slug}")
 
@@ -173,7 +175,7 @@ class TestDeletePost:
     ) -> None:
         app.dependency_overrides[find_post] = lambda: post
         mocked = mocker.patch(
-            "app.internal.usecase.post.DeletePostUseCase.execute",
+            "edm_su_api.internal.usecase.post.DeletePostUseCase.execute",
             side_effect=PostNotFoundError,
         )
         response = await client.delete(f"/posts/{post.slug}")
@@ -190,7 +192,7 @@ class TestDeletePost:
     ) -> None:
         app.dependency_overrides[find_post] = lambda: post
         mocked = mocker.patch(
-            "app.internal.usecase.post.DeletePostUseCase.execute",
+            "edm_su_api.internal.usecase.post.DeletePostUseCase.execute",
             side_effect=PostWasNotDeletedError,
         )
         response = await client.delete(f"/posts/{post.slug}")
