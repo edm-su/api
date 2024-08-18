@@ -13,13 +13,13 @@ from app.internal.usecase.exceptions.user_videos import (
 )
 
 
-@pytest.fixture()
-def _mock_find_video(video: Video) -> None:
+@pytest.fixture
+def mock_find_video(video: Video) -> None:
     app.dependency_overrides[find_video] = lambda: video
 
 
 class TestLikeVideo:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_like_video(
         self: Self,
         client: AsyncClient,
@@ -35,7 +35,7 @@ class TestLikeVideo:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_already_liked(
         self: Self,
         client: AsyncClient,
@@ -53,7 +53,7 @@ class TestLikeVideo:
 
 
 class TestUnlikeVideo:
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_unlike_video(
         self: Self,
         client: AsyncClient,
@@ -69,7 +69,7 @@ class TestUnlikeVideo:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    @pytest.mark.usefixtures("_mock_current_user", "_mock_find_video")
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
     async def test_not_liked(
         self: Self,
         client: AsyncClient,

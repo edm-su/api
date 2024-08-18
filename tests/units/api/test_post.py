@@ -19,7 +19,7 @@ from app.internal.usecase.exceptions.post import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_post_data(
     faker: Faker,
 ) -> CreatePostRequest:
@@ -43,7 +43,7 @@ def new_post_data(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def post(
     new_post_data: CreatePostRequest,
     user: User,
@@ -56,7 +56,7 @@ def post(
 
 
 class TestNewPost:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_new_post(
         self: Self,
         client: AsyncClient,
@@ -86,7 +86,7 @@ class TestNewPost:
         assert response.status_code == status.HTTP_201_CREATED
         assert response_data["id"] == post.id
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_already_exists_post(
         self: Self,
         client: AsyncClient,
@@ -148,7 +148,7 @@ class TestGetPost:
 
 
 class TestDeletePost:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_delete_post(
         self: Self,
         client: AsyncClient,
@@ -164,7 +164,7 @@ class TestDeletePost:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_not_found(
         self: Self,
         client: AsyncClient,
@@ -181,7 +181,7 @@ class TestDeletePost:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_another_error(
         self: Self,
         client: AsyncClient,

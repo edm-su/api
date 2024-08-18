@@ -18,7 +18,7 @@ def repository(
     return PostgresPostRepository(pg_session)
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_post_data(
     faker: Faker,
     user: User,
@@ -36,7 +36,7 @@ def new_post_data(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 async def pg_post(
     new_post_data: NewPostDTO,
     repository: PostgresPostRepository,

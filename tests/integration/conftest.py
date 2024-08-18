@@ -14,7 +14,7 @@ from app.pkg.postgres import Base, async_engine, async_session
 
 
 @pytest.fixture(autouse=True, scope="session")
-async def _setup_db() -> None:
+async def setup_db() -> None:
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'))
@@ -33,14 +33,14 @@ async def ms_client() -> MeilisearchClient:
     return meilisearch_client
 
 
-@pytest.fixture()
+@pytest.fixture
 def pg_video_repository(
     pg_session: AsyncSession,
 ) -> PostgresVideoRepository:
     return PostgresVideoRepository(pg_session)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def pg_video(
     pg_video_repository: PostgresVideoRepository,
     faker: Faker,

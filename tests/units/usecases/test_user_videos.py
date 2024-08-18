@@ -21,12 +21,12 @@ from app.internal.usecase.user_videos import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractUserVideosRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def video(faker: Faker) -> Video:
     return Video(
         id=faker.pyint(min_value=1),
@@ -44,14 +44,14 @@ def video(faker: Faker) -> Video:
 
 class TestGetUserVideosUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.get_user_videos.return_value = [video]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -77,14 +77,14 @@ class TestGetUserVideosUseCase:
 
 class TestLikeVideoUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.is_liked.return_value = False
         repository.like_video.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -121,14 +121,14 @@ class TestLikeVideoUseCase:
 
 class TestUnlikeVideoUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.is_liked.return_value = True
         repository.unlike_video.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,

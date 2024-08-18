@@ -25,12 +25,12 @@ from app.internal.usecase.repository.permission import (
 from app.internal.usecase.repository.post import AbstractPostRepository
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository() -> AbstractPostRepository:
     return AsyncMock(repr=AbstractPostRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def post(
     faker: Faker,
     user: User,
@@ -47,7 +47,7 @@ def post(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_post(
     post: Post,
     user: User,
@@ -65,21 +65,21 @@ def new_post(
 
 class TestCreatePostUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         post: Post,
         repository: AsyncMock,
     ) -> None:
         repository.create.return_value = post
 
-    @pytest.fixture()
-    def _mock_permissions(self: Self, mocker: MockFixture) -> None:
+    @pytest.fixture
+    def mock_permissions(self: Self, mocker: MockFixture) -> None:
         mocker.patch(
             "app.internal.usecase.video.CreateVideoUseCase._set_permissions",
             return_value=None,
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AbstractPostRepository,
@@ -119,7 +119,7 @@ class TestCreatePostUseCase:
 
 class TestGetAllPostsUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         faker: Faker,
@@ -127,7 +127,7 @@ class TestGetAllPostsUseCase:
     ) -> None:
         repository.get_all.return_value = [post]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -146,7 +146,7 @@ class TestGetAllPostsUseCase:
 
 
 class TestGetPostBySlugUseCase:
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -181,13 +181,13 @@ class TestGetPostBySlugUseCase:
 
 class TestGetPostCountUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.count.return_value = 1
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -205,7 +205,7 @@ class TestGetPostCountUseCase:
 
 
 class TestDeletePostUseCase:
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -214,7 +214,7 @@ class TestDeletePostUseCase:
         return DeletePostUseCase(repository, permissions_repo)
 
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:

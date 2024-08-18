@@ -24,12 +24,12 @@ from app.internal.usecase.repository.livestream import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(mocker: MockerFixture) -> AbstractLiveStreamRepository:
     return AsyncMock(repr=AbstractLiveStreamRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def livestream(faker: Faker) -> LiveStream:
     return LiveStream(
         id=faker.pyint(min_value=1),
@@ -52,7 +52,7 @@ def livestream(faker: Faker) -> LiveStream:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_livestream(
     faker: Faker,
     livestream: LiveStream,
@@ -71,7 +71,7 @@ def new_livestream(
 
 class TestCreateLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         livestream: LiveStream,
@@ -79,7 +79,7 @@ class TestCreateLiveStreamUseCase:
         repository.create.return_value = livestream
         repository.get_by_slug.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -114,14 +114,14 @@ class TestCreateLiveStreamUseCase:
 
 class TestGetAllLiveStreamsUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         livestream: LiveStream,
         repository: AsyncMock,
     ) -> None:
         repository.get_all.return_value = [livestream]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -141,14 +141,14 @@ class TestGetAllLiveStreamsUseCase:
 
 class TestGetLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         livestream: LiveStream,
         repository: AsyncMock,
     ) -> None:
         repository.get_by_id.return_value = livestream
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -180,7 +180,7 @@ class TestGetLiveStreamUseCase:
 
 class TestUpdateLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         livestream: LiveStream,
         repository: AsyncMock,
@@ -188,7 +188,7 @@ class TestUpdateLiveStreamUseCase:
         repository.get_by_slug.return_value = None
         repository.update.return_value = livestream
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -222,13 +222,13 @@ class TestUpdateLiveStreamUseCase:
 
 class TestDeleteLiveStreamUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.delete.return_value = True
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,

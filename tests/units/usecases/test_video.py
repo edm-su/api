@@ -25,17 +25,17 @@ from app.internal.usecase.video import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractVideoRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def full_text_repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractFullTextVideoRepository)
 
 
-@pytest.fixture()
+@pytest.fixture
 def video(faker: Faker) -> Video:
     return Video(
         id=faker.pyint(min_value=1),
@@ -53,14 +53,14 @@ def video(faker: Faker) -> Video:
 
 class TestGetAllVideosUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.get_all.return_value = [video]
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -81,13 +81,13 @@ class TestGetAllVideosUseCase:
 
 class TestGetCountVideosUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.count.return_value = 1
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -107,14 +107,14 @@ class TestGetCountVideosUseCase:
 
 class TestGetVideoBySlugUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.get_by_slug.return_value = video
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -145,7 +145,7 @@ class TestGetVideoBySlugUseCase:
 
 class TestCreateVideoUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         full_text_repository: AsyncMock,
@@ -154,42 +154,42 @@ class TestCreateVideoUseCase:
         repository.create.return_value = video
         full_text_repository.create.return_value = video
 
-    @pytest.fixture()
+    @pytest.fixture
     def new_video(
         self: Self,
         video: Video,
     ) -> NewVideoDto:
         return NewVideoDto(**video.model_dump())
 
-    @pytest.fixture()
-    def _mock_by_slug(
+    @pytest.fixture
+    def mock_by_slug(
         self: Self,
         repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.get_by_slug.return_value = video
 
-    @pytest.fixture()
-    def _mock_by_yt_id(
+    @pytest.fixture
+    def mock_by_yt_id(
         self: Self,
         repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.get_by_yt_id.return_value = video
 
-    @pytest.fixture()
-    def _mock_not_found(
+    @pytest.fixture
+    def mock_not_found(
         self: Self,
         repository: AsyncMock,
     ) -> None:
         repository.get_by_slug.side_effect = VideoNotFoundError
         repository.get_by_yt_id.side_effect = VideoNotFoundError
 
-    @pytest.fixture()
+    @pytest.fixture
     def expand_slug_patch(self: Self, mocker: MockFixture) -> MockType:
         return mocker.patch.object(NewVideoDto, "expand_slug", return_value="")
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
@@ -202,7 +202,7 @@ class TestCreateVideoUseCase:
             permissions_repo,
         )
 
-    @pytest.mark.usefixtures("_mock_not_found")
+    @pytest.mark.usefixtures("mock_not_found")
     async def test_create_video(
         self: Self,
         usecase: CreateVideoUseCase,
@@ -235,7 +235,7 @@ class TestCreateVideoUseCase:
 
         expand_slug_patch.assert_called_once()
 
-    @pytest.mark.usefixtures("_mock_by_yt_id")
+    @pytest.mark.usefixtures("mock_by_yt_id")
     async def test_create_video_with_invalid_yt_id(
         self: Self,
         repository: AsyncMock,
@@ -250,7 +250,7 @@ class TestCreateVideoUseCase:
 
 class TestDeleteVideoUseCase:
     @pytest.fixture(autouse=True)
-    def _mock(
+    def mock(
         self: Self,
         repository: AsyncMock,
         full_text_repository: AsyncMock,
@@ -258,7 +258,7 @@ class TestDeleteVideoUseCase:
         repository.delete.return_value = None
         full_text_repository.delete.return_value = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,

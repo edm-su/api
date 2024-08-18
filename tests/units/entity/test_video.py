@@ -6,7 +6,7 @@ from app.internal.entity.video import NewVideoDto
 
 
 class TestNewVideoDto:
-    @pytest.fixture()
+    @pytest.fixture
     def new_video(self: Self, faker: Faker) -> NewVideoDto:
         return NewVideoDto(
             title=faker.word(),

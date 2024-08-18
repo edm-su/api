@@ -15,7 +15,7 @@ from app.internal.usecase.exceptions.upload import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def image_urls(
     faker: Faker,
 ) -> ImageURLs:
@@ -29,13 +29,13 @@ def image_urls(
 UploadImage = tuple[str, IO[bytes], str]
 
 
-@pytest.fixture()
+@pytest.fixture
 def image(image: IO[bytes]) -> UploadImage:
     return "test.jpeg", image, "image/jpeg"
 
 
 class TestUpload:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_upload_image(
         self: Self,
         client: AsyncClient,
@@ -56,7 +56,7 @@ class TestUpload:
         assert response.status_code == status.HTTP_200_OK
         assert ImageURLs.model_validate(response.json()) == image_urls
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_upload_error(
         self: Self,
         client: AsyncClient,
@@ -75,7 +75,7 @@ class TestUpload:
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_upload_not_image(
         self: Self,
         client: AsyncClient,
@@ -105,7 +105,7 @@ class TestUpload:
 
 
 class TestUploadImageURL:
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_upload_image_by_url(
         self: Self,
         client: AsyncClient,
@@ -126,7 +126,7 @@ class TestUploadImageURL:
         assert response.status_code == status.HTTP_200_OK
         assert ImageURLs.model_validate(response.json()) == image_urls
 
-    @pytest.mark.usefixtures("_mock_current_user")
+    @pytest.mark.usefixtures("mock_current_user")
     async def test_upload_error(
         self: Self,
         client: AsyncClient,

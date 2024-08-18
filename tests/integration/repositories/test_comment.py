@@ -9,14 +9,14 @@ from app.internal.entity.video import Video
 from app.internal.usecase.repository.comment import PostgresCommentRepository
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(
     pg_session: AsyncSession,
 ) -> PostgresCommentRepository:
     return PostgresCommentRepository(pg_session)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def pg_comment(
     faker: Faker,
     user: User,
@@ -31,7 +31,7 @@ async def pg_comment(
     return await repository.create(comment)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def new_comment_data(
     faker: Faker,
     user: User,
