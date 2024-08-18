@@ -1,30 +1,32 @@
 name: Lint
-
 on:
   pull_request:
     branches:
       - '*'
-
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
-      - name: Setup python
-        uses: actions/setup-python@v5.0.0
+      - name: Set up uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Set up python
+        run: uv python install
+      - name: Restore uv cache
+        uses: actions/cache@v4
         with:
-          python-version: 3.12
-          check-latest: true
-          cache: 'poetry'
+          path: /tmp/.uv-cache
+          key: uv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            uv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+            uv-${{ runner.os }}
       - name: Install dependencies
-        run: |
-          poetry install --with lint
+        run: uv pip install -r requirements.txt
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
       - name: Run reviewdog
-        run: |
-          reviewdog -reporter=github-pr-check -fail-on-error=true -conf=.reviewdog.yml
+        run: reviewdog -reporter=github-pr-check -fail-on-error=true -conf=.reviewdog.yml
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Minimize uv cache
+        run: uv cache prune --ci
