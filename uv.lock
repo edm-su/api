@@ -285,11 +285,11 @@ wheels = [
 
 [[package]]
 name = "cachetools"
-version = "5.4.0"
+version = "5.5.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a7/3f/ea907ec6d15f68ea7f381546ba58adcb298417a59f01a2962cb5e486489f/cachetools-5.4.0.tar.gz", hash = "sha256:b8adc2e7c07f105ced7bc56dbb6dfbe7c4a00acce20e2227b3f355be89bc6827", size = 26975 }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/38/a0f315319737ecf45b4319a8cd1f3a908e29d9277b46942263292115eee7/cachetools-5.5.0.tar.gz", hash = "sha256:2cc24fb4cbe39633fb7badd9db9ca6295d766d9c2995f245725a46715d050f2a", size = 27661 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/e6/a1551acbaa06f3e48b311329828a34bc9c51a8cfaecdeb4d03c329a1ef85/cachetools-5.4.0-py3-none-any.whl", hash = "sha256:3ae3b49a3d5e28a77a0be2b37dbcb89005058959cb2323858c2657c4a8cab474", size = 9455 },
+    { url = "https://files.pythonhosted.org/packages/a4/07/14f8ad37f2d12a5ce41206c21820d8cb6561b728e51fad4530dff0552a67/cachetools-5.5.0-py3-none-any.whl", hash = "sha256:02134e8439cdc2ffb62023ce1debca2944c3f289d66bb17ead3ab3dede74b292", size = 9524 },
 ]
 
 [[package]]
@@ -514,19 +514,19 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aioboto3", specifier = ">=13.1.1,<14.0.0" },
-    { name = "aiofiles", specifier = ">=23.2.1,<24.0.0" },
-    { name = "aiohttp", specifier = ">=3.10.3,<4.0.0" },
-    { name = "alembic", specifier = ">=1.13,<2" },
-    { name = "asyncpg", specifier = ">=0.29.0,<0.30.0" },
-    { name = "authzed", specifier = ">=0.14.0,<0.15.0" },
+    { name = "aioboto3", specifier = "<14.0.0,>=13.1.1" },
+    { name = "aiofiles", specifier = "<24.0.0,>=23.2.1" },
+    { name = "aiohttp", specifier = "<4.0.0,>=3.10.3" },
+    { name = "alembic", specifier = "<2,>=1.13" },
+    { name = "asyncpg", specifier = "<0.30.0,>=0.29.0" },
+    { name = "authzed", specifier = "<0.15.0,>=0.14.0" },
     { name = "fastapi", extras = ["all"], specifier = "==0.110.0" },
-    { name = "greenlet", specifier = ">=3.0.0,<4.0.0" },
+    { name = "greenlet", specifier = "<4.0.0,>=3.0.0" },
     { name = "meilisearch-python-async", specifier = "==1.8.0" },
-    { name = "pillow", specifier = ">=10.3.0,<11.0.0" },
-    { name = "python-slugify", extras = ["unidecode"], specifier = ">=8.0,<9.0" },
-    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0,<3.0" },
-    { name = "typing-extensions", specifier = ">=4.12.2,<5.0.0" },
+    { name = "pillow", specifier = "<11.0.0,>=10.3.0" },
+    { name = "python-slugify", extras = ["unidecode"], specifier = "<9.0,>=8.0" },
+    { name = "sqlalchemy", extras = ["asyncio"], specifier = "<3.0,>=2.0" },
+    { name = "typing-extensions", specifier = "<5.0.0,>=4.12.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -702,16 +702,16 @@ wheels = [
 
 [[package]]
 name = "google-auth"
-version = "2.33.0"
+version = "2.34.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cachetools" },
     { name = "pyasn1-modules" },
     { name = "rsa" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/4d/626b37c6bcc1f211aef23f47c49375072c0cb19148627d98c85e099acbc8/google_auth-2.33.0.tar.gz", hash = "sha256:d6a52342160d7290e334b4d47ba390767e4438ad0d45b7630774533e82655b95", size = 257157 }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/ae/634dafb151366d91eb848a25846a780dbce4326906ef005d199723fbbca0/google_auth-2.34.0.tar.gz", hash = "sha256:8eb87396435c19b20d32abd2f984e31c191a15284af72eb922f10e5bde9c04cc", size = 257875 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/60/57/0f37c6f35847e26b7bea7d5e4f069cf037fd792cf8b67206311761e7bb92/google_auth-2.33.0-py2.py3-none-any.whl", hash = "sha256:8eff47d0d4a34ab6265c50a106a3362de6a9975bb08998700e389f857e4d39df", size = 200537 },
+    { url = "https://files.pythonhosted.org/packages/bb/fb/9af9e3f2996677bdda72734482934fe85a3abde174e5f0783ac2f817ba98/google_auth-2.34.0-py2.py3-none-any.whl", hash = "sha256:72fd4733b80b6d777dcde515628a9eb4a577339437012874ea286bca7261ee65", size = 200870 },
 ]
 
 [[package]]

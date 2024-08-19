@@ -16,12 +16,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.uv-cache
-          key: uv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            uv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+            uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
             uv-${{ runner.os }}
       - name: Install dependencies
-        run: uv pip install -r requirements.txt
+        run: uv sync
       - name: Install Reviewdog
         uses: reviewdog/action-setup@v1
       - name: Run reviewdog
