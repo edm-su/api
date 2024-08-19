@@ -6,7 +6,7 @@ from typing import IO
 
 import httpx
 from PIL import Image
-from typing_extensions import Self
+from typing_extensions import Self, override
 
 from edm_su_api.internal.entity.settings import settings
 from edm_su_api.internal.entity.upload import ImageURL, ImageURLs
@@ -39,9 +39,10 @@ class ImageConverter(ABC):
 class JPEGImageConverter(ImageConverter):
     extension = "jpeg"
 
+    @override
     def convert(self: Self) -> None:
-        image = Image.open(self.file)
-        image = image.convert("RGB")
+        image_file = Image.open(self.file)
+        image = image_file.convert("RGB")
         jpeg_image = BytesIO()
         image.save(jpeg_image, "JPEG")
         jpeg_image.seek(0)

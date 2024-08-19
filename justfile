@@ -6,15 +6,15 @@ serve:
 lint: ruff-lint mypy
 
 ruff-lint:
-	uvx ruff check --fix .
+	uv run ruff check --fix .
 
 mypy:
-	uvx mypy .
+	uv run mypy .
 
 format: ruff-format
 
 ruff-format:
-	uvx ruff format .
+	uv run ruff format .
 
 unit-tests:
 	uv run pytest tests/units/
