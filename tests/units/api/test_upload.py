@@ -8,8 +8,8 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.entity.upload import ImageURLs
-from app.internal.usecase.exceptions.upload import (
+from edm_su_api.internal.entity.upload import ImageURLs
+from edm_su_api.internal.usecase.exceptions.upload import (
     FileIsNotImageError,
     FileIsTooLargeError,
 )
@@ -44,7 +44,7 @@ class TestUpload:
         image_urls: ImageURLs,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageUseCase.execute",
             return_value=image_urls,
         )
         response = await client.post(
@@ -64,7 +64,7 @@ class TestUpload:
         image: UploadImage,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageUseCase.execute",
             side_effect=FileIsTooLargeError(2, 1),
         )
         response = await client.post(
@@ -92,7 +92,7 @@ class TestUpload:
         assert response.status_code == status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
 
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageUseCase.execute",
             side_effect=FileIsNotImageError,
         )
         response = await client.post(
@@ -114,7 +114,7 @@ class TestUploadImageURL:
         faker: Faker,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageURLUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageURLUseCase.execute",
             return_value=image_urls,
         )
         response = await client.post(
@@ -134,7 +134,7 @@ class TestUploadImageURL:
         faker: Faker,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageURLUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageURLUseCase.execute",
             side_effect=FileIsTooLargeError(2, 1),
         )
         response = await client.post(
@@ -146,7 +146,7 @@ class TestUploadImageURL:
         assert response.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
 
         mocked = mocker.patch(
-            "app.internal.usecase.upload.UploadImageURLUseCase.execute",
+            "edm_su_api.internal.usecase.upload.UploadImageURLUseCase.execute",
             side_effect=FileIsNotImageError,
         )
         response = await client.post(

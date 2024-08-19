@@ -1,34 +1,31 @@
 set dotenv-load := true
 
 serve:
-	poetry run app
+	uv run python3 -m edm_su_api
 
 lint: ruff-lint mypy
 
 ruff-lint:
-	poetry run ruff check --fix .
+	uv run ruff check --fix .
 
 mypy:
-	poetry run mypy .
+	uv run mypy .
 
 format: ruff-format
 
 ruff-format:
-	poetry run ruff format .
+	uv run ruff format .
 
 unit-tests:
-	poetry run pytest tests/units/
+	uv run pytest tests/units/
 
 integration-tests:
-	poetry run pytest tests/integration/
+	uv run pytest tests/integration/
 
 test: unit-tests integration-tests
 
-install:
-	poetry install --with lint
-
 migrate:
-	poetry run alembic upgrade head
+	uv run alembic upgrade head
 
 generate-migration MESSAGE:
-	poetry run alembic revision --autogenerate -m "{{MESSAGE}}"
+	uv run alembic revision --autogenerate -m "{{MESSAGE}}"

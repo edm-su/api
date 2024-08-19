@@ -2,7 +2,7 @@ import pytest
 from faker import Faker
 from typing_extensions import Self
 
-from app.internal.entity.video import NewVideoDto
+from edm_su_api.internal.entity.video import NewVideoDto
 
 
 class TestNewVideoDto:

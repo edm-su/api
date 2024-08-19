@@ -5,16 +5,16 @@ from faker import Faker
 from pytest_mock import MockFixture
 from typing_extensions import Self
 
-from app.internal.entity.user import User
-from app.internal.entity.video import Video
-from app.internal.usecase.exceptions.user_videos import (
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.entity.video import Video
+from edm_su_api.internal.usecase.exceptions.user_videos import (
     UserVideoAlreadyLikedError,
     UserVideoNotLikedError,
 )
-from app.internal.usecase.repository.user_videos import (
+from edm_su_api.internal.usecase.repository.user_videos import (
     AbstractUserVideosRepository,
 )
-from app.internal.usecase.user_videos import (
+from edm_su_api.internal.usecase.user_videos import (
     GetUserVideosUseCase,
     LikeVideoUseCase,
     UnlikeVideoUseCase,

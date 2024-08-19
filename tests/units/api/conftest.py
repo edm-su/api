@@ -4,14 +4,14 @@ import pytest
 from faker import Faker
 from httpx import AsyncClient
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.auth import (
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.auth import (
     get_current_user,
 )
-from app.internal.entity.user import (
+from edm_su_api.internal.entity.user import (
     User,
 )
-from app.internal.entity.video import Video
+from edm_su_api.internal.entity.video import Video
 
 
 @pytest.fixture(scope="session")

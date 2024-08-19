@@ -6,16 +6,16 @@ from pytest_mock import MockFixture
 from pytest_mock.plugin import MockType
 from typing_extensions import Self
 
-from app.internal.entity.video import NewVideoDto
-from app.internal.usecase.exceptions.video import (
+from edm_su_api.internal.entity.video import NewVideoDto
+from edm_su_api.internal.usecase.exceptions.video import (
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
-from app.internal.usecase.repository.video import (
+from edm_su_api.internal.usecase.repository.video import (
     AbstractFullTextVideoRepository,
     AbstractVideoRepository,
 )
-from app.internal.usecase.video import (
+from edm_su_api.internal.usecase.video import (
     CreateVideoUseCase,
     DeleteVideoUseCase,
     GetAllVideosUseCase,

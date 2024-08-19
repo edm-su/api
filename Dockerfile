@@ -1,30 +1,19 @@
-FROM cgr.dev/chainguard/python:latest-dev as builder
+FROM python:3.12-slim-bullseye
 
-ARG POETRY_VERSION="1.8.3"
-
-WORKDIR /app
-COPY pyproject.toml poetry.lock README.md .
-COPY app ./app
-
-RUN python -m venv $HOME/tools && \
-    . "${HOME}/tools/bin/activate" && \
-    pip install "poetry==${POETRY_VERSION}"
-
-RUN python -m venv "${HOME}/venv" && \
-    . "${HOME}/venv/bin/activate" && \
-    ~/tools/bin/poetry install --only main
-
-
-FROM cgr.dev/chainguard/python:latest
-
-ARG PYTHON_VERSION="3.12"
+ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-COPY --from=builder "/home/nonroot/venv/lib/python${PYTHON_VERSION}/site-packages" "/home/nonroot/.local/lib/python${PYTHON_VERSION}/site-packages"
-COPY --from=builder /app/app /app/app
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+COPY uv.lock .
+COPY README.md .
+COPY pyproject.toml .
+COPY src ./src
 COPY alembic.ini .
-COPY alembic ./alembic/
+COPY alembic ./alembic
+
+RUN uv sync --no-dev --no-upgrade
 
 EXPOSE 8000
-ENTRYPOINT ["python", "-m", "app"]
+ENTRYPOINT ["uv", "run", "--no-dev", "python", "-m"]
+CMD ["edm_su_api"]

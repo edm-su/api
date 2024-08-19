@@ -3,10 +3,12 @@ from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.comment import Comment, NewCommentDto
-from app.internal.entity.user import User
-from app.internal.entity.video import Video
-from app.internal.usecase.repository.comment import PostgresCommentRepository
+from edm_su_api.internal.entity.comment import Comment, NewCommentDto
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.entity.video import Video
+from edm_su_api.internal.usecase.repository.comment import (
+    PostgresCommentRepository,
+)
 
 
 @pytest.fixture

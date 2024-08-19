@@ -7,12 +7,15 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.controller.http import app
-from app.internal.controller.http.v1.dependencies.livestream import (
+from edm_su_api.internal.controller.http import app
+from edm_su_api.internal.controller.http.v1.dependencies.livestream import (
     find_livestream,
 )
-from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
-from app.internal.usecase.exceptions.livestream import (
+from edm_su_api.internal.entity.livestreams import (
+    CreateLiveStreamDTO,
+    LiveStream,
+)
+from edm_su_api.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
 )
@@ -60,7 +63,7 @@ class TestNewLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.CreateLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.CreateLiveStreamUseCase.execute",
             return_value=livestream,
         )
         response = await client.post(
@@ -81,7 +84,7 @@ class TestNewLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.CreateLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.CreateLiveStreamUseCase.execute",
             side_effect=LiveStreamAlreadyExistsError(
                 live_stream=new_stream_data,
             ),
@@ -105,7 +108,7 @@ class TestGetLiveStreams:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.GetAllLiveStreamsUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.GetAllLiveStreamsUseCase.execute",
             return_value=[livestream],
         )
         response = await client.get("/livestreams")
@@ -139,7 +142,7 @@ class TestDeleteLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.DeleteLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.DeleteLiveStreamUseCase.execute",
         )
         response = await client.delete(f"/livestreams/{livestream.id}")
 
@@ -154,7 +157,7 @@ class TestDeleteLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.DeleteLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.DeleteLiveStreamUseCase.execute",
             side_effect=LiveStreamError(),
         )
         response = await client.delete(f"/livestreams/{livestream.id}")
@@ -173,7 +176,7 @@ class TestUpdateLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.UpdateLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.UpdateLiveStreamUseCase.execute",
             return_value=livestream,
         )
         response = await client.put(
@@ -193,7 +196,7 @@ class TestUpdateLiveStream:
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
-            "app.internal.usecase.livestream.UpdateLiveStreamUseCase.execute",
+            "edm_su_api.internal.usecase.livestream.UpdateLiveStreamUseCase.execute",
             side_effect=LiveStreamError(),
         )
         response = await client.put(

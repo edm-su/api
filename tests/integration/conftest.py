@@ -6,11 +6,13 @@ from meilisearch_python_async import Client as MeilisearchClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.internal.entity.video import NewVideoDto, Video
-from app.internal.usecase.repository.video import PostgresVideoRepository
-from app.pkg.meilisearch import config_ms
-from app.pkg.meilisearch import ms_client as meilisearch_client
-from app.pkg.postgres import Base, async_engine, async_session
+from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.usecase.repository.video import (
+    PostgresVideoRepository,
+)
+from edm_su_api.pkg.meilisearch import config_ms
+from edm_su_api.pkg.meilisearch import ms_client as meilisearch_client
+from edm_su_api.pkg.postgres import Base, async_engine, async_session
 
 
 @pytest.fixture(autouse=True, scope="session")

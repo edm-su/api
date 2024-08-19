@@ -4,20 +4,19 @@
 
 * Python >= 3.10
 * PostgreSQL >= 9.6
-* Poetry
 * Meilisearch >= 1.0.0
 
 ## Install
 
 ```shell
-poetry install
+pip install -r requirements.txt
 alembic upgrade head
 ```
 
 ## Run
 
 ```shell
-./entrypoint.sh
+python3 -m edm_su_api
 ```
 
 ## Environment variables

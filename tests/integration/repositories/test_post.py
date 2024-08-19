@@ -5,10 +5,10 @@ from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from app.internal.entity.post import NewPostDTO, Post
-from app.internal.entity.user import User
-from app.internal.usecase.exceptions.post import PostNotFoundError
-from app.internal.usecase.repository.post import PostgresPostRepository
+from edm_su_api.internal.entity.post import NewPostDTO, Post
+from edm_su_api.internal.entity.user import User
+from edm_su_api.internal.usecase.exceptions.post import PostNotFoundError
+from edm_su_api.internal.usecase.repository.post import PostgresPostRepository
 
 
 @pytest.fixture(scope="session")

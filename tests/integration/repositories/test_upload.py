@@ -3,7 +3,7 @@ from typing import IO
 import pytest
 from typing_extensions import Self
 
-from app.internal.usecase.repository.upload import S3UploadRepository
+from edm_su_api.internal.usecase.repository.upload import S3UploadRepository
 
 
 @pytest.fixture

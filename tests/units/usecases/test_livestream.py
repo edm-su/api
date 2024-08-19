@@ -6,20 +6,23 @@ from faker import Faker
 from pytest_mock import MockerFixture
 from typing_extensions import Self
 
-from app.internal.entity.livestreams import CreateLiveStreamDTO, LiveStream
-from app.internal.usecase.exceptions.livestream import (
+from edm_su_api.internal.entity.livestreams import (
+    CreateLiveStreamDTO,
+    LiveStream,
+)
+from edm_su_api.internal.usecase.exceptions.livestream import (
     LiveStreamAlreadyExistsError,
     LiveStreamError,
     LiveStreamNotFoundError,
 )
-from app.internal.usecase.livestream import (
+from edm_su_api.internal.usecase.livestream import (
     CreateLiveStreamUseCase,
     DeleteLiveStreamUseCase,
     GetAllLiveStreamsUseCase,
     GetLiveStreamUseCase,
     UpdateLiveStreamUseCase,
 )
-from app.internal.usecase.repository.livestream import (
+from edm_su_api.internal.usecase.repository.livestream import (
     AbstractLiveStreamRepository,
 )
 
