@@ -1,5 +1,4 @@
 name: Pytest
-
 on:
   push:
     branches:
@@ -8,42 +7,37 @@ on:
     types:
       - opened
       - synchronize
-
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version:
           - "3.10"
-          - 3.11
+          - "3.11"
           - "3.12"
     env:
+      UV_CACHE_DIR: /tmp/.uv-cache
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/edm_su_test
       FRONTEND_URL: http://localhost:3000
-
       MEILISEARCH_INDEX_POSTFIX: test
-
       S3_BUCKET: edm-su-test
       S3_ENDPOINT: http://localhost:9000
       S3_ACCESS_KEY: minioadmin
       S3_ACCESS_KEY_ID: minioadmin
       STATIC_URL: http://localhost:9000/edm-su-test
-
       SPICEDB_URL: "localhost:50051"
       SPICEDB_API_KEY: "edm-su"
       SPICEDB_INSECURE: "true"
     services:
       postgres:
-        image: postgres:14-alpine3.17
+        image: postgres:16-alpine
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: edm_su_test
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           - 5432:5432
       mail:
@@ -56,18 +50,15 @@ jobs:
           MINIO_ACCESS_KEY: minioadmin
           MINIO_SECRET_KEY: minioadmin
         options: >-
-          --name=minio
-          --health-cmd "curl http://localhost:9000/minio/health/live"
+          --name=minio --health-cmd "curl http://localhost:9000/minio/health/live"
         ports:
           - 9000:9000
       meilisearch:
         image: getmeili/meilisearch:v1.2.0
         options: >-
-          --name=meilisearch
-          --health-cmd "curl http://localhost:7700/health"
+          --name=meilisearch --health-cmd "curl http://localhost:7700/health"
         ports:
           - 7700:7700
-
     steps:
       - uses: actions/checkout@v4
       - name: Create minio bucket
@@ -77,29 +68,24 @@ jobs:
           AWS_EC2_METADATA_DISABLED: true
         run: |
           aws --endpoint http://localhost:9000 s3api create-bucket --bucket edm-su-test --acl public-read
-      - uses: "authzed/action-spicedb@v1"
+      - uses: authzed/action-spicedb@v1
         with:
           version: "v1.24.0"
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v5.0.0
+      - name: Set up uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Restore uv cache
+        uses: actions/cache@v4
         with:
-          python-version: ${{ matrix.python-version }}
-          check-latest: true
-          cache: 'poetry'
-      - name: Install dependencies
-        run: |
-          poetry env use "${{ matrix.python-version }}"
-          poetry install --no-interaction
+          path: /tmp/.uv-cache
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+            uv-${{ runner.os }}
       - name: Upgrade migrations
-        run: |
-          poetry env use "${{ matrix.python-version }}"
-          poetry run alembic upgrade head
-        env:
-          PYTHONPATH: .
+        run: uv run -p ${{ matrix.python-version }} alembic upgrade head
       - name: Run tests
-        run: |
-          poetry env use "${{ matrix.python-version }}"
-          poetry run pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
+        run: uv run  -p ${{ matrix.python-version }} pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
       - name: Upload coverage report
         uses: codecov/codecov-action@v4
+      - name: Minimize uv cache
+        run: uv cache prune --ci
