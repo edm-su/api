@@ -1,5 +1,4 @@
 version: 2
-
 updates:
   - package-ecosystem: pip
     directory: /
@@ -8,9 +7,7 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "fix(deps)"
-      prefix-development: "fix(deps)"
-
+      prefix: "chore"
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -18,8 +15,7 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "ci(actions)"
-
+      prefix: "chore"
   - package-ecosystem: docker
     directory: /
     schedule:
@@ -27,4 +23,4 @@ updates:
       time: "08:00"
       timezone: "Asia/Yekaterinburg"
     commit-message:
-      prefix: "ci(docker)"
+      prefix: "chore"
