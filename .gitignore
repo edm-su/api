@@ -11,3 +11,4 @@ _trial_temp
 coverage.xml
 .ropeproject
 dist
+typings
