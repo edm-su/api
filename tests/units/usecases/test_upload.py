@@ -64,6 +64,35 @@ class TestUploadImageUseCase:
             await usecase.execute()
 
 
+class TestGeneratePreSignedUploadUseCase:
+    @pytest.fixture
+    def repository(self: Self) -> AbstractPreSignedUploadRepository:
+        return AsyncMock(spec=AbstractPreSignedUploadRepository)
+
+    @pytest.fixture
+    def usecase(
+        self: Self,
+        repository: AsyncMock,
+    ) -> GeneratePreSignedUploadUseCase:
+        return GeneratePreSignedUploadUseCase(repository)
+
+    async def test_generate_pre_signed_url(
+        self: Self,
+        usecase: GeneratePreSignedUploadUseCase,
+        repository: AsyncMock,
+    ) -> None:
+        key = "test_key"
+        expires_in = 1800
+        expected_url = "https://pre-signed-url.com"
+
+        repository.generate.return_value = expected_url
+
+        result = await usecase.execute(key, expires_in)
+
+        assert result == expected_url
+        repository.generate.assert_awaited_once_with(key, expires_in)
+
+
 class TestUploadImageURLUseCase:
     @pytest.fixture(autouse=True)
     def mock(
