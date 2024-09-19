@@ -12,3 +12,4 @@ coverage.xml
 .ropeproject
 dist
 typings
+.aider*

@@ -13,9 +13,11 @@ from edm_su_api.internal.usecase.exceptions.upload import (
     FileIsTooLargeError,
 )
 from edm_su_api.internal.usecase.repository.upload import (
+    AbstractPreSignedUploadRepository,
     AbstractUploadRepository,
 )
 from edm_su_api.internal.usecase.upload import (
+    GeneratePreSignedUploadUseCase,
     UploadImageURLUseCase,
     UploadImageUseCase,
 )

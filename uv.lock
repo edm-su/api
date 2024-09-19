@@ -1,6 +1,6 @@
 version = 1
 requires-python = ">=3.10"
-environment-markers = [
+resolution-markers = [
     "python_full_version < '3.13'",
     "python_full_version >= '3.13'",
 ]
@@ -284,6 +284,18 @@ wheels = [
 ]
 
 [[package]]
+name = "botocore-stubs"
+version = "1.35.22"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-awscrt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fb/dd/d4bd4dbf0d3f226f5a11fe8f0bf1e6cf6fc0c0598e4d31084e7d4ed8e919/botocore_stubs-1.35.22.tar.gz", hash = "sha256:14dec6b00d974dce4747d6917a791bcea0d8efd1c8959821d8ce6ca69ce40d70", size = 40562 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/72/c0/eecdea3a64904b3b7a6d95cefe6a6b61ecd4c2bcfb97da7176e2c7d70443/botocore_stubs-1.35.22-py3-none-any.whl", hash = "sha256:dae8cc433df3044ece464f4985e67a154bab51fd042757d0c59e4a9ea26d0376", size = 60133 },
+]
+
+[[package]]
 name = "cachetools"
 version = "5.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -509,26 +521,27 @@ dev = [
     { name = "pytest-httpx" },
     { name = "pytest-mock" },
     { name = "ruff" },
+    { name = "types-aioboto3", extra = ["s3"] },
     { name = "types-aiofiles" },
     { name = "types-python-slugify" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "aioboto3", specifier = "<14.0.0,>=13.1.1" },
-    { name = "aiofiles", specifier = "<24.0.0,>=23.2.1" },
-    { name = "aiohttp", specifier = "<4.0.0,>=3.10.3" },
-    { name = "alembic", specifier = "<2,>=1.13" },
-    { name = "asyncpg", specifier = "<0.30.0,>=0.29.0" },
-    { name = "authzed", specifier = "<0.15.0,>=0.14.0" },
-    { name = "fastapi", extras = ["standard"], specifier = "==0.112.1" },
-    { name = "greenlet", specifier = "<4.0.0,>=3.0.0" },
+    { name = "aioboto3", specifier = ">=13.1.1,<14.0.0" },
+    { name = "aiofiles", specifier = ">=23.2.1,<24.0.0" },
+    { name = "aiohttp", specifier = ">=3.10.3,<4.0.0" },
+    { name = "alembic", specifier = ">=1.13,<2" },
+    { name = "asyncpg", specifier = ">=0.29.0,<0.30.0" },
+    { name = "authzed", specifier = ">=0.14.0,<0.19.0" },
+    { name = "fastapi", extras = ["standard"], specifier = "==0.115.0" },
+    { name = "greenlet", specifier = ">=3.0.0,<4.0.0" },
     { name = "meilisearch-python-async", specifier = "==1.8.0" },
-    { name = "pillow", specifier = "<11.0.0,>=10.3.0" },
+    { name = "pillow", specifier = ">=10.3.0,<11.0.0" },
     { name = "pydantic-settings", specifier = ">=2.4.0" },
-    { name = "python-slugify", extras = ["unidecode"], specifier = "<9.0,>=8.0" },
-    { name = "sqlalchemy", extras = ["asyncio"], specifier = "<3.0,>=2.0" },
-    { name = "typing-extensions", specifier = "<5.0.0,>=4.12.2" },
+    { name = "python-slugify", extras = ["unidecode"], specifier = ">=8.0,<9.0" },
+    { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0,<3.0" },
+    { name = "typing-extensions", specifier = ">=4.12.2,<5.0.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -543,6 +556,7 @@ dev = [
     { name = "pytest-httpx", specifier = ">=0.30.0,<0.31.0" },
     { name = "pytest-mock", specifier = ">=3.14.0,<4.0.0" },
     { name = "ruff", specifier = ">=0.6.1,<0.7.0" },
+    { name = "types-aioboto3", extras = ["s3"], specifier = ">=13.1.1" },
     { name = "types-aiofiles", specifier = ">=23.2.0.20240403,<24.0.0" },
     { name = "types-python-slugify", specifier = ">=8.0.0,<9.0.0" },
 ]
@@ -583,27 +597,25 @@ wheels = [
 
 [[package]]
 name = "fastapi"
-version = "0.112.1"
+version = "0.115.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "starlette" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2c/09/71a961740a1121d7cc90c99036cc3fbb507bf0c69860d08d4388f842196b/fastapi-0.112.1.tar.gz", hash = "sha256:b2537146f8c23389a7faa8b03d0bd38d4986e6983874557d95eed2acc46448ef", size = 291025 }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/5e/bf0471f14bf6ebfbee8208148a3396d1a23298531a6cc10776c59f4c0f87/fastapi-0.115.0.tar.gz", hash = "sha256:f93b4ca3529a8ebc6fc3fcf710e5efa8de3df9b41570958abf1d97d843138004", size = 302295 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/b0/0981f9eb5884245ed6678af234f2cbcd40f44570718caddc0360bdb4015d/fastapi-0.112.1-py3-none-any.whl", hash = "sha256:bcbd45817fc2a1cd5da09af66815b84ec0d3d634eb173d1ab468ae3103e183e4", size = 93163 },
+    { url = "https://files.pythonhosted.org/packages/06/ab/a1f7eed031aeb1c406a6e9d45ca04bff401c8a25a30dd0e4fd2caae767c3/fastapi-0.115.0-py3-none-any.whl", hash = "sha256:17ea427674467486e997206a5ab25760f6b09e069f099b96f5b55a32fb6f1631", size = 94625 },
 ]
 
 [package.optional-dependencies]
 standard = [
     { name = "email-validator" },
-    { name = "fastapi-cli" },
     { name = "fastapi-cli", extra = ["standard"] },
     { name = "httpx" },
     { name = "jinja2" },
     { name = "python-multipart" },
-    { name = "uvicorn" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -622,7 +634,6 @@ wheels = [
 
 [package.optional-dependencies]
 standard = [
-    { name = "uvicorn" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -1740,6 +1751,51 @@ wheels = [
 ]
 
 [[package]]
+name = "types-aioboto3"
+version = "13.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore-stubs" },
+    { name = "types-aiobotocore" },
+    { name = "types-s3transfer" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/92/35/fe2013bfe5a73c5e377f6f12a8e313a979a999e6380012db8e0b378535cd/types_aioboto3-13.1.1.tar.gz", hash = "sha256:ff9be62878a8265c185868c30adf24eb2dc27d4cdc0739659f9a071c0f96705a", size = 70328 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/11/35732ea5c4e050f46f0e43ec9957d73c55c5dfbc4566f6a7429ecb980e53/types_aioboto3-13.1.1-py3-none-any.whl", hash = "sha256:0cbca6be13fe8c032f98c718b47af04973c82fe39819a1080327395d5bf6bb30", size = 37490 },
+]
+
+[package.optional-dependencies]
+s3 = [
+    { name = "types-aiobotocore-s3" },
+]
+
+[[package]]
+name = "types-aiobotocore"
+version = "2.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore-stubs" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/62/06/7a8876430f3cd907e1c4fb51d611b2db6d5d921b73930189e9823215367a/types_aiobotocore-2.15.0.tar.gz", hash = "sha256:eb9c21780cab3887baaf0ae3ca02c5fe0ab7b988f4a9a5c43e7aff2f894d7ca7", size = 77448 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4f/f1/77e8ff4fd2ff011fe8e65d4fc56917575d7f20c80f7377466b3d2140740a/types_aiobotocore-2.15.0-py3-none-any.whl", hash = "sha256:a3b9ccfb7f1a7689af564f7e9079ac76d701a1b0757cf6235de433520bdfae80", size = 46492 },
+]
+
+[[package]]
+name = "types-aiobotocore-s3"
+version = "2.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/be/1687e416a4b2ae2c0dc46d8a0b6f78381a57e8a19a8a848888f236fd9ebe/types_aiobotocore_s3-2.15.0.tar.gz", hash = "sha256:4b76417d896966a06450d816362acd624c25b21c040dd10956527eeb519dcff7", size = 72331 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/59/02ac096cd929a224570a0b4a384568fe085ab24781dc41cffaf9ec7bb77c/types_aiobotocore_s3-2.15.0-py3-none-any.whl", hash = "sha256:89c0e772f21abf87f8d9597829931b6e64c7bba87cb6575ae672aaf13757cbed", size = 79770 },
+]
+
+[[package]]
 name = "types-aiofiles"
 version = "23.2.0.20240623"
 source = { registry = "https://pypi.org/simple" }
@@ -1749,12 +1805,30 @@ wheels = [
 ]
 
 [[package]]
+name = "types-awscrt"
+version = "0.21.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ed/19/727e4a2dba3a12fb4b176ebc707210380aefaccd7e661b4e455fddc247e0/types_awscrt-0.21.5.tar.gz", hash = "sha256:9f7f47de68799cb2bcb9e486f48d77b9f58962b92fba43cb8860da70b3c57d1b", size = 14967 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/0a/3b27278c9a28d4a9140ad6b3a8bffa88ad358293fc11ce45461048e928eb/types_awscrt-0.21.5-py3-none-any.whl", hash = "sha256:117ff2b1bb657f09d01b7e0ce3fe3fa6e039be12d30b826896182725c9ce85b1", size = 18406 },
+]
+
+[[package]]
 name = "types-python-slugify"
 version = "8.0.2.20240310"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d2/cb/7fdc1982b117d216a9ebbe4ecc6619690991c48f994d93dee7888f459976/types-python-slugify-8.0.2.20240310.tar.gz", hash = "sha256:5157b508c7fed587520c70d77f62aea0fafdc6620893c2ec8972f13a1faf5560", size = 3661 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/6d/873300a60133e51b284a5287a618d3d948a65160e3954b90b3dc5e562667/types_python_slugify-8.0.2.20240310-py3-none-any.whl", hash = "sha256:0efec18b802c69ebd22dcee55c91afaeaa80e1e40ddd66ccabf69fd42ce87b74", size = 3566 },
+]
+
+[[package]]
+name = "types-s3transfer"
+version = "0.10.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/27/27d39076167a007091a75b8596eb2e1c5898986b21c1ec1cdecbda635df0/types_s3transfer-0.10.2.tar.gz", hash = "sha256:60167a3bfb5c536ec6cdb5818f7f9a28edca9dc3e0b5ff85ae374526fc5e576e", size = 13825 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/80/24038d0a8850b1a5b104627caaf676e334a01719148e6d6270b9a3c1fd10/types_s3transfer-0.10.2-py3-none-any.whl", hash = "sha256:7a3fec8cd632e2b5efb665a355ef93c2a87fdd5a45b74a949f95a9e628a86356", size = 18739 },
 ]
 
 [[package]]

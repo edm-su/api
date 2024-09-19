@@ -44,6 +44,7 @@ dev-dependencies = [
   "ruff >=0.6.1,<0.7.0",
   "types-aiofiles >=23.2.0.20240403,<24.0.0",
   "pre-commit >=3.7.1,<4.0.0",
+  "types-aioboto3[s3]>=13.1.1",
 ]
 
 [tool.mypy]
