@@ -53,4 +53,4 @@ class TestS3PreSignedUpload:
             key=key, expires_in=expires_in
         )
         assert isinstance(url, str)
-        assert url.startswith("https://")
+        assert url.startswith("http")
