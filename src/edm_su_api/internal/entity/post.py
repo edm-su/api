@@ -16,7 +16,6 @@ class BasePost(BaseModel):
     annotation: str | None = Field(
         default=None,
         examples=["Annotation"],
-        min_length=1,
         max_length=500,
     )
     text: dict[str, int | list[dict[str, str | dict]] | str]
