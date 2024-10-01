@@ -15,10 +15,7 @@ from edm_su_api.internal.controller.http.v1.dependencies.post import (
     create_get_all_posts_usecase,
     create_get_count_posts_usecase,
 )
-from edm_su_api.internal.controller.http.v1.requests.post import (
-    CreatePostRequest,
-)
-from edm_su_api.internal.entity.post import NewPostDTO, Post
+from edm_su_api.internal.entity.post import NewPost, NewPostDTO, Post
 from edm_su_api.internal.usecase.exceptions.post import (
     PostError,
     PostNotFoundError,
@@ -40,7 +37,7 @@ router = APIRouter(tags=["Posts"])
     summary="Create post",
 )
 async def new_post(
-    post: CreatePostRequest,
+    post: NewPost,
     user: CurrentUser,
     usecase: Annotated[
         CreatePostUseCase,

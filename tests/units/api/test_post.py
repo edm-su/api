@@ -9,10 +9,7 @@ from typing_extensions import Self
 
 from edm_su_api.internal.controller.http import app
 from edm_su_api.internal.controller.http.v1.dependencies.post import find_post
-from edm_su_api.internal.controller.http.v1.requests.post import (
-    CreatePostRequest,
-)
-from edm_su_api.internal.entity.post import Post
+from edm_su_api.internal.entity.post import NewPost, Post
 from edm_su_api.internal.entity.user import User
 from edm_su_api.internal.usecase.exceptions.post import (
     PostNotFoundError,
@@ -24,8 +21,8 @@ from edm_su_api.internal.usecase.exceptions.post import (
 @pytest.fixture
 def new_post_data(
     faker: Faker,
-) -> CreatePostRequest:
-    return CreatePostRequest(
+) -> NewPost:
+    return NewPost(
         title=faker.word(),
         slug=faker.slug(),
         text={
@@ -47,7 +44,7 @@ def new_post_data(
 
 @pytest.fixture
 def post(
-    new_post_data: CreatePostRequest,
+    new_post_data: NewPost,
     user: User,
 ) -> Post:
     return Post(
@@ -62,7 +59,7 @@ class TestNewPost:
     async def test_new_post(
         self: Self,
         client: AsyncClient,
-        new_post_data: CreatePostRequest,
+        new_post_data: NewPost,
         post: Post,
         mocker: MockerFixture,
     ) -> None:
@@ -92,7 +89,7 @@ class TestNewPost:
     async def test_already_exists_post(
         self: Self,
         client: AsyncClient,
-        new_post_data: CreatePostRequest,
+        new_post_data: NewPost,
         mocker: MockerFixture,
     ) -> None:
         mocked = mocker.patch(
