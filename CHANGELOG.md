@@ -13,6 +13,24 @@
 - update poetry version in pre-commit hook (#614) - ([44bfee8](https://github.com/edm-su/api/commit/44bfee88a5f6cb408301a4fa6353516d2d75e0f6)) - Egor Gluhih
 
 - - -
+## [v3.5.0](https://github.com/edm-su/api/compare/bcd949dd476fe013286aee513839ba66e8cf26f3..v3.5.0) - 2024-10-01
+#### Bug Fixes
+- **(deps)** bump fastapi[all] from 0.110.0 to 0.112.1 (#621) - ([bcd949d](https://github.com/edm-su/api/commit/bcd949dd476fe013286aee513839ba66e8cf26f3)) - dependabot[bot]
+#### Features
+- add pre signed url generation for file uploads (#631) - ([64c8e4c](https://github.com/edm-su/api/commit/64c8e4cb4c1f33dbd07b0f7ed7db62fd7286a92a)) - Egor Gluhih
+#### Miscellaneous Chores
+- bump python from 3.12-slim-bullseye to 3.12.6-slim-bullseye (#628) - ([a81dca7](https://github.com/edm-su/api/commit/a81dca7f7ce33106c79d996e0e32102d2047e3d0)) - dependabot[bot]
+- bump fastapi[standard] from 0.114.2 to 0.115.0 (#630) - ([2291f66](https://github.com/edm-su/api/commit/2291f66eb44ef232fd697867bd4f7707943ba253)) - dependabot[bot]
+- bump fastapi[standard] from 0.114.1 to 0.114.2 (#629) - ([ee8090f](https://github.com/edm-su/api/commit/ee8090f43d1f9c1a94244fd2860abe6b3e0070dc)) - dependabot[bot]
+- bump fastapi[standard] from 0.112.1 to 0.114.1 (#627) - ([881ec04](https://github.com/edm-su/api/commit/881ec0410fea1a4ab3a9fae2dd36f15441385175)) - dependabot[bot]
+- update authzed requirement (#624) - ([aae27ea](https://github.com/edm-su/api/commit/aae27eaa3c7eb53b0fc975530e2e5026288d254b)) - dependabot[bot]
+- update commit message prefixes in dependabot configuration - ([0c426ab](https://github.com/edm-su/api/commit/0c426ab6980d4b2083de486f087eeb816ecf34b0)) - Egor Gluhih
+- add typings to .gitignore - ([718d824](https://github.com/edm-su/api/commit/718d8248f868d42620ef34909b3bc8126e25d28f)) - Egor Gluhih
+#### Tests
+- update test.yml - ([8538ac1](https://github.com/edm-su/api/commit/8538ac110c2325707a8aab0c826cb89191ed3190)) - Egor Gluhih
+
+- - -
+
 
 ## [v3.4.0](https://github.com/edm-su/api/compare/v3.3.1..v3.4.0) - 2024-08-19
 #### Bug Fixes
