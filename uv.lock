@@ -506,6 +506,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "python-slugify", extra = ["unidecode"] },
     { name = "sqlalchemy", extra = ["asyncio"] },
+    { name = "types-aioboto3", extra = ["s3"] },
     { name = "typing-extensions" },
 ]
 
@@ -521,7 +522,6 @@ dev = [
     { name = "pytest-httpx" },
     { name = "pytest-mock" },
     { name = "ruff" },
-    { name = "types-aioboto3", extra = ["s3"] },
     { name = "types-aiofiles" },
     { name = "types-python-slugify" },
 ]
@@ -541,6 +541,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.4.0" },
     { name = "python-slugify", extras = ["unidecode"], specifier = ">=8.0,<9.0" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0,<3.0" },
+    { name = "types-aioboto3", extras = ["s3"], specifier = ">=13.1.1" },
     { name = "typing-extensions", specifier = ">=4.12.2,<5.0.0" },
 ]
 
@@ -556,7 +557,6 @@ dev = [
     { name = "pytest-httpx", specifier = ">=0.30.0,<0.31.0" },
     { name = "pytest-mock", specifier = ">=3.14.0,<4.0.0" },
     { name = "ruff", specifier = ">=0.6.1,<0.7.0" },
-    { name = "types-aioboto3", extras = ["s3"], specifier = ">=13.1.1" },
     { name = "types-aiofiles", specifier = ">=23.2.0.20240403,<24.0.0" },
     { name = "types-python-slugify", specifier = ">=8.0.0,<9.0.0" },
 ]
