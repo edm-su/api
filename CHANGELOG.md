@@ -13,6 +13,12 @@
 - update poetry version in pre-commit hook (#614) - ([44bfee8](https://github.com/edm-su/api/commit/44bfee88a5f6cb408301a4fa6353516d2d75e0f6)) - Egor Gluhih
 
 - - -
+## [v3.6.0](https://github.com/edm-su/api/compare/ef3fe239fc58359d8a42643447319bb09477b07f..v3.6.0) - 2024-10-01
+#### Features
+- add types-aioboto3[s3] dependency to project dependencies - ([ef3fe23](https://github.com/edm-su/api/commit/ef3fe239fc58359d8a42643447319bb09477b07f)) - Egor Gluhih
+
+- - -
+
 ## [v3.5.0](https://github.com/edm-su/api/compare/bcd949dd476fe013286aee513839ba66e8cf26f3..v3.5.0) - 2024-10-01
 #### Bug Fixes
 - **(deps)** bump fastapi[all] from 0.110.0 to 0.112.1 (#621) - ([bcd949d](https://github.com/edm-su/api/commit/bcd949dd476fe013286aee513839ba66e8cf26f3)) - dependabot[bot]
