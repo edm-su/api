@@ -62,7 +62,6 @@ class TestNewComment:
         self: Self,
         client: AsyncClient,
         video: Video,
-        comment: Comment,
     ) -> None:
         response = await client.post(
             f"/videos/{video.slug}/comments",
