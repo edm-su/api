@@ -14,7 +14,7 @@ from edm_su_api.internal.entity.user import (
 from edm_su_api.internal.entity.video import Video
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         base_url="http://test",

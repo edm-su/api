@@ -10,6 +10,8 @@ from edm_su_api.internal.usecase.repository.comment import (
     PostgresCommentRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository(
@@ -34,7 +36,7 @@ async def pg_comment(
 
 
 @pytest.fixture
-async def new_comment_data(
+def new_comment_data(
     faker: Faker,
     user: User,
     pg_video: Video,

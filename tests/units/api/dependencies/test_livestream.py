@@ -12,6 +12,8 @@ from edm_su_api.internal.usecase.exceptions.livestream import (
 )
 from edm_su_api.internal.usecase.livestream import GetLiveStreamUseCase
 
+pytestmark = pytest.mark.anyio
+
 
 class TestFindLiveStream:
     async def test_find_livestream(

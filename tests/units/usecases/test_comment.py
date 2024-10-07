@@ -2,7 +2,6 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
-from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from edm_su_api.internal.entity.comment import Comment, NewCommentDto
@@ -18,9 +17,11 @@ from edm_su_api.internal.usecase.repository.comment import (
     AbstractCommentRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
-def repository(mocker: MockerFixture) -> AbstractCommentRepository:
+def repository() -> AbstractCommentRepository:
     return AsyncMock(AbstractCommentRepository)
 
 
@@ -172,7 +173,6 @@ class TestGetVideoCommentsUseCase:
         repository: AsyncMock,
         video: Video,
         comment: Comment,
-        user: User,
     ) -> None:
         comments = await usecase.execute(video)
         assert len(comments) == 1

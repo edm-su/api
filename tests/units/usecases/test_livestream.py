@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock
 
 import pytest
 from faker import Faker
-from pytest_mock import MockerFixture
 from typing_extensions import Self
 
 from edm_su_api.internal.entity.livestreams import (
@@ -26,9 +25,11 @@ from edm_su_api.internal.usecase.repository.livestream import (
     AbstractLiveStreamRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
-def repository(mocker: MockerFixture) -> AbstractLiveStreamRepository:
+def repository() -> AbstractLiveStreamRepository:
     return AsyncMock(repr=AbstractLiveStreamRepository)
 
 
@@ -57,7 +58,6 @@ def livestream(faker: Faker) -> LiveStream:
 
 @pytest.fixture
 def new_livestream(
-    faker: Faker,
     livestream: LiveStream,
 ) -> CreateLiveStreamDTO:
     return CreateLiveStreamDTO(

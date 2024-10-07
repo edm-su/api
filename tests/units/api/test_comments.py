@@ -13,6 +13,8 @@ from edm_su_api.internal.entity.comment import Comment
 from edm_su_api.internal.entity.user import User
 from edm_su_api.internal.entity.video import Video
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def mock_find_video(video: Video) -> None:

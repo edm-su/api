@@ -24,6 +24,8 @@ from edm_su_api.internal.usecase.repository.permission import (
 )
 from edm_su_api.internal.usecase.repository.post import AbstractPostRepository
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository() -> AbstractPostRepository:
@@ -122,7 +124,6 @@ class TestGetAllPostsUseCase:
     def mock(
         self: Self,
         repository: AsyncMock,
-        faker: Faker,
         post: Post,
     ) -> None:
         repository.get_all.return_value = [post]

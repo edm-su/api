@@ -6,6 +6,7 @@ from uuid import UUID
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -16,20 +17,28 @@ from sqlalchemy.types import ARRAY, JSON, TIMESTAMP, String
 
 from edm_su_api.internal.entity.settings import settings
 
-async_engine = create_async_engine(
-    str(settings.database_url),
-    pool_pre_ping=True,
-)
 
-async_session = async_sessionmaker(
-    bind=async_engine,
-    autoflush=False,
-    expire_on_commit=False,
-)
+def new_async_engine() -> AsyncEngine:
+    return create_async_engine(
+        str(settings.database_url),
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+        pool_timeout=30.0,
+        pool_recycle=600,
+    )
+
+
+_ASYNC_ENGINE = new_async_engine()
+_ASYNC_SESSIONMAKER = async_sessionmaker(_ASYNC_ENGINE, expire_on_commit=False)
+
+
+def get_async_session() -> AsyncSession:
+    return _ASYNC_SESSIONMAKER()
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session, session.begin():
+    async with get_async_session() as session:
         yield session
 
 

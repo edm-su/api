@@ -17,6 +17,8 @@ from edm_su_api.internal.usecase.exceptions.post import (
     PostWasNotDeletedError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def new_post_data(
@@ -135,7 +137,6 @@ class TestGetPost:
     async def test_get_post(
         self: Self,
         client: AsyncClient,
-        mocker: MockerFixture,
         post: Post,
     ) -> None:
         app.dependency_overrides[find_post] = lambda: post
