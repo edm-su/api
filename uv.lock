@@ -533,7 +533,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.10.3,<4.0.0" },
     { name = "alembic", specifier = ">=1.13,<2" },
     { name = "asyncpg", specifier = ">=0.29.0,<0.30.0" },
-    { name = "authzed", specifier = ">=0.14.0,<0.19.0" },
+    { name = "authzed", specifier = ">=0.14.0,<1.1.0" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.115.0" },
     { name = "greenlet", specifier = ">=3.0.0,<4.0.0" },
     { name = "meilisearch-python-async", specifier = "==1.8.0" },
@@ -554,7 +554,7 @@ dev = [
     { name = "pytest-asyncio", specifier = ">=0.21.0,<0.22.0" },
     { name = "pytest-cov", specifier = ">=5.0.0,<6.0.0" },
     { name = "pytest-dotenv", specifier = ">=0.5.2,<0.6.0" },
-    { name = "pytest-httpx", specifier = ">=0.30.0,<0.31.0" },
+    { name = "pytest-httpx", specifier = ">=0.30.0,<1.0.0" },
     { name = "pytest-mock", specifier = ">=3.14.0,<4.0.0" },
     { name = "ruff", specifier = ">=0.6.1,<0.7.0" },
     { name = "types-aiofiles", specifier = ">=23.2.0.20240403,<24.0.0" },
@@ -877,7 +877,7 @@ wheels = [
 
 [[package]]
 name = "httpx"
-version = "0.27.0"
+version = "0.27.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -886,9 +886,9 @@ dependencies = [
     { name = "idna" },
     { name = "sniffio" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5c/2d/3da5bdf4408b8b2800061c339f240c1802f2e82d55e50bd39c5a881f47f0/httpx-0.27.0.tar.gz", hash = "sha256:a0cb88a46f32dc874e04ee956e4c2764aba2aa228f650b06788ba6bda2962ab5", size = 126413 }
+sdist = { url = "https://files.pythonhosted.org/packages/78/82/08f8c936781f67d9e6b9eeb8a0c8b4e406136ea4c3d1f89a5db71d42e0e6/httpx-0.27.2.tar.gz", hash = "sha256:f7c2be1d2f3c3c3160d441802406b206c2b76f5947b11115e6df10c6c65e66c2", size = 144189 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/41/7b/ddacf6dcebb42466abd03f368782142baa82e08fc0c1f8eaa05b4bae87d5/httpx-0.27.0-py3-none-any.whl", hash = "sha256:71d5465162c13681bff01ad59b2cc68dd838ea1f10e51574bac27103f00c91a5", size = 75590 },
+    { url = "https://files.pythonhosted.org/packages/56/95/9377bcb415797e44274b51d46e3249eba641711cf3348050f76ee7b15ffc/httpx-0.27.2-py3-none-any.whl", hash = "sha256:7bb2708e112d8fdd7829cd4243970f0c223274051cb35ee80c03301ee29a3df0", size = 76395 },
 ]
 
 [[package]]
@@ -1445,15 +1445,15 @@ wheels = [
 
 [[package]]
 name = "pytest-httpx"
-version = "0.30.0"
+version = "0.32.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/84/82/28ae814b16ac7c756d4a53797fbec98965b7d84dad3e50c3b4d56d3c0c77/pytest-httpx-0.30.0.tar.gz", hash = "sha256:755b8edca87c974dd4f3605c374fda11db84631de3d163b99c0df5807023a19a", size = 36959 }
+sdist = { url = "https://files.pythonhosted.org/packages/aa/0b/162d006764896837cd31297610bf8d14333088fe7fce0cc1851efda254d0/pytest_httpx-0.32.0.tar.gz", hash = "sha256:7807647e8254e5cff79bf2041ae272449ce915d3cf1bbecaa581c384163adb87", size = 43824 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/60/ba9895a260e16c1115e40f8ae6f615c7e8ccdfa5d55418078391dd30b476/pytest_httpx-0.30.0-py3-none-any.whl", hash = "sha256:6d47849691faf11d2532565d0c8e0e02b9f4ee730da31687feae315581d7520c", size = 15373 },
+    { url = "https://files.pythonhosted.org/packages/ce/bc/40125bd2f1b22707bac1b5fcaeca27299e2bc7429bd3aff41924a8f5fa18/pytest_httpx-0.32.0-py3-none-any.whl", hash = "sha256:685d93ce5e5edb5e52310b72342cdc190bebf83aab058328943dd8bd8f6ac790", size = 17951 },
 ]
 
 [[package]]
