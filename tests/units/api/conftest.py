@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator, Generator
 
 import pytest
 from faker import Faker
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
 from edm_su_api.internal.controller.http import app
 from edm_su_api.internal.controller.http.v1.dependencies.auth import (
@@ -16,7 +16,10 @@ from edm_su_api.internal.entity.video import Video
 
 @pytest.fixture(scope="session")
 async def client() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    async with AsyncClient(
+        base_url="http://test",
+        transport=ASGITransport(app=app),
+    ) as client:
         yield client
 
 
