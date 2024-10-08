@@ -13,6 +13,8 @@ from edm_su_api.internal.usecase.exceptions.video import (
     VideoYtIdNotUniqueError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def mock_find_video(

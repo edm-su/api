@@ -26,6 +26,8 @@ from edm_su_api.internal.usecase.repository.livestream import (
     AbstractLiveStreamRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository(mocker: MockerFixture) -> AbstractLiveStreamRepository:

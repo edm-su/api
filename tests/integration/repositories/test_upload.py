@@ -11,6 +11,8 @@ from edm_su_api.internal.usecase.repository.upload import (
 )
 from edm_su_api.pkg.s3 import get_s3_client
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 async def s3_client() -> AsyncGenerator[S3Client, None]:
@@ -50,7 +52,8 @@ class TestS3PreSignedUpload:
         key = "test_key"
         expires_in = 3600
         url = await s3_pre_signed_upload_repository.generate(
-            key=key, expires_in=expires_in
+            key=key,
+            expires_in=expires_in,
         )
         assert isinstance(url, str)
         assert url.startswith("http")

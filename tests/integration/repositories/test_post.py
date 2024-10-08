@@ -10,8 +10,10 @@ from edm_su_api.internal.entity.user import User
 from edm_su_api.internal.usecase.exceptions.post import PostNotFoundError
 from edm_su_api.internal.usecase.repository.post import PostgresPostRepository
 
+pytestmark = pytest.mark.anyio
 
-@pytest.fixture(scope="session")
+
+@pytest.fixture
 def repository(
     pg_session: AsyncSession,
 ) -> PostgresPostRepository:
@@ -70,7 +72,6 @@ class TestPostgresPostRepository:
     async def test_count(
         self: Self,
         repository: PostgresPostRepository,
-        pg_post: Post,
     ) -> None:
         count = await repository.count()
 

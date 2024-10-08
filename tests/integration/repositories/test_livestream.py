@@ -14,6 +14,8 @@ from edm_su_api.internal.usecase.repository.livestream import (
     PostgresLiveStreamRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 class TestPostgresLiveStreamRepository:
     @pytest.fixture

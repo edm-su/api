@@ -18,6 +18,8 @@ from edm_su_api.internal.usecase.repository.comment import (
     AbstractCommentRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository(mocker: MockerFixture) -> AbstractCommentRepository:

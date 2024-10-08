@@ -3,8 +3,11 @@ from collections.abc import AsyncGenerator
 import pytest
 from faker import Faker
 from meilisearch_python_async import Client as MeilisearchClient
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncSession,
+    AsyncTransaction,
+)
 
 from edm_su_api.internal.entity.video import NewVideoDto, Video
 from edm_su_api.internal.usecase.repository.video import (
@@ -12,21 +15,36 @@ from edm_su_api.internal.usecase.repository.video import (
 )
 from edm_su_api.pkg.meilisearch import config_ms
 from edm_su_api.pkg.meilisearch import ms_client as meilisearch_client
-from edm_su_api.pkg.postgres import Base, async_engine, async_session
+from edm_su_api.pkg.postgres import async_engine
 
 
 @pytest.fixture(autouse=True, scope="session")
-async def setup_db() -> None:
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'))
-        await conn.run_sync(Base.metadata.create_all)
+async def pg_connection() -> AsyncGenerator[AsyncConnection, None]:
+    async with async_engine.connect() as connection:
+        yield connection
 
 
-@pytest.fixture(scope="session")
-async def pg_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session, session.begin():
-        yield session
+@pytest.fixture
+async def pg_transaction(
+    pg_connection: AsyncConnection,
+) -> AsyncGenerator[AsyncTransaction, None]:
+    async with pg_connection.begin() as transaction:
+        yield transaction
+
+
+@pytest.fixture
+async def pg_session(
+    pg_connection: AsyncConnection,
+    pg_transaction: AsyncTransaction,
+) -> AsyncGenerator[AsyncSession, None]:
+    async_session = AsyncSession(
+        bind=pg_connection,
+        join_transaction_mode="create_savepoint",
+    )
+
+    yield async_session
+
+    await pg_transaction.rollback()
 
 
 @pytest.fixture(scope="session")

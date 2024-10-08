@@ -22,6 +22,8 @@ from edm_su_api.internal.usecase.upload import (
     UploadImageUseCase,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository() -> AbstractUploadRepository:

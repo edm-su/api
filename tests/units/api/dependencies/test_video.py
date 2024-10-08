@@ -10,6 +10,8 @@ from edm_su_api.internal.controller.http.v1.dependencies.video import (
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
 from edm_su_api.internal.usecase.video import GetVideoBySlugUseCase
 
+pytestmark = pytest.mark.anyio
+
 
 class TestFindVideo:
     async def test_find_video(
