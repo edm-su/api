@@ -11,6 +11,8 @@ from edm_su_api.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 class TestPostgresUserVideosRepository:
     @pytest.fixture

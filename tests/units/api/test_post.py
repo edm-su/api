@@ -17,6 +17,8 @@ from edm_su_api.internal.usecase.exceptions.post import (
     PostWasNotDeletedError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def new_post_data(

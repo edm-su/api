@@ -10,6 +10,8 @@ from edm_su_api.internal.usecase.repository.comment import (
     PostgresCommentRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository(
@@ -70,10 +72,10 @@ class TestPostgresCommentRepository:
         assert len(comments) >= 1
         assert pg_comment in comments
 
+    @pytest.mark.usefixtures("pg_comment")
     async def test_count(
         self: Self,
         repository: PostgresCommentRepository,
-        pg_comment: Comment,
     ) -> None:
         count = await repository.count()
 

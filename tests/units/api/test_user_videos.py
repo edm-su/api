@@ -14,6 +14,8 @@ from edm_su_api.internal.usecase.exceptions.user_videos import (
     UserVideoNotLikedError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def mock_find_video(video: Video) -> None:

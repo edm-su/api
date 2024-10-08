@@ -8,6 +8,8 @@ from edm_su_api.internal.controller.http.v1.dependencies.post import find_post
 from edm_su_api.internal.usecase.exceptions.post import PostNotFoundError
 from edm_su_api.internal.usecase.post import GetPostBySlugUseCase
 
+pytestmark = pytest.mark.anyio
+
 
 class TestFindPost:
     async def test_find_post(

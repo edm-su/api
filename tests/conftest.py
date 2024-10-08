@@ -1,5 +1,3 @@
-import asyncio
-from collections.abc import Generator
 from io import BytesIO
 from typing import IO
 
@@ -11,10 +9,8 @@ from edm_su_api.internal.entity.user import User
 
 
 @pytest.fixture(scope="session")
-def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+def anyio_backend() -> str:
+    return "asyncio"
 
 
 @pytest.fixture(scope="session")

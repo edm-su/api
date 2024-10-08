@@ -17,6 +17,8 @@ from edm_su_api.internal.usecase.exceptions.upload import (
     FileIsTooLargeError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def image_urls(

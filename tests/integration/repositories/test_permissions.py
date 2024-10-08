@@ -8,6 +8,8 @@ from edm_su_api.internal.usecase.repository.permission import (
 )
 from edm_su_api.pkg.authzed import get_spicedb_client
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture(scope="session")
 async def spicedb_client() -> Client:

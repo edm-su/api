@@ -20,6 +20,8 @@ from edm_su_api.internal.usecase.exceptions.livestream import (
     LiveStreamError,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def new_stream_data(

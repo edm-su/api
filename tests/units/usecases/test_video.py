@@ -24,6 +24,8 @@ from edm_su_api.internal.usecase.video import (
     Video,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 @pytest.fixture
 def repository(mocker: MockFixture) -> AsyncMock:

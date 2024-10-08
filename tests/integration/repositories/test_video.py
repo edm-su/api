@@ -11,6 +11,8 @@ from edm_su_api.internal.usecase.repository.video import (
     PostgresVideoRepository,
 )
 
+pytestmark = pytest.mark.anyio
+
 
 class TestPostgresVideoRepository:
     @pytest.fixture
@@ -105,10 +107,10 @@ class TestPostgresVideoRepository:
         with pytest.raises(VideoNotFoundError):
             await pg_video_repository.get_by_id(pg_video.id)
 
+    @pytest.mark.usefixtures("pg_video")
     async def test_count(
         self: Self,
         pg_video_repository: PostgresVideoRepository,
-        pg_video: Video,
     ) -> None:
         result = await pg_video_repository.count()
 
