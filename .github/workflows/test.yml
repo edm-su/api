@@ -84,7 +84,7 @@ jobs:
       - name: Upgrade migrations
         run: uv run -p ${{ matrix.python-version }} alembic upgrade head
       - name: Run tests
-        run: uv run  -p ${{ matrix.python-version }} pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=app tests
+        run: uv run  -p ${{ matrix.python-version }} pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=edm_su_api tests
       - name: Upload coverage report
         if: matrix.python-version == '3.12'
         uses: codecov/codecov-action@v4
