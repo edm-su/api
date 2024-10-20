@@ -87,7 +87,7 @@ jobs:
       - name: Run tests
         run: uv run  -p ${{ matrix.python-version }} pytest --cov-report=term-missing:skip-covered --cov-report=xml --cov=edm_su_api tests
       - name: Upload coverage report
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.13'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
