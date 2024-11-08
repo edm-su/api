@@ -1,0 +1,23 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended"],
+	"labels": ["dependency"],
+	"packageRules": [
+		{
+			"matchUpdateTypes": ["patch", "minor"],
+			"automerge": true
+		},
+		{
+			"matchDatasources": ["github-actions"],
+			"addLabels": ["ci"]
+		},
+		{
+			"matchDatasources": ["dockerfile"],
+			"addLabels": ["build"]
+		}
+	],
+	"lockFileMaintenance": {
+		"enabled": true,
+		"automerge": true
+	}
+}
