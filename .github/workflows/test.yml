@@ -33,7 +33,7 @@ jobs:
       SPICEDB_INSECURE: "true"
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:17-alpine
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: edm_su_test
