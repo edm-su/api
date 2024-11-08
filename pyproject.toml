@@ -43,7 +43,7 @@ dev-dependencies = [
   "mypy >=1.11.0,<2.0.0",
   "ruff >=0.6.1,<0.7.0",
   "types-aiofiles >=23.2.0.20240403,<24.0.0",
-  "pre-commit >=3.7.1,<4.0.0",
+  "pre-commit >=4.0.1,<4.1.0",
   "anyio>=4.4.0",
 ]
 
