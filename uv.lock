@@ -255,7 +255,7 @@ wheels = [
 
 [[package]]
 name = "authzed"
-version = "1.0.0"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "googleapis-common-protos" },
@@ -263,9 +263,9 @@ dependencies = [
     { name = "grpcio" },
     { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ad/a8/f4235e9e6aca6d7a8daf3b1d3f8249d527021f9fb71619e88bf63ac29006/authzed-1.0.0.tar.gz", hash = "sha256:b88eb00cfb6cf41180890803b13ab51ae50b57ea924cdd99d5dad518542e7d63", size = 87719 }
+sdist = { url = "https://files.pythonhosted.org/packages/2d/f7/29978c71ea0ca4b86acf305689b378ef5c9e6032513314c6213f31f1e6e2/authzed-1.1.0.tar.gz", hash = "sha256:6e1300ff75af1840acdb3e0b2bc0dec31a8cf631c4ac6fc1ac674b9ea02d043a", size = 88706 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/15/5be660e9a5b1e8f23b5602cbd63c4e04b7d4145bae762d8746a36c2281a8/authzed-1.0.0-py3-none-any.whl", hash = "sha256:3c70417601c67b5d2e06929a3c8634836e1a0a9c3b24137166c09a77102a4b07", size = 119861 },
+    { url = "https://files.pythonhosted.org/packages/fc/c6/b4bb14ec28c484b944d21cfff4cac16ad374798cf4658f7dfef00c2972e9/authzed-1.1.0-py3-none-any.whl", hash = "sha256:1c37038655c55d054b5caf918d60d680262fda4bc2787dc83576b4424e358214", size = 120922 },
 ]
 
 [[package]]
@@ -483,7 +483,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.10.6,<4.0.0" },
     { name = "alembic", specifier = ">=1.13,<2" },
     { name = "asyncpg", specifier = ">=0.30.0,<0.31.0" },
-    { name = "authzed", specifier = ">=0.14.0,<1.1.0" },
+    { name = "authzed", specifier = ">=1.1.0,<2.0.0" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.115.4" },
     { name = "greenlet", specifier = ">=3.1.0,<4.0.0" },
     { name = "meilisearch-python-async", specifier = "==1.8.1" },
