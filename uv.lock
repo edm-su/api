@@ -498,7 +498,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "anyio", specifier = ">=4.4.0" },
-    { name = "faker", specifier = ">=30.8.2,<30.9.0" },
+    { name = "faker", specifier = ">=30.10.0,<30.11.0" },
     { name = "mypy", specifier = ">=1.11.0,<2.0.0" },
     { name = "pre-commit", specifier = ">=4.0.1,<4.1.0" },
     { name = "pytest", specifier = ">=8.2.2,<9.0.0" },
@@ -535,15 +535,15 @@ wheels = [
 
 [[package]]
 name = "faker"
-version = "30.8.2"
+version = "30.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/df/7574c0d13f0bbab725e52bec4b00783aaa14163fe9093dde11a928a4c638/faker-30.8.2.tar.gz", hash = "sha256:aa31b52cdae3673d6a78b4857c7bcdc0e98f201a5cb77d7827fa9e6b5876da94", size = 1808329 }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/0c/4fa93aa009e076c26e17b16432021b0b19b61b990a026ab0d74670699d4e/faker-30.10.0.tar.gz", hash = "sha256:c2e627d3becec67f7a45400d3670018b5abb3f0728b7dfaa06c135b7df1ce3fb", size = 1850082 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/82/f7d0c0a4ab512fd1572a315eec903d50a578c75d5aa894cf3f5cc04025e5/Faker-30.8.2-py3-none-any.whl", hash = "sha256:4a82b2908cd19f3bba1a4da2060cc4eb18a40410ccdf9350d071d79dc92fe3ce", size = 1846458 },
+    { url = "https://files.pythonhosted.org/packages/67/52/c0d8634fc38960037731167028f9332675bbe4db5cb8b9a92954bc6fb000/Faker-30.10.0-py3-none-any.whl", hash = "sha256:5f05ee92ddf0e1736d95dca41b2a16ee06d987b736fa4ddecdb047abf2e9024b", size = 1889119 },
 ]
 
 [[package]]
