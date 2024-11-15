@@ -8,11 +8,16 @@
 			"automerge": true
 		},
 		{
-			"matchDatasources": ["github-actions"],
-			"addLabels": ["ci"]
+			"matchCategories": ["ci"],
+			"addLabels": ["ci"],
+			"automerge": true
 		},
 		{
-			"matchDatasources": ["dockerfile"],
+			"matchPackageNames": ["faker"],
+			"automerge": true
+		},
+		{
+			"matchCategories": ["docker"],
 			"addLabels": ["build"]
 		}
 	],
