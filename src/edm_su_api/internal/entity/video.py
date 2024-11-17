@@ -1,8 +1,10 @@
 from datetime import date
+from typing import Annotated
 from uuid import uuid4
 
 from pydantic import (
     BaseModel,
+    Field,
     ValidationInfo,
     field_validator,
 )
@@ -28,13 +30,13 @@ class NewVideoDto(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
-    slug: str | None = None
+    slug: Annotated[str | None, Field(validate_default=True)] = None
 
-    @field_validator("slug", mode="before")
+    @field_validator("slug", mode="after")
     @classmethod
     def generate_slug(
         cls: type["NewVideoDto"],
-        v: str,
+        v: str | None,
         info: ValidationInfo,
     ) -> str:
         if not v:
