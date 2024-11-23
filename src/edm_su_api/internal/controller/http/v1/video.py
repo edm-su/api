@@ -27,7 +27,6 @@ router = APIRouter(tags=["Videos"])
 
 @router.get(
     "",
-    response_model=list[Video],
     summary="Get all videos",
 )
 async def get_videos(

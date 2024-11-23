@@ -77,7 +77,7 @@ async def find_post(
         str,
         Path,
     ],
-    usecase: GetPostBySlugUseCase = Depends(create_get_post_by_slug_usecase),
+    usecase: Annotated[GetPostBySlugUseCase, Depends(create_get_post_by_slug_usecase)],
 ) -> Post:
     try:
         return await usecase.execute(slug)

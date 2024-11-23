@@ -77,8 +77,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         query = (
             delete(PGLikedVideo)
             .where(
-                (PGLikedVideo.user_id == user.id)
-                & (PGLikedVideo.video_id == video.id),
+                (PGLikedVideo.user_id == user.id) & (PGLikedVideo.video_id == video.id),
             )
             .returning(PGLikedVideo)
         )
@@ -113,8 +112,7 @@ class PostgresUserVideosRepository(AbstractUserVideosRepository):
         video: Video,
     ) -> bool:
         query = select(PGLikedVideo).where(
-            (PGLikedVideo.user_id == user.id)
-            & (PGLikedVideo.video_id == video.id),
+            (PGLikedVideo.user_id == user.id) & (PGLikedVideo.video_id == video.id),
         )
 
         return bool(await self._session.scalar(query))

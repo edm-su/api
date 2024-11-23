@@ -65,12 +65,7 @@ class PostgresCommentRepository(AbstractCommentRepository):
         offset: int = 0,
         limit: int = 20,
     ) -> list[Comment]:
-        query = (
-            select(PGComment)
-            .offset(offset)
-            .limit(limit)
-            .order_by(PGComment.id)
-        )
+        query = select(PGComment).offset(offset).limit(limit).order_by(PGComment.id)
 
         result = (await self._session.scalars(query)).all()
         return [Comment.model_validate(comment) for comment in result]

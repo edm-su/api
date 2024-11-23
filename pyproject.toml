@@ -55,12 +55,12 @@ exclude = ["alembic/*"]
 plugins = ["pydantic.mypy"]
 
 [tool.ruff]
-line-length = 79
-target-version = "py310"
+fix = true
 
 [tool.ruff.lint]
 select = [
   "E",     # pycodestyle Error
+  "R",     # pyrcodestyle Refactor
   "F",     # Pyflakes
   "W",     # pycodestyle Warnings
   "C90",   # mccabe
@@ -81,10 +81,11 @@ select = [
   "EM",    # flake8-errmsg
   "ISC",   # flake8-implicit-str-concat
   "ICN",   # flake8-import-conventions
+  "LOG",   # flake8-logging
   "G",     # flake8-logging-format
   "INP",   # flake8-no-pep420
   "PIE",   # flake8-pie
-  "T20",   # flake8-print,
+  "T20",   # flake8-print
   "PT",    # flake8-pytest-style
   "Q",     # flake8-quotes
   "RSE",   # flake8-raise
@@ -93,7 +94,7 @@ select = [
   "SLOT",  # flake8-slots
   "SIM",   # flake8-simplify
   "TID",   # flake8-tidy-imports
-  "TCH",   # flake8-type-checking
+  "TC",    # flake8-type-checking
   "ARG",   # flake8-unused-arguments
   "PTH",   # flake8-use-pathlib
   "TD",    # flake8-todos
@@ -108,22 +109,13 @@ select = [
   "ASYNC", # flake8-async
   "FA",    # flake8-future-annotations
   "FURB",  # refurb
+  "FAST",  # FastAPI
 ]
-ignore = ["COM812", "ISC001", "PT004", "PT005"]
+ignore = ["COM812", "ISC001"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "INP001", "ARG", "PLR0913", "S106", "S105"]
 "alembic/*" = ["ANN", "INP"]
-
-[tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = [
-  "fastapi.Depends",
-  "fastapi.Query",
-  "fastapi.Header",
-  "fastapi.Body",
-  "fastapi.Path",
-  "fastapi.File",
-]
 
 [tool.ruff.lint.flake8-builtins]
 builtins-ignorelist = ["id"]

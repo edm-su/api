@@ -94,7 +94,10 @@ async def find_video(
         str,
         Path,
     ],
-    usecase: GetVideoBySlugUseCase = Depends(create_get_video_by_slug_usecase),
+    usecase: Annotated[
+        GetVideoBySlugUseCase,
+        Depends(create_get_video_by_slug_usecase),
+    ],
 ) -> Video:
     try:
         return await usecase.execute(slug)

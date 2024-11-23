@@ -114,11 +114,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         self: Self,
         whereclause: ColumnExpressionArgument[bool],
     ) -> Video:
-        query = (
-            select(PGVideo)
-            .where(whereclause)
-            .where(PGVideo.deleted == false())
-        )
+        query = select(PGVideo).where(whereclause).where(PGVideo.deleted == false())
 
         try:
             result = (await self._session.scalars(query)).one()
@@ -201,9 +197,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
 
     async def count(self: Self) -> int:
         query = (
-            select(func.count())
-            .select_from(PGVideo)
-            .where(PGVideo.deleted == false())
+            select(func.count()).select_from(PGVideo).where(PGVideo.deleted == false())
         )
 
         return (await self._session.scalars(query)).one()
