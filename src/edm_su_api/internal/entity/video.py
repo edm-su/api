@@ -2,6 +2,7 @@ from datetime import date
 
 from pydantic import (
     BaseModel,
+    Field,
 )
 
 from edm_su_api.internal.entity.common import AttributeModel, SlugMixin
@@ -30,3 +31,4 @@ class NewVideoDto(SlugMixin, BaseModel):
 class UpdateVideoDto(SlugMixin, BaseModel):
     id: int
     date: date
+    is_blocked_in_russia: bool = Field(default=False)
