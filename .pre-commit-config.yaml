@@ -11,7 +11,7 @@ repos:
           - "pydantic==2.4.2"
           - "types-aiofiles==23.2.0.20240403"
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.2.0
+    rev: v3.6.0
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
