@@ -28,7 +28,7 @@ repos:
           - chore
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.6.1"
+    rev: "v0.8.0"
     hooks:
       - id: ruff
         args: [--fix]
