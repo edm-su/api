@@ -6,10 +6,9 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports, --disallow-untyped-defs]
         additional_dependencies:
-          - "pyjwt==2.8.0"
           - "types-python-slugify==8.0.0.3"
-          - "pydantic==2.4.2"
-          - "types-aiofiles==23.2.0.20240403"
+          - "pydantic==2.10.1"
+          - "types-aiofiles==24.1.0.20240626"
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.6.0
     hooks:
