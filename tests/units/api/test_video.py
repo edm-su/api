@@ -11,6 +11,7 @@ from edm_su_api.internal.controller.http.v1.dependencies.video import (
 from edm_su_api.internal.entity.user import User
 from edm_su_api.internal.entity.video import NewVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import (
+    VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
 
@@ -96,6 +97,21 @@ class TestGetVideo:
         response = await client.get(f"/videos/{video.slug}")
 
         assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.usefixtures("mock_anonymous_user")
+    async def test_get_video_not_found(
+        self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.GetVideoBySlugUseCase.execute",
+            side_effect=VideoNotFoundError,
+        )
+        response = await client.get("/videos/404video")
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 class TestDeleteVideo:
