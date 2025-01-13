@@ -3,7 +3,15 @@ from abc import ABC, abstractmethod
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.task import wait_for_task
-from sqlalchemy import ColumnExpressionArgument, func, insert, select, update
+from sqlalchemy import (
+    ColumnExpressionArgument,
+    and_,
+    case,
+    func,
+    insert,
+    select,
+    update,
+)
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import false
@@ -12,6 +20,7 @@ from typing_extensions import Self
 from edm_su_api.internal.entity.video import NewVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
 from edm_su_api.pkg.meilisearch import normalize_ms_index_name
+from edm_su_api.pkg.postgres import LikedVideos
 from edm_su_api.pkg.postgres import Video as PGVideo
 
 
@@ -19,6 +28,15 @@ class AbstractVideoRepository(ABC):
     @abstractmethod
     async def get_all(
         self: Self,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[Video]:
+        pass
+
+    @abstractmethod
+    async def get_all_with_favorite_mark(
+        self: Self,
+        user_id: str,
         offset: int = 0,
         limit: int = 20,
     ) -> list[Video]:
@@ -35,6 +53,14 @@ class AbstractVideoRepository(ABC):
     async def get_by_id(
         self: Self,
         id_: int,
+    ) -> Video:
+        pass
+
+    @abstractmethod
+    async def get_by_slug_with_favorite_mark(
+        self,
+        slug: str,
+        user_id: str,
     ) -> Video:
         pass
 
@@ -110,6 +136,41 @@ class PostgresVideoRepository(AbstractVideoRepository):
         result = (await self._session.scalars(query)).all()
         return [Video.model_validate(video) for video in result]
 
+    async def get_all_with_favorite_mark(
+        self: Self,
+        user_id: str,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[Video]:
+        query = (
+            (
+                select(
+                    PGVideo,
+                    case((LikedVideos.video_id.isnot(None), True), else_=False).label(
+                        "is_favorite"
+                    ),
+                )
+            )
+            .outerjoin(
+                LikedVideos,
+                and_(
+                    PGVideo.id == LikedVideos.video_id, LikedVideos.user_id == user_id
+                ),
+            )
+            .where(PGVideo.deleted == false())
+            .offset(offset)
+            .limit(limit)
+            .order_by(PGVideo.id.desc())
+        )
+
+        result = (await self._session.execute(query)).all()
+        videos: list[Video] = []
+        for row in result:
+            video = Video.model_validate(row[0])
+            video.is_favorite = row[1]
+            videos.append(video)
+        return videos
+
     async def _get_by(
         self: Self,
         whereclause: ColumnExpressionArgument[bool],
@@ -139,6 +200,37 @@ class PostgresVideoRepository(AbstractVideoRepository):
         id_: int,
     ) -> Video:
         return await self._get_by(PGVideo.id == id_)
+
+    async def get_by_slug_with_favorite_mark(
+        self,
+        slug: str,
+        user_id: str,
+    ) -> Video:
+        query = (
+            select(
+                PGVideo,
+                case((LikedVideos.video_id.isnot(None), True), else_=False).label(
+                    "is_favorite"
+                ),
+            )
+            .outerjoin(
+                LikedVideos,
+                and_(
+                    PGVideo.id == LikedVideos.video_id,
+                    LikedVideos.user_id == user_id,
+                ),
+            )
+            .where(and_(PGVideo.slug == slug, PGVideo.deleted == false()))
+        )
+
+        try:
+            result = (await self._session.execute(query)).one()
+            video = Video.model_validate(result[0])
+            video.is_favorite = result[1]
+        except NoResultFound as e:
+            raise VideoNotFoundError from e
+        else:
+            return video
 
     async def create(
         self: Self,

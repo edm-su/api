@@ -1,8 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Response
 from starlette import status
 
+from edm_su_api.internal.controller.http.v1.dependencies.auth import (
+    OptionalUser,
+)
 from edm_su_api.internal.controller.http.v1.dependencies.paginator import (
     PaginatorDeps,
 )
@@ -12,14 +15,16 @@ from edm_su_api.internal.controller.http.v1.dependencies.video import (
     create_create_video_usecase,
     create_delete_video_usecase,
     create_get_all_videos_usecase,
+    create_get_video_by_slug_usecase,
 )
 from edm_su_api.internal.entity.video import NewVideoDto, Video
-from edm_su_api.internal.usecase.exceptions.video import VideoError
+from edm_su_api.internal.usecase.exceptions.video import VideoError, VideoNotFoundError
 from edm_su_api.internal.usecase.video import (
     CreateVideoUseCase,
     DeleteVideoUseCase,
     GetAllVideosUseCase,
     GetCountVideosUseCase,
+    GetVideoBySlugUseCase,
 )
 
 router = APIRouter(tags=["Videos"])
@@ -32,6 +37,7 @@ router = APIRouter(tags=["Videos"])
 async def get_videos(
     response: Response,
     pagination: PaginatorDeps,
+    user: OptionalUser,
     get_all_usecase: Annotated[
         GetAllVideosUseCase,
         Depends(create_get_all_videos_usecase),
@@ -41,9 +47,13 @@ async def get_videos(
         Depends(create_count_videos_usecase),
     ],
 ) -> list[Video]:
+    user_id = None
+    if user:
+        user_id = user.id
     db_videos = await get_all_usecase.execute(
         offset=pagination.skip,
         limit=pagination.limit,
+        user_id=user_id,
     )
     count = await count_usecase.execute()
     response.headers["X-Total-Count"] = str(count)
@@ -55,9 +65,26 @@ async def get_videos(
     summary="Get video",
 )
 async def read_video(
-    video: FindVideo,
+    user: OptionalUser,
+    slug: Annotated[
+        str,
+        Path,
+    ],
+    usecase: Annotated[
+        GetVideoBySlugUseCase,
+        Depends(create_get_video_by_slug_usecase),
+    ],
 ) -> Video:
-    return video
+    user_id = None
+    if user:
+        user_id = user.id
+    try:
+        return await usecase.execute(slug, user_id)
+    except VideoNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
 
 
 @router.delete(

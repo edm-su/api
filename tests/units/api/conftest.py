@@ -7,6 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from edm_su_api.internal.controller.http import app
 from edm_su_api.internal.controller.http.v1.dependencies.auth import (
     get_current_user,
+    get_optional_user,
 )
 from edm_su_api.internal.entity.user import (
     User,
@@ -28,6 +29,12 @@ def mock_current_user(
     user: User,
 ) -> None:
     app.dependency_overrides[get_current_user] = lambda: user
+    app.dependency_overrides[get_optional_user] = lambda: user
+
+
+@pytest.fixture
+def mock_anonymous_user() -> None:
+    app.dependency_overrides[get_current_user] = lambda: User(id="Anonymous")
 
 
 @pytest.fixture(autouse=True)

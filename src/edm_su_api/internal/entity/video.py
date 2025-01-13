@@ -22,6 +22,7 @@ class Video(AttributeModel):
     yt_thumbnail: str
     duration: int
     slug: str
+    is_favorite: bool = Field(default=False)
 
 
 class NewVideoDto(BaseModel):
