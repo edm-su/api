@@ -41,7 +41,10 @@ class GetAllVideosUseCase(BaseVideoUseCase):
         self: Self,
         offset: int = 0,
         limit: int = 20,
+        user_id: str | None = None,
     ) -> list[Video]:
+        if user_id:
+            await self.repository.get_all_with_favorite_mark(user_id, offset, limit)
         return await self.repository.get_all(
             offset=offset,
             limit=limit,
@@ -54,11 +57,10 @@ class GetCountVideosUseCase(BaseVideoUseCase):
 
 
 class GetVideoBySlugUseCase(BaseVideoUseCase):
-    async def execute(self: Self, slug: str) -> Video:
-        video = await self.repository.get_by_slug(slug)
-        if video is None:
-            raise VideoNotFoundError
-        return video
+    async def execute(self: Self, slug: str, user_id: str | None = None) -> Video:
+        if user_id:
+            return await self.repository.get_by_slug_with_favorite_mark(slug, user_id)
+        return await self.repository.get_by_slug(slug)
 
 
 class CreateVideoUseCase(AbstractFullTextVideoUseCase):

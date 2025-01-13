@@ -80,6 +80,25 @@ class TestGetAllVideosUseCase:
 
         repository.get_all.assert_awaited_once_with(offset=0, limit=20)
 
+    async def test_get_all_videos_with_user_id(
+        self: Self,
+        usecase: GetAllVideosUseCase,
+        repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        """Test getting all videos with user_id parameter."""
+        repository.get_all_with_favorite_mark.return_value = [video]
+
+        videos = await usecase.execute(user_id="test_user_id")
+        assert videos is not None
+        assert len(videos) == 1
+
+        repository.get_all_with_favorite_mark.assert_awaited_once_with(
+            "test_user_id",
+            0,
+            20,
+        )
+
 
 class TestGetCountVideosUseCase:
     @pytest.fixture(autouse=True)
@@ -134,12 +153,29 @@ class TestGetVideoBySlugUseCase:
 
         repository.get_by_slug.assert_awaited_once_with("slug")
 
+    async def test_get_video_by_slug_with_user_id(
+        self: Self,
+        usecase: GetVideoBySlugUseCase,
+        video: Video,
+        repository: AsyncMock,
+    ) -> None:
+        """Test getting video by slug with user_id parameter."""
+        repository.get_by_slug_with_favorite_mark.return_value = video
+
+        db_video = await usecase.execute("slug", user_id="test_user_id")
+        assert db_video is video
+
+        repository.get_by_slug_with_favorite_mark.assert_awaited_once_with(
+            "slug",
+            "test_user_id",
+        )
+
     async def test_video_not_found_error(
         self: Self,
         usecase: GetVideoBySlugUseCase,
         repository: AsyncMock,
     ) -> None:
-        repository.get_by_slug.return_value = None
+        repository.get_by_slug.side_effect = VideoNotFoundError
         with pytest.raises(VideoNotFoundError):
             await usecase.execute("slug")
         repository.get_by_slug.assert_awaited_once_with("slug")
