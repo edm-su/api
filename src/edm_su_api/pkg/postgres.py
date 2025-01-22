@@ -92,6 +92,7 @@ class Video(Base):
     yt_id: Mapped[str] = mapped_column(unique=True)
     yt_thumbnail: Mapped[str] = mapped_column()
     duration: Mapped[int] = mapped_column(server_default="0")
+    is_blocked_in_russia: Mapped[bool] = mapped_column(server_default="f")
     deleted: Mapped[bool | None] = mapped_column(server_default="f")
 
     liked_by: Mapped[list["LikedVideos"]] = relationship()

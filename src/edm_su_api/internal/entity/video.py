@@ -23,6 +23,7 @@ class Video(AttributeModel):
     duration: int
     slug: str
     is_favorite: bool = Field(default=False)
+    is_blocked_in_russia: bool = Field(default=False)
 
 
 class NewVideoDto(BaseModel):
@@ -31,6 +32,7 @@ class NewVideoDto(BaseModel):
     yt_id: str
     yt_thumbnail: str
     duration: int
+    is_blocked_in_russia: bool = Field(default=False)
     slug: Annotated[str | None, Field(validate_default=True)] = None
 
     @field_validator("slug", mode="after")
@@ -41,7 +43,8 @@ class NewVideoDto(BaseModel):
         info: ValidationInfo,
     ) -> str:
         if not v:
-            return slugify(info.data["title"])
+            title: str = info.data["title"]
+            return slugify(title)
         return v
 
     def expand_slug(self: Self) -> None:

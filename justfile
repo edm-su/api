@@ -24,6 +24,9 @@ integration-tests:
 
 test: unit-tests integration-tests
 
+migrate-downgrade REVISION:
+	uv run alembic downgrade "{{REVISION}}"
+
 migrate:
 	uv run alembic upgrade head
 

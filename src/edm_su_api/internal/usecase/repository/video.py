@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import final
 
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
@@ -15,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import false
-from typing_extensions import Self
+from typing_extensions import Self, override
 
 from edm_su_api.internal.entity.video import NewVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
@@ -113,6 +114,7 @@ class AbstractFullTextVideoRepository(ABC):
         pass
 
 
+@final
 class PostgresVideoRepository(AbstractVideoRepository):
     def __init__(
         self: Self,
@@ -120,6 +122,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
     ) -> None:
         self._session = session
 
+    @override
     async def get_all(
         self: Self,
         offset: int = 0,
@@ -136,6 +139,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         result = (await self._session.scalars(query)).all()
         return [Video.model_validate(video) for video in result]
 
+    @override
     async def get_all_with_favorite_mark(
         self: Self,
         user_id: str,
@@ -183,24 +187,28 @@ class PostgresVideoRepository(AbstractVideoRepository):
         except NoResultFound as e:
             raise VideoNotFoundError from e
 
+    @override
     async def get_by_slug(
         self: Self,
         slug: str,
     ) -> Video:
         return await self._get_by(PGVideo.slug == slug)
 
+    @override
     async def get_by_yt_id(
         self: Self,
         yt_id: str,
     ) -> Video:
         return await self._get_by(PGVideo.yt_id == yt_id)
 
+    @override
     async def get_by_id(
         self: Self,
         id_: int,
     ) -> Video:
         return await self._get_by(PGVideo.id == id_)
 
+    @override
     async def get_by_slug_with_favorite_mark(
         self,
         slug: str,
@@ -232,6 +240,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         else:
             return video
 
+    @override
     async def create(
         self: Self,
         video: NewVideoDto,
@@ -245,6 +254,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
                 yt_id=video.yt_id,
                 yt_thumbnail=video.yt_thumbnail,
                 duration=video.duration,
+                is_blocked_in_russia=video.is_blocked_in_russia,
             )
             .returning(PGVideo)
         )
@@ -252,6 +262,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         result = (await self._session.scalars(query)).one()
         return Video.model_validate(result)
 
+    @override
     async def update(
         self: Self,
         video: Video,
@@ -270,6 +281,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         except NoResultFound as e:
             raise VideoNotFoundError from e
 
+    @override
     async def delete(
         self: Self,
         id_: int,
@@ -283,10 +295,11 @@ class PostgresVideoRepository(AbstractVideoRepository):
         )
 
         try:
-            (await self._session.scalars(query)).one()
+            _ = (await self._session.scalars(query)).one()
         except NoResultFound as e:
             raise VideoNotFoundError from e
 
+    @override
     async def count(self: Self) -> int:
         query = (
             select(func.count()).select_from(PGVideo).where(PGVideo.deleted == false())
@@ -295,6 +308,7 @@ class PostgresVideoRepository(AbstractVideoRepository):
         return (await self._session.scalars(query)).one()
 
 
+@final
 class MeilisearchVideoRepository(AbstractFullTextVideoRepository):
     def __init__(
         self: Self,
@@ -304,18 +318,20 @@ class MeilisearchVideoRepository(AbstractFullTextVideoRepository):
         index_name = normalize_ms_index_name("videos")
         self.index = self.client.index(index_name)
 
+    @override
     async def create(
         self: Self,
         video: Video,
     ) -> Video:
-        documents = [jsonable_encoder(video)]
+        documents = [jsonable_encoder(video, exclude={"is_blocked_in_russia"})]
         task = await self.index.add_documents(documents)
-        await wait_for_task(self.client.http_client, task.task_uid)
+        _ = await wait_for_task(self.client.http_client, task.task_uid)
         return video
 
+    @override
     async def delete(
         self: Self,
         id_: int,
     ) -> None:
         task = await self.index.delete_documents([str(id_)])
-        await wait_for_task(self.client.http_client, task.task_uid)
+        _ = await wait_for_task(self.client.http_client, task.task_uid)
