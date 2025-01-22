@@ -33,14 +33,15 @@ class TestPostgresVideoRepository:
     ) -> NewVideoDto:
         return NewVideoDto(
             title=faker.word(),
-            date=faker.date(),
-            yt_id=faker.uuid4(),
+            date=faker.date_object(),
+            yt_id=str(faker.uuid4()),
             yt_thumbnail=faker.url(),
             duration=faker.random_int(
                 min=20 * 60,
                 max=120 * 60,
             ),
             slug=faker.slug(),
+            is_blocked_in_russia=True,
         )
 
     async def test_get_all(
@@ -93,6 +94,7 @@ class TestPostgresVideoRepository:
         pg_video = await pg_video_repository.get_by_id(result.id)
 
         assert pg_video == result
+        assert pg_video.is_blocked_in_russia == new_video_data.is_blocked_in_russia
 
     async def test_update(
         self: Self,
@@ -116,7 +118,7 @@ class TestPostgresVideoRepository:
         await pg_video_repository.delete(pg_video.id)
 
         with pytest.raises(VideoNotFoundError):
-            await pg_video_repository.get_by_id(pg_video.id)
+            _ = await pg_video_repository.get_by_id(pg_video.id)
 
     async def test_get_all_with_favorite_mark(
         self: Self,
@@ -161,7 +163,9 @@ class TestPostgresVideoRepository:
         assert result.is_favorite is False
 
         with pytest.raises(VideoNotFoundError):
-            await pg_video_repository.get_by_slug_with_favorite_mark("9999", user.id)
+            _ = await pg_video_repository.get_by_slug_with_favorite_mark(
+                "9999", user.id
+            )
 
     @pytest.mark.usefixtures("pg_video")
     async def test_count(
@@ -195,9 +199,11 @@ class TestMeilisearchVideoRepository:
         repository: MeilisearchVideoRepository,
     ) -> None:
         result = await repository.create(pg_video)
+        document = await repository.index.get_document(str(result.id))
 
         assert isinstance(result, Video)
-        assert await repository.index.get_document(str(result.id))
+        assert document
+        assert document.get("is_blocked_in_russia") is None
 
     async def test_delete(
         self: Self,
@@ -207,4 +213,4 @@ class TestMeilisearchVideoRepository:
         await repository.delete(ms_video.id)
 
         with pytest.raises(MeilisearchApiError):
-            await repository.index.get_document(str(ms_video.id))
+            _ = await repository.index.get_document(str(ms_video.id))
