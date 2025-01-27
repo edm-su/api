@@ -13,6 +13,12 @@
 - update poetry version in pre-commit hook (#614) - ([44bfee8](https://github.com/edm-su/api/commit/44bfee88a5f6cb408301a4fa6353516d2d75e0f6)) - Egor Gluhih
 
 - - -
+## [v3.7.1](https://github.com/edm-su/api/compare/422a49a91ccc086bc495bb98c075c5ecce209d26..v3.7.1) - 2025-01-27
+#### Bug Fixes
+- user_id case insensitive - ([422a49a](https://github.com/edm-su/api/commit/422a49a91ccc086bc495bb98c075c5ecce209d26)) - [@EgorHenek](https://github.com/EgorHenek)
+
+- - -
+
 ## [v3.7.0](https://github.com/edm-su/api/compare/9829c314e8ee3371c51ef0c1ac1ba87e6fe42ec7..v3.7.0) - 2025-01-27
 #### Bug Fixes
 - **(deps)** update dependency pillow to >=11.1.0,<11.2.0 - ([dda4acc](https://github.com/edm-su/api/commit/dda4accd24b7920efdb0bcbaeb4b0d143b83693c)) - renovate[bot]
