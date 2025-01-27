@@ -17,7 +17,7 @@ async def get_optional_user(
     x_user: Annotated[str | None, Header()] = None,
 ) -> User | None:
     user = None
-    if x_user and x_user != "Anonymous":
+    if x_user and x_user.lower() != "anonymous":
         user = User(id=x_user)
     return user
 

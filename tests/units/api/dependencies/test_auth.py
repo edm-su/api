@@ -23,7 +23,7 @@ class TestGetCurrentUser:
         self: Self,
     ) -> None:
         with pytest.raises(HTTPException) as exc_info:
-            await get_current_user(x_user=None)
+            _ = await get_current_user(x_user=None)
         assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
 
 
@@ -45,4 +45,10 @@ class TestGetOptionalUser:
         self: Self,
     ) -> None:
         user = await get_optional_user(x_user=None)
+        assert user is None
+
+    async def test_case_insensitive_anonymous(
+        self: Self,
+    ) -> None:
+        user = await get_optional_user("anonymous")
         assert user is None
