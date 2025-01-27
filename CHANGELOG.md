@@ -13,6 +13,105 @@
 - update poetry version in pre-commit hook (#614) - ([44bfee8](https://github.com/edm-su/api/commit/44bfee88a5f6cb408301a4fa6353516d2d75e0f6)) - Egor Gluhih
 
 - - -
+## [v3.7.0](https://github.com/edm-su/api/compare/9829c314e8ee3371c51ef0c1ac1ba87e6fe42ec7..v3.7.0) - 2025-01-27
+#### Bug Fixes
+- **(deps)** update dependency pillow to >=11.1.0,<11.2.0 - ([dda4acc](https://github.com/edm-su/api/commit/dda4accd24b7920efdb0bcbaeb4b0d143b83693c)) - renovate[bot]
+- **(deps)** update dependency fastapi to v0.115.6 - ([2477836](https://github.com/edm-su/api/commit/24778361f25c02b571b4e03bc641ed476e2fcc08)) - renovate[bot]
+- **(deps)** update dependency pydantic to ~=2.10.1 (#673) - ([cc7b898](https://github.com/edm-su/api/commit/cc7b898493374194ce283496c396f1797d35d3ae)) - renovate[bot]
+- **(deps)** update dependency fastapi to v0.115.5 (#663) - ([7fdae0e](https://github.com/edm-su/api/commit/7fdae0e5dcb93dd3f105c6faf290d97a46fdb30c)) - renovate[bot]
+- **(deps)** update dependency aiofiles to v24 (#656) - ([5e300a1](https://github.com/edm-su/api/commit/5e300a1ff2ac25b9aaa1e6d59036a4c252458da4)) - renovate[bot]
+- **(deps)** update dependency authzed to >=1.1.0,<2.0.0 (#657) - ([030c07e](https://github.com/edm-su/api/commit/030c07e30bcde0c40edb1e76a4a15fcd2b88f09b)) - renovate[bot]
+- **(deps)** update dependency pillow to v11 (#658) - ([a54d93b](https://github.com/edm-su/api/commit/a54d93ba49c04ff2f1fb200812f8eca2b92a275d)) - renovate[bot]
+- **(deps)** update dependency meilisearch-python-async to v1.8.1 (#648) - ([cb067b1](https://github.com/edm-su/api/commit/cb067b19ad9b034b0547ada42838bf4fee478f7e)) - renovate[bot]
+- **(deps)** update dependency fastapi to v0.115.4 (#647) - ([ec0b969](https://github.com/edm-su/api/commit/ec0b969ffa8fb75e8dca69781bfc02c26a396812)) - renovate[bot]
+- video slug generator (#671) - ([a27c2a0](https://github.com/edm-su/api/commit/a27c2a09431ca62fc297b1a46692c03b9ab875cb)) - Egor Gluhih
+#### Build system
+- migrate docker build actions to native arm64 (#676) - ([ba05042](https://github.com/edm-su/api/commit/ba05042a046774d1fbc0a5bbc727744a5bcf13f2)) - Egor Gluhih
+#### Continuous Integration
+- change automerge type - ([12075b9](https://github.com/edm-su/api/commit/12075b91c90a3be4489802326f69af7c48cd96b4)) - Egor Gluhih
+- fix automerge config - ([41b006a](https://github.com/edm-su/api/commit/41b006ac196ff89b5c0d8d763ba5c84ee78f508d)) - Egor Gluhih
+- migrate to renovate - ([43f87fe](https://github.com/edm-su/api/commit/43f87fedcc82225078cc912426a83a85f7006be8)) - Egor Gluhih
+- add 3.13 python (#641) - ([3e355f9](https://github.com/edm-su/api/commit/3e355f9cdf42312d289de9c290a511cdd8b656fe)) - Egor Gluhih
+- correct coverage path in test workflow (#640) - ([45c6d92](https://github.com/edm-su/api/commit/45c6d925b6731988b94a158bf0dde5bbe40cd76e)) - Egor Gluhih
+#### Features
+- add is blocked in Russia flag (#677) - ([eee6b95](https://github.com/edm-su/api/commit/eee6b95ab3b2a02de562babee5d3abb0866e79d6)) - Egor Gluhih
+-  add is favorite video attribute (#675) - ([b2bb3be](https://github.com/edm-su/api/commit/b2bb3be0684994613b7237a967f21b422ea409dd)) - Egor Gluhih
+- remove deprecated functionality - ([0c5289c](https://github.com/edm-su/api/commit/0c5289c933351822129a33b43c99eed8a40f1838)) - Egor Gluhih
+- remove min_length constraint from annotation field - ([979c3a6](https://github.com/edm-su/api/commit/979c3a6242cc2a0c6249874f3f0bb831fe68ae58)) - Egor Gluhih
+#### Miscellaneous Chores
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.6 - ([d34466d](https://github.com/edm-su/api/commit/d34466d77c9966bf8cacc9edd00c0b0ee416d3d5)) - renovate[bot]
+- **(deps)** update dependency pre-commit to >=4.1.0,<4.2.0 - ([a6fb1a8](https://github.com/edm-su/api/commit/a6fb1a81dce5f84d37f69333548ba12f3e82f11d)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.5 - ([26217ab](https://github.com/edm-su/api/commit/26217aba3d632cdb95f212087a3b32644a430979)) - renovate[bot]
+- **(deps)** lock file maintenance - ([2fe43de](https://github.com/edm-su/api/commit/2fe43de93a2c9f1dafd0a8d6e3af62c53d65e9bf)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.9.2 - ([8cba0b0](https://github.com/edm-su/api/commit/8cba0b061eedfedfe7859942199dbc1349f71a34)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.4 - ([d4562df](https://github.com/edm-su/api/commit/d4562dfc1b7416c07574ef528d0dc27819f0ac86)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.3 - ([cb40b22](https://github.com/edm-su/api/commit/cb40b2294c2a9154b65b6576e46440cbe50f1c73)) - renovate[bot]
+- **(deps)** lock file maintenance - ([cfb3195](https://github.com/edm-su/api/commit/cfb3195c865f85856e36ad37fe7b3300fdd3c971)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.9.1 - ([4eaa156](https://github.com/edm-su/api/commit/4eaa15632f58cfb7ce0e7730ef899aa06da5449e)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.9.0 - ([9528f0d](https://github.com/edm-su/api/commit/9528f0d8fd0d37eb82c32a7611531d72225a4039)) - renovate[bot]
+- **(deps)** update dependency ruff to >=0.9.0,<0.10.0 - ([b077aa1](https://github.com/edm-su/api/commit/b077aa1b1a4d6fc665f275c1861dfae9440f8d97)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.2 - ([1e644d0](https://github.com/edm-su/api/commit/1e644d04c79e2587a4820da2af8891233cf23714)) - renovate[bot]
+- **(deps)** lock file maintenance - ([9853d46](https://github.com/edm-su/api/commit/9853d4668f5a98f732abd70b2aec292b9eb8fec0)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.6 - ([5f31a07](https://github.com/edm-su/api/commit/5f31a07f29929e2de9b36802c843788048d0247c)) - renovate[bot]
+- **(deps)** update dependency faker to >=33.3.0,<33.4.0 - ([b44bd41](https://github.com/edm-su/api/commit/b44bd41b63591f08e1ef85c4a6ff033abd0c4ede)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.5 - ([5f12356](https://github.com/edm-su/api/commit/5f12356d4977d02de2ab91c3cd7d3fe2c3c87af0)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.1 - ([86e06fb](https://github.com/edm-su/api/commit/86e06fb96a34dc71f275ba4d8696f6bffffa619f)) - renovate[bot]
+- **(deps)** update pre-commit hook pre-commit/mirrors-mypy to v1.14.1 - ([0d2c0e5](https://github.com/edm-su/api/commit/0d2c0e5331592d8512278971e8414d8d81671c18)) - renovate[bot]
+- **(deps)** lock file maintenance - ([ab0b8da](https://github.com/edm-su/api/commit/ab0b8da8f9d20af56ad965de37c8e2da7821d1fa)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.12.0 - ([82bf4e1](https://github.com/edm-su/api/commit/82bf4e10796c3ca6ee410f7f734c73ab84f03c69)) - renovate[bot]
+- **(deps)** lock file maintenance - ([92fea16](https://github.com/edm-su/api/commit/92fea16f2fe14cdf5d1e7a59492aa2f924de9662)) - renovate[bot]
+- **(deps)** update pre-commit hook pre-commit/mirrors-mypy to v1.14.0 - ([7040feb](https://github.com/edm-su/api/commit/7040feb2b3b1b793010ea7fcc1fd226a0d4fb3ae)) - renovate[bot]
+- **(deps)** update pre-commit hook compilerla/conventional-pre-commit to v4 - ([acdb734](https://github.com/edm-su/api/commit/acdb734f44f82415944ace0824b17e54e3b24a73)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.4 - ([77acb5c](https://github.com/edm-su/api/commit/77acb5c57d80958dccd2e3a4a1127efb6886fae5)) - renovate[bot]
+- **(deps)** lock file maintenance - ([f95f7f8](https://github.com/edm-su/api/commit/f95f7f83cb7fed2bf58733251cb2c73060bb509a)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.3 - ([c17013f](https://github.com/edm-su/api/commit/c17013f7d9a85a97161b6de4b50b1bfbbd39a19d)) - renovate[bot]
+- **(deps)** lock file maintenance - ([f211863](https://github.com/edm-su/api/commit/f21186398997c5be3ed8398de7775c872f4661e3)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.2 - ([d551ba0](https://github.com/edm-su/api/commit/d551ba06325c26939a673c9d30a366de086b6c02)) - renovate[bot]
+- **(deps)** update python docker tag to v3.13.1 - ([7d6a1ec](https://github.com/edm-su/api/commit/7d6a1ec6882d756bd062b0b6503c43d35027c077)) - renovate[bot]
+- **(deps)** lock file maintenance - ([eeda97b](https://github.com/edm-su/api/commit/eeda97b94e60172b4ee397ea5555be1e9f8f9f2c)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.1 - ([de2e876](https://github.com/edm-su/api/commit/de2e876b36e91227630925cc46ad4b281448a827)) - renovate[bot]
+- **(deps)** update dependency faker to >=33.1.0,<33.2.0 - ([5f447cc](https://github.com/edm-su/api/commit/5f447cc91f64fb40b8e15c3a9c33035c996d609f)) - renovate[bot]
+- **(deps)** lock file maintenance - ([cb94b8d](https://github.com/edm-su/api/commit/cb94b8d03589908869912d722195347a2cf1e32b)) - renovate[bot]
+- **(deps)** update pre-commit hook pre-commit/mirrors-mypy to v1.13.0 (#674) - ([9cc1f49](https://github.com/edm-su/api/commit/9cc1f49d65eb6a542032c4c6642cd8621e20321b)) - renovate[bot]
+- **(deps)** update pre-commit hook compilerla/conventional-pre-commit to v3.6.0 - ([0d66fb3](https://github.com/edm-su/api/commit/0d66fb37fd7760610e47684e82dc73644b394cd8)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.8.0 - ([e861f89](https://github.com/edm-su/api/commit/e861f898c74dc68d2ab9f16029abab03faef7c6d)) - renovate[bot]
+- **(deps)** update postgres docker tag to v17.2 - ([ed3fd6a](https://github.com/edm-su/api/commit/ed3fd6ad96019219767e836f5286b69a89a43cf1)) - renovate[bot]
+- **(deps)** update dependency ruff to >=0.8.0,<0.9.0 - ([e2b6391](https://github.com/edm-su/api/commit/e2b63918fd53035591d7dfee551840c45a2f1c20)) - renovate[bot]
+- **(deps)** lock file maintenance - ([41f28fe](https://github.com/edm-su/api/commit/41f28feac8fdd0754a5a7d02b6a80c4c4ea3b916)) - renovate[bot]
+- **(deps)** lock file maintenance (#672) - ([8ff485b](https://github.com/edm-su/api/commit/8ff485bfc360a212dfb210a6c41bcb30a7c6b509)) - renovate[bot]
+- **(deps)** update dependency faker to v33 (#667) - ([60665ba](https://github.com/edm-su/api/commit/60665ba57a4cc4215cdb3baa1831e8d0f605f912)) - renovate[bot]
+- **(deps)** update codecov/codecov-action action to v5 (#668) - ([e6c12e8](https://github.com/edm-su/api/commit/e6c12e87cf8df436b4eabcc6997ae31f835aebaf)) - renovate[bot]
+- **(deps)** update postgres docker tag to v17.1 (#669) - ([b468590](https://github.com/edm-su/api/commit/b468590df4faca8828f7c98102dc98b45cca4c75)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.11.3 (#666) - ([5dae019](https://github.com/edm-su/api/commit/5dae0190d216f074a9814d24a1a2a23d30034856)) - renovate[bot]
+- **(deps)** update dependency faker to v32 (#665) - ([b3204de](https://github.com/edm-su/api/commit/b3204de26e9a9ac0fa06e68d03489c0f916c8bf1)) - renovate[bot]
+- **(deps)** update dependency faker to >=30.10.0,<30.11.0 (#664) - ([f782ae4](https://github.com/edm-su/api/commit/f782ae4c8e84c1907c62cc3d3b140387db654611)) - renovate[bot]
+- **(deps)** lock file maintenance (#662) - ([01d5c70](https://github.com/edm-su/api/commit/01d5c70fe90df5d4fe1dc88012fd873a5d37123b)) - renovate[bot]
+- **(deps)** update getmeili/meilisearch docker tag to v1.11.1 (#659) - ([b0edc91](https://github.com/edm-su/api/commit/b0edc91a5ebe56cb51625dfb04fc7f5a179b9904)) - renovate[bot]
+- **(deps)** update dependency types-aiofiles to v24 (#655) - ([4164ed9](https://github.com/edm-su/api/commit/4164ed9ce90e4d6550cdcde673ab719153212534)) - renovate[bot]
+- **(deps)** update dependency faker to v30 (#652) - ([68d9da9](https://github.com/edm-su/api/commit/68d9da90998bd05d4b3f5a00c00154a252ece75c)) - renovate[bot]
+- **(deps)** update dependency ruff to >=0.7.3,<0.8.0 (#651) - ([ba211dd](https://github.com/edm-su/api/commit/ba211dd1390591c76a22810cc97e0381004f2f25)) - renovate[bot]
+- **(deps)** update dependency pre-commit to v4 (#653) - ([9525378](https://github.com/edm-su/api/commit/9525378be7ea078279a10f0347e44fb71960d7b1)) - renovate[bot]
+- **(deps)** update dependency pytest-cov to v6 (#654) - ([f81065e](https://github.com/edm-su/api/commit/f81065edb4dfed641bd5c957f7ba26764a8f5dfb)) - renovate[bot]
+- **(deps)** update postgres docker tag to v17 (#661) - ([734b8fb](https://github.com/edm-su/api/commit/734b8fbbc3bb9653361c88346a37f8520a19beb1)) - renovate[bot]
+- **(deps)** lock file maintenance (#650) - ([8ed6096](https://github.com/edm-su/api/commit/8ed60961dfbdf11062e614b807266e9f813a1d56)) - renovate[bot]
+- update pre-commit dependencies - ([2073a52](https://github.com/edm-su/api/commit/2073a522500819cb49c3038cd5615d2aa0f8c2fb)) - Egor Gluhih
+- add pre-commit auto-upgrade - ([6459126](https://github.com/edm-su/api/commit/64591267a8eb07e19763fe636c1ea66f2efb377a)) - Egor Gluhih
+- bump fastapi[standard] from 0.115.0 to 0.115.3 (#644) - ([519327f](https://github.com/edm-su/api/commit/519327fd703057a73f57211c090814fa9c406a5f)) - dependabot[bot]
+- bump python from 3.12.7-slim-bullseye to 3.13.0-slim-bullseye (#638) - ([0b5d02a](https://github.com/edm-su/api/commit/0b5d02a8cfcb2b1f7bdba242bb3cd1dc3a5245cd)) - dependabot[bot]
+- update authzed requirement (#635) - ([cca0319](https://github.com/edm-su/api/commit/cca03198fd606df08d853505e2aea2d985b52bde)) - dependabot[bot]
+- bump python from 3.12.6-slim-bullseye to 3.12.7-slim-bullseye (#634) - ([9ce2a42](https://github.com/edm-su/api/commit/9ce2a426b50a49b13d690f9dae402f6f01258889)) - dependabot[bot]
+#### Refactoring
+-  use lifespan event (#636) - ([6ac1ce6](https://github.com/edm-su/api/commit/6ac1ce6f23c3402e0e36534176edbf688e58614d)) - Egor Gluhih
+- consolidate post creation logic and update dependencies (#633) - ([9829c31](https://github.com/edm-su/api/commit/9829c314e8ee3371c51ef0c1ac1ba87e6fe42ec7)) - Egor Gluhih
+#### Revert
+- Back out "build: migrate docker build actions to native arm64 (#676)" - ([908b9fb](https://github.com/edm-su/api/commit/908b9fb45a8081b7ee494ed44f699491d7f7182b)) - [@EgorHenek](https://github.com/EgorHenek)
+#### Style
+- upgrade ruff config - ([bf5eb04](https://github.com/edm-su/api/commit/bf5eb04657d8dc0a2e6af4a1da69dde1a8a57e6f)) - Egor Gluhih
+#### Tests
+- replace pytest-asyncio to anyio (#639) - ([daa2b53](https://github.com/edm-su/api/commit/daa2b5371c81d9db9c7441b7c1c4eb082ccea604)) - Egor Gluhih
+
+- - -
+
 ## [v3.6.0](https://github.com/edm-su/api/compare/ef3fe239fc58359d8a42643447319bb09477b07f..v3.6.0) - 2024-10-01
 #### Features
 - add types-aioboto3[s3] dependency to project dependencies - ([ef3fe23](https://github.com/edm-su/api/commit/ef3fe239fc58359d8a42643447319bb09477b07f)) - Egor Gluhih
