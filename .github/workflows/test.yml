@@ -56,7 +56,7 @@ jobs:
         ports:
           - 9000:9000
       meilisearch:
-        image: getmeili/meilisearch:v1.13.2
+        image: getmeili/meilisearch:v1.13.3
         options: >-
           --name=meilisearch --health-cmd "curl http://localhost:7700/health"
         ports:
