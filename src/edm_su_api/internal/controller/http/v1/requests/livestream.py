@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Annotated
 
 from pydantic import (
     Field,
@@ -39,11 +40,15 @@ class CreateLiveStreamRequest(BaseModel):
         ...,
         examples=["https://example.com"],
     )
-    slug: str | None = Field(
-        None,
-        examples=["live-stream-slug"],
-        pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
-    )
+    slug: Annotated[
+        str | None,
+        Field(
+            None,
+            examples=["live-stream-slug"],
+            pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            validate_default=True,
+        ),
+    ] = None
 
     @field_validator("end_time")
     @classmethod
@@ -57,7 +62,7 @@ class CreateLiveStreamRequest(BaseModel):
             raise ValueError(error_text)
         return v
 
-    @field_validator("slug", mode="before")
+    @field_validator("slug", mode="after")
     @classmethod
     def set_slug(
         cls: type["CreateLiveStreamRequest"],
@@ -65,5 +70,6 @@ class CreateLiveStreamRequest(BaseModel):
         info: ValidationInfo,
     ) -> str:
         if not v:
-            return slugify(info.data["title"])
+            title: str = info.data["title"]
+            return slugify(title)
         return v
