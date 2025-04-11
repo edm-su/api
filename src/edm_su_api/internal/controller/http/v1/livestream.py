@@ -97,6 +97,7 @@ async def get_streams(
     "/{id}",
     summary="Get live stream",
 )
+# ruff: noqa: FAST003 False positive. The argument is used depending on
 async def get_stream(
     stream: FindLivestream,
 ) -> LiveStream:

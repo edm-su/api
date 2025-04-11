@@ -89,6 +89,7 @@ async def get_posts(
     "/{slug}",
     summary="Get post",
 )
+# ruff: noqa: FAST003 False positive. The argument is used depending on
 async def get_post(post: FindPost) -> Post:
     return post
 
