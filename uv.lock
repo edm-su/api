@@ -4,15 +4,15 @@ requires-python = ">=3.10"
 
 [[package]]
 name = "aioboto3"
-version = "14.2.0"
+version = "14.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiobotocore", extra = ["boto3"] },
     { name = "aiofiles" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c7/c9/3ecd9144520b50fbc2754c72376f7cb4416d48e0c3d29af6168de7d8c211/aioboto3-14.2.0.tar.gz", hash = "sha256:80cee479dfe9686f2823bed2ac616d3c0bc977255b2c3f997da612fd8179ffe4", size = 322275, upload-time = "2025-05-05T17:43:28.443Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/b7/2f0d45cf31f77f8432102d7225d189e6e65cc7a16a32a8ac929eabd719a7/aioboto3-14.3.0.tar.gz", hash = "sha256:1d18f88bb56835c607b62bb6cb907754d717bedde3ddfff6935727cb48a80135", size = 322658, upload-time = "2025-05-07T15:23:59.262Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1a/40/49830dc3c40946fd670a7e19eea4e73bd749449ada6c55dd8dd55afe3f90/aioboto3-14.2.0-py3-none-any.whl", hash = "sha256:0bf0663fd4f8ad814207ef77fcbdfca51be1daf81108eeba598b9d48654e1da4", size = 35661, upload-time = "2025-05-05T17:43:26.45Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/b0/f2415f03af890693ba8cb669c67f30b9ffa8b2065ecf91cc92e6782b5aa2/aioboto3-14.3.0-py3-none-any.whl", hash = "sha256:aec5de94e9edc1ffbdd58eead38a37f00ddac59a519db749a910c20b7b81bca7", size = 35697, upload-time = "2025-05-07T15:23:57.539Z" },
 ]
 
 [[package]]
@@ -502,7 +502,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aioboto3", specifier = ">=14.2.0,<14.3.0" },
+    { name = "aioboto3", specifier = ">=14.3.0,<14.4.0" },
     { name = "aiofiles", specifier = ">=24.1.0,<24.2.0" },
     { name = "aiohttp", specifier = ">=3.10.6,<4.0.0" },
     { name = "alembic", specifier = ">=1.13,<2" },
