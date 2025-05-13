@@ -118,3 +118,8 @@ ignore = ["COM812", "ISC001"]
 
 [tool.ruff.lint.flake8-builtins]
 builtins-ignorelist = ["id"]
+
+[tool.basedpyright]
+executionEnvironments = [{ root = "src" }]
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
