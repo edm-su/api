@@ -34,7 +34,7 @@ build-backend = "hatchling.build"
 [tool.uv]
 dev-dependencies = [
   "pytest >=8.2.2,<9.0.0",
-  "Faker >=37.3.0,<37.4.0",
+  "Faker >=37.4.0,<37.5.0",
   "pytest-cov >=6.1.0,<6.2.0",
   "pytest-mock >=3.14.0,<4.0.0",
   "pytest-dotenv >=0.5.2,<0.6.0",
