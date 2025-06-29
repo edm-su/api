@@ -1,6 +1,6 @@
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import (
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
@@ -106,8 +106,6 @@ class CreateVideoUseCase(AbstractFullTextVideoUseCase):
 class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
     async def execute(self: Self, id_: int) -> None:
         video = await self.repository.get_by_id(id_)
-        if not video:
-            raise VideoNotFoundError
         await self.repository.delete(id_)
         await self.full_text_repo.delete(id_)
         await self._set_permissions(video)
@@ -118,3 +116,11 @@ class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
 
         resource = Object("video", video.slug)
         await self.permissions_repo.delete(resource, "reader")
+
+
+class UpdateVideoUseCase(AbstractFullTextVideoUseCase):
+    async def execute(self: Self, updated_data: UpdateVideoDto) -> Video:
+        video = await self.repository.get_by_slug(str(updated_data.slug))
+        video = await self.repository.update(updated_data)
+        await self.full_text_repo.update(video.id, updated_data)
+        return video

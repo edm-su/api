@@ -4,6 +4,7 @@ from typing import final
 from fastapi.encoders import jsonable_encoder
 from meilisearch_python_async import Client as MeilisearchClient
 from meilisearch_python_async.task import wait_for_task
+from pydantic_core import to_jsonable_python
 from sqlalchemy import (
     ColumnExpressionArgument,
     and_,
@@ -18,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.expression import false
 from typing_extensions import Self, override
 
-from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
 from edm_su_api.pkg.meilisearch import normalize_ms_index_name
 from edm_su_api.pkg.postgres import LikedVideos
@@ -82,7 +83,7 @@ class AbstractVideoRepository(ABC):
     @abstractmethod
     async def update(
         self: Self,
-        video: Video,
+        video: UpdateVideoDto,
     ) -> Video:
         pass
 
@@ -110,6 +111,14 @@ class AbstractFullTextVideoRepository(ABC):
     async def delete(
         self: Self,
         id_: int,
+    ) -> None:
+        pass
+
+    @abstractmethod
+    async def update(
+        self,
+        id_: int,
+        updated_data: UpdateVideoDto,
     ) -> None:
         pass
 
@@ -265,13 +274,13 @@ class PostgresVideoRepository(AbstractVideoRepository):
     @override
     async def update(
         self: Self,
-        video: Video,
+        video: UpdateVideoDto,
     ) -> Video:
         query = (
             update(PGVideo)
-            .where(PGVideo.id == video.id)
+            .where(PGVideo.slug == video.slug)
             .where(PGVideo.deleted == false())
-            .values(**video.model_dump(exclude_unset=True))
+            .values(**video.model_dump(exclude_unset=True, exclude={"slug"}))
             .returning(PGVideo)
         )
 
@@ -335,3 +344,14 @@ class MeilisearchVideoRepository(AbstractFullTextVideoRepository):
     ) -> None:
         task = await self.index.delete_documents([str(id_)])
         _ = await wait_for_task(self.client.http_client, task.task_uid)
+
+    @override
+    async def update(self, id_: int, updated_data: UpdateVideoDto) -> None:
+        data = updated_data.model_dump(
+            exclude={"is_blocked_in_russia", "slug"},
+            exclude_unset=True,
+        )
+        data["id"] = id_
+        documents = [to_jsonable_python(data)]
+        task = await self.index.update_documents(documents)
+        _ = await wait_for_task(self.client.http_client, task_id=task.task_uid)

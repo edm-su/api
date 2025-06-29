@@ -1,17 +1,11 @@
 from datetime import date
-from typing import Annotated
-from uuid import uuid4
 
 from pydantic import (
     BaseModel,
     Field,
-    ValidationInfo,
-    field_validator,
 )
-from slugify import slugify
-from typing_extensions import Self
 
-from edm_su_api.internal.entity.common import AttributeModel
+from edm_su_api.internal.entity.common import AttributeModel, SlugMixin
 
 
 class Video(AttributeModel):
@@ -26,27 +20,14 @@ class Video(AttributeModel):
     is_blocked_in_russia: bool = Field(default=False)
 
 
-class NewVideoDto(BaseModel):
-    title: str
+class NewVideoDto(SlugMixin, BaseModel):
     date: date
     yt_id: str
     yt_thumbnail: str
     duration: int
     is_blocked_in_russia: bool = Field(default=False)
-    slug: Annotated[str | None, Field(validate_default=True)] = None
 
-    @field_validator("slug", mode="after")
-    @classmethod
-    def generate_slug(
-        cls: type["NewVideoDto"],
-        v: str | None,
-        info: ValidationInfo,
-    ) -> str:
-        if not v:
-            title: str = info.data["title"]
-            return slugify(title)
-        return v
 
-    def expand_slug(self: Self) -> None:
-        expansion = uuid4().hex[:8]
-        self.slug = f"{expansion}-{self.slug}"
+class UpdateVideoDto(SlugMixin, BaseModel):
+    date: date
+    is_blocked_in_russia: bool = Field(default=False)

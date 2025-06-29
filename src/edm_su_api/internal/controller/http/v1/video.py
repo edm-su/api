@@ -16,8 +16,10 @@ from edm_su_api.internal.controller.http.v1.dependencies.video import (
     create_delete_video_usecase,
     create_get_all_videos_usecase,
     create_get_video_by_slug_usecase,
+    create_update_video_usecase,
 )
-from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.controller.http.v1.requests.video import UpdateVideoRequest
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoError, VideoNotFoundError
 from edm_su_api.internal.usecase.video import (
     CreateVideoUseCase,
@@ -25,6 +27,7 @@ from edm_su_api.internal.usecase.video import (
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
+    UpdateVideoUseCase,
 )
 
 router = APIRouter(tags=["Videos"])
@@ -122,3 +125,34 @@ async def add_video(
             detail=str(e),
         ) from e
     return video
+
+
+@router.patch(
+    "/{slug}",
+    summary="Edit video",
+    status_code=status.HTTP_200_OK,
+)
+async def update_video(
+    update_data: UpdateVideoRequest,
+    usecase: Annotated[
+        UpdateVideoUseCase,
+        Depends(create_update_video_usecase),
+    ],
+    slug: Annotated[str, Path()],
+) -> Video:
+    update_dto = UpdateVideoDto(
+        slug=slug,
+        **update_data.model_dump(exclude={"slug"}, exclude_unset=True),
+    )
+    try:
+        return await usecase.execute(update_dto)
+    except VideoNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except VideoError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        ) from e
