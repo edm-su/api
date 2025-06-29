@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
 from edm_su_api.internal.entity.user import User
-from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
 from edm_su_api.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
@@ -101,10 +101,11 @@ class TestPostgresVideoRepository:
         pg_video_repository: PostgresVideoRepository,
         pg_video: Video,
     ) -> None:
-        pg_video.title = "new title"
-        result = await pg_video_repository.update(pg_video)
+        updated_data = UpdateVideoDto(**pg_video.model_dump())
+        updated_data.title = "new title"
+        result = await pg_video_repository.update(updated_data)
 
-        assert result == pg_video
+        assert result.title != pg_video.title
 
         video = await pg_video_repository.get_by_id(result.id)
 
@@ -214,3 +215,17 @@ class TestMeilisearchVideoRepository:
 
         with pytest.raises(MeilisearchApiError):
             _ = await repository.index.get_document(str(ms_video.id))
+
+    async def test_update(
+        self,
+        ms_video: Video,
+        repository: MeilisearchVideoRepository,
+    ) -> None:
+        updated_data = UpdateVideoDto(**ms_video.model_dump())
+        updated_data.title = "New title"
+        await repository.update(ms_video.id, updated_data)
+
+        document = await repository.index.get_document(str(ms_video.id))
+
+        assert document
+        assert updated_data.title == document.get("title")

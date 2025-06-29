@@ -19,6 +19,7 @@ from edm_su_api.internal.usecase.video import (
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
+    UpdateVideoUseCase,
 )
 from edm_su_api.pkg.meilisearch import ms_client
 from edm_su_api.pkg.postgres import get_session
@@ -87,6 +88,14 @@ def create_create_video_usecase(
     spicedb_repository: SpiceDBPermissionsRepo,
 ) -> CreateVideoUseCase:
     return CreateVideoUseCase(repository, ms_repository, spicedb_repository)
+
+
+def create_update_video_usecase(
+    *,
+    repository: PgRepository,
+    ms_repository: MeilisearchRepository,
+) -> UpdateVideoUseCase:
+    return UpdateVideoUseCase(repository, ms_repository)
 
 
 async def find_video(

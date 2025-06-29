@@ -9,7 +9,7 @@ from edm_su_api.internal.controller.http.v1.dependencies.video import (
     find_video,
 )
 from edm_su_api.internal.entity.user import User
-from edm_su_api.internal.entity.video import NewVideoDto, Video
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import (
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
@@ -180,6 +180,74 @@ class TestCreateVideo:
         response = await client.post(
             "/videos",
             content=data.model_dump_json(),
+        )
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_409_CONFLICT
+
+
+class TestUpdateVideo:
+    @pytest.fixture
+    def data(self, video: Video) -> UpdateVideoDto:
+        return UpdateVideoDto(
+            slug=video.slug,
+            title="New title",
+            date=video.date,
+            is_blocked_in_russia=not video.is_blocked_in_russia,
+        )
+
+    @pytest.mark.usefixtures("mock_current_user")
+    async def test_update_video(
+        self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+        video: Video,
+        data: UpdateVideoDto,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.UpdateVideoUseCase.execute",
+            return_value=video,
+        )
+        response = await client.patch(
+            f"/videos/{video.slug}", content=data.model_dump_json()
+        )
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
+    async def test_update_video_not_found(
+        self: Self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+        video: Video,
+        data: UpdateVideoDto,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.UpdateVideoUseCase.execute",
+            side_effect=VideoNotFoundError,
+        )
+        response = await client.patch(
+            f"/videos/{video.slug}", content=data.model_dump_json()
+        )
+
+        mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
+    async def test_update_video_conflict(
+        self: Self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+        video: Video,
+        data: UpdateVideoDto,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.UpdateVideoUseCase.execute",
+            side_effect=VideoYtIdNotUniqueError(video.yt_id),
+        )
+        response = await client.patch(
+            f"/videos/{video.slug}", content=data.model_dump_json()
         )
 
         mocked.assert_awaited_once()

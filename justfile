@@ -24,6 +24,8 @@ integration-tests:
 
 test: unit-tests integration-tests
 
+preflight: unit-tests lint
+
 migrate-downgrade REVISION:
 	uv run alembic downgrade "{{REVISION}}"
 
@@ -32,3 +34,7 @@ migrate:
 
 generate-migration MESSAGE:
 	uv run alembic revision --autogenerate -m "{{MESSAGE}}"
+
+generate-stubs:
+	rm -rf typings/edm_su_api/
+	uv run basedpyright --createstub edm_su_api

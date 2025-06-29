@@ -6,7 +6,7 @@ from pytest_mock import MockFixture
 from pytest_mock.plugin import MockType
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.video import NewVideoDto
+from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto
 from edm_su_api.internal.usecase.exceptions.video import (
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
@@ -21,6 +21,7 @@ from edm_su_api.internal.usecase.video import (
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
+    UpdateVideoUseCase,
     Video,
 )
 
@@ -286,6 +287,64 @@ class TestCreateVideoUseCase:
             await usecase.execute(new_video)
 
 
+class TestUpdateVideoUseCase:
+    @pytest.fixture(autouse=True)
+    def mock(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        repository.update.return_value = video
+
+    @pytest.fixture
+    def update_video(
+        self: Self,
+        video: Video,
+    ) -> UpdateVideoDto:
+        return UpdateVideoDto(
+            title=video.title,
+            date=video.date,
+            slug=video.slug,
+        )
+
+    @pytest.fixture
+    def usecase(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+    ) -> UpdateVideoUseCase:
+        return UpdateVideoUseCase(repository, full_text_repository)
+
+    async def test_update_video(
+        self: Self,
+        usecase: UpdateVideoUseCase,
+        update_video: UpdateVideoDto,
+        video: Video,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+    ) -> None:
+        result = await usecase.execute(update_video)
+        assert result == video
+
+        repository.update.assert_awaited_once_with(update_video)
+        full_text_repository.update.assert_awaited_once_with(video.id, update_video)
+        repository.get_by_slug.assert_awaited_once_with(update_video.slug)
+
+    async def test_update_video_dont_exist(
+        self: Self,
+        usecase: UpdateVideoUseCase,
+        update_video: UpdateVideoDto,
+        video: Video,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+    ) -> None:
+        repository.get_by_slug.side_effect = VideoNotFoundError
+
+        with pytest.raises(VideoNotFoundError):
+            await usecase.execute(update_video)
+
+
 class TestDeleteVideoUseCase:
     @pytest.fixture(autouse=True)
     def mock(
@@ -330,8 +389,7 @@ class TestDeleteVideoUseCase:
         repository: AsyncMock,
         full_text_repository: AsyncMock,
     ) -> None:
-        """Raise exception if id is not found."""
-        repository.get_by_id.return_value = None
+        repository.get_by_id.side_effect = VideoNotFoundError
 
         with pytest.raises(VideoNotFoundError):
             await usecase.execute(100_000_000)
