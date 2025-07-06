@@ -12,7 +12,6 @@ from edm_su_api.internal.usecase.exceptions.video import (
     VideoYtIdNotUniqueError,
 )
 from edm_su_api.internal.usecase.repository.video import (
-    AbstractFullTextVideoRepository,
     AbstractVideoRepository,
 )
 from edm_su_api.internal.usecase.video import (
@@ -31,11 +30,6 @@ pytestmark = pytest.mark.anyio
 @pytest.fixture
 def repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractVideoRepository)
-
-
-@pytest.fixture
-def full_text_repository(mocker: MockFixture) -> AsyncMock:
-    return mocker.AsyncMock(spec=AbstractFullTextVideoRepository)
 
 
 @pytest.fixture
@@ -187,11 +181,9 @@ class TestCreateVideoUseCase:
     def mock(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.create.return_value = video
-        full_text_repository.create.return_value = video
 
     @pytest.fixture
     def new_video(
@@ -232,12 +224,10 @@ class TestCreateVideoUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
         permissions_repo: AsyncMock,
     ) -> CreateVideoUseCase:
         return CreateVideoUseCase(
             repository,
-            full_text_repository,
             permissions_repo,
         )
 
@@ -248,14 +238,12 @@ class TestCreateVideoUseCase:
         new_video: NewVideoDto,
         video: Video,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
         expand_slug_patch: MockType,
     ) -> None:
         created_video = await usecase.execute(new_video)
         assert created_video is video
 
         repository.create.assert_awaited_once_with(new_video)
-        full_text_repository.create.assert_awaited_once_with(created_video)
         repository.get_by_slug.assert_awaited_once_with(video.slug)
         repository.get_by_yt_id.assert_awaited_once_with(video.yt_id)
         expand_slug_patch.assert_not_called()
@@ -292,7 +280,6 @@ class TestUpdateVideoUseCase:
     def mock(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
         video: Video,
     ) -> None:
         repository.update.return_value = video
@@ -312,9 +299,8 @@ class TestUpdateVideoUseCase:
     def usecase(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
     ) -> UpdateVideoUseCase:
-        return UpdateVideoUseCase(repository, full_text_repository)
+        return UpdateVideoUseCase(repository)
 
     async def test_update_video(
         self: Self,
@@ -322,13 +308,11 @@ class TestUpdateVideoUseCase:
         update_video: UpdateVideoDto,
         video: Video,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
     ) -> None:
         result = await usecase.execute(update_video)
         assert result == video
 
         repository.update.assert_awaited_once_with(update_video)
-        full_text_repository.update.assert_awaited_once_with(video.id, update_video)
         repository.get_by_slug.assert_awaited_once_with(update_video.slug)
 
     async def test_update_video_dont_exist(
@@ -337,7 +321,6 @@ class TestUpdateVideoUseCase:
         update_video: UpdateVideoDto,
         video: Video,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
     ) -> None:
         repository.get_by_slug.side_effect = VideoNotFoundError
 
@@ -350,21 +333,17 @@ class TestDeleteVideoUseCase:
     def mock(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
     ) -> None:
         repository.delete.return_value = None
-        full_text_repository.delete.return_value = None
 
     @pytest.fixture
     def usecase(
         self: Self,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
         permissions_repo: AsyncMock,
     ) -> DeleteVideoUseCase:
         return DeleteVideoUseCase(
             repository,
-            full_text_repository,
             permissions_repo,
         )
 
@@ -373,21 +352,18 @@ class TestDeleteVideoUseCase:
         usecase: DeleteVideoUseCase,
         repository: AsyncMock,
         video: Video,
-        full_text_repository: AsyncMock,
     ) -> None:
         repository.get_by_id.return_value = video
 
         await usecase.execute(video.id)
 
         repository.delete.assert_awaited_once_with(video.id)
-        full_text_repository.delete.assert_awaited_once_with(video.id)
         repository.get_by_id.assert_awaited_once_with(video.id)
 
     async def test_delete_video_with_invalid_id(
         self: Self,
         usecase: DeleteVideoUseCase,
         repository: AsyncMock,
-        full_text_repository: AsyncMock,
     ) -> None:
         repository.get_by_id.side_effect = VideoNotFoundError
 
@@ -396,4 +372,3 @@ class TestDeleteVideoUseCase:
 
         repository.get_by_id.assert_awaited_once_with(100_000_000)
         repository.delete.assert_not_called()
-        full_text_repository.delete.assert_not_called()

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: paradedb/paradedb:latest-pg16
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -23,14 +23,6 @@ services:
       - "9000:9000"
       - "9001:9001"
 
-  meilisearch:
-    image: getmeili/meilisearch:v1.10
-    volumes:
-      - meili:/meili_data
-    ports:
-      - "7700:7700"
-
 volumes:
   postgres:
   minio:
-  meili:

@@ -20,7 +20,6 @@ jobs:
       UV_CACHE_DIR: /tmp/.uv-cache
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/edm_su_test
       FRONTEND_URL: http://localhost:3000
-      MEILISEARCH_INDEX_POSTFIX: test
       S3_BUCKET: edm-su-test
       S3_ENDPOINT: http://localhost:9000
       S3_ACCESS_KEY: minioadmin
@@ -31,7 +30,7 @@ jobs:
       SPICEDB_INSECURE: "true"
     services:
       postgres:
-        image: postgres:16-alpine
+        image: paradedb/paradedb:latest-pg16
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: edm_su_test
@@ -52,12 +51,6 @@ jobs:
           --name=minio --health-cmd "curl http://localhost:9000/minio/health/live"
         ports:
           - 9000:9000
-      meilisearch:
-        image: getmeili/meilisearch:v1.10
-        options: >-
-          --name=meilisearch --health-cmd "curl http://localhost:7700/health"
-        ports:
-          - 7700:7700
     steps:
       - uses: actions/checkout@v4
       - name: Create minio bucket

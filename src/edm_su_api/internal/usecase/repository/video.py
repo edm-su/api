@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import final
 
-from fastapi.encoders import jsonable_encoder
-from meilisearch_python_async import Client as MeilisearchClient
-from meilisearch_python_async.task import wait_for_task
-from pydantic_core import to_jsonable_python
 from sqlalchemy import (
     ColumnExpressionArgument,
     and_,
@@ -21,7 +17,6 @@ from typing_extensions import Self, override
 
 from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
-from edm_su_api.pkg.meilisearch import normalize_ms_index_name
 from edm_su_api.pkg.postgres import LikedVideos
 from edm_su_api.pkg.postgres import Video as PGVideo
 
@@ -96,30 +91,6 @@ class AbstractVideoRepository(ABC):
 
     @abstractmethod
     async def count(self: Self) -> int:
-        pass
-
-
-class AbstractFullTextVideoRepository(ABC):
-    @abstractmethod
-    async def create(
-        self: Self,
-        video: Video,
-    ) -> Video:
-        pass
-
-    @abstractmethod
-    async def delete(
-        self: Self,
-        id_: int,
-    ) -> None:
-        pass
-
-    @abstractmethod
-    async def update(
-        self,
-        id_: int,
-        updated_data: UpdateVideoDto,
-    ) -> None:
         pass
 
 
@@ -315,43 +286,3 @@ class PostgresVideoRepository(AbstractVideoRepository):
         )
 
         return (await self._session.scalars(query)).one()
-
-
-@final
-class MeilisearchVideoRepository(AbstractFullTextVideoRepository):
-    def __init__(
-        self: Self,
-        client: MeilisearchClient,
-    ) -> None:
-        self.client = client
-        index_name = normalize_ms_index_name("videos")
-        self.index = self.client.index(index_name)
-
-    @override
-    async def create(
-        self: Self,
-        video: Video,
-    ) -> Video:
-        documents = [jsonable_encoder(video, exclude={"is_blocked_in_russia"})]
-        task = await self.index.add_documents(documents)
-        _ = await wait_for_task(self.client.http_client, task.task_uid)
-        return video
-
-    @override
-    async def delete(
-        self: Self,
-        id_: int,
-    ) -> None:
-        task = await self.index.delete_documents([str(id_)])
-        _ = await wait_for_task(self.client.http_client, task.task_uid)
-
-    @override
-    async def update(self, id_: int, updated_data: UpdateVideoDto) -> None:
-        data = updated_data.model_dump(
-            exclude={"is_blocked_in_russia", "slug"},
-            exclude_unset=True,
-        )
-        data["id"] = id_
-        documents = [to_jsonable_python(data)]
-        task = await self.index.update_documents(documents)
-        _ = await wait_for_task(self.client.http_client, task_id=task.task_uid)

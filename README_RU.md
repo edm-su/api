@@ -3,8 +3,7 @@
 ## Требования
 
 * Python >= 3.10
-* PostgreSQL >= 9.6
-* Meilisearch >= 1.0.0
+* PostgreSQL >= 14
 
 ## Установка
 
@@ -27,9 +26,6 @@ python3 -m edm_su_api
 | DISABLE_OPENAPI           |            |                        Режим отключения OpenAPI                        |                       False                        |
 | HOST                      |            |                              Адрес хоста                               |                     127.0.0.1                      |
 | LOG_LEVEL                 |            | Уровень логирования (может быть DEBUG, INFO, WARNING, ERROR, CRITICAL) |                       ERROR                        |
-| MEILISEARCH_API_KEY       |            |                          Ключ api meilisearch                          |                                                    |
-| MEILISEARCH_API_URL       |     x      |                         Адрес api meilisearch                          |               http://localhost:7700                |
-| MEILISEARCH_INDEX_POSTFIX |            |                Дополнение к адресу индексов meilisearch                |                                                    |
 | PORT                      |            |                               Порт хоста                               |                        8000                        |
 | S3_ACCESS_KEY             |     x      |                           Ключ доступа к S3                            |                                                    |
 | S3_ACCESS_KEY_ID          |     x      |                         Идентификатор ключа S3                         |                                                    |

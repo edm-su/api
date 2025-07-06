@@ -1,6 +1,4 @@
 import logging.config
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -8,7 +6,6 @@ from starlette.middleware.cors import CORSMiddleware
 from edm_su_api import __version__
 from edm_su_api.internal.controller.http.router import api_router
 from edm_su_api.internal.entity.settings import settings
-from edm_su_api.pkg.meilisearch import config_ms, ms_client
 
 openapi_url = None if settings.disable_openapi else "/openapi.json"
 
@@ -43,18 +40,10 @@ LOGGING_CONFIG = {
 logging.config.dictConfig(LOGGING_CONFIG)
 
 
-@asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
-    await config_ms(ms_client)
-    yield
-    await ms_client.aclose()
-
-
 app = FastAPI(
     openapi_url=openapi_url,
     debug=False,
     version=__version__,
-    lifespan=lifespan,
 )
 
 origins = ["https://edm.su", "http://localhost:3000"]

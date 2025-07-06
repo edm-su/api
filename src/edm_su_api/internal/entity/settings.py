@@ -14,10 +14,6 @@ class Settings(DBSettings):
     host: str = "127.0.0.1"
     port: int = 8000
 
-    meilisearch_api_url: str = "http://localhost:7700"
-    meilisearch_api_key: str = ""
-    meilisearch_index_postfix: str = ""
-
     spicedb_url: str
     spicedb_api_key: str
     spicedb_insecure: bool = False

@@ -10,7 +10,6 @@ from edm_su_api.internal.controller.http.v1.dependencies.permissions import (
 from edm_su_api.internal.entity.video import Video
 from edm_su_api.internal.usecase.exceptions.video import VideoNotFoundError
 from edm_su_api.internal.usecase.repository.video import (
-    MeilisearchVideoRepository,
     PostgresVideoRepository,
 )
 from edm_su_api.internal.usecase.video import (
@@ -21,7 +20,6 @@ from edm_su_api.internal.usecase.video import (
     GetVideoBySlugUseCase,
     UpdateVideoUseCase,
 )
-from edm_su_api.pkg.meilisearch import ms_client
 from edm_su_api.pkg.postgres import get_session
 
 
@@ -38,16 +36,6 @@ async def create_pg_repository(
 PgRepository = Annotated[
     PostgresVideoRepository,
     Depends(create_pg_repository),
-]
-
-
-async def create_ms_repository() -> MeilisearchVideoRepository:
-    return MeilisearchVideoRepository(ms_client)
-
-
-MeilisearchRepository = Annotated[
-    MeilisearchVideoRepository,
-    Depends(create_ms_repository),
 ]
 
 
@@ -75,27 +63,24 @@ def create_get_video_by_slug_usecase(
 def create_delete_video_usecase(
     *,
     repository: PgRepository,
-    ms_repository: MeilisearchRepository,
     spicedb_repository: SpiceDBPermissionsRepo,
 ) -> DeleteVideoUseCase:
-    return DeleteVideoUseCase(repository, ms_repository, spicedb_repository)
+    return DeleteVideoUseCase(repository, spicedb_repository)
 
 
 def create_create_video_usecase(
     *,
     repository: PgRepository,
-    ms_repository: MeilisearchRepository,
     spicedb_repository: SpiceDBPermissionsRepo,
 ) -> CreateVideoUseCase:
-    return CreateVideoUseCase(repository, ms_repository, spicedb_repository)
+    return CreateVideoUseCase(repository, spicedb_repository)
 
 
 def create_update_video_usecase(
     *,
     repository: PgRepository,
-    ms_repository: MeilisearchRepository,
 ) -> UpdateVideoUseCase:
-    return UpdateVideoUseCase(repository, ms_repository)
+    return UpdateVideoUseCase(repository)
 
 
 async def find_video(
