@@ -1,12 +1,13 @@
 services:
   postgres:
-    image: postgres:17.5
+    image: postgres:16-alpine
     environment:
-      POSTGRES_PASSWORD: postgrespw
+      POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres:/var/lib/postgresql/data
+      - ./deployment/postgresql/initdb:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
@@ -22,12 +23,12 @@ services:
       - "9000:9000"
       - "9001:9001"
 
-  meili:
-    image: getmeili/meilisearch:v1.15.2
-    ports:
-      - "7700:7700"
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
     volumes:
       - meili:/meili_data
+    ports:
+      - "7700:7700"
 
 volumes:
   postgres:

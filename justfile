@@ -24,7 +24,7 @@ integration-tests:
 
 test: unit-tests integration-tests
 
-preflight: unit-tests lint
+preflight: unit-tests lint format
 
 migrate-downgrade REVISION:
 	uv run alembic downgrade "{{REVISION}}"

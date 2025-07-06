@@ -1,0 +1,2 @@
+CREATE DATABASE edm_su;
+CREATE DATABASE edm_su_test;

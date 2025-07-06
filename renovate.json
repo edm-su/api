@@ -20,6 +20,10 @@
 		{
 			"matchCategories": ["docker"],
 			"addLabels": ["build"]
+		},
+		{
+			"matchPackageNames": ["postgres", "getmeili/meilisearch"],
+			"automerge": false
 		}
 	],
 	"lockFileMaintenance": {
