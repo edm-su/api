@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 from typing import Any, ClassVar
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
     AsyncSession,
@@ -84,6 +84,14 @@ class Post(Base):
 
 class Video(Base):
     __tablename__ = "videos"
+    __table_args__ = (
+        Index(
+            "search_idx",
+            text("id, title, date, is_blocked_in_russia, deleted"),
+            postgresql_using="bm25",
+            postgresql_with={"key_field": "id"},
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column()

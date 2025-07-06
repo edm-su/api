@@ -2,7 +2,6 @@ from collections.abc import AsyncGenerator
 
 import pytest
 from faker import Faker
-from meilisearch_python_async import Client as MeilisearchClient
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession,
@@ -13,8 +12,6 @@ from edm_su_api.internal.entity.video import NewVideoDto, Video
 from edm_su_api.internal.usecase.repository.video import (
     PostgresVideoRepository,
 )
-from edm_su_api.pkg.meilisearch import config_ms
-from edm_su_api.pkg.meilisearch import ms_client as meilisearch_client
 from edm_su_api.pkg.postgres import async_engine
 
 
@@ -45,12 +42,6 @@ async def pg_session(
     yield async_session
 
     await pg_transaction.rollback()
-
-
-@pytest.fixture(scope="session")
-async def ms_client() -> MeilisearchClient:
-    await config_ms(meilisearch_client)
-    return meilisearch_client
 
 
 @pytest.fixture
