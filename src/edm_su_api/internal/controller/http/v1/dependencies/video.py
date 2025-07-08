@@ -19,6 +19,7 @@ from edm_su_api.internal.usecase.video import (
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
+    RestoreVideoUseCase,
     UpdateVideoUseCase,
 )
 from edm_su_api.pkg.meilisearch import ms_client
@@ -98,6 +99,15 @@ def create_update_video_usecase(
     return UpdateVideoUseCase(repository, ms_repository)
 
 
+def create_restore_video_usecase(
+    *,
+    repository: PgRepository,
+    ms_repository: MeilisearchRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
+) -> RestoreVideoUseCase:
+    return RestoreVideoUseCase(repository, ms_repository, spicedb_repository)
+
+
 async def find_video(
     slug: Annotated[
         str,
@@ -117,4 +127,21 @@ async def find_video(
         ) from e
 
 
+async def find_video_including_deleted(
+    slug: Annotated[
+        str,
+        Path,
+    ],
+    repository: PgRepository,
+) -> Video:
+    try:
+        return await repository.get_by_slug(slug, include_deleted=True)
+    except VideoNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+
+
 FindVideo = Annotated[Video, Depends(find_video)]
+FindVideoIncludingDeleted = Annotated[Video, Depends(find_video_including_deleted)]

@@ -2,7 +2,12 @@ import pytest
 from faker import Faker
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto
+from edm_su_api.internal.entity.video import (
+    DeleteType,
+    NewVideoDto,
+    UpdateVideoDto,
+    Video,
+)
 
 
 class TestNewVideoDto:
@@ -91,3 +96,53 @@ class TestUpdateVideoDto:
             slug=custom_slug,
         )
         assert video.slug == custom_slug
+
+
+class TestVideo:
+    @pytest.fixture
+    def video(self: Self, faker: Faker) -> Video:
+        return Video(
+            id=faker.pyint(),
+            title=faker.word(),
+            date=faker.date_between(
+                start_date="-1y",
+                end_date="now",
+            ),
+            yt_id=faker.word(),
+            yt_thumbnail=faker.url(),
+            duration=faker.pyint(),
+            slug=faker.slug(),
+            is_favorite=faker.boolean(),
+            is_blocked_in_russia=faker.boolean(),
+        )
+
+    def test_default_deletion_fields(self: Self, video: Video) -> None:
+        """Test that deletion fields have correct default values."""
+        assert video.deleted is False
+        assert video.delete_type is None
+
+    def test_deletion_fields_serialization(self: Self, faker: Faker) -> None:
+        """Test that deletion fields are properly serialized."""
+        video = Video(
+            id=faker.pyint(),
+            title=faker.word(),
+            date=faker.date_between(
+                start_date="-1y",
+                end_date="now",
+            ),
+            yt_id=faker.word(),
+            yt_thumbnail=faker.url(),
+            duration=faker.pyint(),
+            slug=faker.slug(),
+            is_favorite=faker.boolean(),
+            is_blocked_in_russia=faker.boolean(),
+            deleted=True,
+            delete_type=DeleteType.TEMPORARY,
+        )
+
+        # Convert to dict to simulate serialization
+        serialized = video.model_dump()
+
+        # Check that deletion fields are included in serialized output
+        assert serialized["deleted"] is True
+        assert serialized["delete_type"] == DeleteType.TEMPORARY

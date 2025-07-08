@@ -7,11 +7,19 @@ from typing_extensions import Self
 from edm_su_api.internal.controller.http import app
 from edm_su_api.internal.controller.http.v1.dependencies.video import (
     find_video,
+    find_video_including_deleted,
 )
 from edm_su_api.internal.entity.user import User
-from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
+from edm_su_api.internal.entity.video import (
+    DeleteType,
+    NewVideoDto,
+    UpdateVideoDto,
+    Video,
+)
 from edm_su_api.internal.usecase.exceptions.video import (
+    VideoNotDeletedError,
     VideoNotFoundError,
+    VideoRestoreError,
     VideoYtIdNotUniqueError,
 )
 
@@ -28,6 +36,14 @@ def mock_find_video(
         return_value=video,
     )
     app.dependency_overrides[find_video] = lambda: video
+
+
+@pytest.fixture
+def mock_find_video_including_deleted(
+    video: Video,
+    mocker: MockerFixture,
+) -> None:
+    app.dependency_overrides[find_video_including_deleted] = lambda: video
 
 
 class TestGetVideos:
@@ -48,7 +64,9 @@ class TestGetVideos:
         )
         response = await client.get("/videos")
 
-        mocked.assert_awaited_once_with(offset=0, limit=25, user_id=None)
+        mocked.assert_awaited_once_with(
+            offset=0, limit=25, user_id=None, include_deleted=False
+        )
         mocked_count.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
         assert response.headers["X-Total-Count"] == "1"
@@ -71,7 +89,33 @@ class TestGetVideos:
         )
         response = await client.get("/videos")
 
-        mocked.assert_awaited_once_with(offset=0, limit=25, user_id=user.id)
+        mocked.assert_awaited_once_with(
+            offset=0, limit=25, user_id=user.id, include_deleted=False
+        )
+        mocked_count.assert_awaited_once()
+        assert response.status_code == status.HTTP_200_OK
+        assert response.headers["X-Total-Count"] == "1"
+
+    @pytest.mark.usefixtures("mock_anonymous_user")
+    async def test_get_videos_with_include_deleted_true(
+        self: Self,
+        client: AsyncClient,
+        mocker: MockerFixture,
+        video: Video,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.GetAllVideosUseCase.execute",
+            return_value=[video],
+        )
+        mocked_count = mocker.patch(
+            "edm_su_api.internal.usecase.video.GetCountVideosUseCase.execute",
+            return_value=1,
+        )
+        response = await client.get("/videos?include_deleted=true")
+
+        mocked.assert_awaited_once_with(
+            offset=0, limit=25, user_id=None, include_deleted=True
+        )
         mocked_count.assert_awaited_once()
         assert response.status_code == status.HTTP_200_OK
         assert response.headers["X-Total-Count"] == "1"
@@ -128,6 +172,24 @@ class TestDeleteVideo:
         response = await client.delete(f"/videos/{video.slug}")
 
         mocked.assert_awaited_once()
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video")
+    async def test_temporary_deletion_video(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.DeleteVideoUseCase.execute",
+        )
+        response = await client.delete(
+            f"/videos/{video.slug}",
+            params={"temporary": True},
+        )
+
+        mocked.assert_awaited_with(video.id, type_=DeleteType.TEMPORARY)
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
@@ -252,3 +314,69 @@ class TestUpdateVideo:
 
         mocked.assert_awaited_once()
         assert response.status_code == status.HTTP_409_CONFLICT
+
+
+class TestRestoreVideo:
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video_including_deleted")
+    async def test_restore_video(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.RestoreVideoUseCase.execute",
+            return_value=video,
+        )
+        response = await client.post(f"/videos/{video.slug}/restore")
+
+        mocked.assert_awaited_once_with(video.id)
+        assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video_including_deleted")
+    async def test_restore_video_not_found(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.RestoreVideoUseCase.execute",
+            side_effect=VideoNotFoundError,
+        )
+        response = await client.post(f"/videos/{video.slug}/restore")
+
+        mocked.assert_awaited_once_with(video.id)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video_including_deleted")
+    async def test_restore_video_not_deleted(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.RestoreVideoUseCase.execute",
+            side_effect=VideoNotDeletedError,
+        )
+        response = await client.post(f"/videos/{video.slug}/restore")
+
+        mocked.assert_awaited_once_with(video.id)
+        assert response.status_code == status.HTTP_409_CONFLICT
+
+    @pytest.mark.usefixtures("mock_current_user", "mock_find_video_including_deleted")
+    async def test_restore_video_error(
+        self: Self,
+        client: AsyncClient,
+        video: Video,
+        mocker: MockerFixture,
+    ) -> None:
+        mocked = mocker.patch(
+            "edm_su_api.internal.usecase.video.RestoreVideoUseCase.execute",
+            side_effect=VideoRestoreError("Failed to restore video"),
+        )
+        response = await client.post(f"/videos/{video.slug}/restore")
+
+        mocked.assert_awaited_once_with(video.id)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
