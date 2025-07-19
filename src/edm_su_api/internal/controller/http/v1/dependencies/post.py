@@ -14,8 +14,13 @@ from edm_su_api.internal.usecase.post import (
     GetAllPostsUseCase,
     GetPostBySlugUseCase,
     GetPostCountUseCase,
+    GetPostHistoryUseCase,
+    UpdatePostUseCase,
 )
-from edm_su_api.internal.usecase.repository.post import PostgresPostRepository
+from edm_su_api.internal.usecase.repository.post import (
+    PostgresPostHistoryRepository,
+    PostgresPostRepository,
+)
 from edm_su_api.pkg.postgres import get_session
 
 
@@ -70,6 +75,39 @@ def create_delete_post_usecase(
     spicedb_repository: SpiceDBPermissionsRepo,
 ) -> DeletePostUseCase:
     return DeletePostUseCase(repository, spicedb_repository)
+
+
+async def create_pg_history_repository(
+    *,
+    session: Annotated[
+        AsyncSession,
+        Depends(get_session),
+    ],
+) -> PostgresPostHistoryRepository:
+    return PostgresPostHistoryRepository(session)
+
+
+PgHistoryRepository = Annotated[
+    PostgresPostHistoryRepository,
+    Depends(create_pg_history_repository),
+]
+
+
+def create_update_post_usecase(
+    *,
+    repository: PgRepository,
+    history_repository: PgHistoryRepository,
+    spicedb_repository: SpiceDBPermissionsRepo,
+) -> UpdatePostUseCase:
+    return UpdatePostUseCase(repository, history_repository, spicedb_repository)
+
+
+def create_get_post_history_usecase(
+    *,
+    repository: PgRepository,
+    history_repository: PgHistoryRepository,
+) -> GetPostHistoryUseCase:
+    return GetPostHistoryUseCase(repository, history_repository)
 
 
 async def find_post(

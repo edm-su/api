@@ -16,11 +16,17 @@ format: ruff-format
 ruff-format:
 	uv run ruff format .
 
-unit-tests:
+_unit-tests:
 	uv run pytest tests/units/
 
-integration-tests:
+unit-tests:
+	just --dotenv-path .test.env _unit-tests
+
+_integration-tests:
 	uv run pytest tests/integration/
+
+integration-tests:
+	just --dotenv-path .test.env _integration-tests
 
 test: unit-tests integration-tests
 

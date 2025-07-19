@@ -14,8 +14,17 @@ from edm_su_api.internal.controller.http.v1.dependencies.post import (
     create_delete_post_usecase,
     create_get_all_posts_usecase,
     create_get_count_posts_usecase,
+    create_get_post_history_usecase,
+    create_update_post_usecase,
 )
-from edm_su_api.internal.entity.post import NewPost, NewPostDTO, Post
+from edm_su_api.internal.controller.http.v1.requests.post import UpdatePostRequest
+from edm_su_api.internal.entity.post import (
+    NewPost,
+    NewPostDTO,
+    Post,
+    PostEditHistory,
+    UpdatePostDTO,
+)
 from edm_su_api.internal.usecase.exceptions.post import (
     PostError,
     PostNotFoundError,
@@ -26,6 +35,8 @@ from edm_su_api.internal.usecase.post import (
     DeletePostUseCase,
     GetAllPostsUseCase,
     GetPostCountUseCase,
+    GetPostHistoryUseCase,
+    UpdatePostUseCase,
 )
 
 router = APIRouter(tags=["Posts"])
@@ -116,5 +127,58 @@ async def delete_post(
     except PostError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e),
+        ) from None
+
+
+@router.put(
+    "/{slug}",
+    summary="Update post",
+)
+async def update_post(
+    slug: str,
+    request: UpdatePostRequest,
+    user: CurrentUser,
+    usecase: Annotated[
+        UpdatePostUseCase,
+        Depends(create_update_post_usecase),
+    ],
+) -> Post:
+    update_data = UpdatePostDTO(
+        title=request.title,
+        annotation=request.annotation,
+        text=request.text,
+        thumbnail=request.thumbnail,
+        published_at=request.published_at,
+        user=user,
+        save_history=request.save_history,
+        history_description=request.history_description,
+    )
+
+    try:
+        return await usecase.execute(slug, update_data)
+    except PostNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from None
+
+
+@router.get(
+    "/{slug}/history",
+    summary="Get post edit history",
+)
+async def get_post_history(
+    slug: str,
+    usecase: Annotated[
+        GetPostHistoryUseCase,
+        Depends(create_get_post_history_usecase),
+    ],
+) -> list[PostEditHistory]:
+    try:
+        return await usecase.execute(slug)
+    except PostNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from None

@@ -1,6 +1,13 @@
+from uuid import UUID
+
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.post import NewPostDTO, Post
+from edm_su_api.internal.entity.post import (
+    NewPostDTO,
+    Post,
+    PostEditHistory,
+    UpdatePostDTO,
+)
 from edm_su_api.internal.usecase.exceptions.post import (
     PostNotFoundError,
     PostSlugNotUniqueError,
@@ -9,7 +16,10 @@ from edm_su_api.internal.usecase.repository.permission import (
     AbstractPermissionRepository,
     Object,
 )
-from edm_su_api.internal.usecase.repository.post import AbstractPostRepository
+from edm_su_api.internal.usecase.repository.post import (
+    AbstractPostHistoryRepository,
+    AbstractPostRepository,
+)
 
 
 class BasePostUseCase:
@@ -95,3 +105,52 @@ class DeletePostUseCase(BasePostUseCase):
             resource = Object("post", post.slug)
 
             await self.permissions_repo.delete(resource, "reader")
+
+
+class UpdatePostUseCase(BasePostUseCase):
+    def __init__(
+        self: Self,
+        repository: AbstractPostRepository,
+        history_repo: AbstractPostHistoryRepository,
+        permissions_repo: AbstractPermissionRepository | None = None,
+    ) -> None:
+        super().__init__(repository, permissions_repo)
+        self.history_repo = history_repo
+
+    async def execute(
+        self: Self,
+        slug: str,
+        update_data: UpdatePostDTO,
+    ) -> Post:
+        post = await self.repository.get_by_slug(slug)
+
+        updated_post = await self.repository.update(
+            post.id,
+            update_data,
+        )
+
+        if update_data.save_history and update_data.history_description:
+            await self.history_repo.create(
+                post_id=post.id,
+                description=update_data.history_description,
+                edited_by=UUID(update_data.user.id),
+            )
+
+        return updated_post
+
+
+class GetPostHistoryUseCase(BasePostUseCase):
+    def __init__(
+        self: Self,
+        repository: AbstractPostRepository,
+        history_repo: AbstractPostHistoryRepository,
+    ) -> None:
+        super().__init__(repository)
+        self.history_repo = history_repo
+
+    async def execute(
+        self: Self,
+        slug: str,
+    ) -> list[PostEditHistory]:
+        post = await self.repository.get_by_slug(slug)
+        return await self.history_repo.get_by_post_id(post.id)
