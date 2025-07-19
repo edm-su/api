@@ -1,14 +1,23 @@
 from datetime import datetime, timezone
+from uuid import UUID
 
 import pytest
 from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.post import NewPostDTO, Post
+from edm_su_api.internal.entity.post import (
+    NewPostDTO,
+    Post,
+    PostEditHistory,
+    UpdatePostDTO,
+)
 from edm_su_api.internal.entity.user import User
 from edm_su_api.internal.usecase.exceptions.post import PostNotFoundError
-from edm_su_api.internal.usecase.repository.post import PostgresPostRepository
+from edm_su_api.internal.usecase.repository.post import (
+    PostgresPostHistoryRepository,
+    PostgresPostRepository,
+)
 
 pytestmark = pytest.mark.anyio
 
@@ -118,3 +127,145 @@ class TestPostgresRepositoryBoundary:
         pg_post.id = 999_999
         with pytest.raises(PostNotFoundError):
             await repository.delete(pg_post)
+
+    async def test_update_without_history(
+        self: Self,
+        repository: PostgresPostRepository,
+        pg_post: Post,
+        user: User,
+    ) -> None:
+        update_data = UpdatePostDTO(
+            title="Updated Title",
+            annotation="Updated annotation",
+            text={"updated": "content"},
+            user=user,
+            save_history=False,
+        )
+
+        updated_post = await repository.update(pg_post.id, update_data)
+
+        assert isinstance(updated_post, Post)
+        assert updated_post.id == pg_post.id
+        assert updated_post.title == "Updated Title"
+        assert updated_post.annotation == "Updated annotation"
+        assert updated_post.text == {"updated": "content"}
+        assert updated_post.updated_at is not None
+        assert str(updated_post.updated_by) == user.id
+
+    async def test_update_with_history(
+        self: Self,
+        repository: PostgresPostRepository,
+        pg_post: Post,
+        user: User,
+    ) -> None:
+        update_data = UpdatePostDTO(
+            title="Updated with History",
+            user=user,
+            save_history=True,
+            history_description="Post title updated",
+        )
+
+        updated_post = await repository.update(pg_post.id, update_data)
+
+        assert isinstance(updated_post, Post)
+        assert updated_post.title == "Updated with History"
+        assert updated_post.updated_at is not None
+        assert str(updated_post.updated_by) == user.id
+
+    async def test_update_non_existing_post(
+        self: Self,
+        repository: PostgresPostRepository,
+        user: User,
+    ) -> None:
+        update_data = UpdatePostDTO(
+            title="Should fail",
+            user=user,
+        )
+
+        with pytest.raises(PostNotFoundError):
+            await repository.update(999999, update_data)
+
+
+@pytest.fixture
+def history_repository(
+    pg_session: AsyncSession,
+) -> PostgresPostHistoryRepository:
+    return PostgresPostHistoryRepository(pg_session)
+
+
+class TestPostgresPostHistoryRepository:
+    async def test_create_history_entry(
+        self: Self,
+        history_repository: PostgresPostHistoryRepository,
+        pg_post: Post,
+        user: User,
+    ) -> None:
+        history_entry = await history_repository.create(
+            post_id=pg_post.id,
+            description="Исправлены опечатки",
+            edited_by=UUID(user.id),
+        )
+
+        assert isinstance(history_entry, PostEditHistory)
+        assert history_entry.post_id == pg_post.id
+        assert history_entry.description == "Исправлены опечатки"
+        assert str(history_entry.edited_by) == user.id
+        assert history_entry.edited_at is not None
+        assert history_entry.id > 0
+
+    async def test_get_post_history(
+        self: Self,
+        history_repository: PostgresPostHistoryRepository,
+        pg_post: Post,
+        user: User,
+    ) -> None:
+        await history_repository.create(
+            post_id=pg_post.id,
+            description="Первое изменение",
+            edited_by=UUID(user.id),
+        )
+        await history_repository.create(
+            post_id=pg_post.id,
+            description="Второе изменение",
+            edited_by=UUID(user.id),
+        )
+
+        history = await history_repository.get_by_post_id(pg_post.id)
+
+        assert isinstance(history, list)
+        assert len(history) == 2
+        descriptions = [h.description for h in history]
+        assert "Первое изменение" in descriptions
+        assert "Второе изменение" in descriptions
+        assert all(isinstance(entry, PostEditHistory) for entry in history)
+
+    async def test_get_empty_history(
+        self: Self,
+        history_repository: PostgresPostHistoryRepository,
+        pg_post: Post,
+    ) -> None:
+        history = await history_repository.get_by_post_id(pg_post.id)
+
+        assert isinstance(history, list)
+        assert len(history) == 0
+
+    async def test_cascade_delete_history(
+        self: Self,
+        repository: PostgresPostRepository,
+        history_repository: PostgresPostHistoryRepository,
+        pg_post: Post,
+        user: User,
+    ) -> None:
+        await history_repository.create(
+            post_id=pg_post.id,
+            description="Тестовое изменение",
+            edited_by=UUID(user.id),
+        )
+
+        history = await history_repository.get_by_post_id(pg_post.id)
+        assert len(history) == 1
+
+        await repository.delete(pg_post)
+
+        history_after_delete = await history_repository.get_by_post_id(pg_post.id)
+        assert len(history_after_delete) == 0

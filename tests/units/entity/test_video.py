@@ -62,7 +62,7 @@ class TestUpdateVideoDto:
         assert update_video.slug.endswith(original_slug)
         # Check that prefix is 8 characters hex
         prefix = update_video.slug.split("-")[0]
-        assert len(prefix) == 8  # noqa: PLR2004
+        assert len(prefix) == 8
         int(prefix, 16)  # Will raise ValueError if not hex
 
     def test_generate_slug_when_not_provided(self: Self, faker: Faker) -> None:

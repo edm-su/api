@@ -80,6 +80,26 @@ class Post(Base):
     )
     thumbnail: Mapped[str | None] = mapped_column()
     user_id: Mapped[UUID] = mapped_column()
+    updated_at: Mapped[datetime.datetime | None] = mapped_column()
+    updated_by: Mapped[UUID | None] = mapped_column()
+
+    edit_history: Mapped[list["PostEditHistory"]] = relationship(
+        back_populates="post",
+        cascade="all, delete-orphan",
+        order_by="PostEditHistory.edited_at.desc()",
+    )
+
+
+class PostEditHistory(Base):
+    __tablename__ = "post_edit_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id", ondelete="CASCADE"))
+    edited_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
+    description: Mapped[str] = mapped_column()
+    edited_by: Mapped[UUID] = mapped_column()
+
+    post: Mapped["Post"] = relationship(back_populates="edit_history")
 
 
 class Video(Base):
