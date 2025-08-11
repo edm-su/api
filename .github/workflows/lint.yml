@@ -28,7 +28,7 @@ jobs:
             command: ruff format --check --target-version py310
             name: Ruff format
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
       - name: Set up python

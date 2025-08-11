@@ -59,7 +59,7 @@ jobs:
         ports:
           - 7700:7700
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Create minio bucket
         env:
           AWS_ACCESS_KEY_ID: minioadmin
