@@ -18,3 +18,25 @@ class VideoNotFoundError(VideoError):
         self: Self,
     ) -> None:
         super().__init__("Video not found")
+
+
+class VideoAlreadyDeletedError(VideoError):
+    def __init__(
+        self: Self,
+    ) -> None:
+        super().__init__("Video is already deleted")
+
+
+class VideoNotDeletedError(VideoError):
+    def __init__(
+        self: Self,
+    ) -> None:
+        super().__init__("Video is not deleted")
+
+
+class VideoRestoreError(VideoError):
+    def __init__(
+        self: Self,
+        message: str = "Failed to restore video",
+    ) -> None:
+        super().__init__(message)

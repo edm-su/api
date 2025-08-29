@@ -15,6 +15,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.types import ARRAY, JSON, TIMESTAMP, String
 
 from edm_su_api.internal.entity.settings import settings
+from edm_su_api.internal.entity.video import DeleteType
 
 async_engine = create_async_engine(
     str(settings.database_url),
@@ -114,6 +115,7 @@ class Video(Base):
     duration: Mapped[int] = mapped_column(server_default="0")
     is_blocked_in_russia: Mapped[bool] = mapped_column(server_default="f")
     deleted: Mapped[bool | None] = mapped_column(server_default="f")
+    delete_type: Mapped[DeleteType | None] = mapped_column()
 
     liked_by: Mapped[list["LikedVideos"]] = relationship()
     comments: Mapped[list["Comment"]] = relationship(

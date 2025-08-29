@@ -1,7 +1,13 @@
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto, Video
+from edm_su_api.internal.entity.video import (
+    DeleteType,
+    NewVideoDto,
+    UpdateVideoDto,
+    Video,
+)
 from edm_su_api.internal.usecase.exceptions.video import (
+    VideoAlreadyDeletedError,
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
@@ -42,12 +48,17 @@ class GetAllVideosUseCase(BaseVideoUseCase):
         offset: int = 0,
         limit: int = 20,
         user_id: str | None = None,
+        *,
+        include_deleted: bool = False,
     ) -> list[Video]:
         if user_id:
-            await self.repository.get_all_with_favorite_mark(user_id, offset, limit)
+            return await self.repository.get_all_with_favorite_mark(
+                user_id, offset, limit, include_deleted=include_deleted
+            )
         return await self.repository.get_all(
             offset=offset,
             limit=limit,
+            include_deleted=include_deleted,
         )
 
 
@@ -104,18 +115,70 @@ class CreateVideoUseCase(AbstractFullTextVideoUseCase):
 
 
 class DeleteVideoUseCase(AbstractFullTextVideoUseCase):
-    async def execute(self: Self, id_: int) -> None:
-        video = await self.repository.get_by_id(id_)
-        await self.repository.delete(id_)
-        await self.full_text_repo.delete(id_)
-        await self._set_permissions(video)
+    async def execute(
+        self: Self,
+        id_: int,
+        type_: DeleteType = DeleteType.TEMPORARY,
+    ) -> None:
+        video = await self.repository.get_by_id(id_, include_deleted=True)
 
-    async def _set_permissions(self: Self, video: Video) -> None:
+        # Handle permanent deletion of already soft-deleted videos
+        if video.deleted and type_ == DeleteType.PERMANENT:
+            await self.repository.delete(id_, type_=DeleteType.PERMANENT)
+            await self.full_text_repo.delete(id_)
+            await self._remove_permissions(video)
+        elif video.deleted and type_ == DeleteType.TEMPORARY:
+            # Video is already soft-deleted, cannot soft-delete again
+            raise VideoAlreadyDeletedError
+        else:
+            await self.repository.delete(id_, type_=type_)
+            await self.full_text_repo.delete(id_)
+            await self._update_permissions_for_soft_delete(video)
+
+    async def _update_permissions_for_soft_delete(self: Self, video: Video) -> None:
+        """Update permissions for soft-deleted videos.
+
+        Remove reader access but keep writer access.
+        """
         if self.permissions_repo is None:
             return
 
         resource = Object("video", video.slug)
         await self.permissions_repo.delete(resource, "reader")
+
+    async def _remove_permissions(self: Self, video: Video) -> None:
+        """Remove all permissions for permanently deleted videos."""
+        if self.permissions_repo is None:
+            return
+
+        resource = Object("video", video.slug)
+        # Remove all permissions for permanent deletion
+        await self.permissions_repo.delete(resource, "reader")
+        await self.permissions_repo.delete(resource, "writer")
+
+
+class RestoreVideoUseCase(AbstractFullTextVideoUseCase):
+    async def execute(self: Self, id_: int) -> Video:
+        video = await self.repository.restore(id_)
+
+        await self.full_text_repo.restore(video)
+
+        await self._restore_permissions(video)
+
+        return video
+
+    async def _restore_permissions(self: Self, video: Video) -> None:
+        """Restore permissions for a restored video."""
+        if self.permissions_repo is None:
+            return
+
+        resource = Object("video", video.slug)
+        # Restore reader access for all users
+        await self.permissions_repo.write(
+            resource,
+            "reader",
+            Object("user", "*"),
+        )
 
 
 class UpdateVideoUseCase(AbstractFullTextVideoUseCase):
