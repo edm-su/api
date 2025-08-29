@@ -1,4 +1,5 @@
 set dotenv-load := true
+set dotenv-override := true
 
 serve:
 	uv run python3 -m edm_su_api

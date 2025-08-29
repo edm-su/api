@@ -6,11 +6,14 @@ from pytest_mock import MockFixture
 from pytest_mock.plugin import MockType
 from typing_extensions import Self
 
-from edm_su_api.internal.entity.video import NewVideoDto, UpdateVideoDto
+from edm_su_api.internal.entity.video import DeleteType, NewVideoDto, UpdateVideoDto
 from edm_su_api.internal.usecase.exceptions.video import (
+    VideoAlreadyDeletedError,
+    VideoNotDeletedError,
     VideoNotFoundError,
     VideoYtIdNotUniqueError,
 )
+from edm_su_api.internal.usecase.repository.permission import Object
 from edm_su_api.internal.usecase.repository.video import (
     AbstractFullTextVideoRepository,
     AbstractVideoRepository,
@@ -21,6 +24,7 @@ from edm_su_api.internal.usecase.video import (
     GetAllVideosUseCase,
     GetCountVideosUseCase,
     GetVideoBySlugUseCase,
+    RestoreVideoUseCase,
     UpdateVideoUseCase,
     Video,
 )
@@ -36,6 +40,11 @@ def repository(mocker: MockFixture) -> AsyncMock:
 @pytest.fixture
 def full_text_repository(mocker: MockFixture) -> AsyncMock:
     return mocker.AsyncMock(spec=AbstractFullTextVideoRepository)
+
+
+@pytest.fixture
+def permissions_repo(mocker: MockFixture) -> AsyncMock:
+    return mocker.AsyncMock()
 
 
 @pytest.fixture
@@ -79,7 +88,9 @@ class TestGetAllVideosUseCase:
         assert videos is not None
         assert len(videos) == 1
 
-        repository.get_all.assert_awaited_once_with(offset=0, limit=20)
+        repository.get_all.assert_awaited_once_with(
+            offset=0, limit=20, include_deleted=False
+        )
 
     async def test_get_all_videos_with_user_id(
         self: Self,
@@ -98,6 +109,41 @@ class TestGetAllVideosUseCase:
             "test_user_id",
             0,
             20,
+            include_deleted=False,
+        )
+
+    async def test_get_all_videos_with_include_deleted(
+        self: Self,
+        usecase: GetAllVideosUseCase,
+        repository: AsyncMock,
+    ) -> None:
+        """Test getting all videos with include_deleted parameter."""
+        videos = await usecase.execute(include_deleted=True)
+        assert videos is not None
+        assert len(videos) == 1
+
+        repository.get_all.assert_awaited_once_with(
+            offset=0, limit=20, include_deleted=True
+        )
+
+    async def test_get_all_videos_with_user_id_and_include_deleted(
+        self: Self,
+        usecase: GetAllVideosUseCase,
+        repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        """Test getting all videos with user_id and include_deleted parameters."""
+        repository.get_all_with_favorite_mark.return_value = [video]
+
+        videos = await usecase.execute(user_id="test_user_id", include_deleted=True)
+        assert videos is not None
+        assert len(videos) == 1
+
+        repository.get_all_with_favorite_mark.assert_awaited_once_with(
+            "test_user_id",
+            0,
+            20,
+            include_deleted=True,
         )
 
 
@@ -368,20 +414,97 @@ class TestDeleteVideoUseCase:
             permissions_repo,
         )
 
-    async def test_delete_video(
+    async def test_soft_delete_video(
+        self: Self,
+        usecase: DeleteVideoUseCase,
+        repository: AsyncMock,
+        video: Video,
+        full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
+    ) -> None:
+        repository.get_by_id.return_value = video
+
+        await usecase.execute(video.id, DeleteType.TEMPORARY)
+
+        repository.get_by_id.assert_awaited_once_with(video.id, include_deleted=True)
+        repository.delete.assert_awaited_once_with(
+            video.id,
+            type_=DeleteType.TEMPORARY,
+        )
+        full_text_repository.delete.assert_awaited_once_with(video.id)
+        permissions_repo.delete.assert_awaited_once_with(
+            Object("video", video.slug), "reader"
+        )
+
+    async def test_permanent_delete_active_video(
+        self: Self,
+        usecase: DeleteVideoUseCase,
+        repository: AsyncMock,
+        video: Video,
+        full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
+    ) -> None:
+        repository.get_by_id.return_value = video
+
+        await usecase.execute(video.id, DeleteType.PERMANENT)
+
+        repository.get_by_id.assert_awaited_once_with(video.id, include_deleted=True)
+        repository.delete.assert_awaited_once_with(
+            video.id,
+            type_=DeleteType.PERMANENT,
+        )
+        full_text_repository.delete.assert_awaited_once_with(video.id)
+        # Should remove reader permissions for permanent deletion of active video
+        permissions_repo.delete.assert_awaited_once_with(
+            Object("video", video.slug), "reader"
+        )
+
+    async def test_permanent_delete_soft_deleted_video(
+        self: Self,
+        usecase: DeleteVideoUseCase,
+        repository: AsyncMock,
+        video: Video,
+        full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
+    ) -> None:
+        # Create a soft-deleted video
+        video_data = video.model_dump()
+        video_data.update({"deleted": True, "delete_type": DeleteType.TEMPORARY})
+        soft_deleted_video = Video(**video_data)
+        repository.get_by_id.return_value = soft_deleted_video
+
+        await usecase.execute(video.id, DeleteType.PERMANENT)
+
+        repository.get_by_id.assert_awaited_once_with(video.id, include_deleted=True)
+        repository.delete.assert_awaited_once_with(
+            video.id,
+            type_=DeleteType.PERMANENT,
+        )
+        full_text_repository.delete.assert_awaited_once_with(video.id)
+        # Should remove both reader and writer permissions for permanent deletion
+        assert permissions_repo.delete.await_count == 2
+        permissions_repo.delete.assert_any_await(Object("video", video.slug), "reader")
+        permissions_repo.delete.assert_any_await(Object("video", video.slug), "writer")
+
+    async def test_soft_delete_already_soft_deleted_video_raises_exception(
         self: Self,
         usecase: DeleteVideoUseCase,
         repository: AsyncMock,
         video: Video,
         full_text_repository: AsyncMock,
     ) -> None:
-        repository.get_by_id.return_value = video
+        # Create a soft-deleted video
+        video_data = video.model_dump()
+        video_data.update({"deleted": True, "delete_type": DeleteType.TEMPORARY})
+        soft_deleted_video = Video(**video_data)
+        repository.get_by_id.return_value = soft_deleted_video
 
-        await usecase.execute(video.id)
+        with pytest.raises(VideoAlreadyDeletedError):
+            await usecase.execute(video.id, DeleteType.TEMPORARY)
 
-        repository.delete.assert_awaited_once_with(video.id)
-        full_text_repository.delete.assert_awaited_once_with(video.id)
-        repository.get_by_id.assert_awaited_once_with(video.id)
+        repository.get_by_id.assert_awaited_once_with(video.id, include_deleted=True)
+        repository.delete.assert_not_called()
+        full_text_repository.delete.assert_not_called()
 
     async def test_delete_video_with_invalid_id(
         self: Self,
@@ -394,6 +517,112 @@ class TestDeleteVideoUseCase:
         with pytest.raises(VideoNotFoundError):
             await usecase.execute(100_000_000)
 
-        repository.get_by_id.assert_awaited_once_with(100_000_000)
+        repository.get_by_id.assert_awaited_once_with(100_000_000, include_deleted=True)
         repository.delete.assert_not_called()
         full_text_repository.delete.assert_not_called()
+
+    async def test_delete_video_without_permissions_repo(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        usecase = DeleteVideoUseCase(repository, full_text_repository, None)
+        repository.get_by_id.return_value = video
+
+        await usecase.execute(video.id, DeleteType.TEMPORARY)
+
+        repository.get_by_id.assert_awaited_once_with(video.id, include_deleted=True)
+        repository.delete.assert_awaited_once_with(
+            video.id,
+            type_=DeleteType.TEMPORARY,
+        )
+        full_text_repository.delete.assert_awaited_once_with(video.id)
+
+
+class TestRestoreVideoUseCase:
+    @pytest.fixture(autouse=True)
+    def mock(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+    ) -> None:
+        full_text_repository.create.return_value = None
+
+    @pytest.fixture
+    def usecase(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
+    ) -> RestoreVideoUseCase:
+        return RestoreVideoUseCase(
+            repository,
+            full_text_repository,
+            permissions_repo,
+        )
+
+    async def test_restore_video(
+        self: Self,
+        usecase: RestoreVideoUseCase,
+        repository: AsyncMock,
+        video: Video,
+        full_text_repository: AsyncMock,
+        permissions_repo: AsyncMock,
+    ) -> None:
+        repository.restore.return_value = video
+
+        result = await usecase.execute(video.id)
+
+        assert result == video
+        repository.restore.assert_awaited_once_with(video.id)
+        full_text_repository.restore.assert_awaited_once_with(video)
+        permissions_repo.write.assert_awaited_once_with(
+            Object("video", video.slug),
+            "reader",
+            Object("user", "*"),
+        )
+
+    async def test_restore_video_not_found(
+        self: Self,
+        usecase: RestoreVideoUseCase,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+    ) -> None:
+        repository.restore.side_effect = VideoNotFoundError
+
+        with pytest.raises(VideoNotFoundError):
+            await usecase.execute(100_000_000)
+
+        repository.restore.assert_awaited_once_with(100_000_000)
+        full_text_repository.create.assert_not_called()
+
+    async def test_restore_video_not_deleted(
+        self: Self,
+        usecase: RestoreVideoUseCase,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        repository.restore.side_effect = VideoNotDeletedError
+
+        with pytest.raises(VideoNotDeletedError):
+            await usecase.execute(video.id)
+
+        repository.restore.assert_awaited_once_with(video.id)
+        full_text_repository.create.assert_not_called()
+
+    async def test_restore_video_without_permissions_repo(
+        self: Self,
+        repository: AsyncMock,
+        full_text_repository: AsyncMock,
+        video: Video,
+    ) -> None:
+        usecase = RestoreVideoUseCase(repository, full_text_repository, None)
+        repository.restore.return_value = video
+
+        result = await usecase.execute(video.id)
+
+        assert result == video
+        repository.restore.assert_awaited_once_with(video.id)
+        full_text_repository.restore.assert_awaited_once_with(video)
