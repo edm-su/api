@@ -1,7 +1,5 @@
 import pytest
 from faker import Faker
-from meilisearch_python_async import Client
-from meilisearch_python_async.errors import MeilisearchApiError
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Self
 
@@ -12,7 +10,6 @@ from edm_su_api.internal.usecase.repository.user_videos import (
     PostgresUserVideosRepository,
 )
 from edm_su_api.internal.usecase.repository.video import (
-    MeilisearchVideoRepository,
     PostgresVideoRepository,
 )
 
@@ -176,56 +173,3 @@ class TestPostgresVideoRepository:
         result = await pg_video_repository.count()
 
         assert result > 0
-
-
-class TestMeilisearchVideoRepository:
-    @pytest.fixture(scope="session")
-    def repository(
-        self: Self,
-        ms_client: Client,
-    ) -> MeilisearchVideoRepository:
-        return MeilisearchVideoRepository(ms_client)
-
-    @pytest.fixture
-    async def ms_video(
-        self: Self,
-        repository: MeilisearchVideoRepository,
-        pg_video: Video,
-    ) -> Video:
-        return await repository.create(pg_video)
-
-    async def test_create(
-        self: Self,
-        pg_video: Video,
-        repository: MeilisearchVideoRepository,
-    ) -> None:
-        result = await repository.create(pg_video)
-        document = await repository.index.get_document(str(result.id))
-
-        assert isinstance(result, Video)
-        assert document
-        assert document.get("is_blocked_in_russia") is None
-
-    async def test_delete(
-        self: Self,
-        ms_video: Video,
-        repository: MeilisearchVideoRepository,
-    ) -> None:
-        await repository.delete(ms_video.id)
-
-        with pytest.raises(MeilisearchApiError):
-            _ = await repository.index.get_document(str(ms_video.id))
-
-    async def test_update(
-        self,
-        ms_video: Video,
-        repository: MeilisearchVideoRepository,
-    ) -> None:
-        updated_data = UpdateVideoDto(**ms_video.model_dump())
-        updated_data.title = "New title"
-        await repository.update(ms_video.id, updated_data)
-
-        document = await repository.index.get_document(str(ms_video.id))
-
-        assert document
-        assert updated_data.title == document.get("title")
