@@ -13,6 +13,43 @@
 - update poetry version in pre-commit hook (#614) - ([44bfee8](https://github.com/edm-su/api/commit/44bfee88a5f6cb408301a4fa6353516d2d75e0f6)) - Egor Gluhih
 
 - - -
+## [v3.9.0](https://github.com/edm-su/api/compare/f49e4517e1cc0ac9df644c4099fc2a3ad5a4e7e3..v3.9.0) - 2025-08-29
+#### Bug Fixes
+- **(deps)** update dependency aioboto3 to v15 (#683) - ([8bb86f8](https://github.com/edm-su/api/commit/8bb86f85b622c5b88cbfc2f5b1ae496a70c12d9d)) - renovate[bot]
+- **(deps)** update dependency fastapi to v0.116.1 - ([be43d59](https://github.com/edm-su/api/commit/be43d59861ddfe722f584fb79f4a11acb920c27c)) - renovate[bot]
+- **(deps)** update dependency fastapi to v0.116.0 - ([6d7ad25](https://github.com/edm-su/api/commit/6d7ad256a259b2ad5ca026c349c13129baf5edb8)) - renovate[bot]
+#### Features
+- add temporary deletion (#691) - ([322ed13](https://github.com/edm-su/api/commit/322ed135ed70956a50317ec82e5266bcd86da938)) - Egor Gluhih
+- add posts edit (#689) - ([6268826](https://github.com/edm-su/api/commit/6268826a998441a538af6cdede47d60fc035bcd5)) - Egor Gluhih
+#### Miscellaneous Chores
+- **(deps)** update dependency faker to >=37.6.0,<37.7.0 - ([8b8240e](https://github.com/edm-su/api/commit/8b8240e98dd3380a2757bfbecc1be807074f50bf)) - renovate[bot]
+- **(deps)** lock file maintenance - ([4c92318](https://github.com/edm-su/api/commit/4c9231854338d0230c9a2feeea2d68014cc4bfc8)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.10 - ([83fb22e](https://github.com/edm-su/api/commit/83fb22e56f30e2e7e3542534132cfab1dbe0c006)) - renovate[bot]
+- **(deps)** lock file maintenance - ([02b2cb6](https://github.com/edm-su/api/commit/02b2cb6d5daff95ed2acf4f2a26fe7d56608395c)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.9 - ([8c48f54](https://github.com/edm-su/api/commit/8c48f5460324ceee9fba99b782a1a4f52cdc9353)) - renovate[bot]
+- **(deps)** update actions/checkout action to v5 - ([29fdbeb](https://github.com/edm-su/api/commit/29fdbebf24fbee9d4725997557b65866d90489a9)) - renovate[bot]
+- **(deps)** lock file maintenance - ([235083a](https://github.com/edm-su/api/commit/235083a6a63a779a5fc9eb614d308df4f2786949)) - renovate[bot]
+- **(deps)** update dependency pre-commit to >=4.3.0,<4.4.0 - ([8e0bb03](https://github.com/edm-su/api/commit/8e0bb03f904bda8ef261113370cd038dfd12e36a)) - renovate[bot]
+- **(deps)** update python docker tag to v3.13.6 - ([f80ba67](https://github.com/edm-su/api/commit/f80ba67524463c9d1f324557183b7f62f7da3e76)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.8 - ([4a7c08d](https://github.com/edm-su/api/commit/4a7c08dcf251a1ef5362046ee21afde38f22910e)) - renovate[bot]
+- **(deps)** lock file maintenance - ([8f67cbc](https://github.com/edm-su/api/commit/8f67cbc8ecbbb4cd3c720d1b610e78ac265fa30d)) - renovate[bot]
+- **(deps)** update pre-commit hook pre-commit/mirrors-mypy to v1.17.1 - ([e55ea10](https://github.com/edm-su/api/commit/e55ea100d40293d35bba2dfcc956a22d363bd815)) - renovate[bot]
+- **(deps)** update dependency faker to >=37.5.3,<37.6.0 - ([9f19d05](https://github.com/edm-su/api/commit/9f19d05ffb8b8b321813471e06ae83bbca87614d)) - renovate[bot]
+- **(deps)** lock file maintenance (#690) - ([68c4c6a](https://github.com/edm-su/api/commit/68c4c6a958427f7c27b4ea7fad892611b82fe06a)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.7 - ([49b809e](https://github.com/edm-su/api/commit/49b809e41067c669808448f18df10b89bb27093f)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.5 - ([5e6239e](https://github.com/edm-su/api/commit/5e6239e5d428a7bda740ed1ec1e3321a2b326840)) - renovate[bot]
+- **(deps)** lock file maintenance - ([bee4ceb](https://github.com/edm-su/api/commit/bee4cebeb797852d06f20ec1dcc0991a08cb3791)) - renovate[bot]
+- **(deps)** update dependency uv_build to >=0.8.0,<0.9.0 - ([81ebdeb](https://github.com/edm-su/api/commit/81ebdeb1866e2f82af757502fa9faabcb7af11b4)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.4 - ([cd5095b](https://github.com/edm-su/api/commit/cd5095bc2a4c4fbe5464411abf2aa2f930da36db)) - renovate[bot]
+- **(deps)** update pre-commit hook pre-commit/mirrors-mypy to v1.17.0 - ([d0be010](https://github.com/edm-su/api/commit/d0be010dc2f86cc0e4261df9ddd9a9f0e5609251)) - renovate[bot]
+- **(deps)** lock file maintenance - ([62253da](https://github.com/edm-su/api/commit/62253da8819de1f2ac5bfafe5f5d9b3a3cf989d7)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.3 - ([d25cc0c](https://github.com/edm-su/api/commit/d25cc0c384356b28317e4cd1f96f132bd021f3db)) - renovate[bot]
+- **(deps)** lock file maintenance - ([781c9c8](https://github.com/edm-su/api/commit/781c9c8375e71c4247f66db75084fb9b6df72086)) - renovate[bot]
+- **(deps)** update pre-commit hook charliermarsh/ruff-pre-commit to v0.12.2 - ([f49e451](https://github.com/edm-su/api/commit/f49e4517e1cc0ac9df644c4099fc2a3ad5a4e7e3)) - renovate[bot]
+- update compose - ([d4f99f6](https://github.com/edm-su/api/commit/d4f99f62a4753807e2cb803d64d2dcc59a8881c1)) - [@EgorHenek](https://github.com/EgorHenek)
+
+- - -
+
 ## [v3.8.0](https://github.com/edm-su/api/compare/635d97072fe66e1ca3b6f2ec37e445cbf7d02bcd..v3.8.0) - 2025-07-05
 #### Bug Fixes
 - **(deps)** update dependency pillow to >=11.3.0,<11.4.0 - ([b51ebe7](https://github.com/edm-su/api/commit/b51ebe736a11c727446a8675b4d9e8d6eceb14d3)) - renovate[bot]
