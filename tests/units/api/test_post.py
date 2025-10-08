@@ -343,6 +343,15 @@ class TestUpdatePost:
         update_post_data: UpdatePost,
         mocker: MockerFixture,
     ) -> None:
+        mocker.patch(
+            "edm_su_api.internal.usecase.post.GetPostBySlugUseCase.execute",
+            side_effect=PostNotFoundError(),
+        )
+        mocker.patch(
+            "edm_su_api.internal.usecase.post.UpdatePostUseCase.execute",
+            side_effect=PostNotFoundError(),
+        )
+
         # For non-existent post find_post will throw 404
         response = await client.put(
             "/posts/non-existent-slug",
@@ -412,6 +421,11 @@ class TestGetPostHistory:
         client: AsyncClient,
         mocker: MockerFixture,
     ) -> None:
+        mocker.patch(
+            "edm_su_api.internal.usecase.post.GetPostHistoryUseCase.execute",
+            side_effect=PostNotFoundError(),
+        )
+
         response = await client.get("/posts/non-existent-slug/history")
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
