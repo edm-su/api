@@ -1,0 +1,27 @@
+definition user {}
+
+definition role {
+    relation member: user
+}
+
+definition video {
+    relation writer: user | role#member
+    relation reader: user | role#member | user:*
+
+    permission write = writer
+    permission read = reader + write
+}
+
+definition post {
+    relation writer: user | role#member
+    relation reader: user | role#member | user:*
+
+    permission write = writer
+    permission read = reader + write
+}
+
+definition upload {
+    relation uploader: user | role#member
+
+    permission upload = uploader
+}

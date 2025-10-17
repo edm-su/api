@@ -1,0 +1,25 @@
+name: Validate SpiceDB Schema
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'deployment/spicedb/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'deployment/spicedb/**'
+
+jobs:
+  validate-spicedb:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Validate SpiceDB Schema
+      uses: authzed/action-spicedb-validate@v1.0.1
+      with:
+        validationfile: 'deployment/spicedb/schema.yaml'
+        fail-on-warn: 'true'

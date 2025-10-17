@@ -1,0 +1,50 @@
+schema: |-
+  definition user {}
+
+  definition role {
+      relation member: user
+  }
+
+  definition video {
+      relation writer: user | role#member
+      relation reader: user | role#member | user:*
+
+      permission write = writer
+      permission read = reader + write
+  }
+
+  definition post {
+      relation writer: user | role#member
+      relation reader: user | role#member | user:*
+
+      permission write = writer
+      permission read = reader + write
+  }
+
+  definition upload {
+      relation uploader: user | role#member
+
+      permission upload = uploader
+  }
+relationships: |-
+  role:admin#member@user:1
+  video:/#writer@role:admin#member
+  video:/1#writer@user:2
+  video:/1#reader@user:*
+  video:/1#writer@role:admin#member
+  post:/#writer@role:admin#member
+  post:/1#reader@user:*
+assertions:
+  assertTrue:
+    - video:/1#read@user:anonymous
+    - video:/1#write@user:2
+    - video:/#write@user:1
+    - post:/#write@user:1
+    - post:/1#read@user:anonymous
+  assertFalse:
+    - video:/#write@user:2
+    - video:/#write@user:anonymous
+    - video:/1#write@user:anonymous
+    - video:/2#read@user:anonymous
+    - post:/#write@user:anonymous
+validation: {}
