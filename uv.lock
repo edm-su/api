@@ -220,11 +220,11 @@ wheels = [
 
 [[package]]
 name = "annotated-doc"
-version = "0.0.3"
+version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d7/a6/dc46877b911e40c00d395771ea710d5e77b6de7bacd5fdcd78d70cc5a48f/annotated_doc-0.0.3.tar.gz", hash = "sha256:e18370014c70187422c33e945053ff4c286f453a984eba84d0dbfa0c935adeda", size = 5535, upload-time = "2025-10-24T14:57:10.718Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/ba/046ceea27344560984e26a590f90bc7f4a75b06701f653222458922b558c/annotated_doc-0.0.4.tar.gz", hash = "sha256:fbcda96e87e9c92ad167c2e53839e57503ecfda18804ea28102353485033faa4", size = 7288, upload-time = "2025-11-10T22:07:42.062Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/b7/cf592cb5de5cb3bade3357f8d2cf42bf103bbe39f459824b4939fd212911/annotated_doc-0.0.3-py3-none-any.whl", hash = "sha256:348ec6664a76f1fd3be81f43dffbee4c7e8ce931ba71ec67cc7f4ade7fbbb580", size = 5488, upload-time = "2025-10-24T14:57:09.462Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl", hash = "sha256:571ac1dc6991c450b25a9c2d84a3705e2ae7a53467b5d111c24fa8baabbed320", size = 5303, upload-time = "2025-11-10T22:07:40.673Z" },
 ]
 
 [[package]]
@@ -358,14 +358,14 @@ wheels = [
 
 [[package]]
 name = "botocore-stubs"
-version = "1.40.69"
+version = "1.40.70"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-awscrt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/57/da68248f3b5fcd41f47dd4dfad6b6ba5fdcdedfa86e04d2b9822d5788dfd/botocore_stubs-1.40.69.tar.gz", hash = "sha256:31d1bb9a5140df9ba83d6d4d66b68998767279850de50e28caade315244b0a78", size = 42235, upload-time = "2025-11-07T21:18:47.479Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/3c/7fa41847aa0262b9a2b19fb91fe112875ed8272168741d11a1b70d6d5091/botocore_stubs-1.40.70.tar.gz", hash = "sha256:37f9508be8b1ccd30102e36b9734af7eefffabbb012a240efa11bd04e1cc9cde", size = 42240, upload-time = "2025-11-10T21:23:30.071Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/19/0f822401c3fda8de004be0d9ed9195ea63f76bde2b1d12c81e9138cd94b3/botocore_stubs-1.40.69-py3-none-any.whl", hash = "sha256:79837e22d89c65cb09484aede593aca5b5027ec6a535c34498aebca693c3b856", size = 66542, upload-time = "2025-11-07T21:18:44.688Z" },
+    { url = "https://files.pythonhosted.org/packages/94/71/83e600778f5c500e7e5bc5e8d23bd19c32d04ba8dbf4def4f83a5aa2d9d3/botocore_stubs-1.40.70-py3-none-any.whl", hash = "sha256:2003f0f974dac4535c6ce74945cac24fa5f0bd3393fdd817d1d7db6356c8b3a7", size = 66541, upload-time = "2025-11-10T21:23:27.921Z" },
 ]
 
 [[package]]
@@ -2447,11 +2447,11 @@ wheels = [
 
 [[package]]
 name = "types-awscrt"
-version = "0.28.2"
+version = "0.28.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/86/65/f92debc7c9ff9e6e51cf1495248f0edd2fa7123461acf5d07ec1688d8ac1/types_awscrt-0.28.2.tar.gz", hash = "sha256:4349b6fc7b1cd9c9eb782701fb213875db89ab1781219c0e947dd7c4d9dcd65e", size = 17438, upload-time = "2025-10-19T06:39:11.202Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f7/6f/d4f2adb086e8f5cd2ae83cf8dbb192057d8b5025120e5b372468292db67f/types_awscrt-0.28.4.tar.gz", hash = "sha256:15929da84802f27019ee8e4484fb1c102e1f6d4cf22eb48688c34a5a86d02eb6", size = 17692, upload-time = "2025-11-11T02:56:53.516Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/23/535c2b3492fb31286a6adad45af3367eba3c23edc2fa24824d9526626012/types_awscrt-0.28.2-py3-none-any.whl", hash = "sha256:d08916fa735cfc032e6a8cfdac92785f1c4e88623999b224ea4e6267d5de5fcb", size = 41929, upload-time = "2025-10-19T06:39:10.042Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/ae/9acc4adf1d5d7bb7d09b6f9ff5d4d04a72eb64700d104106dd517665cd57/types_awscrt-0.28.4-py3-none-any.whl", hash = "sha256:2d453f9e27583fcc333771b69a5255a5a4e2c52f86e70f65f3c5a6789d3443d0", size = 42307, upload-time = "2025-11-11T02:56:52.231Z" },
 ]
 
 [[package]]
