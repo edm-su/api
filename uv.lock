@@ -313,7 +313,7 @@ wheels = [
 
 [[package]]
 name = "authzed"
-version = "1.24.0"
+version = "1.24.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "googleapis-common-protos" },
@@ -322,9 +322,9 @@ dependencies = [
     { name = "protobuf" },
     { name = "protovalidate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/be/fd/8ddbc219df7579b8bb9c33e80546b85d9c92f1bf55edc5be4fa632ffebe2/authzed-1.24.0.tar.gz", hash = "sha256:c08da75450dab02177ab7486964223ba6d6fa4e141b97c423f60e8b792b03205", size = 147477, upload-time = "2025-11-10T15:08:40.242Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/58/84/dd268a09058176b33e74c4432043e96eb77a4ad590633a9eeb019504d43e/authzed-1.24.1.tar.gz", hash = "sha256:5e3d1d69baeda683f4bc4908d1b64f9082c3fa007a10aa6ceef29a7720b58c73", size = 147615, upload-time = "2026-01-16T15:12:07.047Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/67/8ee66529e37fa1fe9afb1ba1a82ffc546cece659a1fe2ef802b57cfcc7d4/authzed-1.24.0-py3-none-any.whl", hash = "sha256:f5adb96f3d401066ba90d7a81a6805fb115c7ba5700901559352f66a9fca18da", size = 189698, upload-time = "2025-11-10T15:08:37.919Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/7d/25faee8a1210fe6455983c7640a1febe952d193729673a5198f9128430a9/authzed-1.24.1-py3-none-any.whl", hash = "sha256:b0333d6ee6c31837fb1e7d6796f8185cc4f6a94871621631fac95a34790add69", size = 189879, upload-time = "2026-01-16T15:12:05.408Z" },
 ]
 
 [[package]]
