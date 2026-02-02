@@ -24,7 +24,7 @@ services:
       - "9001:9001"
 
   meilisearch:
-    image: getmeili/meilisearch:v1.10
+    image: getmeili/meilisearch:v1.35
     volumes:
       - meili:/meili_data
     ports:
