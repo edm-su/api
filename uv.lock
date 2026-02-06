@@ -2492,15 +2492,15 @@ s3 = [
 
 [[package]]
 name = "types-aiobotocore"
-version = "3.1.1"
+version = "3.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore-stubs" },
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/78/6974958d6e8923f40a8a3cf3bedd448c28df4456f9e3c258c174d43cc1a4/types_aiobotocore-3.1.1.tar.gz", hash = "sha256:7974585e194939da2c70a7b628f6edb22642769a84e4f6c1aa53228ff3b8ae71", size = 86450, upload-time = "2026-01-21T02:18:21.203Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/99/5e2980833461c997426b1b660b7ab491dd0c54d325544c96faef4768c504/types_aiobotocore-3.1.2.tar.gz", hash = "sha256:82c19bb6fa4d70cca6beffcc49ae5f28990c9178ed5fd3ef3c86d69f062ee7c2", size = 86455, upload-time = "2026-02-06T02:34:36.735Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/58/97c64543dce565272f67b13d55d2a80590e807974cc59620d7563372c194/types_aiobotocore-3.1.1-py3-none-any.whl", hash = "sha256:421577ec8c204dd33275ea14fa1656382fd29723a2cfac1247301b30252c5934", size = 54206, upload-time = "2026-01-21T02:18:15.36Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/cd/0ddd0874f2d2df81557557fbc7d565dd76cd1593805d6d875ee569893a6a/types_aiobotocore-3.1.2-py3-none-any.whl", hash = "sha256:8372cd606c648b9f91ae065d0610e43e9f8b432e21eafe4182d139ea76ba3df8", size = 54206, upload-time = "2026-02-06T02:34:33.721Z" },
 ]
 
 [[package]]
