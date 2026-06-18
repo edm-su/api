@@ -703,7 +703,7 @@ standard-no-fastapi-cloud-cli = [
 
 [[package]]
 name = "fastapi-cli"
-version = "0.0.24"
+version = "0.0.27"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "rich-toolkit" },
@@ -711,9 +711,9 @@ dependencies = [
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6e/58/74797ae9e4610cfa0c6b34c8309096d3b20bb29be3b8b5fbf1004d10fa5f/fastapi_cli-0.0.24.tar.gz", hash = "sha256:1afc9c9e21d7ebc8a3ca5e31790cd8d837742be7e4f8b9236e99cb3451f0de00", size = 19043, upload-time = "2026-02-24T10:45:10.476Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/d0/ee5678346811967b8d096d5d5604e71b50d6bf5a2abfbdb331157e2bbaa9/fastapi_cli-0.0.27.tar.gz", hash = "sha256:1dffb1e40c0c88f2e0171a8a252a2b615c1e63ff8c05626649e4badd6a84336a", size = 23630, upload-time = "2026-06-18T14:48:43.421Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/4b/68f9fe268e535d79c76910519530026a4f994ce07189ac0dded45c6af825/fastapi_cli-0.0.24-py3-none-any.whl", hash = "sha256:4a1f78ed798f106b4fee85ca93b85d8fe33c0a3570f775964d37edb80b8f0edc", size = 12304, upload-time = "2026-02-24T10:45:09.552Z" },
+    { url = "https://files.pythonhosted.org/packages/1a/ab/0a709f9488fe62647db80f8a277fb0ee62e85adc6746abf477ed373c9eb7/fastapi_cli-0.0.27-py3-none-any.whl", hash = "sha256:2e389a40f318e29fec8cb1e289f267f17c048876fb82dbfa869a10b16740495d", size = 13070, upload-time = "2026-06-18T14:48:44.311Z" },
 ]
 
 [package.optional-dependencies]
