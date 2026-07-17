@@ -688,7 +688,7 @@ standard-no-fastapi-cloud-cli = [
 
 [[package]]
 name = "fastapi-cli"
-version = "0.0.30"
+version = "0.0.32"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "rich-toolkit" },
@@ -696,9 +696,9 @@ dependencies = [
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/a9/d618b7743180fb5c1252ad5b682d512323c1b93c8a13f08521b351d511dd/fastapi_cli-0.0.30.tar.gz", hash = "sha256:f808773b1a7aa1531ef750b68905787f3dd13834e78c44d1501f017335a4c1a7", size = 24971, upload-time = "2026-07-15T17:21:50.815Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/eb/3b534c6f8e157f9ddbf2a153512307c886cad0b258739c200dd8ff8c4452/fastapi_cli-0.0.32.tar.gz", hash = "sha256:38024d2345275e1b37ce8848727a580d84901b570e96b3256d9d36a9a5039424", size = 26636, upload-time = "2026-07-16T12:16:58.678Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/a0/f95bb8e07c00efb98f26e1876d6504b416af09e0bbe0a52cce979eae8d7e/fastapi_cli-0.0.30-py3-none-any.whl", hash = "sha256:11375b2a2c8c5a5ee05087960b6f1404ba1b48da96fa1a5aa68e2a5caf76f756", size = 14185, upload-time = "2026-07-15T17:21:49.878Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/53/56ae5ae17bb0a5d89d1d31e5320eb1865553ebbfbde91cdc4c221245f2a8/fastapi_cli-0.0.32-py3-none-any.whl", hash = "sha256:8dcc286fa32f01bbd3f65dd09cfd5a2540ed5f2230b77db7fd30978d6165f3c4", size = 14670, upload-time = "2026-07-16T12:16:57.297Z" },
 ]
 
 [package.optional-dependencies]
@@ -708,11 +708,11 @@ standard-no-fastapi-cloud-cli = [
 
 [[package]]
 name = "filelock"
-version = "3.30.0"
+version = "3.30.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/83/2b/8b6480a70a647035334a604d0931926de4b5cd1f57835d45ad5eed2b1a1e/filelock-3.30.0.tar.gz", hash = "sha256:1774e682dbe443bd60f9609162fc596e2c80dc84ffc2957068953406d0520090", size = 174927, upload-time = "2026-07-16T03:53:58.152Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/f7/2165ef325da22d854b8f81ca4799395f2eb6afa55cdb52c7710f028b5336/filelock-3.30.2.tar.gz", hash = "sha256:1ea7c857465c897a4a6e64c1aace28ff6b83f5bc66c1c06ea148efa65bc2ec5d", size = 176823, upload-time = "2026-07-16T19:50:42.724Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/af/9b01bcf5c91e81899bb890b87bd9077732a9b3365c098e67fe77958c39ed/filelock-3.30.0-py3-none-any.whl", hash = "sha256:40632998f0772e64183bb819f086a1b9def6be1090cf1dcb9d45f46806ef279b", size = 93131, upload-time = "2026-07-16T03:53:56.727Z" },
+    { url = "https://files.pythonhosted.org/packages/02/df/05118016cad66cd0d7c9417b2d4fc245be35decc4c36810f3c8dbf729d88/filelock-3.30.2-py3-none-any.whl", hash = "sha256:a64b58f75048ec39589983e97f5117163f822261dcb6ba843e098f05aac9663f", size = 94092, upload-time = "2026-07-16T19:50:41.189Z" },
 ]
 
 [[package]]
